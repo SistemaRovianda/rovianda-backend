@@ -1,17 +1,8 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
-import { User } from '../Models/Entity/User';
-import { Category } from "../Models/Entity/Category";
-import { Condiment } from "../Models/Entity/Condiment";
-import { Extra } from "../Models/Entity/Extra";
-import { Order } from "../Models/Entity/Order";
-import { ProductSale } from "../Models/Entity/Product.Sale";
-import { Product } from "../Models/Entity/Product";
-import { QualifyBussiness } from "../Models/Entity/QualifyBussiness";
-import { Question } from "../Models/Entity/Question";
-import { QuestionUser } from "../Models/Entity/QuestionUser";
-import { Address } from "../Models/Entity/Address";
-import { Payment } from "../Models/Entity/Payment";
+import { Pin } from '../Models/Entity/Pin';
+import { Fidges } from '../Models/Entity/Fidges'
+import { Cooling } from '../Models/Entity/Cooling';
 
 
 const config: ConnectionOptions = {
@@ -25,18 +16,9 @@ const config: ConnectionOptions = {
     synchronize: true,
     logging: false,
     entities: [
-        User,
-        Category,
-        Condiment,
-        Extra,
-        Order,
-        ProductSale,
-        Product,
-        QualifyBussiness,
-        Question,
-        QuestionUser,
-        Address,
-        Payment
+        Pin,
+        Fidges,
+        Cooling
     ]
 
 }
