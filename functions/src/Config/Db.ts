@@ -3,10 +3,11 @@ import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { User } from '../Models/Entity/Users';
 import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
-import { Pin } from "../Models/Entity/Pin";
 import { PropsOrder } from '../Models/Entity/Props.Order';
 import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
-
+import { Pin } from '../Models/Entity/Pin';
+import { Fridges } from '../Models/Entity/Fridges'
+import { Cooling } from '../Models/Entity/Cooling';
 
 
 const config: ConnectionOptions = {
@@ -25,7 +26,9 @@ const config: ConnectionOptions = {
         User,
         PropsOrder,
         ExtrasOrders,
-        Pin
+        Pin,
+        Fridges,
+        Cooling
     ]
 
 }
