@@ -1,17 +1,12 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
-import { User } from '../Models/Entity/User';
-import { Category } from "../Models/Entity/Category";
-import { Condiment } from "../Models/Entity/Condiment";
-import { Extra } from "../Models/Entity/Extra";
-import { Order } from "../Models/Entity/Order";
-import { ProductSale } from "../Models/Entity/Product.Sale";
-import { Product } from "../Models/Entity/Product";
-import { QualifyBussiness } from "../Models/Entity/QualifyBussiness";
-import { Question } from "../Models/Entity/Question";
-import { QuestionUser } from "../Models/Entity/QuestionUser";
-import { Address } from "../Models/Entity/Address";
-import { Payment } from "../Models/Entity/Payment";
+import { User } from '../Models/Entity/Users';
+import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
+import { File } from '../Models/Entity/Files';
+import { Pin } from "../Models/Entity/Pin";
+import { PropsOrder } from '../Models/Entity/Props.Order';
+import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
+
 
 
 const config: ConnectionOptions = {
@@ -25,18 +20,12 @@ const config: ConnectionOptions = {
     synchronize: true,
     logging: false,
     entities: [
+        Entrances_Meat,
+        File,
         User,
-        Category,
-        Condiment,
-        Extra,
-        Order,
-        ProductSale,
-        Product,
-        QualifyBussiness,
-        Question,
-        QuestionUser,
-        Address,
-        Payment
+        PropsOrder,
+        ExtrasOrders,
+        Pin
     ]
 
 }
