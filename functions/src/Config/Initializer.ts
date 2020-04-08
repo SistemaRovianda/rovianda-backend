@@ -1,16 +1,16 @@
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { PinController } from '../Controllers/Pin.Controller';
-import { FidgesController } from '../Controllers/Fidges.Controller';
+import { FridgesController } from '../Controllers/Fridges.Controller';
 
 export class Initializer{
     private firebaseInstance: FirebaseHelper;
     private pinController:PinController;
-    private fidgesController:FidgesController;
+    private fridgesController:FridgesController;
     
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
         this.pinController = new PinController(this.firebaseInstance);
-        this.fidgesController = new FidgesController(this.firebaseInstance);
+        this.fridgesController = new FridgesController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -18,8 +18,8 @@ export class Initializer{
             case PinController.name:
                 return this.pinController;
                 break;
-            case FidgesController.name:
-                return this.fidgesController;
+            case FridgesController.name:
+                return this.fridgesController;
                 break;    
             default:
                 return null;

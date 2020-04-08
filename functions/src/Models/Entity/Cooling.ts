@@ -1,5 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, ManyToMany  } from "typeorm";
-import { Fidges } from './Fidges';
+import { Fridges } from './Fridges';
 
 
 @Entity({name:"cooling"})
@@ -32,8 +32,8 @@ export class Cooling{
     @Column()
     closing_date:string;
     
-    @ManyToOne(type=>Fidges, fidge=>fidge.coolings,{eager:true, onDelete:"SET NULL"})
-    fidge:Fidges;
+    @ManyToOne(type=>Fridges, fridge=>fridge.coolings,{eager:true, onDelete:"SET NULL"})
+    fridge:Fridges;
 
     //@ManyToOne(type=>Category,category=>category.products,{eager:true, onDelete:"SET NULL"})
     //category:Category;

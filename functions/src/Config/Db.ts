@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { Pin } from '../Models/Entity/Pin';
-import { Fidges } from '../Models/Entity/Fidges'
+import { Fridges } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
 
 
@@ -17,7 +17,7 @@ const config: ConnectionOptions = {
     logging: false,
     entities: [
         Pin,
-        Fidges,
+        Fridges,
         Cooling
     ]
 
