@@ -17,7 +17,7 @@ export class App{
            
             next();
            
-        
+            
       });
         this.app.options('*', (req, res) => {
             // allowed XHR methods  
