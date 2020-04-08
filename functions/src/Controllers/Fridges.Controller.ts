@@ -27,7 +27,7 @@ export class FridgesController{
         let response:any = [];
         fridges.forEach((i:any) => {
             response.push({
-                fridge_id: `${i.fidge_id}`,
+                fridge_id: `${i.fridge_id}`,
                 temp: `${i.temo}`
             });
         });

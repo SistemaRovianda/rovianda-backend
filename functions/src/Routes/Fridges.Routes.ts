@@ -6,7 +6,7 @@ export const fridgesRoutes:Array<routeInterface>=[
         url:"/rovianda/fridge",
         method:"post",
         controller:FridgesController,
-        target:"createFidges"
+        target:"createFridges"
     },
     {
         url:"/rovianda/fridges",
