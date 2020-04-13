@@ -5,13 +5,29 @@ import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
 import { PropsOrder } from '../Models/Entity/Props.Order';
 import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
+import { Product } from '../Models/Entity/Product';
+import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
+import { Conditioning } from "../Models/Entity/Conditioning";
+import { EntranceStore } from "../Models/Entity/Entrance.Store";
+import { EntrancesDrief } from '../Models/Entity/Entrances.Drief';
+import { EntrancesPacking } from "../Models/Entity/Entrances.Packing";
+import { Ingredients } from '../Models/Entity/Ingredients';
+import { ProductsRovianda } from '../Models/Entity/Products.Rovianda';
+import { Formulation } from "../Models/Entity/Formulation";
+import { OutletStore } from '../Models/Entity/Outlet.Store';
+import { Sausaged } from '../Models/Entity/Sausaged';
+import { Tenderized } from '../Models/Entity/Tenderized';
+import { Process } from '../Models/Entity/Process';
+import { Grinding } from '../Models/Entity/Grinding';
+import { Sale } from "../Models/Entity/Sale";
+import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 import { Pin } from '../Models/Entity/Pin';
 import { Fridges } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
-import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
-import { Product } from "../Models/Entity/Product";
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
+import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 
 
 const config: ConnectionOptions = {
@@ -31,12 +47,31 @@ const config: ConnectionOptions = {
         PropsOrder,
         ExtrasOrders,
         Pin,
+        Product,
+        WarehouseDrief,
+        WarehousePacking,
+        Conditioning,
+        EntranceStore,
+        EntrancesDrief,
+        EntrancesPacking,
+        Ingredients,
+        Product,
+        ProductsRovianda,
+        Formulation,
+        FormulationIngredients,
+        OutletStore,
+        Sausaged,
+        Tenderized,
+        Process,
+        Grinding,
+        Sale,
         Fridges,
         Cooling,
         OutputsCooling,
         WarehouseDrief,
         Product,
-        OutputsDrief
+        OutputsDrief,
+        OutputsPacking
     ]
 
 }

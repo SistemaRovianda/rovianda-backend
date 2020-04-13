@@ -1,13 +1,16 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, ManyToMany  } from "typeorm";
 import { WarehouseDrief } from './Warehouse.Drief';
 import { OutputsDrief } from './Outputs.Drief';
-
+import { EntrancesDrief } from './Entrances.Drief';
+import { EntrancesPacking } from './Entrances.Packing';
+import { Ingredients } from './Ingredients';
 
 @Entity({name:"product"})
 export class Product{
 
     @PrimaryGeneratedColumn()
-    id:number;
+    @ManyToMany(type => Ingredients, ingredients=> ingredients.product_id)
+    id:Ingredients[];
 
     @Column()
     description:string;
@@ -23,4 +26,10 @@ export class Product{
 
     //@ManyToOne(type=>Category,category=>category.products,{eager:true, onDelete:"SET NULL"})
     //category:Category;
+    
+    @ManyToOne(type =>EntrancesDrief, entrances_drief => entrances_drief.product_id)
+    entrancesDrief:EntrancesDrief;
+
+    @ManyToOne(type =>EntrancesPacking, entrances_packing => entrances_packing.product_id)
+    entrancesPacking:EntrancesPacking;
 }
