@@ -1,40 +1,42 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
-import { Fridges } from './Fridges';
+import { Product } from './Product';
 
 
-@Entity({name:"cooling"})
-export class Cooling{
+@Entity({name:"warehouse_drief"})
+export class WarehouseDrief{
 
     @PrimaryGeneratedColumn()
     id:number;
 
     @Column()
-    lote_interno:string;
+    lote_proveedor:string;
 
     @Column()
-    lote_proveedor:string;
+    date:string;
 
     @Column()
     quantity:string;
 
     @Column()
-    userid:string;
+    is_pz:boolean;
 
-    @ManyToOne(type=>Fridges, fridge=>fridge.coolings, {eager:true, onDelete:"SET NULL"})
-    fridge:Fridges;
+    @Column()
+    observations:string;
 
     @Column()
     status:string;
-
-    @Column()
-    raw_material:string;
 
     @Column()
     opening_date:string;
 
     @Column()
     closing_date:string;
-    
+
+    @Column()
+    user_id:string;
+
+    @ManyToOne(type=>Product, product=>product.warehouseDrief, {eager:true, onDelete:"SET NULL"})
+    product:Product;    
 
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
     //product:Product;

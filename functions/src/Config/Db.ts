@@ -8,6 +8,10 @@ import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
 import { Pin } from '../Models/Entity/Pin';
 import { Fridges } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
+import { Product } from "../Models/Entity/Product";
+import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 
 
 const config: ConnectionOptions = {
@@ -28,7 +32,11 @@ const config: ConnectionOptions = {
         ExtrasOrders,
         Pin,
         Fridges,
-        Cooling
+        Cooling,
+        OutputsCooling,
+        WarehouseDrief,
+        Product,
+        OutputsDrief
     ]
 
 }
