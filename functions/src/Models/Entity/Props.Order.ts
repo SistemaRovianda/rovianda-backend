@@ -22,6 +22,6 @@ export class PropsOrder{
     extra_id:ExtrasOrders[];
     
     @OneToOne(type => Entrances_Meat)
-    @JoinColumn({name:"props_ordert_entrancemeatid_fk"})
+    @JoinColumn()
     entrances_meat_id:Entrances_Meat;
 }
