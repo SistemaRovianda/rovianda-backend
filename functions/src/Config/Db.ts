@@ -25,6 +25,9 @@ import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients
 import { Pin } from '../Models/Entity/Pin';
 import { Fridges } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
+import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 
 
 const config: ConnectionOptions = {
@@ -61,9 +64,14 @@ const config: ConnectionOptions = {
         Tenderized,
         Process,
         Grinding,
-        Sale
+        Sale,
         Fridges,
-        Cooling
+        Cooling,
+        OutputsCooling,
+        WarehouseDrief,
+        Product,
+        OutputsDrief,
+        OutputsPacking
     ]
 
 }
