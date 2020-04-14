@@ -10,6 +10,11 @@ export class WarehouseDriefRepository{
         }
     }
 
+    async createWarehouseDrief(warehouseDrief:WarehouseDrief){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.save(warehouseDrief);
+    }
+
     async getWarehouseDriefById(id:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({id})

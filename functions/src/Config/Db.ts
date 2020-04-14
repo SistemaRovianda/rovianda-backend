@@ -48,7 +48,6 @@ const config: ConnectionOptions = {
         ExtrasOrders,
         Pin,
         Product,
-        WarehouseDrief,
         WarehousePacking,
         Conditioning,
         EntranceStore,
@@ -69,7 +68,6 @@ const config: ConnectionOptions = {
         Cooling,
         OutputsCooling,
         WarehouseDrief,
-        Product,
         OutputsDrief,
         OutputsPacking
     ]
