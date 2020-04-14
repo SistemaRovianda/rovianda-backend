@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinTable  } from "typeorm";
 import { Product } from './Product';
 
 
@@ -14,7 +14,7 @@ export class OutputsDrief{
     @Column()
     date:string;
 
-    @ManyToOne(type=>Product, product=>product.warehouseDrief, {eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=>Product, product=>product.outputsDrief, {cascade:true ,eager:true, onDelete:"SET NULL"})
     product:Product;    
 
     @Column()

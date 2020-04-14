@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne, JoinTable  } from "typeorm";
 import { Product } from './Product';
 
 
@@ -7,6 +7,9 @@ export class WarehouseDrief{
 
     @PrimaryGeneratedColumn()
     id:number;
+
+    @ManyToOne(type=>Product,product=>product.warehouseDrief, {eager:true, onDelete:"SET NULL"})
+    product:Product;
 
     @Column()
     lote_proveedor:string;
@@ -35,12 +38,10 @@ export class WarehouseDrief{
     @Column()
     user_id:string;
 
-    @ManyToOne(type=>Product, product=>product.warehouseDrief, {eager:true, onDelete:"SET NULL"})
-    product:Product;    
-
-    //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
-    //product:Product;
-
-    //@ManyToOne(type=>Category,category=>category.products,{eager:true, onDelete:"SET NULL"})
-    //category:Category;
+    // @OneToOne(type=>Product,{cascade:true})
+    // @JoinColumn()
+    // product:Product;
+    
+    // @OneToMany(type => Product, product => product.id)
+    // productId: Product[];
 }
