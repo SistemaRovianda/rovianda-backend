@@ -5,12 +5,13 @@ import {entrancesMeatRoutes} from './Entrances.Meat.Routes';
 import { lotRoutes } from './Lot.Routes';
 import { driefRoutes } from './Drief.Routes';
 import { Initializer } from '../Config/Initializer';
+import  {entrancesRoutes} from './Entrances.Routes';
 import * as _ from 'lodash';
 import { productRoutes } from './Product.Routes';
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,entrancesMeatRoutes,lotRoutes,productRoutes,driefRoutes
+    pinRoutes,fridgesRoutes,entrancesMeatRoutes,lotRoutes,productRoutes,driefRoutes,entrancesRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{
