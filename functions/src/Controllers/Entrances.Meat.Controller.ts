@@ -14,12 +14,14 @@ export class EntrancesMeatController extends ErrorHandler {
 
     async createEntrancesMeat(req:Request,res:Response){
         try{
-            await this.entrancesmeatService.saveEntrancesMeat(req.body);
+            await this.entrancesmeatService.saveEntrancesMeat(req.body,res);
             return res.status(201).send();
         }catch(err){
             return res.status(400).send(this.parser(err.message,res));
         }
+
     }
+
 }
 
 
