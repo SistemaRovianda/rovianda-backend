@@ -1,5 +1,6 @@
 import { EntrancesMeatRepository } from '../Repositories/Entrances.Meat.Repository';
 import { Entrances_Meat } from "../Models/Entity/Entrances.Meat";
+import { pdfEntryMeat } from "../Utils/PDF.Entry.Meat"
 
 export class EntrancesMeatService{
     private entrances_meat_Repository:EntrancesMeatRepository;
@@ -8,7 +9,7 @@ export class EntrancesMeatService{
     }
 
 
-    async saveEntrancesMeat(entrances_meat:Entrances_Meat){
+    async saveEntrancesMeat(entrances_meat:Entrances_Meat,res){
 
         if(!entrances_meat.created_at) throw new Error("[400],Falta la propiedad created_at");
         if(!entrances_meat.lote_interno) throw new Error("[400],Falta la propiedad lote_interno");
@@ -27,6 +28,10 @@ export class EntrancesMeatService{
         if(!entrances_meat.fridge) throw new Error("[400],Falta la propiedad fridge");
         if(!entrances_meat.expiration) throw new Error("[400],Falta la propiedad expiration");
         
+        let pdf = new pdfEntryMeat();
+        pdf.createEntryMeatPDF(entrances_meat);
+        
         return await this.entrances_meat_Repository.saveEntrancesMeat(entrances_meat);
     }
+
 }

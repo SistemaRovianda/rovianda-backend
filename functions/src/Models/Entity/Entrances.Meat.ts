@@ -26,19 +26,19 @@ export class Entrances_Meat{
     lote_interno:string;
     
     @Column("simple-json")
-    temperature:{
+    weight:{
         value: string,
         descriptions: string,
         accepted: boolean
         }
 
     @Column("simple-json")
-    weight:{
+    temperature:{
         value: string,
         descriptions: string,
         accepted: boolean
         }
-    
+
     @Column("simple-json")
     strageMaterial:{
         value: string,
