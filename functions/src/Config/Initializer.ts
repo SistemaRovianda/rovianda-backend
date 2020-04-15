@@ -5,6 +5,7 @@ import { FridgesController } from '../Controllers/Fridges.Controller';
 import { EntrancesMeatController } from '../Controllers/Entrances.Meat.Controller';
 import { LotController } from '../Controllers/Lot.Controller';
 import { ProductController } from '../Controllers/Product.Controller';
+import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Controller';
 import { DriefController } from '../Controllers/Drief.Controller';
 
 export class Initializer{
@@ -14,6 +15,7 @@ export class Initializer{
     private entrancesMeatController:EntrancesMeatController;
     private lotController:LotController;
     private productController:ProductController;
+    private warehouseController:EntrancesPackingController;
     private driefController:DriefController;
     
     constructor(){
@@ -23,6 +25,7 @@ export class Initializer{
         this.entrancesMeatController = new EntrancesMeatController(this.firebaseInstance);
         this.lotController = new LotController(this.firebaseInstance);
         this.productController= new ProductController(this.firebaseInstance)
+        this.warehouseController= new EntrancesPackingController(this.firebaseInstance)
         this.driefController = new DriefController(this.firebaseInstance);
     }
 
@@ -48,6 +51,9 @@ export class Initializer{
                 break;
             case DriefController.name:
                 return this.driefController;
+                break
+            case EntrancesPackingController.name:
+                return this.warehouseController;
                 break
             default:
                 return null;

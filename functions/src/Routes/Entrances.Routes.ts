@@ -1,5 +1,6 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { EntrancesMeatController } from '../Controllers/Entrances.Meat.Controller';
+import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Controller';
 
 export const entrancesRoutes:Array<routeInterface>=[
 
@@ -8,5 +9,10 @@ export const entrancesRoutes:Array<routeInterface>=[
         method:"post",
         controller:EntrancesMeatController,
         target:"createEntrancesMeat"
-    },
+    },{
+        url:"/packing/entrance",
+        method:"post",
+        controller:EntrancesPackingController,
+        target:"createWarehousePacking"
+    }
 ];

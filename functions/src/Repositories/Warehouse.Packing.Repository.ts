@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
+
 export class WarehousePackingRepository{
     private warehousePackingRepository:Repository<WarehousePacking>;
 
@@ -21,4 +22,10 @@ export class WarehousePackingRepository{
             where: {status: `${status}`},
         });
     }
+
+    async saveWarehousePacking(warehousepacking:WarehousePacking){
+        
+        await this.getConnection();
+        return await this.warehousePackingRepository.save(warehousepacking);
+    } 
 }
