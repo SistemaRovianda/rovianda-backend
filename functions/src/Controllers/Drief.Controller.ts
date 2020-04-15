@@ -40,4 +40,24 @@ export class DriefController{
             return res.status(500).send(err);
         }
     }
+
+    async updateWarehouseDrief(req:Request,res:Response){
+        let {id} = req.query;
+        try{
+            let warehouseDrief:WarehouseDrief = await this.warehouseDriefService.getWarehouseDriefRepositoryById(+id);
+            if(warehouseDrief){
+                if(warehouseDrief.status == "CLOSED"){
+                    return res.status(403).send({msg:"ya esta cerrada"});
+                }else{
+                    warehouseDrief.status = "CLOSED";
+                    await this.warehouseDriefService.createWarehouseDrief(warehouseDrief);
+                    return res.status(201).send();
+                }
+            }else{
+                return res.status(404).send({msg:"No existe"});
+            }
+        }catch(err){
+            return res.status(500).send(err);
+        }
+    }
 }

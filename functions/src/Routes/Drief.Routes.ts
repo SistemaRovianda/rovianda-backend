@@ -7,5 +7,11 @@ export const driefRoutes:Array<routeInterface>=[
         method:"post",
         controller:DriefController,
         target:"createWarehouseDrief"
+    },
+    {
+        url:"/rovianda/dried/close",
+        method:"post",
+        controller:DriefController,
+        target:"updateWarehouseDrief"
     }
 ];
