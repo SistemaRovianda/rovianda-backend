@@ -13,5 +13,11 @@ export const driefRoutes:Array<routeInterface>=[
         method:"post",
         controller:DriefController,
         target:"updateWarehouseDrief"
+    },
+    {
+        url:"/rovianda/dried/exit",
+        method:"post",
+        controller:DriefController,
+        target:"createOutputsDrief"
     }
 ];

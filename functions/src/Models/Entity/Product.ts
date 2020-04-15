@@ -15,14 +15,8 @@ export class Product{
     @Column()
     description:string;
     
-    // @OneToOne(type=>WarehouseDrief)
-    // warehouseDrief: WarehouseDrief;
-
     @OneToMany(type=>WarehouseDrief,warehouseDrief=>warehouseDrief.product)
     warehouseDrief:WarehouseDrief[];
-
-    // @ManyToOne(type =>WarehouseDrief, warehouseDrief => warehouseDrief.productId)
-    // warehouseDrief:WarehouseDrief;
 
     @OneToMany(type=> OutputsDrief,outputsDrief=>outputsDrief.product)
     outputsDrief: OutputsDrief[];
