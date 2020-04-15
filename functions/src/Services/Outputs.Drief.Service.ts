@@ -1,9 +1,14 @@
 import { OutputsDriefRepository } from "../Repositories/Outputs.Drief.Repository";
+import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 
 export class OutputsDriefService{
     private outputsDriefRepository:OutputsDriefRepository;
     constructor(){
         this.outputsDriefRepository = new OutputsDriefRepository();
+    }
+
+    async createOutputsDrief(outputsDrief:OutputsDrief){
+        return await this.outputsDriefRepository.createOutputsDrief(outputsDrief);
     }
     
     async getAlloutputsDrief(){

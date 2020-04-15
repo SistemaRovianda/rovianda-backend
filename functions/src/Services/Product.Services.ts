@@ -9,4 +9,8 @@ export class ProductService{
     async getAllProducts(){
         return await this.productRepository.getAllProducts();
     }
+
+    async getProductById(product_id:number){
+        return await this.productRepository.getProductById(product_id);
+    }
 }

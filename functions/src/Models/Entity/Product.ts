@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, ManyToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, ManyToMany, JoinTable, OneToOne  } from "typeorm";
 import { WarehouseDrief } from './Warehouse.Drief';
 import { OutputsDrief } from './Outputs.Drief';
 import { EntrancesDrief } from './Entrances.Drief';
@@ -15,8 +15,8 @@ export class Product{
     @Column()
     description:string;
     
-    @OneToMany(type=> WarehouseDrief,warehouseDrief=>warehouseDrief.product)
-    warehouseDrief: WarehouseDrief[];
+    @OneToMany(type=>WarehouseDrief,warehouseDrief=>warehouseDrief.product)
+    warehouseDrief:WarehouseDrief[];
 
     @OneToMany(type=> OutputsDrief,outputsDrief=>outputsDrief.product)
     outputsDrief: OutputsDrief[];

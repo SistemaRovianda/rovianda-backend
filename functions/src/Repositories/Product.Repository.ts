@@ -22,4 +22,10 @@ export class ProductRepository{
             console.log(error);   
            }
     }
+
+    async getProductById(product_id:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`SELECT * FROM product WHERE id = ${product_id}`)
+    }
 }

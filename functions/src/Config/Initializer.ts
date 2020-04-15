@@ -6,6 +6,7 @@ import { EntrancesMeatController } from '../Controllers/Entrances.Meat.Controlle
 import { LotController } from '../Controllers/Lot.Controller';
 import { ProductController } from '../Controllers/Product.Controller';
 import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Controller';
+import { DriefController } from '../Controllers/Drief.Controller';
 
 export class Initializer{
     private firebaseInstance: FirebaseHelper;
@@ -15,6 +16,7 @@ export class Initializer{
     private lotController:LotController;
     private productController:ProductController;
     private warehouseController:EntrancesPackingController;
+    private driefController:DriefController;
     
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
@@ -24,6 +26,7 @@ export class Initializer{
         this.lotController = new LotController(this.firebaseInstance);
         this.productController= new ProductController(this.firebaseInstance)
         this.warehouseController= new EntrancesPackingController(this.firebaseInstance)
+        this.driefController = new DriefController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -45,6 +48,9 @@ export class Initializer{
                 break;
             case LotController.name:
                 return this.lotController;
+                break;
+            case DriefController.name:
+                return this.driefController;
                 break
             case EntrancesPackingController.name:
                 return this.warehouseController;
