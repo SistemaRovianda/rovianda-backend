@@ -10,6 +10,11 @@ export class OutputsDriefRepository{
         }
     }
 
+    async createOutputsDrief(outputsDrief:OutputsDrief){
+        await this.getConnection();
+        return await this.outputsDriefRepository.save(outputsDrief);
+    }
+
     async getAllOutputsDrief(){
         await this.getConnection();
         return await this.outputsDriefRepository.find();

@@ -8,14 +8,14 @@ export class OutputsDrief{
     @PrimaryGeneratedColumn()
     id:number;
 
+    @ManyToOne(type=>Product, product=>product.outputsDrief,{eager:true, onDelete:"SET NULL"})
+    product:Product; 
+
     @Column()
     lote_proveedor:string;
 
     @Column()
-    date:string;
-
-    @ManyToOne(type=>Product, product=>product.outputsDrief, {cascade:true ,eager:true, onDelete:"SET NULL"})
-    product:Product;    
+    date:string;   
 
     @Column()
     observations:string;

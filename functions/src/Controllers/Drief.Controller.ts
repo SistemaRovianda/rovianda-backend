@@ -1,16 +1,20 @@
 import {Request,Response} from 'express';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { OutputsDrief } from '../Models/Entity/Outputs.Drief';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
 import { ProductService } from '../Services/Product.Services';
+import { OutputsDriefService } from '../Services/Outputs.Drief.Service';
 import { Product } from '../Models/Entity/Product';
 export class DriefController{
 
     private warehouseDriefService:WarehouseDriefService;
     private productService: ProductService;
+    private outputsDriefService:OutputsDriefService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.warehouseDriefService = new WarehouseDriefService();
         this.productService = new ProductService();
+        this.outputsDriefService = new OutputsDriefService();
     }
 
     async createWarehouseDrief(req:Request, res:Response){
@@ -57,6 +61,23 @@ export class DriefController{
                 return res.status(404).send({msg:"No existe"});
             }
         }catch(err){
+            return res.status(500).send(err);
+        }
+    }
+
+    async createOutputsDrief(req:Request,res:Response){
+        let {lote_proveedor, productId, observations, date } = req.body;
+        let outputsDrief = new OutputsDrief();
+        try{
+            let product:Product = await this.productService.getProductById(+productId);
+            outputsDrief.lote_proveedor = lote_proveedor;
+            outputsDrief.observations = observations;
+            outputsDrief.date = date;
+            outputsDrief.product = product[0];
+            await this.outputsDriefService.createOutputsDrief(outputsDrief);
+            return res.status(201).send();
+        }catch(err){
+            console.log(err)
             return res.status(500).send(err);
         }
     }
