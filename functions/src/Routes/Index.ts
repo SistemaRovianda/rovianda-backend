@@ -7,10 +7,11 @@ import { Initializer } from '../Config/Initializer';
 import  {entrancesRoutes} from './Entrances.Routes';
 import * as _ from 'lodash';
 import { productRoutes } from './Product.Routes';
+import { processRoutes } from './Process.Routes';
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,driefRoutes,entrancesRoutes
+    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,driefRoutes,entrancesRoutes,processRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{
