@@ -9,6 +9,12 @@ export class OutputsPackingRepository{
             this.outputsPackingRepository = (await connect()).getRepository(OutputsPacking);
         }
     }
+
+    async createOutputsPacking(outputsPacking:OutputsPacking){
+        await this.getConnection();
+        return await this.outputsPackingRepository.save(outputsPacking);    
+    }
+
     async getAllOutputsPacking(){
         await this.getConnection();
         return await this.outputsPackingRepository.find();
