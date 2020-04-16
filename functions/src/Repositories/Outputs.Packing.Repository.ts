@@ -9,7 +9,6 @@ export class OutputsPackingRepository{
             this.outputsPackingRepository = (await connect()).getRepository(OutputsPacking);
         }
     }
-
     async getAllOutputsPacking(){
         await this.getConnection();
         return await this.outputsPackingRepository.find();
