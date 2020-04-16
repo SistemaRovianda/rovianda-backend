@@ -7,5 +7,10 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:ProcessController,
         target:"createProcess"
+    },{
+        url:"/rovianda/process",
+        method:"get",
+        controller:ProcessController,
+        target:"getProcessActive"
     }
 ];
