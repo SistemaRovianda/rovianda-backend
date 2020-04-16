@@ -19,5 +19,10 @@ export const entrancesRoutes:Array<routeInterface>=[
         method:"post",
         controller:EntrancesPackingController,
         target:"closeWarehousePacking"
+    },{
+        url:"/packing/exit",
+        method:"post",
+        controller:EntrancesPackingController,
+        target:"createOutputsPacking"
     }
 ];

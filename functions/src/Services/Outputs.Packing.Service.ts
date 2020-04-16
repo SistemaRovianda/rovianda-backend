@@ -7,6 +7,10 @@ export class OutputsPackingService{
         this.outputsPackingRepository = new OutputsPackingRepository();
     }
 
+    async createOutputsPacking(outputsPacking:OutputsPacking){
+        return await this.outputsPackingRepository.createOutputsPacking(outputsPacking);
+    }
+
     async getAlloutputsPacking(){
         return await this.outputsPackingRepository.getAllOutputsPacking();
     }

@@ -59,13 +59,27 @@ export class EntrancesPackingController extends ErrorHandler {
                     return res.status(201).send({msg:"CERRADA"});
                 }
             }else{
-                return res.status(404).send({msg:"No existe"});
+                return res.status(404).send({msg:"NO EXISTE"});
             }
         }catch(err){
             return res.status(500).send(err);
         }
     }
 
+    async createOutputsPacking(req:Request,res:Response){
+        let {lote_proveedor, quantity, date } = req.body;
+        let outputsPacking = new OutputsPacking();
+        try{
+            outputsPacking.lote_proveedor = lote_proveedor;
+            outputsPacking.quantity = quantity;
+            outputsPacking.date = date;
+            await this.outputsPackingService.createOutputsPacking(outputsPacking);
+            return res.status(201).send();
+        }catch(err){
+            console.log(err)
+            return res.status(500).send(err);
+        }
 
+    }
 
 }
