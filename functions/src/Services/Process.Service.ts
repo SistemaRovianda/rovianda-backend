@@ -10,4 +10,9 @@ export class ProcessService{
     async createProcess(process:Process){
         return await this.processRepository.createProcess(process);
     }
+
+    async getProcessActive(){
+        
+        return await this.processRepository.getProcessActive();
+    }
 }

@@ -1,4 +1,4 @@
-import {Request,Response} from 'express';
+import {Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Process } from '../Models/Entity/Process';
 import { Product } from '../Models/Entity/Product';
@@ -49,5 +49,24 @@ export class ProcessController{
             console.log(err)
             return res.status(500).send(err);
         }
+    }
+
+    async getProcessActive(req:Request,res:Response){
+        try{
+            let process:Product[] = await this.processService.getProcessActive();
+            let response:any = [];
+            process.forEach((i:any) => {
+                response.push({
+                process_id: `${i.id}`,
+                productName: `${i.status}`,
+                lot_id: `${i.lote_interno}`,
+                date: `${i.start_date},${i.end_date}`,
+                currentProcess: `${i.current_process}`
+                });
+            });
+        return res.status(200).send(response);
+        }catch(err){
+            return res.status(500).send(err);
+        } 
     }
 }
