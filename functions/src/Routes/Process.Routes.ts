@@ -1,5 +1,6 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { ProcessController } from '../Controllers/Process.Controller';
+import { ConditioningController } from '../Controllers/Conditioning.Controller';
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -12,5 +13,10 @@ export const processRoutes:Array<routeInterface>=[
         method:"get",
         controller:ProcessController,
         target:"getProcessActive"
+    },{
+        url:"/rovianda/process/conditioning/:processid",
+        method:"post",
+        controller:ConditioningController,
+        target:"createConditioning"
     }
 ];
