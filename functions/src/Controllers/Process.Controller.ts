@@ -69,4 +69,21 @@ export class ProcessController{
             return res.status(500).send(err);
         } 
     }
+
+    async updateProcess(req:Request,res:Response){
+        let {conditioning_id} = req.body;
+        let {id} = req.query;
+        try{
+            let process:Process = await this.processService.getProcessById(+id);
+            if(process){
+                process.conditioning_id = conditioning_id;
+                await this.processService.createProcess(process);
+                return res.status(201).send();
+            }else{
+                return res.status(404).send({msg:"No existe"});
+            }
+        }catch(err){
+            return res.status(500).send(err);
+        }
+    }
 }
