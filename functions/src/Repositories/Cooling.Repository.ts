@@ -10,6 +10,11 @@ export class CoolingRepository{
         }
     }
 
+    async createCooling(cooling:Cooling){
+        await this.getConnection();
+        return await this.coolingRepository.save(cooling);
+    }
+
     async getCoolingById(id:number){
         await this.getConnection();
         return await this.coolingRepository.findOne({id})

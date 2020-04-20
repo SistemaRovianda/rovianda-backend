@@ -19,4 +19,9 @@ export class FridgesRepository{
         await this.getConnection();
         return await this.fridgesRepository.find();
     }
+
+    async getFridgesById(id:number){
+        await this.getConnection();
+        return await this.fridgesRepository.query(`SELECT * FROM fridges WHERE fridge_id = ${id}`)
+    }
 }

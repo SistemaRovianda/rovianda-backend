@@ -9,6 +9,7 @@ import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Con
 import { DriefController } from '../Controllers/Drief.Controller';
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
+import { InquietudController } from '../Controllers/Inquietud.Controller';
 
 export class Initializer{
     private firebaseInstance: FirebaseHelper;
@@ -21,6 +22,7 @@ export class Initializer{
     private driefController:DriefController;
     private processController:ProcessController;
     private conditioningController:ConditioningController;
+    private inquietudController:InquietudController;
     
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
@@ -33,6 +35,7 @@ export class Initializer{
         this.driefController = new DriefController(this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
         this.conditioningController = new ConditioningController(this.firebaseInstance);
+        this.inquietudController = new InquietudController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -66,6 +69,9 @@ export class Initializer{
                 break;
             case ConditioningController.name:
                 return this.conditioningController;
+                break;
+            case InquietudController.name:
+                return this.inquietudController;
                 break;
             default:
                 return null;
