@@ -14,4 +14,8 @@ export class FridgesService{
     async getAllFridges(){
         return await this.fridgesRepository.getAllFridges();
     }
+
+    async getFridgesById(id:number){
+        return await this.fridgesRepository.getFridgesById(id);
+    }
 }
