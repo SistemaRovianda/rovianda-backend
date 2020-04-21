@@ -4,13 +4,17 @@ import { Cooling } from '../Models/Entity/Cooling';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { FridgesService } from '../Services/Fridges.Service';
 import { CoolingService } from '../Services/Cooling.Service';
+import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 export class InquietudController{
 
     private coolingService:CoolingService;
     private fridgesService: FridgesService;
+    private outputsCoolingService:OutputsCoolingService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.coolingService = new CoolingService();
         this.fridgesService = new FridgesService();
+        this.outputsCoolingService = new OutputsCoolingService();
     }
 
     async createCooling(req:Request,res:Response){
@@ -78,6 +82,30 @@ export class InquietudController{
             }else{
                 return res.status(404).send({msg:"No existe"});
             }
+        }catch(err){
+            console.log(err)
+            return res.status(500).send(err);
+        }
+    }
+
+    async createOutputsCooling(req:Request,res:Response){
+        let {raw_material, output_date, lote_interno, quantity, 
+            observations} = req.body;
+        if (!lote_interno) return res.status(400).send({ msg: 'lote_interno is required' });
+        if (!output_date) return res.status(400).send({ msg: 'output_date is required' });
+        if (!quantity) return res.status(400).send({ msg: 'quantity is required' });
+        if (!raw_material) return res.status(400).send({ msg: 'raw_material is required' });
+        if (!observations) return res.status(400).send({ msg: 'observations is required' });
+
+        let outputsCooling = new OutputsCooling();
+        try{
+            outputsCooling.lote_interno = lote_interno;
+            outputsCooling.observations = observations;
+            outputsCooling.output_date = output_date;
+            outputsCooling.quantity = quantity;
+            outputsCooling.raw_material = raw_material;
+            await this.outputsCoolingService.createOutputsCooling(outputsCooling);
+            return res.status(201).send();
         }catch(err){
             console.log(err)
             return res.status(500).send(err);

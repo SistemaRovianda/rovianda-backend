@@ -10,6 +10,11 @@ export class OutputsCoolingRepository{
         }
     }
 
+    async createOutputsCooling(outputsCooling:OutputsCooling){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.save(outputsCooling);
+    }
+
     async getAllOutputsCooling(){
         await this.getConnection();
         return await this.outputsCoolingRepository.find();

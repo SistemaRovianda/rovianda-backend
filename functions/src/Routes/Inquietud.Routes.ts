@@ -13,5 +13,11 @@ export const inquietudRoutes:Array<routeInterface>=[
         method:"post",
         controller:InquietudController,
         target:"closedCooling"
+    },
+    {
+        url:"/rovianda/inquietud/exit",
+        method:"post",
+        controller:InquietudController,
+        target:"createOutputsCooling"
     }
 ];
