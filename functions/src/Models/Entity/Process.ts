@@ -66,7 +66,7 @@ export class Process{
     tenderized_id:number;
 
     @OneToOne(type => Conditioning)
-    @JoinColumn()
+    @JoinColumn({name:"conditioning_id"})
     conditioning_id:number;
 
     @OneToOne(type => Sausaged)

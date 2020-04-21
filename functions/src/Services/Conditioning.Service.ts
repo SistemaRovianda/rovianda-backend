@@ -11,4 +11,7 @@ export class ConditioningService{
         return await this.conditioningRepository.createConditioning(conditioning);
     }
 
+    async getProductConditioning(processid:number){
+        return await this.conditioningRepository.getProductConditioning(processid);
+    }
 }
