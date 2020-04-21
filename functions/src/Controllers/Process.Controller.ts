@@ -25,26 +25,30 @@ export class ProcessController{
             console.log("inicio")
             let product:Product = await this.productService.getProductById(+product_id);
             console.log(product[0])
-            process.product_id = product_id;
-            process.new_lote = new_lote;
-            process.weigth = weight;
-            process.lote_interno = lote_interno;
-            process.temperature = temperature;
-            process.entrance_hour = hourEntrance;
-            process.output_hour = hourExit;
-            process.start_date = dateIni;
-            process.end_date = dateFin;
-            process.status = status;
-            process.current_process = current_process;
-            process.name_elaborated = name_elaborated;
-            process.job_elaborated = job_elaborated;
-            process.job_verify = job_verify;
-            process.name_verify = name_verify;
-            process.product_id = product[0];
+            if(product[0]){
+                return res.status(404).send({msg:"No existe proceso"});
+            }else{
+                process.product_id = product_id;
+                process.new_lote = new_lote;
+                process.weigth = weight;
+                process.lote_interno = lote_interno;
+                process.temperature = temperature;
+                process.entrance_hour = hourEntrance;
+                process.output_hour = hourExit;
+                process.start_date = dateIni;
+                process.end_date = dateFin;
+                process.status = status;
+                process.current_process = current_process;
+                process.name_elaborated = name_elaborated;
+                process.job_elaborated = job_elaborated;
+                process.job_verify = job_verify;
+                process.name_verify = name_verify;
+                process.product_id = product[0];
             console.log("curso")
             await this.processService.createProcess(process);
             console.log("hecho")
             return res.status(201).send();
+        }
         }catch(err){
             console.log(err)
             return res.status(500).send(err);

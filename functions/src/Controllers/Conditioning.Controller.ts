@@ -54,7 +54,7 @@ export class ConditioningController{
             conditioning.date = date;
             console.log("curso")
             await this.conditionigService.createConditioning(conditioning);
-            if(processToupdate){
+            if(processToupdate[0]){
                 console.log("actualizando")
                 processToupdate.conditioning_id=conditioning.id;
                 await this.processService.createProcess(processToupdate)
