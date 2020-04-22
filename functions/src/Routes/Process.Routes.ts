@@ -1,6 +1,7 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
+import { TenderizedController } from "../Controllers/Tenderized.Controller";
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -23,5 +24,10 @@ export const processRoutes:Array<routeInterface>=[
         method:"get",
         controller:ConditioningController,
         target:"getProductConditioning"
-    }
+    },{
+        url:"/process/injection-tenderized/:processid",
+        method:"post",
+        controller:TenderizedController,
+        target:"createTenderized"
+}
 ];

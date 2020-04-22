@@ -10,6 +10,8 @@ import { DriefController } from '../Controllers/Drief.Controller';
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { InquietudController } from '../Controllers/Inquietud.Controller';
+import { TenderizedController } from '../Controllers/Tenderized.Controller';
+
 
 export class Initializer{
     private firebaseInstance: FirebaseHelper;
@@ -23,6 +25,7 @@ export class Initializer{
     private processController:ProcessController;
     private conditioningController:ConditioningController;
     private inquietudController:InquietudController;
+    private tenderizedController:TenderizedController;
     
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
@@ -36,6 +39,7 @@ export class Initializer{
         this.processController = new ProcessController(this.firebaseInstance);
         this.conditioningController = new ConditioningController(this.firebaseInstance);
         this.inquietudController = new InquietudController(this.firebaseInstance);
+        this.tenderizedController = new TenderizedController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -72,6 +76,9 @@ export class Initializer{
                 break;
             case InquietudController.name:
                 return this.inquietudController;
+                break;
+            case TenderizedController.name:
+                return this.tenderizedController;
                 break;
             default:
                 return null;
