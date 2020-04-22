@@ -27,8 +27,8 @@ export class Conditioning{
     date:string;
 
     @OneToOne(type => Product)
-    @JoinColumn()
-    product_id: Product;
+    @JoinColumn({name:"product_id"})
+    product_id: number;
 
     @Column()
     temperature:string;

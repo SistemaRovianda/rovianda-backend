@@ -18,5 +18,10 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:ConditioningController,
         target:"createConditioning"
+    },{
+        url:"/rovianda/process/conditioning/:processid",
+        method:"get",
+        controller:ConditioningController,
+        target:"getProductConditioning"
     }
 ];

@@ -15,4 +15,15 @@ export class ConditioningRepository{
         return await this.conditioningRepository.save(conditioning);
     }
 
+    async getProductConditioning(processid:number){
+        await this.getConnection();
+        return await this.conditioningRepository.query(`SELECT  
+        conditioning.raw, conditioning.bone, conditioning.clean, 
+        conditioning.healthing,conditioning.weight,conditioning.temperature,
+        product.id,product.description,process.id FROM conditioning 
+        INNER JOIN product ON conditioning.product_id = product.id
+        INNER JOIN process ON conditioning.id = process.conditioning_id
+        WHERE process.id= ${processid};`)
+    }
+
 }

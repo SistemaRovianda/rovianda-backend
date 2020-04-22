@@ -58,7 +58,7 @@ export class ProcessController{
             process.forEach((i:any) => {
                 response.push({
                 process_id: `${i.id}`,
-                productName: `${i.status}`,
+                productName: `${i.description}`,
                 lot_id: `${i.lote_interno}`,
                 date: `${i.start_date},${i.end_date}`,
                 currentProcess: `${i.current_process}`
