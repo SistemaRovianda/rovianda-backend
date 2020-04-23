@@ -1,5 +1,5 @@
 
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
 
 @Entity({name:"warehouse_packing"})
@@ -8,9 +8,8 @@ export class WarehousePacking{
     @PrimaryGeneratedColumn()
     id : number;
 
-    @OneToOne(type => Product)
-    @JoinColumn()
-    product_id: Product;
+    @ManyToOne(type=>Product,product=>product.warehousePacking, {eager:true, onDelete:"SET NULL"})
+    product:Product;
 
     @Column()
     lote_proveedor: string;

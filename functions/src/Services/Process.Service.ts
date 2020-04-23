@@ -12,12 +12,10 @@ export class ProcessService{
     }
 
     async getProcessActive(){
-        
         return await this.processRepository.getProcessActive();
     }
 
     async getProcessById(id:number){
         return await this.processRepository.getProcessById(id);
     }
-
 }

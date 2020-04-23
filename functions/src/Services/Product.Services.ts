@@ -1,4 +1,5 @@
 import { ProductRepository } from "../Repositories/Product.Repository";
+import { Product } from "../Models/Entity/Product";
 
 export class ProductService{
     private productRepository:ProductRepository;
@@ -8,6 +9,10 @@ export class ProductService{
 
     async getAllProducts(){
         return await this.productRepository.getAllProducts();
+    }
+
+    async createProduct(product:Product){
+        return await this.productRepository.createProduct(product);
     }
 
     async getProductById(product_id:number){

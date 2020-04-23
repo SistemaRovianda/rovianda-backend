@@ -37,7 +37,7 @@ export class EntrancesPackingController extends ErrorHandler {
             warehousePacking.opening_date = opening_date;
             warehousePacking.closing_date = closing_date;
             warehousePacking.is_pz = is_pz;
-            warehousePacking.product_id = product[0];
+            warehousePacking.product = product[0];
             await this.warehousepackingService.saveWarehousePacking(warehousePacking);
             return res.status(201).send();
         }catch(err){
@@ -47,7 +47,7 @@ export class EntrancesPackingController extends ErrorHandler {
     }
         
     async closeWarehousePacking(req:Request,res:Response){
-        let {id} = req.body;
+        let {id} = req.query;
         try{
             let warehousePacking:WarehousePacking = await this.warehousepackingService.getWarehousePackingById(+id);
             if(warehousePacking){
