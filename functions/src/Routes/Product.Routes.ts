@@ -4,7 +4,7 @@ import { ProductController } from '../Controllers/Product.Controller';
 export const productRoutes:Array<routeInterface>=[
 
     {
-        url:"/products",
+        url:"/rovianda/products",
         method:"get",
         controller:ProductController,
         target:"getAllProducts"
