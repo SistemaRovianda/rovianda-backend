@@ -14,5 +14,9 @@ export class SausagedService{
     async getLastSausaged(){
         return await this.sausagedRepository.getLastSausaged();
     }
+
+    async getSausagedByProcess(processId:number){
+        return await this.sausagedRepository.getSausagedByProcess(processId);
+    }
     
 }

@@ -33,7 +33,6 @@ export class ProcessRepository{
         console.log("consulta")
         return await this.processRepository.query(`SELECT * FROM process WHERE id = ${process_id}`)
     }
-    
 }
 
 
