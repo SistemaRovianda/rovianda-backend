@@ -3,6 +3,7 @@ import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from "../Controllers/Tenderized.Controller";
 import { GrindingController } from "../Controllers/Grinding.Controller";
+import { SausagedController } from '../Controllers/Sausaged.Controller';
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -36,5 +37,11 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:GrindingController,
         target:"createGrinding"
+    },
+    {
+        url:"/rovianda/process/sausage/:processId",
+        method:"post",
+        controller:SausagedController,
+        target:"createSausaged"
     }
 ];

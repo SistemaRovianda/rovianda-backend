@@ -71,7 +71,7 @@ export class Process{
 
     @OneToOne(type => Sausaged)
     @JoinColumn()
-    sausage_id:number;
+    sausage_id:Sausaged;
 
     @OneToOne(type => User)
     @JoinColumn()
