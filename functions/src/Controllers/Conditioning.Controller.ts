@@ -22,76 +22,95 @@ export class ConditioningController{
     async createConditioning(req:Request, res:Response){
     
         let processid = req.params.processid
-        
         console.log(processid);
 
         let {rawMaterial, bone, clean,healthing,
-            weigth, temperature, product_id, date} = req.body;
+            weight, temperature, product_id, date} = req.body;
             if (!rawMaterial) return res.status(400).send({ msg: 'rawMaterial is required'});
             if (!bone) return res.status(400).send({ msg: 'bone is required' });
             if (!clean) return res.status(400).send({ msg: 'clean is required' });
             if (!healthing) return res.status(400).send({ msg: 'healthing is required' });
-            if (!weigth) return res.status(400).send({ msg: 'weigth is required' });
+            if (!weight) return res.status(400).send({ msg: 'weigth is required' });
             if (!temperature) return res.status(400).send({ msg: 'temperature is required' });
             if (!product_id) return res.status(400).send({ msg: 'product_id required' });
             if (!processid) return res.status(400).send({ msg: 'process_id is required' });
             if (!date) return res.status(400).send({ msg: 'date is required' });
 
         let conditioning = new Conditioning();
-        
         try{
             console.log("inicio")
-            let processToupdate:Process = await this.processService.getProcessById(+processid)
+            let processToUpdate:Process = await this.processService.getProcessById(+processid)
             let product:Product = await this.productService.getProductById(+product_id);
+            if(!product[0]){
+                return res.status(404).send({msg:"No existe product"});
+            }else{
             console.log(product[0])
+            console.log(processToUpdate[0])
             conditioning.raw = rawMaterial;
             conditioning.bone = bone;
             conditioning.clean = clean;
             conditioning.healthing = healthing;
-            conditioning.weight = weigth;
+            conditioning.weight = weight;
             conditioning.temperature = temperature;
-            conditioning.product_id = product[0];
+            conditioning.product_id = product[0].id;
             conditioning.date = date;
             console.log("curso")
             await this.conditionigService.createConditioning(conditioning);
-            if(processToupdate[0]){
-                console.log("actualizando")
-                processToupdate.conditioning_id=conditioning.id;
-                await this.processService.createProcess(processToupdate)
-                return res.status(201).send();
-            }else{
-                return res.status(404).send({msg:"No existe"});
+                if(processToUpdate[0]){
+                    console.log("actualizando")
+                    processToUpdate.conditioning_id=conditioning;
+                    await this.processService.createProcess(processToUpdate)
+                    return res.status(201).send();
+                }else{
+                    return res.status(404).send({msg:"No existe"});
+                }
             }
         }catch(err){
             console.log(err)
             return res.status(500).send(err);
         }
     }
-    async getProductConditioning(req:Request,res:Response){
+
+    async getConditioning(req:Request,res:Response){
 
         let processid = req.params.processid
         if (!processid) return res.status(400).send({ msg: 'processid is required' });
         console.log(processid);
 
-        let productConditioning:Conditioning[] = await this.conditionigService.getProductConditioning(+processid);
-        
-        let response:any = [];
-        
-        productConditioning.forEach((i:any) => {
-            response.push({
-                rawMaterial: `${i.raw}`,
-                bone: `${i.bone}`,
-                clean: `${i.clean}`,
-                healthing: `${i.healting}`,
-                weight: `${i.weight}`,
-                temperature: `${i.temperature}`,
-                product: {
-                    id: `${i.product_id}`,
-                    description: `${i.description}`
-                },
-                date: `${i.date}`
-            });
-        });
-        return res.status(200).send(response);
+        let process:Process = await this.processService.getProcessById(+processid)
+        console.log(process[0]);
+        if(!process[0]){
+            return res.status(400).send({ msg: 'There is no process' });
+        }else{
+            let conditioning_id = process[0].conditioning_id
+            console.log(conditioning_id);
+            let conditioning:Conditioning = await this.conditionigService.getConditioningById(+conditioning_id)    
+            console.log(conditioning[0]);
+            if(!conditioning[0]){
+                return res.status(400).send({ msg: 'There is no conditioning related to this process' });
+            }else{
+                let product_id = conditioning[0].product_id
+                let product: Product = await this.productService.getProductById(+product_id)
+                console.log(product[0]);
+                if(!product[0]){
+                    return res.status(400).send({ msg: 'There is no product related to this process.' });
+                }else{
+                    let response = ({
+                        rawMaterial: `${conditioning[0].raw}`,
+                        bone: `${conditioning[0].bone}`,
+                        clean: `${conditioning[0].clean}`,
+                        healthing: `${conditioning[0].healthing}`,
+                        weight: `${conditioning[0].weight}`,
+                        temperature: `${conditioning[0].temperature}`,
+                        product: {
+                            id: `${product[0].id}`,
+                            description: `${product[0].description}`
+                        },
+                        date: `${conditioning[0].date}`
+                    });
+                    return res.status(200).send(response);
+                }
+                }
+            }
     }
 }

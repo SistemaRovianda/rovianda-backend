@@ -15,15 +15,14 @@ export class ConditioningRepository{
         return await this.conditioningRepository.save(conditioning);
     }
 
-    async getProductConditioning(processid:number){
+    async getConditioningById(conditioning_id:number){
         await this.getConnection();
-        return await this.conditioningRepository.query(`SELECT  
-        conditioning.raw, conditioning.bone, conditioning.clean, 
-        conditioning.healthing,conditioning.weight,conditioning.temperature,
-        product.id,product.description,process.id FROM conditioning 
-        INNER JOIN product ON conditioning.product_id = product.id
-        INNER JOIN process ON conditioning.id = process.conditioning_id
-        WHERE process.id= ${processid};`)
+        return await this.conditioningRepository.query(`SELECT * FROM conditioning WHERE id = ${conditioning_id}`)
     }
 
+    async getAllConditioning(){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.conditioningRepository.find();
+    }
 }

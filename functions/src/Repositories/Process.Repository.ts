@@ -18,16 +18,21 @@ export class ProcessRepository{
 
     async getProcessActive(){
         await this.getConnection();
-
         console.log("consulta")
-        return await this.processRepository.query(`SELECT process.id , process.current_process, process.start_date, process.end_date, process.lote_interno , product.description FROM process INNER JOIN product on process.product_id = product.id WHERE process.status='ACTIVE';`);
+        return await this.processRepository.query(`SELECT * FROM process WHERE status='ACTIVE';`);
     }
 
-    async getProcessById(id:number){
+    async getAllProcess(){
         await this.getConnection();
-        return await this.processRepository.findOne(id)
+        console.log("consulta")
+        return await this.processRepository.find();
     }
 
+    async getProcessById(process_id:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.processRepository.query(`SELECT * FROM process WHERE id = ${process_id}`)
+    }
 }
 
 

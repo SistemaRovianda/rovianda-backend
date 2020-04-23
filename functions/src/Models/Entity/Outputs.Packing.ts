@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne  } from "typeorm";
 import { User } from "./Users";
+import { Product } from "./Product";
 
 
 @Entity({name:"outputs_packing"})
@@ -20,4 +21,7 @@ export class OutputsPacking{
     @OneToOne(type => User )
     @JoinColumn()
     operator_outlet: User;
+
+    @ManyToOne(type=>Product, product=>product.outputsPacking,{eager:true, onDelete:"SET NULL"})
+    product:Product; 
 }

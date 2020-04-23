@@ -10,14 +10,16 @@ export class ProductRepository{
             this.productRepository = (await connect()).getRepository(Product);
         }
     }
+    async createProduct(product:Product){
+        await this.getConnection();
+        return await this.productRepository.save(product);
+    }
 
     async getAllProducts(){
         await this.getConnection();
-        
         try {
-           let products= await this.productRepository.query(`select * from product inner join warehouse_packing on product.id= warehouse_packing.id inner join warehouse_drief on product.id=warehouse_drief.id ;`);
-            return (products);
-    
+            console.log("consulta")
+            return await this.productRepository.find()
            } catch (error) {
             console.log(error);   
            }

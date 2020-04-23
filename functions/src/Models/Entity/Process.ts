@@ -5,6 +5,7 @@ import { User } from './Users';
 import { Tenderized } from './Tenderized';
 import { Conditioning } from './Conditioning';
 import { Sausaged } from './Sausaged';
+import { Product } from './Product';
 
 @Entity({name:"process"})
 export class Process{
@@ -12,9 +13,10 @@ export class Process{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
-    product_id:string;
-
+    @OneToOne(type => Product)
+    @JoinColumn({name:"product_id"})
+    product_id:Product;
+    
     @Column()
     lote_interno:string;
 
@@ -62,12 +64,12 @@ export class Process{
     molienda_id:Grinding;
 
     @OneToOne(type => Tenderized)
-    @JoinColumn()
-    tenderized_id:number;
+    @JoinColumn({name:"tenderized_id"})
+    tenderized_id:Tenderized;
 
     @OneToOne(type => Conditioning)
     @JoinColumn({name:"conditioning_id"})
-    conditioning_id:number;
+    conditioning_id:Conditioning;
 
     @OneToOne(type => Sausaged)
     @JoinColumn()
@@ -75,7 +77,7 @@ export class Process{
 
     @OneToOne(type => User)
     @JoinColumn()
-    user_id:number;
+    user_id:User;
 }
 
 

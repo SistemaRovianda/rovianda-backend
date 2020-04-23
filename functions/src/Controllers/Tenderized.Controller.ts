@@ -19,7 +19,6 @@ export class TenderizedController{
     }
 
     async createTenderized(req:Request, res:Response){
-
         let processid = req.params.processid
         console.log(processid);
 
@@ -37,28 +36,76 @@ export class TenderizedController{
         try{
             console.log("inicio")
             let product:Product = await this.productService.getProductById(+product_id);
-            let processToupdate:Process = await this.processService.getProcessById(+processid)
-            if(product[0]==undefined){
-                return res.status(404).send({msg:"No existe producto"});
+            let processToUpdate:Process = await this.processService.getProcessById(+processid)
+            if(!product[0]){
+                return res.status(404).send({msg:"No existe product"});
             }else{
-                console.log(product[0])
-                console.log(processToupdate[0]);
-                tenderized.product_id = product_id;
+                console.log(product[0]);
+                console.log(processToUpdate[0]);
                 tenderized.weight = weight;
                 tenderized.weight_salmuera = weight_salmuera;
                 tenderized.temperature = temperature;
-                tenderized.product_id = product[0];
+                tenderized.product_id = product[0].id;
                 tenderized.date = date;
+                tenderized.percent_inject = percentage;
                 console.log("curso")
-                processToupdate.tenderized_id=tenderized.id
-                await this.processService.createProcess(processToupdate);
                 await this.tenderizedService.createTenderized(tenderized);
-                console.log("creando")
-                return res.status(201).send();
+                if(processToUpdate[0]){
+                    console.log("actualizando")
+                    processToUpdate.tenderized_id=tenderized;
+                    await this.processService.createProcess(processToUpdate)
+                    return res.status(201).send();
+                }else{
+                    return res.status(404).send({msg:"No existe process"});
+                }
             }
         }catch(err){
             console.log(err)
             return res.status(500).send(err);
         }
     }
+
+    async getTenderized(req:Request,res:Response){
+
+       let processid = req.params.processid
+        if (!processid) return res.status(400).send({ msg: 'processid is required' });
+        console.log(processid);
+
+        let process:Process = await this.processService.getProcessById(+processid)
+        console.log(process[0]);
+        if(!process){
+            return res.status(400).send({ msg: 'There is no process' });
+        }else{
+            let tenderized_id = process[0].tenderized_id
+            if (!tenderized_id) return res.status(400).send({ msg: 'There is no tenderized' });
+            console.log(tenderized_id);
+            let tenderized:Tenderized = await this.tenderizedService.getTenderizedById(+tenderized_id)    
+            console.log(tenderized[0]);
+            if(!tenderized){
+                return res.status(400).send({ msg: 'There is no tenderized related to this process' });
+            }else{
+                let product_id = tenderized[0].product_id
+                if (!product_id) return res.status(400).send({ msg: 'There is no product' });
+                let product: Product = await this.productService.getProductById(+product_id)
+                console.log(product[0]);
+                if(!product){
+                    return res.status(400).send({ msg: 'There is no product related to this process.' });
+                }else{
+                    let response = ({
+                        temperature: `${tenderized[0].temperature}`,
+                        weight: `${tenderized[0].weight}`,
+                        weight_salmuera: `${tenderized[0].weight_salmuera}`,
+                        percentage: `${tenderized.percent_inject}`,
+                        date: `${tenderized.date}`,
+                        product: {
+                            id: `${product[0].id}`,
+                            description: `${product[0].description}`
+                        }
+                    });
+                    return res.status(200).send(response);
+                }
+            }
+        }
+    }
+
 }

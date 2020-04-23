@@ -24,8 +24,9 @@ export class Tenderized{
     percent_inject:number;
 
     @OneToOne(type => Product)
-    @JoinColumn()
-    product_id:number;
+    @JoinColumn({name:"product_id"})
+    product_id:Product;
+
 }
 
 

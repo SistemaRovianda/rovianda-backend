@@ -15,7 +15,7 @@ export const processRoutes:Array<routeInterface>=[
         url:"/rovianda/process",
         method:"get",
         controller:ProcessController,
-        target:"getProcessActive"
+        target:"getAllProcess"
     },{
         url:"/rovianda/process/conditioning/:processid",
         method:"post",
@@ -25,20 +25,23 @@ export const processRoutes:Array<routeInterface>=[
         url:"/rovianda/process/conditioning/:processid",
         method:"get",
         controller:ConditioningController,
-        target:"getProductConditioning"
+        target:"getConditioning"
     },{
         url:"/rovianda/process/injection-tenderized/:processid",
         method:"post",
         controller:TenderizedController,
         target:"createTenderized"
-    },
-    {
+    },{
+        url:"/process/injection-tenderized/:processid",
+        method:"get",
+        controller:TenderizedController,
+        target:"getTenderized"
+    },{
         url:"/rovianda/process/grinding/:processId",
         method:"post",
         controller:GrindingController,
         target:"createGrinding"
-    },
-    {
+    },{
         url:"/rovianda/process/sausage/:processId",
         method:"post",
         controller:SausagedController,
