@@ -2,6 +2,7 @@ import { routeInterface } from "../Models/Route.Interface";
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from "../Controllers/Tenderized.Controller";
+import { GrindingController } from "../Controllers/Grinding.Controller";
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -29,5 +30,11 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:TenderizedController,
         target:"createTenderized"
-}
+    },
+    {
+        url:"/rovianda/process/grinding/:processId",
+        method:"post",
+        controller:GrindingController,
+        target:"createGrinding"
+    }
 ];
