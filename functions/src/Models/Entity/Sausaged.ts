@@ -9,10 +9,13 @@ export class Sausaged{
     id:number;
 
     @Column()
-    weight_ini:string;
+    temperature:string;
 
     @Column()
     date:string;
+
+    @Column()
+    weight_ini:string;
 
     @Column()
     hour1:string;
@@ -31,7 +34,7 @@ export class Sausaged{
     
     @OneToOne(type => Product)
     @JoinColumn()
-    product_id:number;
+    product_id:Product;
 }
 
 

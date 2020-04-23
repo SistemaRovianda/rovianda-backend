@@ -11,6 +11,8 @@ import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { InquietudController } from '../Controllers/Inquietud.Controller';
 import { TenderizedController } from '../Controllers/Tenderized.Controller';
+import { GrindingController } from '../Controllers/Grinding.Controller';
+import { SausagedController } from '../Controllers/Sausaged.Controller';
 
 
 export class Initializer{
@@ -26,6 +28,8 @@ export class Initializer{
     private conditioningController:ConditioningController;
     private inquietudController:InquietudController;
     private tenderizedController:TenderizedController;
+    private grindingController:GrindingController;
+    private sausagedController:SausagedController;
     
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
@@ -40,6 +44,8 @@ export class Initializer{
         this.conditioningController = new ConditioningController(this.firebaseInstance);
         this.inquietudController = new InquietudController(this.firebaseInstance);
         this.tenderizedController = new TenderizedController(this.firebaseInstance);
+        this.grindingController = new GrindingController(this.firebaseInstance);
+        this.sausagedController = new SausagedController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -79,6 +85,12 @@ export class Initializer{
                 break;
             case TenderizedController.name:
                 return this.tenderizedController;
+                break;
+            case GrindingController.name:
+                return this.grindingController;
+                break;
+            case SausagedController.name:
+                return this.sausagedController;
                 break;
             default:
                 return null;

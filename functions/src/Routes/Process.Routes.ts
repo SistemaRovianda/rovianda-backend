@@ -2,6 +2,8 @@ import { routeInterface } from "../Models/Route.Interface";
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from "../Controllers/Tenderized.Controller";
+import { GrindingController } from "../Controllers/Grinding.Controller";
+import { SausagedController } from '../Controllers/Sausaged.Controller';
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -25,7 +27,7 @@ export const processRoutes:Array<routeInterface>=[
         controller:ConditioningController,
         target:"getConditioning"
     },{
-        url:"/process/injection-tenderized/:processid",
+        url:"/rovianda/process/injection-tenderized/:processid",
         method:"post",
         controller:TenderizedController,
         target:"createTenderized"
@@ -34,5 +36,15 @@ export const processRoutes:Array<routeInterface>=[
         method:"get",
         controller:TenderizedController,
         target:"getTenderized"
+    },{
+        url:"/rovianda/process/grinding/:processId",
+        method:"post",
+        controller:GrindingController,
+        target:"createGrinding"
+    },{
+        url:"/rovianda/process/sausage/:processId",
+        method:"post",
+        controller:SausagedController,
+        target:"createSausaged"
     }
 ];
