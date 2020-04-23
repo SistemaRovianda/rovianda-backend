@@ -43,5 +43,11 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:SausagedController,
         target:"createSausaged"
+    },
+    {
+        url:"/rovianda/process/sausage/:processId",
+        method:"get",
+        controller:SausagedController,
+        target:"getSausagedByProcess"
     }
 ];
