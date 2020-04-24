@@ -25,7 +25,10 @@ export class ProcessRepository{
 
     async getProcessById(id:number){
         await this.getConnection();
-        return await this.processRepository.findOne(id)
+        return await this.processRepository.findOne({
+            where:{id},
+            relations:["molienda_id"]
+        });
     }
 }
 

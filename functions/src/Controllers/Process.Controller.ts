@@ -4,15 +4,19 @@ import { Process } from '../Models/Entity/Process';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { ProcessService } from '../Services/Process.Service';
+import { Grinding } from '../Models/Entity/Grinding';
+import { GrindingService } from '../Services/Grinding.Service';
 
 export class ProcessController{
 
     private productService: ProductService;
     private processService:ProcessService;
+    private grindingService: GrindingService;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.productService = new ProductService();
+        this.grindingService = new GrindingService();
     }
 
     async createProcess(req:Request, res:Response){
@@ -89,5 +93,24 @@ export class ProcessController{
         }catch(err){
             return res.status(500).send(err);
         }
+    }
+
+    async getGrindingByProcessId(req:Request, res: Response){
+        let id = req.params.processId;
+        let process: Process = await this.processService.getProcessById(+id);
+        if(!process)
+            return res.status(409).send({msg:`process with id ${id} wasn't found`});
+        
+        if(!process.molienda_id)
+            return res.status(200).send({});
+        
+        let response = {
+            rawMaterial: process.molienda_id.raw,
+            process: process.molienda_id.process,
+            weight: process.molienda_id.weight,
+            date: process.molienda_id.date
+        }
+        return res.status(200).send(response);
+
     }
 }
