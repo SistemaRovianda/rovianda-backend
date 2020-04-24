@@ -45,15 +45,15 @@ export class TenderizedController{
                 tenderized.weight = weight;
                 tenderized.weight_salmuera = weight_salmuera;
                 tenderized.temperature = temperature;
-                tenderized.product_id = product[0].id;
+                tenderized.product_id = product[0];
                 tenderized.date = date;
                 tenderized.percent_inject = percentage;
                 console.log("curso")
                 await this.tenderizedService.createTenderized(tenderized);
                 if(processToUpdate[0]){
                     console.log("actualizando")
-                    processToUpdate.tenderized_id=tenderized;
-                    await this.processService.createProcess(processToUpdate)
+                    processToUpdate[0].tenderized_id=tenderized;
+                    await this.processService.createProcess(processToUpdate[0])
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg:"No existe process"});

@@ -4,6 +4,7 @@ import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from "../Controllers/Tenderized.Controller";
 import { GrindingController } from "../Controllers/Grinding.Controller";
 import { SausagedController } from '../Controllers/Sausaged.Controller';
+import { UserController } from '../Controllers/User.Controller';
 export const processRoutes:Array<routeInterface>=[
 
     {
@@ -51,11 +52,15 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:SausagedController,
         target:"createSausaged"
-    },
-    {
+    },{
         url:"/rovianda/process/sausage/:processId",
         method:"get",
         controller:SausagedController,
         target:"getSausagedByProcess"
+    },{
+        url:"/rovianda/process/users/:processId",
+        method:"post",
+        controller:UserController,
+        target:"createUserProcess"
     }
 ];
