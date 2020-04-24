@@ -10,6 +10,12 @@ export class GrindingRepository{
         }
     }
 
+    async getGrindingById(id:number){
+        await this.getConnection();
+        return await this.grindingRepository.findOne({
+            where: {id}
+        });
+    }
     async saveGrinding(grinding:Grinding){
         await this.getConnection();
         return await this.grindingRepository.save(grinding);

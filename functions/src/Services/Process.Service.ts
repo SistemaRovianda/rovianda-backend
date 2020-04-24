@@ -18,4 +18,8 @@ export class ProcessService{
     async getProcessById(id:number){
         return await this.processRepository.getProcessById(id);
     }
+
+    async getProcessWithGrindingById(id:number){
+        return await this.processRepository.getProcessWithGrindingById(id);
+    }
 }

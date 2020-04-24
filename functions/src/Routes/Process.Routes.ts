@@ -32,6 +32,11 @@ export const processRoutes:Array<routeInterface>=[
         controller:TenderizedController,
         target:"createTenderized"
     },{
+        url:"/rovianda/process/grinding/:processId",
+        method: "get",
+        controller: ProcessController,
+        target: "getGrindingByProcessId"
+    },{
         url:"/process/injection-tenderized/:processid",
         method:"get",
         controller:TenderizedController,

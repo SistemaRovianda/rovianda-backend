@@ -33,6 +33,14 @@ export class ProcessRepository{
         console.log("consulta")
         return await this.processRepository.query(`SELECT * FROM process WHERE id = ${process_id}`)
     }
+
+    async getProcessWithGrindingById(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id},
+            relations:["molienda_id"]
+        });
+    }
 }
 
 

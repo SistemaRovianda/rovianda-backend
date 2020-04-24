@@ -7,6 +7,9 @@ export class GrindingService{
         this.grindingRepository = new GrindingRepository();
     }
 
+    async getGrindingById(id:number){
+        return await this.grindingRepository.getGrindingById(id);
+    }
     async saveGrinding(grinding:Grinding){
         return await this.grindingRepository.saveGrinding(grinding);
     }
