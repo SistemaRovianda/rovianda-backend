@@ -4,22 +4,30 @@ import { OutputsDrief } from './Outputs.Drief';
 import { EntrancesDrief } from './Entrances.Drief';
 import { EntrancesPacking } from './Entrances.Packing';
 import { Ingredients } from './Ingredients';
+import { WarehousePacking } from './Warehouse.Packing';
+import { OutputsPacking } from './Outputs.Packing';
 
 @Entity({name:"product"})
 export class Product{
 
     @PrimaryGeneratedColumn()
     @ManyToMany(type => Ingredients, ingredients=> ingredients.product_id)
-    id:Ingredients[];
+    id:number;
 
     @Column()
     description:string;
-    
+   
+    @OneToMany(type=>WarehousePacking,warehousePacking=>warehousePacking.product)
+    warehousePacking:WarehousePacking[];
+
     @OneToMany(type=>WarehouseDrief,warehouseDrief=>warehouseDrief.product)
     warehouseDrief:WarehouseDrief[];
 
     @OneToMany(type=> OutputsDrief,outputsDrief=>outputsDrief.product)
     outputsDrief: OutputsDrief[];
+
+    @OneToMany(type=> OutputsPacking,outputsPacking=>outputsPacking.product)
+    outputsPacking: OutputsPacking[];
 
     //@OneToMany(type=>ProductSale,productSale=>productSale.product)
     //productSale:ProductSale[];

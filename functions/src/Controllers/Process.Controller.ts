@@ -20,9 +20,9 @@ export class ProcessController{
     }
 
     async createProcess(req:Request, res:Response){
-        let {product_id, new_lote, weight, lote_interno, temperature,hourEntrance,hourExit,
+        let {new_lote, weight, lote_interno, temperature,hourEntrance,hourExit,
             dateIni,dateFin,status,current_process,name_elaborated,job_elaborated,name_verify,
-            job_verify} = req.body;
+            job_verify,product_id} = req.body;
                 
         let process = new Process();
         try{
@@ -30,9 +30,8 @@ export class ProcessController{
             let product:Product = await this.productService.getProductById(+product_id);
             console.log(product[0])
             if(product[0]){
-                return res.status(404).send({msg:"No existe proceso"});
+                return res.status(404).send({msg:"No existe product"});
             }else{
-                process.product_id = product_id;
                 process.new_lote = new_lote;
                 process.weigth = weight;
                 process.lote_interno = lote_interno;
@@ -47,7 +46,7 @@ export class ProcessController{
                 process.job_elaborated = job_elaborated;
                 process.job_verify = job_verify;
                 process.name_verify = name_verify;
-                process.product_id = product[0];
+                process.product_id = product[0].id;
             console.log("curso")
             await this.processService.createProcess(process);
             console.log("hecho")
@@ -59,9 +58,28 @@ export class ProcessController{
         }
     }
 
+    async getAllProcess(req:Request,res:Response){
+        try{
+            let process:Process[] = await this.processService.getProcessActive();
+            let response:any = [];
+            process.forEach((i:any) => {
+                response.push({
+                process_id: `${i.id}`,
+                productName: `${i.description}`,
+                lot_id: `${i.lote_interno}`,
+                date: `${i.start_date},${i.end_date}`,
+                currentProcess: `${i.current_process}`
+                });
+            });
+        return res.status(200).send(response);
+        }catch(err){
+            return res.status(500).send(err);
+        } 
+    }
+
     async getProcessActive(req:Request,res:Response){
         try{
-            let process:Product[] = await this.processService.getProcessActive();
+            let process:Process[] = await this.processService.getProcessActive();
             let response:any = [];
             process.forEach((i:any) => {
                 response.push({
@@ -97,7 +115,7 @@ export class ProcessController{
 
     async getGrindingByProcessId(req:Request, res: Response){
         let id = req.params.processId;
-        let process: Process = await this.processService.getProcessById(+id);
+        let process: Process = await this.processService.getProcessWithGrindingById(+id);
         if(!process)
             return res.status(409).send({msg:`process with id ${id} wasn't found`});
         

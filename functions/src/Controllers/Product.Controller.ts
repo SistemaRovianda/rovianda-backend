@@ -10,6 +10,23 @@ export class ProductController{
         this.productService = new ProductService();
     }
 
+
+    async createProduct(req:Request,res:Response){
+        let {description} = req.body;
+            if (!description) return res.status(400).send({ msg: 'description is required'});
+        let productToSave = new Product();   
+        try{
+                console.log("inicio")
+                productToSave.description = description;
+                console.log("creando")
+                await this.productService.createProduct(productToSave);
+                return res.status(201).send();
+        }catch(err){
+            console.log(err)
+            return res.status(500).send(err);
+        }
+    }
+
     async getAllProducts(req:Request,res:Response){
         try{
             let products:Product[] = await this.productService.getAllProducts();

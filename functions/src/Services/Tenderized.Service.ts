@@ -16,6 +16,12 @@ export class TenderizedService{
         return await this.tenderizedRepository.getTenderizedById(id);
     }
 
+    async getProductTenderized(processid:number){
+        return await this.tenderizedRepository.getProductTenderized(processid);
+    }
 
+    async getAllTenderized(){
+        return await this.tenderizedRepository.getAllTenderized();
+    }
     
 }

@@ -12,7 +12,6 @@ export class ProcessService{
     }
 
     async getProcessActive(){
-        
         return await this.processRepository.getProcessActive();
     }
 
@@ -20,4 +19,7 @@ export class ProcessService{
         return await this.processRepository.getProcessById(id);
     }
 
+    async getProcessWithGrindingById(id:number){
+        return await this.processRepository.getProcessWithGrindingById(id);
+    }
 }

@@ -5,22 +5,22 @@ import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Con
 export const entrancesRoutes:Array<routeInterface>=[
 
     {
-        url:"/entry/meat",
+        url:"/rovianda/entry/meat",
         method:"post",
         controller:EntrancesMeatController,
         target:"createEntrancesMeat"
     },{
-        url:"/packing/entrance",
+        url:"/rovianda/packing/entrance",
         method:"post",
         controller:EntrancesPackingController,
         target:"createWarehousePacking"
     },{
-        url:"/packing/close",
+        url:"/rovianda/packing/close",
         method:"post",
         controller:EntrancesPackingController,
         target:"closeWarehousePacking"
     },{
-        url:"/packing/exit",
+        url:"/rovianda/packing/exit",
         method:"post",
         controller:EntrancesPackingController,
         target:"createOutputsPacking"
