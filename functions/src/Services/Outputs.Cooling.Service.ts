@@ -19,8 +19,6 @@ export class OutputsCoolingService{
 
     async createOutputsCooling(outputsMeat:OutputMeatDTO){
 
-        let product:Product = await this.productRepository.getProductById(outputsMeat.productId);
-        if(!product) throw new Error("[404],el producto no existe");
         let lote:Cooling = await this.coolingRepository.getCoolingByLote(outputsMeat.loteId);
         if(!lote) throw new Error("[404],no existe el lote");
         if(lote.status==WarehouseStatus.CLOSED) throw new Error("[409], el lote esta cerrado");
@@ -28,7 +26,7 @@ export class OutputsCoolingService{
 
         let outputsCooling:OutputsCooling = new OutputsCooling();
         outputsCooling.loteInterno = outputsMeat.loteId;
-        outputsCooling.rawMaterial = lote.rawMaterial;
+        outputsCooling.rawMaterial = outputsMeat.rawMaterial;
         outputsCooling.observations = outputsMeat.observations;
         outputsCooling.outputDate = outputsMeat.date;
         outputsCooling.quantity = outputsMeat.quantity;

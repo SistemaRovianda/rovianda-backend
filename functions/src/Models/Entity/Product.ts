@@ -4,7 +4,6 @@ import { WarehousePacking } from "./Warehouse.Packing";
 import { WarehouseDrief } from "./Warehouse.Drief";
 import { OutputsPacking } from "./Outputs.Packing";
 import { OutputsDrief } from "./Outputs.Drief";
-import { ProductRovianda } from "./Product.Rovianda";
 
 @Entity({name:"product"})
 export class Product{

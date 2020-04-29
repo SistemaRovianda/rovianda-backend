@@ -19,7 +19,7 @@ export class ProductService{
 
     async createProduct(req:Request){
         let {description,type} = req.body;
-        if(!type && (type == TYPE.DRIEF || type == TYPE.FRIDGE) ) throw new Error("[400],type is missing or type has a invalid value");
+        if(!type && (type == TYPE.DRIEF || type == TYPE.PACKING) ) throw new Error("[400],type is missing or type has a invalid value");
         if (!description) throw new Error('[400],description is required');
         let productToSave = new Product();   
         console.log("inicio")

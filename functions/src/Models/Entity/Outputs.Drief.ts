@@ -11,8 +11,8 @@ export class OutputsDrief{
     @ManyToOne(type=>Product, product=>product.outputsDrief,{eager:true, onDelete:"SET NULL"})
     product:Product; 
 
-    @Column()
-    lote_proveedor:string;
+    @Column({name:"lote_proveedor"})
+    loteProveedor:string;
 
     @Column()
     date:string;   

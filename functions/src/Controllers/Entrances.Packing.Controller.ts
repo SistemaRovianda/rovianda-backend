@@ -2,21 +2,23 @@ import {Request,Response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { WarehousePackingService } from '../Services/Warehouse.Packing.Service';
 import { OutputsPackingService } from '../Services/Outputs.Packing.Service';
+import { EntrancePackingService } from '../Services/Entrance.Packing.Service';
 
 export class EntrancesPackingController  {
 
     private warehousepackingService:WarehousePackingService;
     private outputsPackingService:OutputsPackingService;
-
+    private entrancePackingService:EntrancePackingService;
     constructor(){
         this.warehousepackingService = new WarehousePackingService();
         this.outputsPackingService = new OutputsPackingService();
+        this.entrancePackingService = new EntrancePackingService();
     }
 
-    // async createEntrancePacking(req:Request,res:Response){
-    //     await this.entrancePackingService.saveEntrancePacking(req.body);
-    //     return res.status(201).send();
-    // }
+    async createEntrancePacking(req:Request,res:Response){
+        await this.entrancePackingService.saveEntrancePacking(req.body);
+        return res.status(201).send();
+    }
 
     async updateWarehousePacking(req:Request,res:Response){
        

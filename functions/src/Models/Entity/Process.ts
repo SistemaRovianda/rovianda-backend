@@ -1,5 +1,4 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
-import { Entrances_Meat } from "./Entrances.Meat"
 import { Grinding } from './Grinding';
 import { User } from './Users';
 import { Tenderized } from './Tenderized';
@@ -15,13 +14,13 @@ export class Process{
 
     @OneToOne(type => Product)
     @JoinColumn({name:"product_id"})
-    product_id:Product;
+    productId:Product;
     
-    @Column()
-    lote_interno:string;
+    @Column({name:"lote_interno"})
+    loteInterno:string;
 
-    @Column()
-    new_lote:string;
+    @Column({name:"new_lote"})
+    newLote:string;
 
     @Column()
     weigth:string;
@@ -29,55 +28,55 @@ export class Process{
     @Column()
     temperature:string;
 
-    @Column()
-    entrance_hour:string;
+    @Column({name:"entrance_hour"})
+    entranceHour:string;
 
-    @Column()
-    output_hour:string;
+    @Column({name:"output_hour"})
+    outputHour:string;
 
-    @Column()
-    end_date:string;
+    @Column({name:"end_date"})
+    endDate:string;
 
-    @Column()
-    start_date:string;
+    @Column({name:"start_date"})
+    startDate:string;
 
     @Column()
     status:string;
 
-    @Column()
-    current_process:string;
+    @Column({name:"current_process"})
+    currentProcess:string;
     
-    @Column()
-    name_elaborated:string;
+    @Column({name:"name_elaborated"})
+    nameElaborated:string;
 
-    @Column()
-    job_elaborated:string;
+    @Column({name:"job_elaborated"})
+    jobElaborated:string;
 
-    @Column()
-    name_verify:string;
+    @Column({name:"name_verify"})
+    nameVerify:string;
 
-    @Column()
-    job_verify:string;
+    @Column({name:"job_verify"})
+    jobVerify:string;
 
     @OneToOne(type => Grinding)
-    @JoinColumn()
-    molienda_id:Grinding;
+    @JoinColumn({name:"grinding_id"})
+    grindingId:Grinding;
 
     @OneToOne(type => Tenderized)
     @JoinColumn({name:"tenderized_id"})
-    tenderized_id:Tenderized;
+    tenderizedId:Tenderized;
 
     @OneToOne(type => Conditioning)
     @JoinColumn({name:"conditioning_id"})
-    conditioning_id:Conditioning;
+    conditioningId:Conditioning;
 
     @OneToOne(type => Sausaged)
-    @JoinColumn()
-    sausage_id:Sausaged;
+    @JoinColumn({name:"sausage_id"})
+    sausageId:Sausaged;
 
     @OneToOne(type => User)
-    @JoinColumn()
-    user_id:User;
+    @JoinColumn({name:"user_id"})
+    userId:User;
 }
 
 

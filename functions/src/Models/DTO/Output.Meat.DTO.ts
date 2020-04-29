@@ -1,5 +1,5 @@
 export interface OutputMeatDTO{
-    productId:number;
+    rawMaterial:string;
     date:string;
     loteId:string;
     quantity:string;

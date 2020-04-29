@@ -5,10 +5,11 @@ import { Product } from "./Product";
 export class ProductRovianda{
     @PrimaryGeneratedColumn()
     id:number;
-    @Column({name:"product_name"})
-    productName:string;
+
+    @Column()
+    name:string;
     
-    @ManyToMany(type=>Product)
+    @ManyToMany(type=>Product,{cascade:true,eager:false})
     @JoinColumn()
     ingredients:Product[];
 }
