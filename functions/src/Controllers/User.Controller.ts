@@ -37,11 +37,11 @@ export class UserController{
                     let product_id = processToUpdate[0].id;
                     let product:Product = await this.productService.getProductById(+product_id);
                     if(product){
-                        processToUpdate.name_elaborated = nameElaborated;
-                        processToUpdate.name_verify = nameVerify;
-                        processToUpdate.job_elaborated = jobElaborated;
-                        processToUpdate.job_verify = jobVerify;
-                        processToUpdate.user_id = user[0];
+                        processToUpdate.nameElaborated = nameElaborated;
+                        processToUpdate.nameVerify = nameVerify;
+                        processToUpdate.jobElaborated = jobElaborated;
+                        processToUpdate.jobVerify = jobVerify;
+                        processToUpdate.userId = user[0];
                         await this.processService.createProcess(processToUpdate);
                         return res.status(201).send();
                     }else{

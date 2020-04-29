@@ -3,8 +3,6 @@ import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { User } from '../Models/Entity/Users';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
-import { PropsOrder } from '../Models/Entity/Props.Order';
-import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
 import { Product } from '../Models/Entity/Product';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
@@ -12,8 +10,6 @@ import { Conditioning } from "../Models/Entity/Conditioning";
 import { EntranceStore } from "../Models/Entity/Entrance.Store";
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
-import { Ingredients } from '../Models/Entity/Ingredients';
-import { ProductsRovianda } from '../Models/Entity/Products.Rovianda';
 import { Formulation } from "../Models/Entity/Formulation";
 import { OutletStore } from '../Models/Entity/Outlet.Store';
 import { Sausaged } from '../Models/Entity/Sausaged';
@@ -45,8 +41,6 @@ const config: ConnectionOptions = {
         EntranceMeat,
         File,
         User,
-        PropsOrder,
-        ExtrasOrders,
         Pin,
         Product,
         WarehousePacking,
@@ -54,9 +48,8 @@ const config: ConnectionOptions = {
         EntranceStore,
         EntranceDrief,
         EntrancePacking,
-        Ingredients,
         Product,
-        ProductsRovianda,
+        ProductRovianda,
         Formulation,
         FormulationIngredients,
         OutletStore,

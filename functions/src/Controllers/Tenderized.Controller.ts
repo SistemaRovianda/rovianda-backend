@@ -43,11 +43,11 @@ export class TenderizedController{
                 console.log(product[0]);
                 console.log(processToUpdate[0]);
                 tenderized.weight = weight;
-                tenderized.weight_salmuera = weight_salmuera;
+                tenderized.weightSalmuera = weight_salmuera;
                 tenderized.temperature = temperature;
-                tenderized.product_id = product[0];
+                tenderized.productId = product[0];
                 tenderized.date = date;
-                tenderized.percent_inject = percentage;
+                tenderized.percentInject = percentage;
                 console.log("curso")
                 await this.tenderizedService.createTenderized(tenderized);
                 if(processToUpdate[0]){
@@ -95,7 +95,7 @@ export class TenderizedController{
                         temperature: `${tenderized[0].temperature}`,
                         weight: `${tenderized[0].weight}`,
                         weight_salmuera: `${tenderized[0].weight_salmuera}`,
-                        percentage: `${tenderized.percent_inject}`,
+                        percentage: `${tenderized.percentInject}`,
                         date: `${tenderized.date}`,
                         product: {
                             id: `${product[0].id}`,

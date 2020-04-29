@@ -54,13 +54,13 @@ export class ConditioningController{
             conditioning.healthing = healthing;
             conditioning.weight = weight;
             conditioning.temperature = temperature;
-            conditioning.product_id = product[0].id;
+            conditioning.productId = product[0].id;
             conditioning.date = date;
             console.log("curso")
             await this.conditionigService.createConditioning(conditioning);
                 if(processToUpdate[0]){
                     console.log("actualizando")
-                    processToUpdate.conditioning_id=conditioning;
+                    processToUpdate.conditioningId=conditioning;
                     await this.processService.createProcess(processToUpdate)
                     return res.status(201).send();
                 }else{

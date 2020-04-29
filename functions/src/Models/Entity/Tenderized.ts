@@ -1,5 +1,4 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
-import { Entrances_Meat } from "./Entrances.Meat"
 import { Product } from "./Product";
 
 @Entity({name:"tenderized"})
@@ -14,18 +13,18 @@ export class Tenderized{
     @Column()
     weight:string;
 
-    @Column()
-    weight_salmuera:number;
+    @Column({name:"weight_salmuera"})
+    weightSalmuera:number;
 
     @Column()
     date:string;
     
-    @Column()
-    percent_inject:number;
+    @Column({name:"percent_inject"})
+    percentInject:number;
 
     @OneToOne(type => Product)
     @JoinColumn({name:"product_id"})
-    product_id:Product;
+    productId:Product;
 
 }
 

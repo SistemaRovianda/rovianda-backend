@@ -44,13 +44,13 @@ export class SausagedController{
                     sausaged.hour2 = hour2;
                     sausaged.hour3 = hour3;
                     sausaged.temperature = temperature;
-                    sausaged.weight_ini = weightInitial;
-                    sausaged.weight_medium = weightMedium;
-                    sausaged.weight_exit = weightFinal;
-                    sausaged.product_id = product[0];
+                    sausaged.weightIni = weightInitial;
+                    sausaged.weightMedium = weightMedium;
+                    sausaged.weightExit = weightFinal;
+                    sausaged.productId = product[0];
                     await this.sausagedService.saveSausaged(sausaged);
                     let objSausaged:Sausaged = await this.sausagedService.getLastSausaged();
-                    processObj.sausage_id = objSausaged[0];
+                    processObj.sausageId = objSausaged[0];
                     await this.processService.createProcess(processObj);
                     return res.status(201).send();
                 }else{

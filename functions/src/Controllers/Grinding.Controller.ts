@@ -33,7 +33,7 @@ export class GrindingController{
                 grinding.weight = weight;
                 await this.grindingService.saveGrinding(grinding);
                 let objGrinding:Grinding = await this.grindingService.getLastGrinding();
-                processObj.molienda_id = objGrinding[0];
+                processObj.grindingId = objGrinding[0];
                 await this.processService.createProcess(processObj);
                 return res.status(201).send();
             }else{

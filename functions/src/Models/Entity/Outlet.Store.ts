@@ -1,5 +1,4 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, ManyToMany, OneToOne, JoinColumn } from "typeorm";
-import { Ingredients } from './Ingredients';
 import { Product } from './Product';
 import { User } from './Users';
 
@@ -10,12 +9,12 @@ export class OutletStore{
     id:number;
 
     @OneToOne(type => Product)
-    @JoinColumn()
-    product_id: Product;
+    @JoinColumn({name:"product_id"})
+    productId: Product;
 
     @OneToOne(type => User )
-    @JoinColumn()
-    vendedor_id: User;
+    @JoinColumn({name:"vendor_id"})
+    vendedorId: User;
     
     @Column()
     amount:number;

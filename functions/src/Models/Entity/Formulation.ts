@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
-import { ProductsRovianda } from './Products.Rovianda';
+import { ProductRovianda } from "./Product.Rovianda";
+
 
 @Entity({name:"formulation"})
 export class Formulation{
@@ -7,21 +8,21 @@ export class Formulation{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @OneToOne(type => ProductsRovianda)
-    @JoinColumn()
-    product_rovianda_id: ProductsRovianda;
+    @OneToOne(type => ProductRovianda)
+    @JoinColumn({name:"product_rovianda_id"})
+    productRoviandaId: ProductRovianda;
 
-    @Column()
-    lote_interno:string;
+    @Column({name:"lote_interno"})
+    loteInterno:string;
 
     @Column()
     temp:string;
 
-    @Column()
-    water_temp:string;
+    @Column({name:"water_temp"})
+    waterTemp:string;
 
-    @Column()
-    new_lote:string;
+    @Column({name:"new_lote"})
+    newLote:string;
 
    
 

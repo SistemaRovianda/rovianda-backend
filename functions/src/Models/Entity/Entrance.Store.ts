@@ -9,12 +9,12 @@ export class EntranceStore{
     id:number;
 
     @OneToOne(type => Product)
-    @JoinColumn()
-    product_id: Product;
+    @JoinColumn({name:"product_id"})
+    productId: Product;
     
     @OneToOne(type => User)
-    @JoinColumn()
-    vendedor_id: Product;
+    @JoinColumn({name:"vendedor_id"})
+    vendedorId: Product;
 
     @Column()
     merma:boolean; 

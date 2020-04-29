@@ -8,8 +8,8 @@ export class Sale{
     id:number;
 
     @OneToOne(type => Product)
-    @JoinColumn()
-    product_id:number;
+    @JoinColumn({name:"product_id"})
+    productId:number;
 
     @Column()
     total:number;

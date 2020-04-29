@@ -1,7 +1,7 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { EntrancesMeatController } from '../Controllers/Entrances.Meat.Controller';
 import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Controller';
-import { EntranceDriefController } from "../Controllers/Entrance.Drief.Controller";
+import { EntranceDriefController } from "../Controllers/Entrances.Drief.Controller";
 
 export const entrancesRoutes:Array<routeInterface>=[
 

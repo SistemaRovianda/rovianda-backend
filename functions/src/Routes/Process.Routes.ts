@@ -1,5 +1,5 @@
 import { routeInterface } from "../Models/Route.Interface";
-import { ProcessController } from '../Controllers/Process.Controller';
+// import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from "../Controllers/Tenderized.Controller";
 import { GrindingController } from "../Controllers/Grinding.Controller";
@@ -7,17 +7,23 @@ import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller';
 export const processRoutes:Array<routeInterface>=[
 
+    // {
+    //     url:"/rovianda/process",
+    //     method:"post",
+    //     controller:ProcessController,
+    //     target:"createProcess"
+    // },{
+    //     url:"/rovianda/process",
+    //     method:"get",
+    //     controller:ProcessController,
+    //     target:"getAllProcess"
+    // },{
+    //     url:"/rovianda/process/grinding/:processId",
+    //     method: "get",
+    //     controller: ProcessController,
+    //     target: "getGrindingByProcessId"
+    // }
     {
-        url:"/rovianda/process",
-        method:"post",
-        controller:ProcessController,
-        target:"createProcess"
-    },{
-        url:"/rovianda/process",
-        method:"get",
-        controller:ProcessController,
-        target:"getAllProcess"
-    },{
         url:"/rovianda/process/conditioning/:processid",
         method:"post",
         controller:ConditioningController,
@@ -32,11 +38,6 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:TenderizedController,
         target:"createTenderized"
-    },{
-        url:"/rovianda/process/grinding/:processId",
-        method: "get",
-        controller: ProcessController,
-        target: "getGrindingByProcessId"
     },{
         url:"/process/injection-tenderized/:processid",
         method:"get",
