@@ -1,5 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
-import { Fridges } from './Fridges';
+import { Fridge } from './Fridges';
 
 
 @Entity({name:"cooling"})
@@ -8,32 +8,32 @@ export class Cooling{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
-    lote_interno:string;
+    @Column({name:"lote_interno"})
+    loteInterno:string;
 
-    @Column()
-    lote_proveedor:string;
+    @Column({name:"lote_proveedor"})
+    loteProveedor:string;
 
     @Column()
     quantity:string;
 
-    @Column()
-    userid:string;
+    @Column({name:"userId"})
+    userId:string;
 
-    @ManyToOne(type=>Fridges, fridge=>fridge.coolings, {eager:true, onDelete:"SET NULL"})
-    fridge:Fridges;
+    @ManyToOne(type=>Fridge, fridge=>fridge.coolings, {eager:true, onDelete:"SET NULL"})
+    fridge:Fridge;
 
     @Column()
     status:string;
 
-    @Column()
-    raw_material:string;
+    @Column({name:"raw_material"})
+    rawMaterial:string;
 
-    @Column()
-    opening_date:string;
+    @Column({name:"opening_date",nullable:true})
+    openingDate:string;
 
-    @Column()
-    closing_date:string;
+    @Column({name:"closing_date",nullable:true})
+    closingDate:string;
     
 
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
@@ -42,3 +42,4 @@ export class Cooling{
     //@ManyToOne(type=>Category,category=>category.products,{eager:true, onDelete:"SET NULL"})
     //category:Category;
 }
+

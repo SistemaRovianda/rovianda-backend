@@ -1,14 +1,19 @@
-import { FridgesRepository } from "../Repositories/Fridges.Repository";
-import { Fridges } from "../Models/Entity/Fridges";
+import { FridgeRepository } from "../Repositories/Fridges.Repository";
+import { Fridge } from "../Models/Entity/Fridges";
+import { Request } from "express";
 
 export class FridgesService{
-    private fridgesRepository:FridgesRepository;
+    private fridgesRepository:FridgeRepository;
     constructor(){
-        this.fridgesRepository = new FridgesRepository();
+        this.fridgesRepository = new FridgeRepository();
     }
 
-    async saveFridges(fridges:Fridges){
-        return await this.fridgesRepository.saveFridges(fridges);
+    async saveFridges(req:Request){
+        let {tempOfFridge} = req.body;
+        if(!tempOfFridge) throw new Error("[400],tempOfFridge is required")
+        let fridges:Fridge = new Fridge();
+        fridges.temp = tempOfFridge;
+        return await this.fridgesRepository.saveFridge(fridges);
     }
     
     async getAllFridges(){
@@ -16,6 +21,6 @@ export class FridgesService{
     }
 
     async getFridgesById(id:number){
-        return await this.fridgesRepository.getFridgesById(id);
+        return await this.fridgesRepository.getFridgeById(id);
     }
 }

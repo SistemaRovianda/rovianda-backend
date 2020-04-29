@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { User } from '../Models/Entity/Users';
-import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
 import { PropsOrder } from '../Models/Entity/Props.Order';
 import { ExtrasOrders } from '../Models/Entity/Extra.Orders';
@@ -10,8 +10,8 @@ import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
 import { Conditioning } from "../Models/Entity/Conditioning";
 import { EntranceStore } from "../Models/Entity/Entrance.Store";
-import { EntrancesDrief } from '../Models/Entity/Entrances.Drief';
-import { EntrancesPacking } from "../Models/Entity/Entrances.Packing";
+import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
+import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 import { Ingredients } from '../Models/Entity/Ingredients';
 import { ProductsRovianda } from '../Models/Entity/Products.Rovianda';
 import { Formulation } from "../Models/Entity/Formulation";
@@ -23,11 +23,12 @@ import { Grinding } from '../Models/Entity/Grinding';
 import { Sale } from "../Models/Entity/Sale";
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 import { Pin } from '../Models/Entity/Pin';
-import { Fridges } from '../Models/Entity/Fridges'
+import { Fridge } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
 
 const config: ConnectionOptions = {
@@ -41,7 +42,7 @@ const config: ConnectionOptions = {
     synchronize: true,
     logging: false,
     entities: [
-        Entrances_Meat,
+        EntranceMeat,
         File,
         User,
         PropsOrder,
@@ -51,8 +52,8 @@ const config: ConnectionOptions = {
         WarehousePacking,
         Conditioning,
         EntranceStore,
-        EntrancesDrief,
-        EntrancesPacking,
+        EntranceDrief,
+        EntrancePacking,
         Ingredients,
         Product,
         ProductsRovianda,
@@ -64,12 +65,13 @@ const config: ConnectionOptions = {
         Process,
         Grinding,
         Sale,
-        Fridges,
+        Fridge,
         Cooling,
         OutputsCooling,
         WarehouseDrief,
         OutputsDrief,
-        OutputsPacking
+        OutputsPacking,
+        ProductRovianda
     ]
 
 }

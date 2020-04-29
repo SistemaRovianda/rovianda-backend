@@ -10,7 +10,7 @@ export class WarehouseDriefRepository{
         }
     }
 
-    async createWarehouseDrief(warehouseDrief:WarehouseDrief){
+    async saveWarehouseDrief(warehouseDrief:WarehouseDrief){
         await this.getConnection();
         return await this.warehouseDriefRepository.save(warehouseDrief);
     }
@@ -18,6 +18,11 @@ export class WarehouseDriefRepository{
     async getWarehouseDriefById(id:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({id})
+    }
+
+    async getWarehouseDriefByLoteId(loteProveedor:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({loteProveedor});
     }
 
     async getWarehouseDriefByStatus(status:string){

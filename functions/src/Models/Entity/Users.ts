@@ -1,20 +1,20 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne } from "typeorm";
-import { Entrances_Meat } from './Entrances.Meat';
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { EntranceMeat } from './Entrances.Meat';
 
 @Entity({name:"users"})
 export class User{
 
-    @PrimaryGeneratedColumn()
-    user_id:string;
+    @PrimaryGeneratedColumn({name:"user_id"})
+    userId:string;
 
     @Column({name:"name"})
     name:string;
 
-    @Column()
-    first_surname:string;
+    @Column({name:"first_surname"})
+    firstSurname:string;
 
-    @Column()
-    last_surname:string;
+    @Column({name:"last_surname"})
+    lastSurname:string;
 
     @Column()
     email:string;
@@ -22,6 +22,6 @@ export class User{
     @Column()
     rol:string;
 
-    @ManyToOne(type =>Entrances_Meat, entrances_meat => entrances_meat.id)
-    entrancesMeat:Entrances_Meat;
+    @OneToMany(type =>EntranceMeat, entrancesMeat => entrancesMeat.qualityInspector)
+    entrancesMeat:EntranceMeat[];
 }

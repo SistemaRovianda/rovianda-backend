@@ -3,3 +3,8 @@ export const TYPE ={
     DRIEF: "DRIEF",
     PACKING: "PACKING"
 }
+
+export const LOTESTATUS= {
+    OPEN:"OPEN",
+    CLOSED:"CLOSED"
+}

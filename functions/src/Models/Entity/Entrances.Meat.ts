@@ -1,11 +1,11 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { File } from "./Files";
 import { User } from "./Users";
 
 
 
 @Entity({name:"entrances_meat"})
-export class Entrances_Meat{
+export class EntranceMeat{
 
     @PrimaryGeneratedColumn({name:"id"})
     id:number;
@@ -13,17 +13,17 @@ export class Entrances_Meat{
     @Column()
     proveedor:string;
 
-    @Column()
-    lote_proveedor:string;
+    @Column({name: "lote_proveedor"})
+    loteProveedor:string;
     
-    @Column()
-    created_at:string;
+    @Column({name:"created_at"})
+    createdAt:string;
 
-    @Column()
-    raw_material:string;
+    @Column({name:"raw_material"})
+    rawMaterial:string;
 
-    @Column()
-    lote_interno:string;
+    @Column({name:"lote_interno"})
+    loteInterno:string;
     
     @Column("simple-json")
     weight:{
@@ -39,8 +39,8 @@ export class Entrances_Meat{
         accepted: boolean
         }
 
-    @Column("simple-json")
-    strageMaterial:{
+    @Column("simple-json",{name:"strangeMaterial"})
+    strangeMaterial:{
         value: string,
         descriptions: string,
         accepted: boolean
@@ -88,7 +88,7 @@ export class Entrances_Meat{
         accepted: boolean
         }
     
-    @Column("simple-json")
+    @Column("simple-json",{name:"slaughter_date"})
     slaughterDate:{
         value: string,
         descriptions: string,
@@ -98,11 +98,12 @@ export class Entrances_Meat{
     @Column()
     job: string;
     
-    @ManyToMany(type => File, file => file.entrancesMeat)
-    photo:File[]; 
+    @OneToOne(type => File,{eager:true,cascade:true})
+    @JoinColumn()
+    photo:File; 
 
-    @OneToMany(type => User, user => user.entrancesMeat)
-    qualityInspector:User[];
+    @ManyToOne(type => User, user => user.entrancesMeat,{eager:true})
+    qualityInspector:User;
 
 }
 

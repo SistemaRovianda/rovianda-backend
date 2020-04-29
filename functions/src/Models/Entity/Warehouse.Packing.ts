@@ -8,11 +8,11 @@ export class WarehousePacking{
     @PrimaryGeneratedColumn()
     id : number;
 
-    @ManyToOne(type=>Product,product=>product.warehousePacking, {eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=>Product,product=>product.warehousePacking)
     product:Product;
 
-    @Column()
-    lote_proveedor: string;
+    @Column({name:"lote_proveedor"})
+    loteProveedor: string;
     
     @Column()
     date: string;
@@ -20,11 +20,11 @@ export class WarehousePacking{
     @Column()
     quantity: string;
 
-    @Column()
-    is_pz: string;
+    @Column({name:"is_pz"})
+    isPz: boolean;
 
-    @Column()
-    user_id: string;
+    @Column({name:"user_id"})
+    userId: string;
 
     @Column()
     observations: string;
@@ -32,9 +32,9 @@ export class WarehousePacking{
     @Column()
     status: string;
 
-    @Column()
-    opening_date: string;
+    @Column({name:"opening_date",nullable:true})
+    openingDate: string;
 
-    @Column()
-    closing_date: string;
+    @Column({name:"closing_date",nullable:true})
+    closingDate: string;
 }

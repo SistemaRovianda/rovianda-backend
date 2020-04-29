@@ -1,16 +1,16 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
-import { Fridges } from '../Models/Entity/Fridges';
-export class FridgesRepository{
-    private fridgesRepository:Repository<Fridges>;
+import { Fridge } from '../Models/Entity/Fridges';
+export class FridgeRepository{
+    private fridgesRepository:Repository<Fridge>;
 
     async getConnection(){
         if(!this.fridgesRepository){
-            this.fridgesRepository = (await connect()).getRepository(Fridges);
+            this.fridgesRepository = (await connect()).getRepository(Fridge);
         }
     }
 
-    async saveFridges(fridges:Fridges){
+    async saveFridge(fridges:Fridge){
         await this.getConnection();
         return await this.fridgesRepository.save(fridges);
     }
@@ -20,7 +20,7 @@ export class FridgesRepository{
         return await this.fridgesRepository.find();
     }
 
-    async getFridgesById(id:number){
+    async getFridgeById(id:number){
         await this.getConnection();
         return await this.fridgesRepository.query(`SELECT * FROM fridges WHERE fridge_id = ${id}`)
     }

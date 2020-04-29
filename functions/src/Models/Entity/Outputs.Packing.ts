@@ -9,19 +9,17 @@ export class OutputsPacking{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
-    lote_proveedor:string;
+    @Column({name:"lote_proveedor"})
+    loteProveedor:string;
 
     @Column()
     date:string;
 
     @Column()
-    quantity:string;
+    quantity:number;
 
-    @OneToOne(type => User )
-    @JoinColumn()
-    operator_outlet: User;
+    operatorOutlet: string;
 
-    @ManyToOne(type=>Product, product=>product.outputsPacking,{eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=>Product, product=>product.warehousePacking,{eager:true, onDelete:"SET NULL"})
     product:Product; 
 }

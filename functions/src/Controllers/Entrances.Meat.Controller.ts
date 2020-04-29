@@ -1,25 +1,34 @@
 import {Request,Response} from 'express';
 import { ErrorHandler } from '../Utils/Error.Handler';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-import { EntrancesMeatService } from '../Services/Entrances.Meat.Services';
+import { EntranceMeatService } from '../Services/Entrances.Meat.Services';
+import { CoolingService } from '../Services/Cooling.Service';
+import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
 
-export class EntrancesMeatController extends ErrorHandler {
+export class EntrancesMeatController{
 
-    private entrancesmeatService:EntrancesMeatService;
-
+    private entrancesmeatService:EntranceMeatService;
+    private coolingMeat:CoolingService;
+    private outputCoolingService:OutputsCoolingService;
     constructor(private firebaseInstance:FirebaseHelper){
-        super();
-        this.entrancesmeatService = new EntrancesMeatService();
+        
+        this.entrancesmeatService = new EntranceMeatService(this.firebaseInstance);
+        this.coolingMeat = new CoolingService();
     }
 
-    async createEntrancesMeat(req:Request,res:Response){
-        try{
-            await this.entrancesmeatService.saveEntrancesMeat(req.body,res);
-            return res.status(201).send();
-        }catch(err){
-            return res.status(400).send(this.parser(err.message,res));
-        }
+    async createEntrancesMeat(req:Request,res:Response){       
+        await this.entrancesmeatService.saveEntrancesMeat(req);
+        return res.status(201).send();
+    }
 
+    async updateStatusWarehouse(req:Request,res:Response){
+        await this.coolingMeat.updateStatus(req.body);
+        return res.status(204).send();
+    }
+
+    async createOutputsCooling(req:Request,res:Response){
+        await this.outputCoolingService.createOutputsCooling(req.body);
+        return res.status(201).send();
     }
 
 }

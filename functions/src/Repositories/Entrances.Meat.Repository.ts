@@ -1,19 +1,19 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
-import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 
-export class EntrancesMeatRepository{
-    private entrances_meat_Repository:Repository<Entrances_Meat>;
+export class EntranceMeatRepository{
+    private entrancesMeatRepository:Repository<EntranceMeat>;
 
     async getConnection(){
-        if(!this.entrances_meat_Repository){
-            this.entrances_meat_Repository = (await connect()).getRepository(Entrances_Meat);
+        if(!this.entrancesMeatRepository){
+            this.entrancesMeatRepository = (await connect()).getRepository(EntranceMeat);
         }
     }
 
-    async saveEntrancesMeat(entrances_meat:Entrances_Meat){
+    async saveEntrancesMeat(entranceMeat:EntranceMeat){
         await this.getConnection();
-        return await this.entrances_meat_Repository.save(entrances_meat);
+        return await this.entrancesMeatRepository.save(entranceMeat);
     }
 
     

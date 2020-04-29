@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import { productRoutes } from './Product.Routes';
 import { processRoutes } from './Process.Routes';
 import { inquietudRoutes } from "./Inquietud.Routes";
+import { FirebaseHelper } from "../Utils/Firebase.Helper";
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
@@ -19,3 +20,5 @@ export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).m
     route.controller = init.getController(route.controller.name);
     return route;
 });
+
+export const firebaseMiddleware:FirebaseHelper = init.getMiddlewareFirebase();

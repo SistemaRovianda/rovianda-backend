@@ -6,6 +6,6 @@ export const lotRoutes:Array<routeInterface>=[
         url:"/rovianda/lots",
         method:"get",
         controller:LotController,
-        target:"getAllOutputsCooling"
+        target:"getAllLots"
     }
 ];

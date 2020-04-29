@@ -1,9 +1,9 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
 
 
 @Entity({name:"entrances_drief"})
-export class EntrancesDrief{
+export class EntranceDrief{
 
     @PrimaryGeneratedColumn({name:"id"})
     id:number;
@@ -11,14 +11,17 @@ export class EntrancesDrief{
     @Column()
     proveedor:string;
 
-    @Column()
-    lote_proveedor:string;
+    @Column({name:"lote_proveedor"})
+    loteProveedor:string;
 
-    @OneToMany(type => Product, product => product.id)
-    product_id: Product[];
+    @ManyToOne(type => Product, product => product.id)
+    product: Product;
    
     @Column()
     date:string;
+
+    @Column()
+    observations:string;
 
     @Column()
     quantity:string;
@@ -32,8 +35,8 @@ export class EntrancesDrief{
     @Column()
     transport:boolean;
     
-    @Column()
-    strange_material:boolean;
+    @Column({name:"strange_material"})
+    strangeMaterial:boolean;
 
     @Column()
     paking: boolean;
@@ -45,5 +48,8 @@ export class EntrancesDrief{
     texture:boolean;
     
     @Column()
-    weigth: boolean;
+    weight: boolean;
+
+    @Column({name:"is_pz"})
+    isPz:boolean;
 }

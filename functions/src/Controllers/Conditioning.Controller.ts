@@ -6,6 +6,7 @@ import { ConditioningService } from '../Services/Conditioning.Service';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { Process } from '../Models/Entity/Process';
+import { ErrorHandler } from '../Utils/Error.Handler';
 
 export class ConditioningController{
 
@@ -42,6 +43,7 @@ export class ConditioningController{
             let processToUpdate:Process = await this.processService.getProcessById(+processid)
             let product:Product = await this.productService.getProductById(+product_id);
             if(!product[0]){
+                throw new Error("[404],product parameters is missing");
                 return res.status(404).send({msg:"No existe product"});
             }else{
             console.log(product[0])

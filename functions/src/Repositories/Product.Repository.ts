@@ -15,19 +15,15 @@ export class ProductRepository{
         return await this.productRepository.save(product);
     }
 
-    async getAllProducts(){
-        await this.getConnection();
-        try {
-            console.log("consulta")
-            return await this.productRepository.find()
-           } catch (error) {
-            console.log(error);   
-           }
-    }
-
-    async getProductById(product_id:number){
+    async getAllProducts(type: string){
         await this.getConnection();
         console.log("consulta")
-        return await this.productRepository.query(`SELECT * FROM product WHERE id = ${product_id}`)
+        return await this.productRepository.find({where:{type}})
+    }
+
+    async getProductById(id:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.findOne({id});
     }
 }

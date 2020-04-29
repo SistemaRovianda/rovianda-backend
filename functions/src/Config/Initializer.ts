@@ -9,7 +9,6 @@ import { EntrancesPackingController } from '../Controllers/Entrances.Packing.Con
 import { DriefController } from '../Controllers/Drief.Controller';
 import { ProcessController } from '../Controllers/Process.Controller';
 import { ConditioningController } from '../Controllers/Conditioning.Controller';
-import { InquietudController } from '../Controllers/Inquietud.Controller';
 import { TenderizedController } from '../Controllers/Tenderized.Controller';
 import { GrindingController } from '../Controllers/Grinding.Controller';
 import { SausagedController } from '../Controllers/Sausaged.Controller';
@@ -27,7 +26,6 @@ export class Initializer{
     private driefController:DriefController;
     private processController:ProcessController;
     private conditioningController:ConditioningController;
-    private inquietudController:InquietudController;
     private tenderizedController:TenderizedController;
     private grindingController:GrindingController;
     private sausagedController:SausagedController;
@@ -40,11 +38,10 @@ export class Initializer{
         this.entrancesMeatController = new EntrancesMeatController(this.firebaseInstance);
         this.lotController = new LotController(this.firebaseInstance);
         this.productController= new ProductController(this.firebaseInstance)
-        this.warehouseController= new EntrancesPackingController(this.firebaseInstance)
+        this.warehouseController= new EntrancesPackingController();
         this.driefController = new DriefController(this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
         this.conditioningController = new ConditioningController(this.firebaseInstance);
-        this.inquietudController = new InquietudController(this.firebaseInstance);
         this.tenderizedController = new TenderizedController(this.firebaseInstance);
         this.grindingController = new GrindingController(this.firebaseInstance);
         this.sausagedController = new SausagedController(this.firebaseInstance);
@@ -83,9 +80,6 @@ export class Initializer{
             case ConditioningController.name:
                 return this.conditioningController;
                 break;
-            case InquietudController.name:
-                return this.inquietudController;
-                break;
             case TenderizedController.name:
                 return this.tenderizedController;
                 break;
@@ -102,5 +96,9 @@ export class Initializer{
                 return null;
                 break;
         }
+    }
+
+    getMiddlewareFirebase(){
+        return this.firebaseInstance;
     }
 }

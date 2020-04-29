@@ -15,6 +15,11 @@ export class UserRepository{
         return await this.userRepository.save(user);
     }
 
+    async getUserById(userId:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({userId});
+    }
+
     async getUserByName(name:string){
         await this.getConnection();
         return await this.userRepository.findOne({

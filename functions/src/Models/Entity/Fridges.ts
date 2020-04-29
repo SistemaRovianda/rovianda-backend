@@ -3,20 +3,15 @@ import { Cooling } from './Cooling';
 
 
 @Entity({name:"fridges"})
-export class Fridges{
+export class Fridge{
 
-    @PrimaryGeneratedColumn()
-    fridge_id:number;
+    @PrimaryGeneratedColumn({name:"fridge_id"})
+    fridgeId:number;
 
     @Column()
-    temo:string;
+    temp:string;
     
-    @OneToMany(type=> Cooling,cooling=>cooling.fridge)
+    @OneToMany(type=> Cooling,cooling=>cooling.fridge,{eager:false})
     coolings: Cooling[];
 
-    //@OneToMany(type=>ProductSale,productSale=>productSale.product)
-    //productSale:ProductSale[];
-
-    //@ManyToOne(type=>Category,category=>category.products,{eager:true, onDelete:"SET NULL"})
-    //category:Category;
 }

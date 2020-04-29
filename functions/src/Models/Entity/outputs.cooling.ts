@@ -7,14 +7,14 @@ export class OutputsCooling{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
-    raw_material:string;
+    @Column({name:"raw_material"})
+    rawMaterial:string;
 
-    @Column()
-    output_date:string;
+    @Column({name:"output_date"})
+    outputDate:string;
 
-    @Column()
-    lote_interno:string;
+    @Column({name:"lote_interno"})
+    loteInterno:string;
 
     @Column()
     quantity:string;

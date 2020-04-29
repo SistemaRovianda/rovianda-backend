@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 import credentials from '../Config/Credentials';
 import { userGeneric } from '../Models/UserGeneric';
 import * as UUID from 'uuid/v4';
+import { Request } from 'express';
 export class FirebaseHelper{
 
     constructor(){
@@ -10,6 +11,17 @@ export class FirebaseHelper{
             credential: admin.credential.cert(credential),
             storageBucket: "gs://rovianda-88249.appspot.com"
         });
+    }
+
+    async authentication(req:Request){
+        try{
+            let tokenDecoded=await admin.auth().verifyIdToken(req.headers.authorization);
+            req.headers.uid = tokenDecoded.uid;
+            return req;
+        }catch(err){
+            console.log(err);
+            return req;
+        }
     }
 
     async createUser(user:userGeneric){
@@ -27,12 +39,12 @@ export class FirebaseHelper{
         return admin.auth().deleteUser(userId);
     }
 
-    async uploadImage(basePath:string,base64:string){
-        let buffer = Buffer.from(base64,"base64");
+    async uploadImage(basePath:string,file:Buffer){
+        
         let storage = admin.storage();
         let filename:string = UUID();
         console.log("FILENAME:",filename);
-        return await storage.bucket().file(`${basePath+filename}.jpg`).save(buffer,{
+        return await storage.bucket().file(`${basePath+filename}.jpg`).save(file,{
             metadata:{
                 contentType: "image/jpeg",
                 metadata: {

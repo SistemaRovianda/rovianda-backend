@@ -1,23 +1,23 @@
 import { routeInterface } from "../Models/Route.Interface";
-import { InquietudController } from '../Controllers/Inquietud.Controller';
+import { ProductsRoviandaController } from '../Controllers/Products.Rovianda.Controller';
 export const inquietudRoutes:Array<routeInterface>=[
 
     {
-        url:"/rovianda/inquietud/entrance",
+        url:"/rovianda/product-rovianda",
         method:"post",
-        controller:InquietudController,
+        controller:ProductsRoviandaController,
         target:"createCooling"
     },
     {
-        url:"/rovianda/inquietud/close",
+        url:"/rovianda/products-rovianda",
         method:"post",
-        controller:InquietudController,
+        controller:ProductsRoviandaController,
         target:"closedCooling"
     },
     {
-        url:"/rovianda/inquietud/exit",
-        method:"post",
-        controller:InquietudController,
+        url:"/rovianda/product-rovianda/:productId",
+        method:"get",
+        controller:ProductsRoviandaController,
         target:"createOutputsCooling"
     }
 ];
