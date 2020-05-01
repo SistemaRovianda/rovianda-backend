@@ -5,6 +5,7 @@ import { TenderizedController } from "../Controllers/Tenderized.Controller";
 import { GrindingController } from "../Controllers/Grinding.Controller";
 import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller';
+import { ProcessController } from "../Controllers/Process.Controller";
 export const processRoutes:Array<routeInterface>=[
 
     // {
@@ -63,5 +64,11 @@ export const processRoutes:Array<routeInterface>=[
         method:"post",
         controller:UserController,
         target:"createUserProcess"
+    },
+    {
+        url:"/rovianda/process/defrost/:processId",
+        method:"patch",
+        controller:ProcessController,
+        target:"updateProcessHourAndDate"
     }
 ];
