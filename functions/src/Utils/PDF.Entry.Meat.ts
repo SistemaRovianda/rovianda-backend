@@ -1,10 +1,10 @@
 import  * as pdf from 'html-pdf';
-import { Entrances_Meat } from '../Models/Entity/Entrances.Meat';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
   
 
 export class pdfEntryMeat{
 
-    async createEntryMeatPDF(entrances_meat:Entrances_Meat){
+    async createEntryMeatPDF(entrances_meat:EntranceMeat){
     
     let temA,temR; 
     if(entrances_meat.temperature.accepted==true){ temA="Aceptado",temR="";} else { temR="Rechazado",temA="";} 
@@ -19,7 +19,7 @@ export class pdfEntryMeat{
     let packA,packR
     if(entrances_meat.packing.accepted==true){ packR="",packA="Aceptado";}else{packA="", packR="Rechazado";}
     let smA,smR;
-    if(entrances_meat.strageMaterial.accepted==true){ smR="", smA="Aceptado";}else{smA="",smR="Rechazado";}
+    if(entrances_meat.strangeMaterial.accepted==true){ smR="", smA="Aceptado";}else{smA="",smR="Rechazado";}
     let expA,expR;
     if(entrances_meat.expiration.accepted==true){ expR="",expA="Aceptado";}else{ expA="",expR="Rechazado";}
     
@@ -59,7 +59,7 @@ export class pdfEntryMeat{
     </tr>
         
         <td align="center">RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</td>
-        <td align="center">LOTE INTERNO: ${entrances_meat.lote_interno}</td>
+        <td align="center">LOTE INTERNO: ${entrances_meat.loteInterno}</td>
         <td align="center">Pág.: 1 de 1</td>
 </table>
 <!-- ************************************************************************************************-->
@@ -77,10 +77,10 @@ export class pdfEntryMeat{
     </tr>
      <!-- ************************************************************************************************-->
     <tr>
-        <th class="espa">${entrances_meat.created_at}</th>
+        <th class="espa">${entrances_meat.createdAt}</th>
         <th class="espa">${entrances_meat.proveedor}</th>
-        <th class="espa"  colspan="2">${entrances_meat.raw_material}</th>
-        <th class="espa" >${entrances_meat.lote_proveedor}</th>
+        <th class="espa"  colspan="2">${entrances_meat.rawMaterial}</th>
+        <th class="espa" >${entrances_meat.loteProveedor}</th>
     </tr>
    <!-- ************************************************************************************************-->  
      <th>Control</th>
@@ -129,7 +129,7 @@ export class pdfEntryMeat{
          <td>Ausente</td>
          <td>${smA}</td>
          <td>${smR}</td>
-         <td>${entrances_meat.strageMaterial.descriptions}</td>
+         <td>${entrances_meat.strangeMaterial.descriptions}</td>
 
      </tr>
 

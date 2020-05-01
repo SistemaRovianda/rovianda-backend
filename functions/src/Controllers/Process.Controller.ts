@@ -132,3 +132,23 @@
 
 //     }
 // }
+
+
+import {Request,Response, response} from 'express';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { ProcessService } from '../Services/Process.Service';
+
+export class ProcessController{
+
+    private processService:ProcessService;
+
+    constructor(private firebaseInstance:FirebaseHelper){
+        this.processService = new ProcessService();
+    }
+
+    async updateProcessHourAndDate(req:Request,res:Response){
+        await this.processService.updateProcess(req);
+        return res.status(204).send();
+    }
+
+}

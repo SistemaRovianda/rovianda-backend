@@ -33,7 +33,7 @@ export class App extends ErrorHandler{
         this.app.use(bodyp.raw({limit:"10mb"}));
         routesToExpress.map((route:routeInterface)=>{
 
-            (this.app as express.Application)[route.method](route.url,firebaseMiddleware.authentication,async (req:express.Request,res:express.Response)=>{
+            (this.app as express.Application)[route.method](route.url,/*firebaseMiddleware.authentication,*/async (req:express.Request,res:express.Response)=>{
                 try{
                 await (route.controller)[route.target](req,res);
                 }catch(err){
