@@ -41,6 +41,14 @@ export class ProcessRepository{
             relations:["molienda_id"]
         });
     }
+
+    async getProcessWithSausagedById(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id},
+            relations:["sausageId"]
+        });
+    }
 }
 
 
