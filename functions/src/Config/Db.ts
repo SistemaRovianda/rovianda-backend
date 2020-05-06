@@ -17,7 +17,6 @@ import { Tenderized } from '../Models/Entity/Tenderized';
 import { Process } from '../Models/Entity/Process';
 import { Grinding } from '../Models/Entity/Grinding';
 import { Sale } from "../Models/Entity/Sale";
-import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 import { Pin } from '../Models/Entity/Pin';
 import { Fridge } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
@@ -25,6 +24,7 @@ import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 
 
 const config: ConnectionOptions = {

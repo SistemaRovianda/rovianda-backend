@@ -12,42 +12,45 @@ import { GrindingController } from '../Controllers/Grinding.Controller';
 import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller'
 import { ProcessController } from '../Controllers/Process.Controller';
+import { FormulationController } from '../Controllers/Formulation.Controller';
 
 
-export class Initializer{
+export class Initializer {
     private firebaseInstance: FirebaseHelper;
-    private pinController:PinController;
-    private fridgesController:FridgesController;
-    private entrancesMeatController:EntrancesMeatController;
-    private lotController:LotController;
-    private productController:ProductController;
-    private warehouseController:EntrancesPackingController;
-    
-    private conditioningController:ConditioningController;
-    private tenderizedController:TenderizedController;
-    private grindingController:GrindingController;
-    private sausagedController:SausagedController;
-    private userController: UserController;
-    private processController:ProcessController;
+    private pinController: PinController;
+    private fridgesController: FridgesController;
+    private entrancesMeatController: EntrancesMeatController;
+    private lotController: LotController;
+    private productController: ProductController;
+    private warehouseController: EntrancesPackingController;
 
-    constructor(){
+    private conditioningController: ConditioningController;
+    private tenderizedController: TenderizedController;
+    private grindingController: GrindingController;
+    private sausagedController: SausagedController;
+    private userController: UserController;
+    private processController: ProcessController;
+    private formulationController: FormulationController;
+
+    constructor() {
         this.firebaseInstance = new FirebaseHelper();
         this.pinController = new PinController(this.firebaseInstance);
         this.fridgesController = new FridgesController(this.firebaseInstance);
         this.entrancesMeatController = new EntrancesMeatController(this.firebaseInstance);
         this.lotController = new LotController(this.firebaseInstance);
-        this.productController= new ProductController()
-        this.warehouseController= new EntrancesPackingController();
+        this.productController = new ProductController()
+        this.warehouseController = new EntrancesPackingController();
         this.conditioningController = new ConditioningController(this.firebaseInstance);
         this.tenderizedController = new TenderizedController(this.firebaseInstance);
         this.grindingController = new GrindingController(this.firebaseInstance);
         this.sausagedController = new SausagedController(this.firebaseInstance);
-        this.userController = new UserController (this.firebaseInstance);
+        this.userController = new UserController(this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
+        this.formulationController = new FormulationController(this.firebaseInstance);
     }
 
-    getController(prototype:string){
-        switch(prototype){
+    getController(prototype: string) {
+        switch (prototype) {
             case EntrancesMeatController.name:
                 return this.entrancesMeatController;
                 break;
@@ -87,13 +90,16 @@ export class Initializer{
             case ProcessController.name:
                 return this.processController;
                 break;
+            case FormulationController.name:
+                return this.formulationController;
+                break;
             default:
                 return null;
                 break;
         }
     }
 
-    getMiddlewareFirebase(){
+    getMiddlewareFirebase() {
         return this.firebaseInstance;
     }
 }
