@@ -49,6 +49,13 @@ export class ProcessRepository{
             relations:["sausageId"]
         });
     }
+
+    async findProcessById(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id}
+        });
+    }
 }
 
 

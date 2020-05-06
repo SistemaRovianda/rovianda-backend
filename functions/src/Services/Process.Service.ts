@@ -36,4 +36,19 @@ export class ProcessService{
         process[0].outputHour = updateProcess.hourExit;
         return await this.processRepository.createProcess(process);
     }
+
+    async getUserProcessVerifier(id: number) {
+        let process: Process = await this.processRepository.findProcessById(+id)
+
+        if (!process)
+            throw Error(`[400], Process with id ${id} was not found`);
+        console.log(process);
+        let response = {
+            nameElaborated: process.nameElaborated? process.nameElaborated : null,
+            jobElaborated: process.jobElaborated? process.jobElaborated : null,
+            nameVerify: process.nameVerify? process.nameVerify : null,
+            jobVerify: process.jobVerify? process.jobVerify : null
+        }
+        return response;
+    }
 }
