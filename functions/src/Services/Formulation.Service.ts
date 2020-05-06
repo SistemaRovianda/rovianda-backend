@@ -26,13 +26,11 @@ export class FormulationService {
     }
 
     async createFormulation(req: Request) {
-        console.log("holiaaa");
         let formulationDTO: FormulationDTO = req.body;
         if (!formulationDTO.productRoviandaId)
             throw new Error("[400],productRobiandaId is required");
 
         let productRovianda: ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+formulationDTO.productRoviandaId);
-        console.log(productRovianda);
         if (!productRovianda)
             throw new Error(`[409], Rovianda Product with id ${formulationDTO.productRoviandaId} was not found`)
         if (!formulationDTO.lotId)
@@ -68,7 +66,6 @@ export class FormulationService {
                 let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredentId);
 
                 if (product) {
-                    console.log(product);
                     let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefById(+formulationDTO.ingredient[i].lotId);
                     if (outputDried) {
                         let formulationIngredients: FormulationIngredients = {
@@ -84,8 +81,6 @@ export class FormulationService {
 
             }
         } catch (err) {
-            console.log("asdadsadasd");
-            console.log(err);
             throw new Error(`[500], ${err}`);
         }
     }
