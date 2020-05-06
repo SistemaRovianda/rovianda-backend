@@ -66,36 +66,7 @@ export class SausagedController{
     }
 
     async getSausagedByProcess(req:Request,res:Response){
-        let processId = req.params.processId;
-        try{
-            if (!processId) return res.status(400).send({ msg: 'processId is required'});
-            let process:Process = await this.processService.getProcessById(+processId);
-            if(process){
-                let sausaged:Sausaged[] = await this.sausagedService.getSausagedByProcess(+processId);
-                let response:any = [];
-                sausaged.forEach((i:any) => {
-                    response.push({
-                        sausagedId: `${i.id}`,
-                        productId: `${i.productIdId}`,
-                        temperature: `${i.temperature}`,
-                        date: `${i.date}`,
-                        time: {
-                            hour1: `${i.hour1}`,
-                            weightInitial: `${i.weight_ini}`,
-                            hour2: `${i.hour2}`,
-                            weightMedium: `${i.weight_medium}`,
-                            hour3: `${i.hour3}`,
-                            weightFinal: `${i.weight_exit}`
-                        }
-                    });
-                });
-                return res.status(200).send(response);
-            }else{
-                return res.status(404).send({msg: "Process not found"});
-            }
-        }catch(err){
-            console.log(err);
-            return res.status(500).send(err);
-        }
+        let sausaged = await this.sausagedService.getSausagedByProcess(req);
+        return res.status(200).send(sausaged);
     }
 }
