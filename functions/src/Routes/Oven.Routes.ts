@@ -13,6 +13,12 @@ export const ovenRoutes: Array<routeInterface> = [
         method: "get",
         controller: OvenController,
         target: "getOvenProductsByProductId"
+    },
+    {
+        url: "/rovianda/oven/product",
+        method: "post",
+        controller: OvenController,
+        target: "saveOvenProduct"
     }
 
 ];

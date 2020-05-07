@@ -49,6 +49,11 @@ export class ProcessRepository{
             relations:["sausageId"]
         });
     }
+
+    async getProceesByLot(newLote:string){
+        await this.getConnection();
+        return await this.processRepository.query(`SELECT * FROM process WHERE new_lote = "${newLote}"`)
+    }
 }
 
 

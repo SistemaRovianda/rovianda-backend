@@ -13,6 +13,11 @@ export class OvenController{
         this.ovenService = new OvenService();
     }
 
+    async saveOvenProduct(req:Request,res:Response){
+        await this.ovenService.saveOvenProduct(req.body);
+        return res.status(201).send();
+    }
+
     async getOvenProducts(req:Request, res:Response){ 
              
         let oven_products:OvenProducts[] = await this.ovenService.getOvenProducts(); 

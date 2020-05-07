@@ -51,5 +51,11 @@ export class OvenRepository{
         INNER JOIN product ON product.id = oven_products.product_id 
         WHERE oven_products.id = ${id}`);
     }
+
+    async getLastOven(){
+        await this.getConnection();
+        return await this.ovenRepository.query(`SELECT * FROM oven_products ORDER BY id DESC LIMIT 1`)
+    }
+
     
 }
