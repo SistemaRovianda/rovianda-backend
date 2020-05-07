@@ -12,6 +12,7 @@ import { GrindingController } from '../Controllers/Grinding.Controller';
 import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller'
 import { ProcessController } from '../Controllers/Process.Controller';
+import { OvenController } from '../Controllers/Oven.Controller';
 import { FormulationController } from '../Controllers/Formulation.Controller';
 
 
@@ -29,6 +30,7 @@ export class Initializer {
     private grindingController: GrindingController;
     private sausagedController: SausagedController;
     private userController: UserController;
+    private ovenController: OvenController;
     private processController: ProcessController;
     private formulationController: FormulationController;
 
@@ -46,6 +48,7 @@ export class Initializer {
         this.sausagedController = new SausagedController(this.firebaseInstance);
         this.userController = new UserController(this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
+        this.ovenController = new OvenController(this.firebaseInstance);
         this.formulationController = new FormulationController(this.firebaseInstance);
     }
 
@@ -90,6 +93,8 @@ export class Initializer {
             case ProcessController.name:
                 return this.processController;
                 break;
+            case OvenController.name:
+                return this.ovenController;
             case FormulationController.name:
                 return this.formulationController;
                 break;
