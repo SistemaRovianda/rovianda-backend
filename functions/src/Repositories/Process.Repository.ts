@@ -50,6 +50,11 @@ export class ProcessRepository{
         });
     }
 
+    async findProcessById(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id}
+        });
     async getProceesByLot(newLote:string){
         await this.getConnection();
         return await this.processRepository.query(`SELECT * FROM process WHERE new_lote = "${newLote}"`)

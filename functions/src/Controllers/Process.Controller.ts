@@ -151,4 +151,12 @@ export class ProcessController{
         return res.status(204).send();
     }
 
+    async getUserProcessVerifier(req: Request, res: Response) {
+        let id = req.params.processId;
+        if (isNaN(+id) || +id < 1)
+            throw Error(`[400], Invalid id path param `);
+        let response = await this.processService.getUserProcessVerifier(+id);
+        return res.status(200).send(response);
+    }
+
 }
