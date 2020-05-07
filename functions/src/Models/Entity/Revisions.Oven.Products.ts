@@ -1,7 +1,5 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, ManyToOne, JoinColumn} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { OvenProducts } from "./Oven.Products";
-
-
 
 @Entity({name:"revisions_oven_products"})
 export class RevisionsOvenProducts{
@@ -9,23 +7,27 @@ export class RevisionsOvenProducts{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column({name:"estimated_time"})
+    @Column({name:"hour"})
     hour:string;
 
     @Column({name:"inter_temp"})
-    inter_temp:string;
+    interTemp: string;
 
     @Column({name:"oven_temp"})
-    ovenTemp:string;
+    ovenTemp: string;
 
-    @Column()
-    humidity:string;
+    @Column({name:"humidity"})
+    humidity: string;
 
-    @Column()
-    observations:string;
+    @Column({name:"observations"})
+    observations: string;
 
-    @ManyToOne(type=>OvenProducts, ovenProducts=>ovenProducts.revisionsOvenProducts, {eager:true, onDelete:"SET NULL"})
+    @OneToOne(type=>OvenProducts)
     @JoinColumn({name:"oven_products_id"})
     ovenProducts:OvenProducts;
-    
+
+    // @ManyToOne(type=>OvenProducts, ovenProducts=>ovenProducts.revisionsOvenProducts, {eager:true, onDelete:"SET NULL"})
+    // @JoinColumn({name:"oven_products_id"})
+    // ovenProducts:OvenProducts
+
 }
