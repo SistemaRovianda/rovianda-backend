@@ -22,7 +22,9 @@ export class WarehouseDriefRepository{
 
     async getWarehouseDriefByLoteId(loteProveedor:string){
         await this.getConnection();
-        return await this.warehouseDriefRepository.findOne({loteProveedor});
+        return await this.warehouseDriefRepository.findOne({
+            where: {id:loteProveedor}
+        });
     }
 
     async getWarehouseDriefByStatus(status:string){
