@@ -7,7 +7,7 @@
 // import { Grinding } from '../Models/Entity/Grinding';
 // import { GrindingService } from '../Services/Grinding.Service';
 
-// export class ProcessController{
+//export class ProcessController{
 
 //     private productService: ProductService;
 //     private processService:ProcessService;
@@ -148,6 +148,11 @@ export class ProcessController{
 
     async updateProcessHourAndDate(req:Request,res:Response){
         await this.processService.updateProcess(req);
+        return res.status(204).send();
+    }
+
+    async updateStatusProcess(req:Request,res:Response){
+        await this.processService.updateStatusProcess(res,req);
         return res.status(204).send();
     }
 

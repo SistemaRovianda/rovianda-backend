@@ -70,5 +70,11 @@ export const processRoutes:Array<routeInterface>=[
         method:"patch",
         controller:ProcessController,
         target:"updateProcessHourAndDate"
+    },
+    {
+        url:"/rovianda/process/:processId",
+        method:"patch",
+        controller:ProcessController,
+        target:"updateStatusProcess"
     }
 ];
