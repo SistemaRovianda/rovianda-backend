@@ -32,10 +32,15 @@ export class OvenController{
         return res.status(200).send(response);
     }
 
-  async updateOvenProduct(req:Request,res:Response){
+    async getOvenProductsByProductId(req:Request,res:Response){
+        let oven = await this.ovenService.getOvenProductsByProductId(req);
+        return res.status(200).send(oven);
+    }
+
+    async updateOvenProduct(req:Request,res:Response){
         let id = req.params.productId;
         await this.ovenService.updateOvenProductStatus(+id);
         return res.status(204).send();
-
     }
+  
 }

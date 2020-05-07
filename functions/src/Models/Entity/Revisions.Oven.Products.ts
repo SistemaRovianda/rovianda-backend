@@ -26,4 +26,8 @@ export class RevisionsOvenProducts{
     @JoinColumn({name:"oven_products_id"})
     ovenProducts:OvenProducts;
 
+    // @ManyToOne(type=>OvenProducts, ovenProducts=>ovenProducts.revisionsOvenProducts, {eager:true, onDelete:"SET NULL"})
+    // @JoinColumn({name:"oven_products_id"})
+    // ovenProducts:OvenProducts
+
 }

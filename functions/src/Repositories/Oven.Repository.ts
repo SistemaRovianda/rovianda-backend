@@ -37,4 +37,19 @@ export class OvenRepository{
         await this.getConnection();
         return await this.ovenRepository.save(ovenProduct);
     }
+
+    async getOvenProductsById(id:number){
+        await this.getConnection();
+        return await this.ovenRepository.query(`SELECT 
+        oven_products.id, oven_products.pcc, oven_products.new_lote, oven_products.date, 
+        oven_products.product_id, product.description, revisions_oven_products.hour, 
+        revisions_oven_products.inter_temp, revisions_oven_products.oven_temp, 
+        revisions_oven_products.humidity, 
+        revisions_oven_products.observations 
+        FROM oven_products 
+        INNER JOIN revisions_oven_products ON revisions_oven_products.id = oven_products.id 
+        INNER JOIN product ON product.id = oven_products.product_id 
+        WHERE oven_products.id = ${id}`);
+    }
+    
 }
