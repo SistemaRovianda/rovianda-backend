@@ -3,6 +3,7 @@ import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Product } from '../Models/Entity/Product';
 import { OvenService } from '../Services/Oven.Service';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
+import { ErrorHandler } from '../Utils/Error.Handler';
 
 export class OvenController{
 
@@ -29,5 +30,12 @@ export class OvenController{
             });
         });
         return res.status(200).send(response);
+    }
+
+  async updateOvenProduct(req:Request,res:Response){
+        let id = req.params.productId;
+        await this.ovenService.updateOvenProductStatus(+id);
+        return res.status(204).send();
+
     }
 }

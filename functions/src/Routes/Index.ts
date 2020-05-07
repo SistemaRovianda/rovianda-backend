@@ -9,10 +9,12 @@ import * as _ from 'lodash';
 import { productRoutes } from './Product.Routes';
 import { processRoutes } from './Process.Routes';
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
+import { ovenRoutes } from "./Oven.Routes";
+import { formulationRoutes } from "./Formulation.Routes";
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes
+    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{

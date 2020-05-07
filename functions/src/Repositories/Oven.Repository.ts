@@ -24,4 +24,17 @@ export class OvenRepository{
         console.log("consulta")
         return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE id = ${ovenProduct_id}`)
     }
+
+    async findOvenProductById(id: number){
+        await this.getConnection();
+        console.log("aaaa");
+        return await this.ovenRepository.createQueryBuilder()
+        .where("id = :id",{id})
+        .getOne();
+    }
+
+    async saveOvenProduct(ovenProduct: OvenProducts){
+        await this.getConnection();
+        return await this.ovenRepository.save(ovenProduct);
+    }
 }
