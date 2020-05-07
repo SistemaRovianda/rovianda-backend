@@ -25,6 +25,8 @@ import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
+import { OvenProducts } from "../Models/Entity/Oven.Products";
 
 
 const config: ConnectionOptions = {
@@ -48,6 +50,8 @@ const config: ConnectionOptions = {
         EntranceStore,
         EntranceDrief,
         EntrancePacking,
+        RevisionsOvenProducts,
+        OvenProducts,
         Product,
         ProductRovianda,
         Formulation,

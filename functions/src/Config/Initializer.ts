@@ -12,6 +12,7 @@ import { GrindingController } from '../Controllers/Grinding.Controller';
 import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller'
 import { ProcessController } from '../Controllers/Process.Controller';
+import { OvenController } from '../Controllers/Oven.Controller';
 
 
 export class Initializer{
@@ -29,6 +30,7 @@ export class Initializer{
     private sausagedController:SausagedController;
     private userController: UserController;
     private processController:ProcessController;
+    private ovenController: OvenController;
 
     constructor(){
         this.firebaseInstance = new FirebaseHelper();
@@ -44,6 +46,7 @@ export class Initializer{
         this.sausagedController = new SausagedController(this.firebaseInstance);
         this.userController = new UserController (this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
+        this.ovenController = new OvenController(this.firebaseInstance);
     }
 
     getController(prototype:string){
@@ -86,6 +89,9 @@ export class Initializer{
                 break;
             case ProcessController.name:
                 return this.processController;
+                break;
+            case OvenController.name:
+                return this.ovenController;
                 break;
             default:
                 return null;
