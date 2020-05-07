@@ -38,5 +38,7 @@ export class OvenProducts {
     @Column({ name: "job_verify" })
     jobVerify: string;
 
+    // @OneToMany(type=> RevisionsOvenProducts,revisionsOvenProducts=>revisionsOvenProducts.ovenProducts,{eager:false})
+    // revisionsOvenProducts: RevisionsOvenProducts[];
     
 }

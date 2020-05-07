@@ -7,6 +7,12 @@ export const ovenRoutes: Array<routeInterface> = [
         method: "patch",
         controller: OvenController,
         target: "updateOvenProduct"
+    },
+    {
+        url: "/rovianda/oven/product/:productId",
+        method: "get",
+        controller: OvenController,
+        target: "getOvenProductsByProductId"
     }
 
 ];

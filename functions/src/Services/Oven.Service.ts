@@ -3,6 +3,7 @@ import { ErrorHandler } from "../Utils/Error.Handler";
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
+import { Request } from 'express';
 
 export class OvenService{
 
@@ -16,6 +17,36 @@ export class OvenService{
 
     async getOvenProducts() {
         return await this.ovenRepository.getOvenProducts();
+    }
+
+    async getOvenProductsByProductId(req:Request){
+        if(!req.params.productId) throw new Error("[400], productId is required");
+        let oven:OvenProducts[] = await this.ovenRepository.getOvenProductsById(+req.params.productId);
+        if(!oven) throw new Error("[404], oven not found");
+        let response:any = {};
+        oven.forEach( async (i:any) => {
+            response = {
+                ovenProductId: `${i.id}`,
+                estimatedTime: `${i.product_id}`,
+                newLote: `${i.new_lote}`,
+                pcc: `${i.pcc}`,
+                product: {
+                    id: `${i.product_id}`,
+                    description: `${i.description}`
+                },
+                date: `${i.date}`,
+                revisions: [{
+                    hour: `${i.hour}`,
+                    interTemp: `${i.inter_temp}`,
+                    ovenTemp: `${i.oven_temp}`,
+                    humidity: `${i.humidity}`,
+                    observations: `${i.observations}`
+                }
+                ]
+            };
+        });
+
+        return response;
     }
 
     async updateOvenProductStatus(id: number) {
