@@ -7,7 +7,7 @@
 // import { Grinding } from '../Models/Entity/Grinding';
 // import { GrindingService } from '../Services/Grinding.Service';
 
-// export class ProcessController{
+//export class ProcessController{
 
 //     private productService: ProductService;
 //     private processService:ProcessService;
@@ -151,12 +151,18 @@ export class ProcessController{
         return res.status(204).send();
     }
 
+    async updateStatusProcess(req:Request,res:Response){
+        await this.processService.updateStatusProcess(res,req);
+        return res.status(204).send();
+    }
+  
     async getUserProcessVerifier(req: Request, res: Response) {
         let id = req.params.processId;
         if (isNaN(+id) || +id < 1)
             throw Error(`[400], Invalid id path param `);
         let response = await this.processService.getUserProcessVerifier(+id);
         return res.status(200).send(response);
+
     }
 
 }

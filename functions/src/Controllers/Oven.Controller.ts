@@ -46,6 +46,6 @@ export class OvenController{
         let id = req.params.productId;
         await this.ovenService.updateOvenProductStatus(+id);
         return res.status(204).send();
-
     }
+  
 }

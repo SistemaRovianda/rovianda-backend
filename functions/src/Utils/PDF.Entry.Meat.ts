@@ -1,4 +1,4 @@
-import  * as pdf from 'html-pdf';
+/*import  * as pdf from 'html-pdf';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
   
 
@@ -215,6 +215,4 @@ export class pdfEntryMeat{
     });
 
 }
-}
-
-       
+}*/
