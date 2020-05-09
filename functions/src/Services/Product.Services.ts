@@ -32,5 +32,9 @@ export class ProductService{
     async getProductById(productId:number){
         return await this.productRepository.getProductById(productId);
     }
+
+    async getProductsByLotId(lotId:number){
+        return await this.productRepository.getProductsByLotId(lotId)
+    }
 }
 

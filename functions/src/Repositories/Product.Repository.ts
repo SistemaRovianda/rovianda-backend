@@ -32,4 +32,10 @@ export class ProductRepository{
         console.log("consulta")
         return await this.productRepository.query(`SELECT * FROM product WHERE id = ${id}`)
     }
+    
+    async getProductsByLotId(lotId:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`SELECT product.description, process.lote_interno FROM product INNER JOIN process on product.id = process.product_id WHERE process.lote_interno = ${lotId}`)
+    }
 }
