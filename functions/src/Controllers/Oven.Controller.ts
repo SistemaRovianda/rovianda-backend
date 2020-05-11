@@ -47,5 +47,13 @@ export class OvenController{
         await this.ovenService.updateOvenProductStatus(+id);
         return res.status(204).send();
     }
+
+    async getOvenProductUser(req:Request,res:Response){
+        let id = req.params.productId;
+        if(isNaN(+id) || +id<1)
+            throw new Error(`[400], invalid param 'id'`);
+        let response = await this.ovenService.getOvenProductUserById(+id);
+        return res.status(200).send(response);
+    }
   
 }
