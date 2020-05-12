@@ -6,7 +6,7 @@ import { OutputsPacking } from "./Outputs.Packing";
 import { OutputsDrief } from "./Outputs.Drief";
 import { ProductRovianda } from "./Product.Rovianda";
 
-@Entity({ name: "product" })
+@Entity({ name: "product_catalog" })
 export class Product {
 
     @PrimaryGeneratedColumn()
@@ -14,9 +14,6 @@ export class Product {
 
     @Column()
     description: string;
-
-    @Column()
-    type: string;
 
     @OneToMany(type => EntrancePacking, entrancePacking => entrancePacking.product)
     entrancePacking: EntrancePacking[];
