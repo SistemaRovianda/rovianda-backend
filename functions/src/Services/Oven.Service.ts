@@ -1,8 +1,6 @@
 import { OvenRepository } from "../Repositories/Oven.Repository";
 import { OvenProducts } from '../Models/Entity/Oven.Products';
-import { OvenDTO } from "../Models/DTO/Oven.Products.DTO";
 import { ProductRepository } from '../Repositories/Product.Repository';
-import { ErrorHandler } from "../Utils/Error.Handler";
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
 import { Request } from 'express';
 import { Process } from '../Models/Entity/Process';
@@ -11,18 +9,22 @@ import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products'
 import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
 import { OvenDTO } from '../Models/DTO/OvenProductDTO';
 import { Product } from '../Models/Entity/Product';
+import { User } from '../Models/Entity/Users';
+import { UserRepository } from '../Repositories/User.Repository';
 
 export class OvenService{
 
     private ovenRepository: OvenRepository;
     private productRepository: ProductRepository;
     private processRepository: ProcessRepository;
+    private userRepository: UserRepository;
     private revisionsOvenProductsRepository:RevisionsOvenProductsRepository;
 
     constructor() {
         this.ovenRepository = new OvenRepository();
         this.productRepository = new ProductRepository();
         this.processRepository = new ProcessRepository();
+        this.userRepository = new UserRepository();
         this.revisionsOvenProductsRepository = new RevisionsOvenProductsRepository();
     }
 
@@ -78,6 +80,40 @@ export class OvenService{
             throw new Error(`[500], ${ err.message }`);
         }
     }
+
+    async saveOvenUser(processId:number , ovenUserDTO:OvenDTO){
+
+        if(!ovenUserDTO.nameVerify) throw new Error("[400], nameVerify is required");
+        if(!ovenUserDTO.jobVerify) throw new Error("[400], jobVerify is required");
+        if(!ovenUserDTO.nameElaborated) throw new Error("[400], nameElaborated is required");
+        if(!ovenUserDTO.jobElaborated) throw new Error("[400], jobElaborated is required");
+        
+        let process:Process = await this.processRepository.findProcessById(processId);
+        console.log(process);
+        if(!process) throw new Error("[400], process not found");
+        if(!process.productId) throw new Error("[400], The process has no assigned product ");
+        let productId = process[0].productId;
+        console.log(productId);
+        console.log("inicio")
+        let product:Product = await this.productRepository.getProductByProductId(productId);
+        console.log("Consulta")
+        if(!product) throw new Error("[400], product not found");
+        console.log("Consulta")
+        let user:User = await this.userRepository.getUserByName(ovenUserDTO.nameElaborated);
+        if(!user) throw new Error("[400], user not found");
+
+        let ovenUser:OvenProducts = await this.ovenRepository.getOvenProductByProductId(productId);
+        if(!ovenUser) throw new Error("[400], Oven product not found");
+
+        ovenUser.nameElaborated = ovenUserDTO.nameElaborated;
+        ovenUser.nameVerify = ovenUserDTO.nameVerify;
+        ovenUser.jobElaborated = ovenUserDTO.jobElaborated;
+        ovenUser.jobVerify = ovenUserDTO.jobVerify;
+
+        console.log("hecho")
+        return await this.ovenRepository.saveOvenUser(ovenUser);
+    }
+    
 
     async saveOvenProduct(ovenDTO:OvenDTO){
         if(!ovenDTO.estimatedTime) throw new Error("[400], estimatedTime is required");
