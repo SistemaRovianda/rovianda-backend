@@ -54,7 +54,7 @@ export class ProcessService{
     }
       
     async getUserProcessVerifier(id: number) {
-        let process: Process = await this.processRepository.findProcessById(+id)
+        let process: Process = await this.processRepository.findProcessById(+id);
 
         if (!process)
             throw Error(`[400], Process with id ${id} was not found`);
