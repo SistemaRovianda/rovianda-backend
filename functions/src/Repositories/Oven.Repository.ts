@@ -27,7 +27,6 @@ export class OvenRepository{
 
     async findOvenProductById(id: number){
         await this.getConnection();
-        console.log("aaaa");
         return await this.ovenRepository.createQueryBuilder()
         .where("id = :id",{id})
         .getOne();

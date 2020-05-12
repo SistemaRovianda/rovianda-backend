@@ -51,9 +51,10 @@ export class ProcessService{
             await this.processRepository.createProcess(processToClose);
                 return res.status(204).send({ msg: "CERRADA" });
         }
+    }
       
     async getUserProcessVerifier(id: number) {
-        let process: Process = await this.processRepository.findProcessById(+id)
+        let process: Process = await this.processRepository.findProcessById(+id);
 
         if (!process)
             throw Error(`[400], Process with id ${id} was not found`);
