@@ -1,6 +1,6 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { ProcessUpdateDTO } from '../Models/DTO/ProcessDTO';
 
 export class ProcessService{
@@ -37,8 +37,24 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
+    async updateStatusProcess(res:Response, req:Request){
+        let process:Process = await this.processRepository.getProcessById(+req.params.processId);
+        console.log(process);
+
+        if(!process[0]) throw new Error("[404], process not found");
+       
+        let processToClose = process[0];
+        if(processToClose.status = "CLOSED"){
+            return res.status(403).send({ msg: "PROCESO ANTERIORMENTE CERRADO" });
+        }else{
+            processToClose.status = "CLOSED";
+            await this.processRepository.createProcess(processToClose);
+                return res.status(204).send({ msg: "CERRADA" });
+        }
+    }
+      
     async getUserProcessVerifier(id: number) {
-        let process: Process = await this.processRepository.findProcessById(+id)
+        let process: Process = await this.processRepository.findProcessById(+id);
 
         if (!process)
             throw Error(`[400], Process with id ${id} was not found`);

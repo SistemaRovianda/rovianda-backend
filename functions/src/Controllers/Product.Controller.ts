@@ -24,10 +24,10 @@ export class ProductController{
         return res.status(200).send(products);
     }
 
-     async createProductRovianda(req:Request,res:Response){
+    async createProductRovianda(req:Request,res:Response){
         await this.productRoviandaService.saveProductRovianda(req.body);
         return res.status(201).send();
-    } 
+    }
 
     async getProductRovianda(req:Request,res:Response){
         let productRovianda = await this.productRoviandaService.getProductRovianda(req);
@@ -42,5 +42,11 @@ export class ProductController{
     async getAllProductsRovianda(req:Request,res:Response){
         let productsRovianda:Array<ProductRovianda> = await this.productRoviandaService.getAllProductsRovianda();
         return res.status(200).send(productsRovianda);
+    }
+
+    async getProductsByLotId(req:Request,res:Response){
+
+        let products:Product[] = await this.productService.getProductsByLotId(+req.params.lotId);
+        return res.status(200).send(products);
     }
 }   
