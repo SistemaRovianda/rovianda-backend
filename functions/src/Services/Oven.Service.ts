@@ -155,4 +155,21 @@ export class OvenService{
         revisionsOvenProducts.ovenProducts = ovenObj[0];
         return await this.revisionsOvenProductsRepository.saveRevisionsOvenProducts(revisionsOvenProducts);
     }
+
+    async getOvenProductUserById(id: number ){
+        let ovenProduct = await this.ovenRepository.findOvenProductById(+id);
+        
+        if (!ovenProduct)
+            throw new Error(`[404], OvenProduct with id ${id} was not found`);
+    
+        let response = {
+            nameElaborated: ovenProduct.nameElaborated,
+            jobElaborated: ovenProduct.jobElaborated,
+            nameVerify: ovenProduct.nameVerify,
+            jobVerify: ovenProduct.jobVerify
+        }
+
+        return response;
+    }
+
 }
