@@ -28,15 +28,21 @@ export const ovenRoutes:Array<routeInterface>=[
         target: "saveOvenProduct"
     },
     {
+        url: "/rovianda/oven/user/:processId",
+        method: "post",
+        controller: OvenController,
+        target: "saveOvenUser"
+     },
+     {
         url: "/rovianda/oven/product/:productId",
         method: "post",
         controller: OvenController,
         target: "createRevisionOvenProduct"
-    },
-    {   
+     },
+     {   
         url: "/rovianda/oven/users/:productId",
         method: "get",
         controller: OvenController,
         target: "getOvenProductUser"
-    }
+     }
 ];

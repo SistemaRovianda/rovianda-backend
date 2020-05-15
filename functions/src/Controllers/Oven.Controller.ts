@@ -51,6 +51,11 @@ export class OvenController{
         await this.ovenService.updateOvenProductStatus(+id);
         return res.status(204).send();
     }
+
+    async saveOvenUser(req:Request,res:Response){
+        await this.ovenService.saveOvenUser(+req.params.processId , req.body);
+        return res.status(201).send();
+    }  
     
     async createRevisionOvenProduct(req:Request, res:Response){
         await this.revisionOvenProductService.createRevisionOvenProduct(req);
