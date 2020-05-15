@@ -45,4 +45,14 @@ export class OutputsDriefService {
         return await this.outputsDriefRepository.getOutputsDriefByLot(lot);
     }
 
+    async getOutputIngredients() {
+        let outputsDrief = await this.outputsDriefRepository.getAllOutputsDrief();
+        let ingredients: Product[] = [];
+        
+        for (let outputDrief of outputsDrief){
+            if(outputDrief.product)
+                ingredients.push(outputDrief.product);
+        }
+        return ingredients;
+    }
 }

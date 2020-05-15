@@ -7,5 +7,10 @@ export const lotRoutes:Array<routeInterface>=[
         method:"get",
         controller:LotController,
         target:"getAllLots"
+    },{
+        url:"/rovianda/lot/ingredients",
+        method:"get",
+        controller: LotController,
+        target: "getOutputIngredients"
     }
 ];

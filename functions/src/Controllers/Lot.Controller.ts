@@ -17,11 +17,12 @@ export class LotController{
 
     
     private coolingService:CoolingService;
-    
+    private outputsDriefServices: OutputsDriefService;
     private warehouseDriefService:WarehouseDriefService;
     private warehousePackingService:WarehousePackingService
     constructor(private firebaseInstance:FirebaseHelper){
         this.coolingService = new CoolingService();
+        this.outputsDriefServices = new OutputsDriefService();
         this.warehouseDriefService = new WarehouseDriefService();
         this.warehousePackingService = new WarehousePackingService();
     }
@@ -49,4 +50,8 @@ export class LotController{
         return res.status(200).send(response);
     }
 
+    async getOutputIngredients(req: Request, res: Response){
+        let ingredients = await this.outputsDriefServices.getOutputIngredients();
+        return res.status(200).send(ingredients);
+    }
 }
