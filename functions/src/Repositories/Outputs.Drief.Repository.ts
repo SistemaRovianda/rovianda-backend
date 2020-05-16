@@ -17,7 +17,9 @@ export class OutputsDriefRepository{
 
     async getAllOutputsDrief(){
         await this.getConnection();
-        return await this.outputsDriefRepository.find();
+        return await this.outputsDriefRepository.find(
+            { relations: ["product"] }
+        );
     }
 
     async getOutputsDriefById(id:number){
