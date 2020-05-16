@@ -49,10 +49,10 @@ export class ProcessService{
         }else{
             processToClose.status = "CLOSED";
             await this.processRepository.createProcess(processToClose);
-                return res.status(204).send({ msg: "CERRADA" });
+                return res.status(204).send({ msg: "CLOSED" });
         }
     }
-      
+
     async getUserProcessVerifier(id: number) {
         let process: Process = await this.processRepository.findProcessById(+id);
 

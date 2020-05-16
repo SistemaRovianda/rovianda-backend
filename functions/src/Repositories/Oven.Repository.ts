@@ -25,6 +25,18 @@ export class OvenRepository{
         return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE id = ${ovenProduct_id}`)
     }
 
+    async getOvenProductByProductId(product_id:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE product_id = ${product_id}`)
+    }
+
+    async getOvenProductByLot(newLote:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE new_lote = ${newLote}`)
+    }
+
     async findOvenProductById(id: number){
         await this.getConnection();
         return await this.ovenRepository.createQueryBuilder()
@@ -56,5 +68,8 @@ export class OvenRepository{
         return await this.ovenRepository.query(`SELECT * FROM oven_products ORDER BY id DESC LIMIT 1`)
     }
 
-    
+    async saveOvenUser(ovenUser: OvenProducts){
+        await this.getConnection();
+        return await this.ovenRepository.save(ovenUser);
+    }
 }
