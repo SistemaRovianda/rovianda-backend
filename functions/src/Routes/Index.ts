@@ -11,10 +11,11 @@ import { processRoutes } from './Process.Routes';
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { ovenRoutes } from "./Oven.Routes";
 import { formulationRoutes } from "./Formulation.Routes";
+import { packagingRoutes } from './Packaging.Routes';
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes
+    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{
