@@ -27,6 +27,7 @@ import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { OvenProducts } from "../Models/Entity/Oven.Products";
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
+import { Packaging } from "../Models/Entity/Packaging";
 
 
 const config: ConnectionOptions = {
@@ -70,7 +71,8 @@ const config: ConnectionOptions = {
         OutputsPacking,
         ProductRovianda,
         OvenProducts,
-        RevisionsOvenProducts
+        RevisionsOvenProducts,
+        Packaging
     ]
 
 }
