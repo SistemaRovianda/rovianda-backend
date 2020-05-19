@@ -17,7 +17,7 @@ export class UsersService{
     async createUser(userDTO:UserDTO, userGeneric:userGeneric){
 
         let roles = await this.rolesReporitory.getRole(userDTO.rol);
-
+        console.log(roles)
         if(!roles[0])  throw new Error("[404],roles not found");
         if(!userDTO.name) throw new Error("[400], name is required");
         if(!userDTO.firstName) throw new Error("[400], firstName is required");

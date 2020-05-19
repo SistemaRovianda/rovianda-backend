@@ -17,7 +17,15 @@ export class FridgesService{
     }
     
     async getAllFridges(){
-        return await this.fridgesRepository.getAllFridges();
+        let friges:Fridge[] = await this.fridgesRepository.getAllFridges();
+        let response = [];
+        friges.forEach(i => {
+            response.push({
+                fridge_id: `${i.fridgeId}`,
+                temp: `${i.temp}`  
+            });
+        });
+        return response;
     }
 
     async getFridgesById(id:number){

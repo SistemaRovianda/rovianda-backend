@@ -10,12 +10,12 @@ export class FridgesController{
     }
 
     async createFridges(req:Request,res:Response){
-        await this.fridgesService.saveFridges(req.body);
+        await this.fridgesService.saveFridges(req);
         return res.status(201).send();
     }
 
     async getAllFridges(req:Request,res:Response){
-        let fridges:Fridge[] = await this.fridgesService.getAllFridges();
+        let fridges = await this.fridgesService.getAllFridges();
         return res.status(200).send(fridges);
     }
 

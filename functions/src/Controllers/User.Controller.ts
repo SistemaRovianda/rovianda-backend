@@ -82,6 +82,7 @@ export class UserController{
                 return res.status(409).send({msg:"usuario ya registrado"});
             }else{
                 await this.usersService.createUser(req.body,userGeneric);
+                //await this.nodemailers.sendMailNewAccount(email, { email: email, password });
                 return res.status(201).send();
             }
         }catch(err){

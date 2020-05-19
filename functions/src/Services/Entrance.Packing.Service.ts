@@ -21,16 +21,16 @@ export class EntrancePackingService{
 
     async saveEntrancePacking(req:Request){
         let entrancePackingDTO:EntrancePackingDTO = req.body;
-        let userId=req.headers.uid;
+        let userId=req.headers.authorization;
         if(!userId) throw new Error("[403],Credenciales invalidas");
         if(!entrancePackingDTO.date) throw new Error("[400],el parametro date es requirido");
-        if(!entrancePackingDTO.isPz) throw new Error("[400],el parametro isPz es requerido");
-        if(!entrancePackingDTO.loteProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
+        if(!entrancePackingDTO.is_pz) throw new Error("[400],el parametro isPz es requerido");
+        if(!entrancePackingDTO.lotProveedor) throw new Error("[400],el parametro lotProveedor es requerido");
         if(!entrancePackingDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entrancePackingDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");
         if(!entrancePackingDTO.quality) throw new Error("[400],el parametro quality es requerido");
         if(!entrancePackingDTO.quantity) throw new Error("[400],el parametro quantity es requerido");
-        if(!entrancePackingDTO.strangeMaterial) throw new Error("[400],el parametro strangeMaterial es requerido");
+        if(!entrancePackingDTO.strageMaterial) throw new Error("[400],el parametro strangeMaterial es requerido");
         if(!entrancePackingDTO.transport) throw new Error("[400],el parametro transport es requerido");
         
 
@@ -39,20 +39,20 @@ export class EntrancePackingService{
 
         let entrancePacking:EntrancePacking = new EntrancePacking();
         entrancePacking.date = entrancePackingDTO.date;
-        entrancePacking.isPz = entrancePackingDTO.isPz;
-        entrancePacking.loteProveedor = entrancePackingDTO.loteProveedor;
+        entrancePacking.isPz = entrancePackingDTO.is_pz;
+        entrancePacking.loteProveedor = entrancePackingDTO.lotProveedor;
         entrancePacking.proveedor = entrancePackingDTO.proveedor;
         entrancePacking.observations = entrancePackingDTO.observations;
         entrancePacking.product = product
         entrancePacking.proveedor = entrancePackingDTO.proveedor;
         entrancePacking.quality = entrancePacking.quality;
         entrancePacking.quantity = entrancePackingDTO.quantity;
-        entrancePacking.strangeMaterial = entrancePackingDTO.strangeMaterial;
+        entrancePacking.strangeMaterial = entrancePackingDTO.strageMaterial;
         entrancePacking.transport = entrancePackingDTO.transport;
 
         let warehousePacking:WarehousePacking = new WarehousePacking();
-        warehousePacking.isPz = entrancePackingDTO.isPz;
-        warehousePacking.loteProveedor = entrancePackingDTO.loteProveedor;
+        warehousePacking.isPz = entrancePackingDTO.is_pz;
+        warehousePacking.loteProveedor = entrancePackingDTO.lotProveedor;
         warehousePacking.observations = entrancePackingDTO.observations;
         warehousePacking.product = product;
         warehousePacking.quantity = entrancePackingDTO.quantity;

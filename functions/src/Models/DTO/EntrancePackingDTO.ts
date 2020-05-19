@@ -1,12 +1,12 @@
 export interface EntrancePackingDTO{
     proveedor:string;
-    loteProveedor:string;
+    lotProveedor:string;
     productId:number;
     date:string;
     quantity:string;
     quality:boolean;
-    strangeMaterial:boolean;
+    strageMaterial:boolean;
     transport:boolean;
-    isPz:boolean;
+    is_pz:boolean;
     observations:string;
 }

@@ -16,7 +16,7 @@ export class EntrancesPackingController  {
     }
 
     async createEntrancePacking(req:Request,res:Response){
-        await this.entrancePackingService.saveEntrancePacking(req.body);
+        await this.entrancePackingService.saveEntrancePacking(req);
         return res.status(201).send();
     }
 
