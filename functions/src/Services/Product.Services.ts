@@ -24,7 +24,7 @@ export class ProductService{
         let productToSave = new Product();   
         console.log("inicio")
         productToSave.description = description;
-        productToSave.type = type;
+        //productToSave.type = type;
         console.log("creando")
         return await this.productRepository.createProduct(productToSave);
     }

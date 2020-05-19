@@ -28,6 +28,8 @@ import { OvenProducts } from "../Models/Entity/Oven.Products";
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Packaging } from "../Models/Entity/Packaging";
+import { Users } from "../Models/Entity/User";
+import { Roles } from "../Models/Entity/Roles";
 
 
 const config: ConnectionOptions = {
@@ -37,13 +39,15 @@ const config: ConnectionOptions = {
     port: 3306,
     username: "admin",
     password: "Holamundo1250",
-    database: "rovianda",
+    database: "rovianda-test-dev",
     synchronize: true,
     logging: false,
     entities: [
         EntranceMeat,
+        Roles,
         File,
         User,
+        Users,
         Pin,
         Product,
         WarehousePacking,

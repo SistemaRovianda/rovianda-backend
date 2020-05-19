@@ -6,17 +6,22 @@ import { User } from '../Models/Entity/Users';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { UserService } from '../Services/User.Service';
+import { UsersService } from '../Services/Users.Service';
+import { userGeneric } from '../Models/UserGeneric';
+//import { Users } from '../Models/Entity/User';
 
 export class UserController{
 
     private processService:ProcessService;
     private userService:UserService;
     private productService:ProductService
+    private usersService:UsersService;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.userService = new UserService();
         this.productService = new ProductService();
+        this.usersService = new UsersService(this.firebaseInstance);
     }
 
     async createUserProcess(req:Request,res:Response){
@@ -57,5 +62,36 @@ export class UserController{
             console.log(err);
             return res.status(500).send(err);
         }
+    }
+
+    async createUserF(req:Request, res:Response){
+        let {name,firstName,lastName,email,password,rol} = req.body;
+        let userGeneric: userGeneric={
+            email,
+            firstName,
+            lastName,
+            name,
+            password
+        }
+        try{
+            console.log("entra");
+            console.log(email);
+            let getUser = await this.usersService.getUserByEmail(email);
+            console.log("sale");
+            if(getUser[0]){
+                return res.status(409).send({msg:"usuario ya registrado"});
+            }else{
+                await this.usersService.createUser(req.body,userGeneric);
+                return res.status(201).send();
+            }
+        }catch(err){
+            console.log(err);
+            return res.status(500).send(err);
+        }
+    }
+
+    async getUserById(req:Request,res:Response){
+        let user = await this.usersService.getUserById(req);
+        return res.status(200).send(user);
     }
 }
