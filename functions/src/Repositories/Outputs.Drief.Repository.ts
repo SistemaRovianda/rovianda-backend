@@ -33,4 +33,11 @@ export class OutputsDriefRepository{
             where: {lote_proveedor: `${lot}`},
         });
     }
+
+    async getOutputsDriefByLotIdByProductId(lotId:number,productId:number){
+        await this.getConnection();
+        return await this.outputsDriefRepository.find({
+            where:{product:`${productId}`, lotId:`${lotId}`} 
+        });
+    }
 }

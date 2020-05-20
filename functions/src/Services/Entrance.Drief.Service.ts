@@ -7,12 +7,13 @@ import { WarehouseDriefRepository } from "../Repositories/Warehouse.Drief.Reposi
 import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
 import { Request } from "express";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
 
 export class EntranceDriefService{
     private entranceDriefRepository:EntranceDriefRepository;
     private productRepository:ProductRepository;
     private warehouseDriefRepository:WarehouseDriefRepository;
-    constructor(){
+    constructor(private firebaseHelper:FirebaseHelper){
         this.entranceDriefRepository = new EntranceDriefRepository();
         this.productRepository = new ProductRepository();
         this.warehouseDriefRepository = new WarehouseDriefRepository();
