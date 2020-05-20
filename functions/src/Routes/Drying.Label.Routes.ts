@@ -8,5 +8,11 @@ export const dryngLabelRoutes:Array<routeInterface>=[
         method:"post",
         controller:DryngLabelController,
         target:"createDringLabel"
+    },
+    {
+        url:"/rovianda/drying/:id",
+        method:"get",
+        controller:DryngLabelController,
+        target:"getDryngLabelById"
     }
 ];

@@ -12,5 +12,10 @@ export class DryngLabelController{
         return res.status(201).send();
     }
 
+    async getDryngLabelById(req:Request,res:Response){
+        let dryngLabel = await this.dryngLabelService.getDryngLabelById(+req.params.id);
+        return res.status(200).send(dryngLabel);
+    }
+
     
 }

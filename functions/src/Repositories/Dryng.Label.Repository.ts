@@ -15,4 +15,9 @@ export class DryngLabelRepository{
         return await this.dryngLabekRepository.save(dryingLabel);
     }
 
+    async getDryngLabelById(id:number){
+        await this.getConnection();
+        return await this.dryngLabekRepository.findOne(id);
+    }
+
 }
