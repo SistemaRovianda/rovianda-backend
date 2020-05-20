@@ -5,6 +5,6 @@ export const TYPE ={
 }
 
 export const LOTESTATUS= {
-    OPEN:"OPEN",
+    OPENED:"OPENED",
     CLOSED:"CLOSED"
 }
