@@ -1,5 +1,4 @@
 import {Request,Response} from 'express';
-import { ErrorHandler } from '../Utils/Error.Handler';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { EntranceMeatService } from '../Services/Entrances.Meat.Services';
 import { CoolingService } from '../Services/Cooling.Service';
@@ -30,7 +29,6 @@ export class EntrancesMeatController{
         await this.outputCoolingService.createOutputsCooling(req.body);
         return res.status(201).send();
     }
-
 }
 
 

@@ -23,9 +23,7 @@ export class WarehousePackingRepository{
 
     async getWarehousePackingByStatus(status:string){
         await this.getConnection();
-        return await this.warehousePackingRepository.find({
-            where: {status: `${status}`},
-        });
+        return await this.warehousePackingRepository.query(`SELECT lote_proveedor, productId FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);
     }
 
     async saveWarehousePacking(warehousepacking:WarehousePacking){

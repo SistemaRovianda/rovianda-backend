@@ -55,4 +55,18 @@ export class OutputsDriefService {
         }
         return ingredients;
     }
+
+    async getOutputsDriefs(lotId:number,productId: number){
+        console.log(productId,lotId);
+
+       let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByLotIdByProductId(lotId, productId);
+       let response = [];
+       outputs.forEach(i => {
+           response.push({
+               productId: `${i.product.id}`,
+               lots:[`${i.loteProveedor}`]   
+           });
+       });
+       return response;
+    }
 }

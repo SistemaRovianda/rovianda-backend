@@ -30,6 +30,7 @@ import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients
 import { Packaging } from "../Models/Entity/Packaging";
 import { Users } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
+import { DryingLabel } from "../Models/Entity/Dryng.Label";
 
 
 const config: ConnectionOptions = {
@@ -76,7 +77,8 @@ const config: ConnectionOptions = {
         ProductRovianda,
         OvenProducts,
         RevisionsOvenProducts,
-        Packaging
+        Packaging,
+        DryingLabel
     ]
 
 }
