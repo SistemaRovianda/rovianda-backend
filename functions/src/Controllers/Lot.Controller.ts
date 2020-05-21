@@ -31,10 +31,6 @@ export class LotController{
         let {type,status} = req.query;
         if(!(status==LOTESTATUS.OPENED || status ==LOTESTATUS.CLOSED)) throw new Error("[400], status parameter value is invalid");
         let response = null;
-        if(TYPE.FRIDGE == type){
-            let coolingStatus:Cooling[] = await this.coolingService.getCoollingByStatus(status);
-            response = coolingStatus.map((record:Cooling)=>{return {loteId:record.loteInterno,name: record.rawMaterial}})
-        }
         if(TYPE.DRIEF == type){
             let wareHouseDriefStatus:WarehouseDrief[] = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatus(status);
             response = wareHouseDriefStatus.map((record:WarehouseDrief)=>{
