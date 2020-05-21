@@ -14,8 +14,8 @@ export class EntranceDriefController{
         this.outputDriefService = new OutputsDriefService();
     }
 
-    async saveEntrance(req:Request,res:Response){
-        await this.entranceDriefService.saveEntranceDrief(req.body);
+    async saveEntranceDrief(req:Request,res:Response){
+        await this.entranceDriefService.saveEntranceDrief(req.body,req);
         return res.status(201).send();
     }
 

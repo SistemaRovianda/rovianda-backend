@@ -19,12 +19,14 @@ export class EntranceDriefService{
         this.warehouseDriefRepository = new WarehouseDriefRepository();
     }
 
-    async saveEntranceDrief(req:Request){
-        let entranceDriefDTO:EntranceDriefDTO=req.body;
+
+    async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
+   
+        
         if(!entranceDriefDTO.expiration) throw new Error("[400],el parametro expiration es requerido");
         if(!entranceDriefDTO.loteProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
         if(!entranceDriefDTO.odor) throw new Error("[400],el parametro odor es requerido");
-        if(!entranceDriefDTO.packing) throw new Error("[400],el parametro packing es requerido");
+        if(!entranceDriefDTO.paking) throw new Error("[400],el parametro packing es requerido");
         if(!entranceDriefDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entranceDriefDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");
         if(!entranceDriefDTO.quality) throw new Error("[400],el parametro quality es requerido");
@@ -38,12 +40,13 @@ export class EntranceDriefService{
 
         let product:Product = await this.productRepository.getProductById(entranceDriefDTO.productId);
         if(!product) throw new Error("[400], el producto a recibir no existe");
-
+        
         let entranceDrief:EntranceDrief = new EntranceDrief();
-        entranceDrief.date=entranceDriefDTO.date;
+        
+        entranceDrief.date=entranceDriefDTO.date; 
         entranceDrief.expiration=entranceDriefDTO.expiration;
         entranceDrief.loteProveedor=entranceDriefDTO.loteProveedor;
-        entranceDrief.paking=entranceDriefDTO.packing;
+        entranceDrief.paking=entranceDriefDTO.paking;
         entranceDrief.product=product;
         entranceDrief.proveedor= entranceDriefDTO.proveedor;
         entranceDrief.quality=entranceDriefDTO.quality;
@@ -57,6 +60,7 @@ export class EntranceDriefService{
         entranceDrief.observations = entranceDriefDTO.observations;
 
         let warehouseDrief:WarehouseDrief = new WarehouseDrief();
+
         warehouseDrief.userId = req.headers.uid as string;
         warehouseDrief.date= entranceDriefDTO.date;
         warehouseDrief.isPz = entranceDriefDTO.isPz;
