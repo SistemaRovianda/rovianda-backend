@@ -25,8 +25,11 @@ export class EntranceMeatService{
 
 
     async saveEntrancesMeat(req:any){
+
         let entranceMeatDTO:EntranceMeatDTO = req.body;
+
         let photo:any= req.files[0];
+
         if(!entranceMeatDTO.createdAt) throw new Error("[400],Falta la propiedad createdAt");
         if(!entranceMeatDTO.loteInterno) throw new Error("[400],Falta la propiedad loteInterno");
         if(!entranceMeatDTO.loteProveedor) throw new Error("[400],Falta la propiedad loteProveedor");

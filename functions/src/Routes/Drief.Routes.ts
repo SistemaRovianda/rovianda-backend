@@ -1,23 +1,12 @@
-// import { routeInterface } from "../Models/Route.Interface";
-// import { DriefController } from '../Controllers/Drief.Controller';
-// export const driefRoutes:Array<routeInterface>=[
+ import { routeInterface } from "../Models/Route.Interface";
+ import { EntranceDriefController } from '../Controllers/Entrances.Drief.Controller';
+ export const driefRoutes:Array<routeInterface>=[
 
-//     {
-//         url:"/rovianda/dried/entrance",
-//         method:"post",
-//         controller:DriefController,
-//         target:"createWarehouseDrief"
-//     },
-//     {
-//         url:"/rovianda/dried/close",
-//         method:"post",
-//         controller:DriefController,
-//         target:"updateWarehouseDrief"
-//     },
-//     {
-//         url:"/rovianda/dried/exit",
-//         method:"post",
-//         controller:DriefController,
-//         target:"createOutputsDrief"
-//     }
-// ];
+
+    {
+         url:"/rovianda/ingredients/lots",
+         method:"get",
+         controller:EntranceDriefController,
+         target:"getOutputsDriefIngredients"
+     }
+];

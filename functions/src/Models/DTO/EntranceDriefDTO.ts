@@ -1,5 +1,6 @@
 export interface EntranceDriefDTO{
-    proveedor:string;
+
+    proveedorId:string;
     loteProveedor:string;
     productId:number;
     date:string;
@@ -8,11 +9,12 @@ export interface EntranceDriefDTO{
     expiration:boolean;
     strangeMaterial:boolean;
     transport:boolean;
-    packing:boolean;
+    paking:boolean;
     odor:boolean;
     texture:boolean;
     weight:boolean;
     color:boolean;
     isPz:boolean;
     observations:string;
+
 }

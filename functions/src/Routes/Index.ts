@@ -2,7 +2,6 @@ import { routeInterface } from "../Models/Route.Interface";
 import { pinRoutes } from './Pin.Routes';
 import { fridgesRoutes } from './Fridges.Routes';
 import { lotRoutes } from './Lot.Routes';
-// import { driefRoutes } from './Drief.Routes';
 import { Initializer } from '../Config/Initializer';
 import  {entrancesRoutes} from './Entrances.Routes';
 import * as _ from 'lodash';
@@ -13,11 +12,12 @@ import { ovenRoutes } from "./Oven.Routes";
 import { formulationRoutes } from "./Formulation.Routes";
 import { packagingRoutes } from './Packaging.Routes';
 import { qualityRoutes } from "./Quality.Routes";
+import { driefRoutes } from "./Drief.Routes"
 import { dryngLabelRoutes } from "./Drying.Label.Routes";
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes
+    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes,driefRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{
