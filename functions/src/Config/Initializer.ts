@@ -26,7 +26,6 @@ export class Initializer {
     private lotController: LotController;
     private productController: ProductController;
     private warehouseController: EntrancesPackingController;
-
     private conditioningController: ConditioningController;
     private tenderizedController: TenderizedController;
     private grindingController: GrindingController;
@@ -111,6 +110,8 @@ export class Initializer {
                 break;
             case EntranceDriefController.name:
                 return this.entranceDriefController;
+            case DryngLabelController.name:
+                return this.dryngLabelController;
                 break;
             case DryngLabelController.name:
                 return this.dryngLabelController;
