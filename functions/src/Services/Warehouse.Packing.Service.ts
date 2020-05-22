@@ -44,7 +44,23 @@ export class WarehousePackingService{
 
     
     async getWarehousePackingByStatus(status:string){
-        return await this.warehousePackingRepository.getWarehousePackingByStatus(status);
+        let warehousePackingStatus = await this.warehousePackingRepository.getWarehousePackingByStatusGroup(status);
+        let response:any = [];
+        for(let i = 0; i<warehousePackingStatus.length; i++){
+            let warehousePackingLote = await this.warehousePackingRepository.getWarehousePackingByLoteProveedor(warehousePackingStatus[i].lote_proveedor,status);
+            let response1:any = [];
+            for(let n = 0; n<warehousePackingLote.length; n++){
+                response1.push({
+                    id: `${warehousePackingLote[n].productId}`,
+                    description: `${warehousePackingLote[n].description}`
+                });
+            }
+            response.push({
+                loteId: `${warehousePackingStatus[i].lote_proveedor}`,
+                products: response1
+            })
+        }
+        return response;
     }
 
 

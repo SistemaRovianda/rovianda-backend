@@ -49,6 +49,22 @@ export class WarehouseDriefService{
 
     
     async getWarehouseDriefRepositoryByStatus(status:string){
-        return await this.warehouseDriefRepository.getWarehouseDriefByStatus(status);
+        let warehouseDriefStatus = await this.warehouseDriefRepository.getWarehouseDriefByStatusGroup(status);
+        let response:any = [];
+        for(let i = 0; i<warehouseDriefStatus.length; i++){
+            let warehouseDriefLote = await this.warehouseDriefRepository.getWarehouseDriefByLoteProveedor(warehouseDriefStatus[i].lote_proveedor,status);
+            let response1:any = [];
+            for(let n = 0; n<warehouseDriefLote.length; n++){
+                response1.push({
+                    id: `${warehouseDriefLote[n].productId}`,
+                    description: `${warehouseDriefLote[n].description}`
+                });
+            }
+            response.push({
+                loteId: `${warehouseDriefStatus[i].lote_proveedor}`,
+                products: response1
+            })
+        }
+        return response;
     }
 }
