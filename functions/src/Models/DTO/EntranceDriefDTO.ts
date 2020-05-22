@@ -1,6 +1,6 @@
 export interface EntranceDriefDTO{
 
-    proveedorId:string;
+    proveedorid:string;
     loteProveedor:string;
     productId:number;
     date:string;
