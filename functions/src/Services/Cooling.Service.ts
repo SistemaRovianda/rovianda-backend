@@ -6,6 +6,7 @@ import { Fridge } from "../Models/Entity/Fridges";
 import { FridgeRepository } from "../Repositories/Fridges.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { WarehouseCollingDTO } from "../Models/DTO/WarehouseDTO";
+import { response } from "express";
 
 export class CoolingService{
     private coolingRepository:CoolingRepository;
@@ -53,5 +54,31 @@ export class CoolingService{
     
     async getCoollingByStatus(status:string){
         return await this.coolingRepository.getCoollingByStatus(status);
+    }
+
+    async getCoollingByFridge(fridgeId:number){
+        let coollingGroup = await this.coolingRepository.getCoollingByFridgeGroup(fridgeId);
+        console.log(coollingGroup);
+        let response:any = [];
+        for(let i =0; i<coollingGroup.length; i++){
+            let coollingLote = await this.coolingRepository.getCoollingByFridge(coollingGroup[i].lote_interno, fridgeId);
+            console.log(coollingLote)
+            let response1:any = [];
+            for(let n = 0; n<coollingLote.length; n++){
+                response1.push({
+                    id: `${coollingLote[n].id}`,
+                    rawMaterial: `${coollingLote[n].raw_material}`,
+                    fridge: {
+                        fridgeId: `${coollingLote[n].fridgeFridgeId}`,
+                        temp: `${coollingLote[n].temp}`
+                    }
+                });
+            }
+            response.push({
+                loteId: `${coollingGroup[i].lote_interno}`,
+                Material: response1
+            })
+        }
+        return response;
     }
 }
