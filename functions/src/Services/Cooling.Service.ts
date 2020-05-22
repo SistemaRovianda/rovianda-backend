@@ -57,6 +57,12 @@ export class CoolingService{
     }
 
     async getCoollingByFridge(fridgeId:number){
+
+        if(!fridgeId) throw new Error("[400], fridgeId es requerido");
+
+        let fridge = await this.fridgeRepository.getFridgeById(fridgeId);
+        if(!fridge[0]) throw new Error("[404], refrigerador no existe");
+
         let coollingGroup = await this.coolingRepository.getCoollingByFridgeGroup(fridgeId);
         console.log(coollingGroup);
         let response:any = [];
