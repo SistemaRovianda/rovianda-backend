@@ -25,8 +25,8 @@ export class WarehouseDriefService{
                 lote.status = WarehouseStatus.CLOSED;
                 lote.closingDate = warehouseDTO.date;
                 break;
-            case WarehouseStatus.OPEN:
-                lote.status = WarehouseStatus.OPEN;
+            case WarehouseStatus.OPENED:
+                lote.status = WarehouseStatus.OPENED;
                 lote.openingDate = warehouseDTO.date;
                 break;
             default:

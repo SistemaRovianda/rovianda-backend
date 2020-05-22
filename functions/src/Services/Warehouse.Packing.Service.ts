@@ -21,8 +21,8 @@ export class WarehousePackingService{
         if(!lote) throw new Error("[404], el lote indicado en el request no existe");
 
         switch(warehousePackinDTO.status){
-            case WarehouseStatus.OPEN:
-                lote.status=WarehouseStatus.OPEN;
+            case WarehouseStatus.OPENED:
+                lote.status=WarehouseStatus.OPENED;
                 lote.openingDate = warehousePackinDTO.date;
                 break;
             case WarehouseStatus.CLOSED:

@@ -5,7 +5,7 @@ import { ProductRepository } from "../Repositories/Product.Repository";
 import { Fridge } from "../Models/Entity/Fridges";
 import { FridgeRepository } from "../Repositories/Fridges.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
-import { WarehouseDTO } from "../Models/DTO/WarehouseDTO";
+import { WarehouseCollingDTO } from "../Models/DTO/WarehouseDTO";
 
 export class CoolingService{
     private coolingRepository:CoolingRepository;
@@ -17,9 +17,11 @@ export class CoolingService{
         this.fridgeRepository = new FridgeRepository();
     }
 
-    async updateStatus(coolingDTO:WarehouseDTO){
-        let product = await this.productRepository.getProductById(coolingDTO.productId);
-        if(!product) throw new Error("[404], producto no existe");
+    async updateStatus(coolingDTO:WarehouseCollingDTO){
+        // let product = await this.productRepository.getProductById(coolingDTO.productId);
+        // if(!product) throw new Error("[404], producto no existe");
+        let fridge = await this.fridgeRepository.getFridgeById(coolingDTO.fridgeId);
+        if(!fridge[0]) throw new Error("[404], refrigerador no existe");
         let lote:Cooling = await this.coolingRepository.getCoolingByLote(coolingDTO.loteId);
         if(!lote) throw new Error("[404],el lote no existe");
     
@@ -28,8 +30,8 @@ export class CoolingService{
                 lote.status = WarehouseStatus.CLOSED;
                 lote.closingDate = coolingDTO.date;
                 break;
-            case WarehouseStatus.OPEN:
-                lote.status = WarehouseStatus.OPEN;
+            case WarehouseStatus.OPENED:
+                lote.status = WarehouseStatus.OPENED;
                 lote.openingDate = coolingDTO.date;
                 break;
             default:
