@@ -28,7 +28,7 @@ export class EntranceDriefService{
         if(!entranceDriefDTO.odor) throw new Error("[400],el parametro odor es requerido");
         if(!entranceDriefDTO.paking) throw new Error("[400],el parametro packing es requerido");
         if(!entranceDriefDTO.productId) throw new Error("[400],el parametro productId es requerido");
-        if(!entranceDriefDTO.proveedorId) throw new Error("[400],el parametro proveedorId es requerido");
+        if(!entranceDriefDTO.proveedorid) throw new Error("[400],el parametro proveedorId es requerido");
         if(!entranceDriefDTO.quality) throw new Error("[400],el parametro quality es requerido");
         if(!entranceDriefDTO.quantity) throw new Error("[400],el parametro quantity es requerido");
         if(!entranceDriefDTO.strangeMaterial) throw new Error("[400],el parametro strangeMaterial es requerido");
@@ -48,7 +48,7 @@ export class EntranceDriefService{
         entranceDrief.loteProveedor=entranceDriefDTO.loteProveedor;
         entranceDrief.paking=entranceDriefDTO.paking;
         entranceDrief.product=product;
-        entranceDrief.proveedor= entranceDriefDTO.proveedorId;
+        entranceDrief.proveedor= entranceDriefDTO.proveedorid;
         entranceDrief.quality=entranceDriefDTO.quality;
         entranceDrief.quantity=entranceDriefDTO.quantity;
         entranceDrief.strangeMaterial=entranceDriefDTO.strangeMaterial;
@@ -60,7 +60,7 @@ export class EntranceDriefService{
         entranceDrief.observations = entranceDriefDTO.observations;
 
         let warehouseDrief:WarehouseDrief = new WarehouseDrief();
-
+        
         warehouseDrief.userId = req.headers.uid as string;
         warehouseDrief.date= entranceDriefDTO.date;
         warehouseDrief.isPz = entranceDriefDTO.isPz;
@@ -68,8 +68,7 @@ export class EntranceDriefService{
         warehouseDrief.observations = entranceDriefDTO.observations;
         warehouseDrief.product = product;
         warehouseDrief.quantity = entranceDriefDTO.quantity;
-        warehouseDrief.status = WarehouseStatus.PENDING;
-        warehouseDrief.userId = req.headers.uid as string;
+        warehouseDrief.status = WarehouseStatus.PENDING
         
         this.entranceDriefRepository.saveDrief(entranceDrief);
         this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);

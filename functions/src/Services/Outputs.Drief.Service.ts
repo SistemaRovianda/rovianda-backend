@@ -18,17 +18,20 @@ export class OutputsDriefService {
     }
 
     async createOutputsDrief(outputsDriefDTO: WarehouseExitDriefDTO) {
+    
         let product: Product = await this.productRepository.getProductById(outputsDriefDTO.productId);
         if (!product) throw new Error("[404], producto no encontrado");
+
         let lote: WarehouseDrief = await this.warehouseDriefRep.getWarehouseDriefByLoteId(outputsDriefDTO.loteId);
-        if (!lote) throw new Error("[404], el lote no existe");
-        if (lote.status == WarehouseStatus.CLOSED) throw new Error("[409], el lote esta cerrado");
-        if (lote.status == WarehouseStatus.PENDING) throw new Error("[409], el lote no ah sido abierto");
+        if (!lote) throw new Error("[404], El lote no existe");
+        
+        if (lote.status == WarehouseStatus.CLOSED) throw new Error("[409], El lote esta cerrado");
+        if (lote.status == WarehouseStatus.PENDING) throw new Error("[409], El lote aún no abierto");
         let outputsDrief: OutputsDrief = new OutputsDrief();
         outputsDrief.date = outputsDriefDTO.date;
         outputsDrief.loteProveedor = outputsDriefDTO.loteId;
         outputsDrief.observations = outputsDriefDTO.observations;
-        //outputsDrief.product = product;
+        outputsDrief.product = product;
 
         return await this.outputsDriefRepository.createOutputsDrief(outputsDrief);
     }

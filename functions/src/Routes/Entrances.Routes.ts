@@ -21,7 +21,7 @@ export const entrancesRoutes:Array<routeInterface>=[
         url:"/rovianda/entry/drief",
         method:"post",
         controller: EntranceDriefController,
-        target:"saveEntranceDrief"
+        target:"saveEntrance"
     },
     {
         url:"/rovianda/packing/status",
@@ -39,7 +39,7 @@ export const entrancesRoutes:Array<routeInterface>=[
         url:"/rovianda/drief/exit",
         method:"post",
         controller:EntranceDriefController,
-        target:"createOutputsDrief"
+        target:"saveOutputsDrief"
     },
     {
         url:"/rovianda/drief/status",
@@ -58,5 +58,11 @@ export const entrancesRoutes:Array<routeInterface>=[
         method:"post",
         controller:EntrancesMeatController,
         target:"createOutputsCooling"
-    }
+    },
+    {
+         url:"/rovianda/ingredients/lots",
+         method:"get",
+         controller:EntranceDriefController,
+         target:"getOutputsDriefIngredients"
+     }
 ];
