@@ -22,6 +22,4 @@ export class User{
     @Column()
     rol:string;
 
-    @OneToMany(type =>EntranceMeat, entrancesMeat => entrancesMeat.qualityInspector)
-    entrancesMeat:EntranceMeat[];
 }

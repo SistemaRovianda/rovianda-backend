@@ -1,6 +1,7 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { File } from "./Files";
 import { User } from "./Users";
+import { Users } from "./User";
 
 
 
@@ -83,7 +84,7 @@ export class EntranceMeat{
 
     @Column("simple-json")
     fridge:{
-        fridgeld: string,
+        fridgeId: number,
         descriptions: string,
         accepted: boolean
         }
@@ -102,8 +103,8 @@ export class EntranceMeat{
     @JoinColumn()
     photo:File; 
 
-    @ManyToOne(type => User, user => user.entrancesMeat,{eager:true})
-    qualityInspector:User;
+    @ManyToOne(type => Users, user => user.entrancesMeat,{eager:true})
+    qualityInspector:Users;
 
 }
 
