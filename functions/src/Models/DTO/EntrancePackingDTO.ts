@@ -7,6 +7,6 @@ export interface EntrancePackingDTO{
     quality:boolean;
     strageMaterial:boolean;
     transport:boolean;
-    is_pz:boolean;
+    isPz:boolean;
     observations:string;
 }
