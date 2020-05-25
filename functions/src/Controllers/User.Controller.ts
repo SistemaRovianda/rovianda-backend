@@ -8,6 +8,7 @@ import { ProductService } from '../Services/Product.Services';
 import { UserService } from '../Services/User.Service';
 import { UsersService } from '../Services/Users.Service';
 import { userGeneric } from '../Models/UserGeneric';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 //import { Users } from '../Models/Entity/User';
 
 export class UserController{
@@ -16,12 +17,14 @@ export class UserController{
     private userService:UserService;
     private productService:ProductService
     private usersService:UsersService;
+    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.userService = new UserService();
         this.productService = new ProductService();
         this.usersService = new UsersService(this.firebaseInstance);
+        this.processRepository = new ProcessRepository();
     }
 
     async createUserProcess(req:Request,res:Response){
@@ -47,7 +50,7 @@ export class UserController{
                         processToUpdate.jobElaborated = jobElaborated;
                         processToUpdate.jobVerify = jobVerify;
                         processToUpdate.userId = user[0];
-                        await this.processService.createProcess(processToUpdate);
+                        await this.processRepository.createProcess(processToUpdate);
                         return res.status(201).send();
                     }else{
                         return res.status(404).send({msg:  'There is no product related to this process.'});

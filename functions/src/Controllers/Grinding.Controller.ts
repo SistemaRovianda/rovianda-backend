@@ -4,15 +4,18 @@ import { Process } from '../Models/Entity/Process';
 import { Grinding } from '../Models/Entity/Grinding';
 import { ProcessService } from '../Services/Process.Service';
 import { GrindingService } from '../Services/Grinding.Service';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 
 export class GrindingController{
 
     private processService:ProcessService;
     private grindingService:GrindingService;
+    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.grindingService = new GrindingService();
+        this.processRepository = new ProcessRepository();
     }
 
     async createGrinding(req:Request,res:Response){
@@ -34,7 +37,7 @@ export class GrindingController{
                 await this.grindingService.saveGrinding(grinding);
                 let objGrinding:Grinding = await this.grindingService.getLastGrinding();
                 processObj.grindingId = objGrinding[0];
-                await this.processService.createProcess(processObj);
+                await this.processRepository.createProcess(processObj);
                 return res.status(201).send();
             }else{
                 return res.status(404).send({msg: "Process not found"});

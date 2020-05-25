@@ -7,17 +7,20 @@ import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { Process } from '../Models/Entity/Process';
 import { ErrorHandler } from '../Utils/Error.Handler';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 
 export class ConditioningController{
 
     private conditionigService: ConditioningService;
     private processService:ProcessService;
     private productService: ProductService;
+    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.conditionigService = new ConditioningService();
         this.productService = new ProductService();
+        this.processRepository = new ProcessRepository();
     }
 
     async createConditioning(req:Request, res:Response){
@@ -44,7 +47,6 @@ export class ConditioningController{
             let product:Product = await this.productService.getProductById(+product_id);
             if(!product[0]){
                 throw new Error("[404],product parameters is missing");
-                return res.status(404).send({msg:"No existe product"});
             }else{
             console.log(product[0])
             console.log(processToUpdate[0])
@@ -54,14 +56,15 @@ export class ConditioningController{
             conditioning.healthing = healthing;
             conditioning.weight = weight;
             conditioning.temperature = temperature;
-            conditioning.productId = product[0].id;
+            conditioning.productId = product[0];
             conditioning.date = date;
+            
             console.log("curso")
             await this.conditionigService.createConditioning(conditioning);
                 if(processToUpdate[0]){
                     console.log("actualizando")
                     processToUpdate.conditioningId=conditioning;
-                    await this.processService.createProcess(processToUpdate)
+                    await this.processRepository.createProcess(processToUpdate)
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg:"No existe"});

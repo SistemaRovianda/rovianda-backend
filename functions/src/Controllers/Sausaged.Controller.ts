@@ -6,17 +6,20 @@ import { Product } from '../Models/Entity/Product';
 import { ProcessService } from '../Services/Process.Service';
 import { SausagedService } from '../Services/Sausaged.Service';
 import { ProductService } from '../Services/Product.Services';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 
 export class SausagedController{
 
     private processService:ProcessService;
     private sausagedService:SausagedService
     private productService:ProductService;
+    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.sausagedService = new SausagedService();
         this.productService = new ProductService();
+        this.processRepository = new ProcessRepository();
     }
 
     async createSausaged(req:Request,res:Response){
@@ -51,7 +54,7 @@ export class SausagedController{
                     await this.sausagedService.saveSausaged(sausaged);
                     let objSausaged:Sausaged = await this.sausagedService.getLastSausaged();
                     processObj.sausageId = objSausaged[0];
-                    await this.processService.createProcess(processObj);
+                    await this.processRepository.createProcess(processObj);
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg: "Product not found"});
