@@ -27,6 +27,7 @@ export class ProductRoviandaService{
         let productRovianda:ProductRovianda = new ProductRovianda();
         productRovianda.name = productRoviandaDTO.name;
         productRovianda.ingredients = ingredients;
+        console.log("Producto rovianda",JSON.stringify(productRovianda));
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
     }
 
@@ -46,5 +47,9 @@ export class ProductRoviandaService{
 
     async getAllProductsRovianda(){
         return await this.productRoviandaRepository.getAllProducts();
+    }
+
+    async getProductoRoviandaById(productId:number){
+        return await this.productRoviandaRepository.getProductRoviandaById(productId);
     }
 }

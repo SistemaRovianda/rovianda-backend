@@ -2,12 +2,12 @@ import {Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Process } from '../Models/Entity/Process';
 import { ProcessService } from '../Services/Process.Service';
-import { User } from '../Models/Entity/Users';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { UserService } from '../Services/User.Service';
 import { UsersService } from '../Services/Users.Service';
 import { userGeneric } from '../Models/UserGeneric';
+import { User } from '../Models/Entity/User';
 //import { Users } from '../Models/Entity/User';
 
 export class UserController{
@@ -47,7 +47,7 @@ export class UserController{
                         processToUpdate.jobElaborated = jobElaborated;
                         processToUpdate.jobVerify = jobVerify;
                         processToUpdate.userId = user[0];
-                        await this.processService.createProcess(processToUpdate);
+                        await this.processService.updateProcessProperties(processToUpdate);
                         return res.status(201).send();
                     }else{
                         return res.status(404).send({msg:  'There is no product related to this process.'});

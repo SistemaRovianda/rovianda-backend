@@ -34,7 +34,7 @@ export class GrindingController{
                 await this.grindingService.saveGrinding(grinding);
                 let objGrinding:Grinding = await this.grindingService.getLastGrinding();
                 processObj.grindingId = objGrinding[0];
-                await this.processService.createProcess(processObj);
+                await this.processService.updateProcessProperties(processObj);
                 return res.status(201).send();
             }else{
                 return res.status(404).send({msg: "Process not found"});
