@@ -28,7 +28,7 @@ export class WarehousePackingRepository{
 
     async getWarehousePackingByStatusGroup(status:string){
         await this.getConnection();
-        return await this.warehousePackingRepository.query(`SELECT * FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);
+        return await this.warehousePackingRepository.query(`SELECT distinct(lote_proveedor) FROM warehouse_packing WHERE status = "${status}"`);
     }
 
     async getWarehousePackingByLoteProveedor(loteProveedor:string, status:string){
