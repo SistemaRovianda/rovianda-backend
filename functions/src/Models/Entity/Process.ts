@@ -20,10 +20,10 @@ export class Process{
     loteInterno:string;
 
     @Column({name:"new_lote"})
-    newLote:string;
+    newLote:number;
 
     @Column()
-    weigth:string;
+    weigth:number;
     
     @Column()
     temperature:string;

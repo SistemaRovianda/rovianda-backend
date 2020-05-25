@@ -146,6 +146,11 @@ export class ProcessController{
         this.processService = new ProcessService();
     }
 
+    async saveProcess(req:Request,res:Response){
+        await this.processService.saveProcess(req.body);
+        return res.status(201).send();
+    }
+
     async updateProcessHourAndDate(req:Request,res:Response){
         await this.processService.updateProcess(req);
         return res.status(204).send();
@@ -162,7 +167,6 @@ export class ProcessController{
             throw Error(`[400], Invalid id path param `);
         let response = await this.processService.getUserProcessVerifier(+id);
         return res.status(200).send(response);
-
     }
 
 }

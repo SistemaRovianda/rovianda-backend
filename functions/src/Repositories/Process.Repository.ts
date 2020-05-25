@@ -11,6 +11,11 @@ export class ProcessRepository{
         }
     }
 
+    async saveProcess(process:Process){
+        await this.getConnection();
+        return await this.processRepository.save(process);
+    }
+
     async createProcess(process:Process){
         await this.getConnection();
         return await this.processRepository.save(process);
