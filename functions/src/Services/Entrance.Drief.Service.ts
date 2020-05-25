@@ -28,14 +28,13 @@ export class EntranceDriefService{
         if(!entranceDriefDTO.paking) throw new Error("[400],el parametro packing es requerido");
         if(!entranceDriefDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entranceDriefDTO.proveedorid) throw new Error("[400],el parametro proveedorId es requerido");
-        if(!entranceDriefDTO.quality) throw new Error("[400],el parametro quality es requerido");
-        if(!entranceDriefDTO.quantity) throw new Error("[400],el parametro quantity es requerido");
-        if(!entranceDriefDTO.strangeMaterial) throw new Error("[400],el parametro strangeMaterial es requerido");
-        if(!entranceDriefDTO.texture) throw new Error("[400],el parametro texture es requerido");
-        if(!entranceDriefDTO.transport) throw new Error("[400],el parametro transport es requerido");
-        if(!entranceDriefDTO.weight) throw new Error("[400],el parametro weight es requerido");
-        if(!entranceDriefDTO.color) throw new Error("[400],el parametro color es requerido");
-        if(!entranceDriefDTO.date) throw new Error("[400],el parametro date es requerido");
+        if(entranceDriefDTO.quality == null) throw new Error("[400],el parametro quality es requerido");
+        if(entranceDriefDTO.strangeMaterial == null) throw new Error("[400],el parametro strangeMaterial es requerido");
+        if(entranceDriefDTO.texture == null) throw new Error("[400],el parametro texture es requerido");
+        if(entranceDriefDTO.transport == null) throw new Error("[400],el parametro transport es requerido");
+        if(entranceDriefDTO.weight == null) throw new Error("[400],el parametro weight es requerido");
+        if(entranceDriefDTO.color == null) throw new Error("[400],el parametro color es requerido");
+        if(entranceDriefDTO.date == null) throw new Error("[400],el parametro date es requerido");
 
         let product:Product = await this.productRepository.getProductById(entranceDriefDTO.productId);
         if(!product) throw new Error("[400], el producto a recibir no existe");

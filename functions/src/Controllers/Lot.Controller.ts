@@ -32,16 +32,12 @@ export class LotController{
         if(!(status==LOTESTATUS.OPENED || status ==LOTESTATUS.CLOSED)) throw new Error("[400], status parameter value is invalid");
         let response = null;
         if(TYPE.DRIEF == type){
-            let wareHouseDriefStatus:WarehouseDrief[] = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatus(status);
-            response = wareHouseDriefStatus.map((record:WarehouseDrief)=>{
-                return {loteId:record.loteProveedor,name:record.product.description}
-            })
+            let wareHouseDriefStatus = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatus(status);
+            response = wareHouseDriefStatus;
         }
         if(TYPE.PACKING == type){
-            let wareHousePackingStatus:WarehousePacking[] = await this.warehousePackingService.getWarehousePackingByStatus(status);
-            response= wareHousePackingStatus.map((record:WarehousePacking)=>{
-                return {loteId:record.loteProveedor,name:record.product.description}
-            })
+            let wareHousePackingStatus = await this.warehousePackingService.getWarehousePackingByStatus(status);
+            response= wareHousePackingStatus;
         }
         return res.status(200).send(response);
     }

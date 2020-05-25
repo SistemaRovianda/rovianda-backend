@@ -60,6 +60,12 @@ export const entrancesRoutes:Array<routeInterface>=[
         target:"createOutputsCooling"
     },
     {
+        url:"/rovianda/meat/:fridgeId",
+        method:"get",
+        controller:EntrancesMeatController,
+        target:"getCoollingByFridge"
+    },
+    {
          url:"/rovianda/ingredients/lots",
          method:"get",
          controller:EntranceDriefController,

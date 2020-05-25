@@ -29,6 +29,11 @@ export class EntrancesMeatController{
         await this.outputCoolingService.createOutputsCooling(req.body);
         return res.status(201).send();
     }
+
+    async getCoollingByFridge(req:Request,res:Response){
+        let coolling = await this.coolingMeat.getCoollingByFridge(+req.params.fridgeId);
+        return res.status(200).send(coolling);
+    }
 }
 
 

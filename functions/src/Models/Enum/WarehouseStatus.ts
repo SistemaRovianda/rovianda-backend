@@ -1,5 +1,5 @@
 export enum WarehouseStatus{
-    OPEN="OPEN",
+    OPENED="OPENED",
     CLOSED="CLOSED",
     PENDING= "PENDING"
     
