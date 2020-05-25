@@ -26,6 +26,7 @@ export class ProcessService{
         if(!product) throw new Error("[400], product not found");
         console.log(product);
         let productId = product.id
+        
         let processProduct:Process = await this.processRepository.getProceesByProduct(productId);
         if(processProduct) throw new Error("[409], product already assigned to a process");
 
