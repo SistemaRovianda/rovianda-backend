@@ -1,5 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, OneToMany } from "typeorm";
-import { Users } from './User';
+import { User } from './User';
 
 @Entity({name:"roles"})
 export class Roles{
@@ -10,7 +10,7 @@ export class Roles{
     @Column()
     description:string;
 
-    @OneToMany(type=> Users,users=>users.roles)
-    users:Users[];
+    @OneToMany(type=> User,user=>user.roles)
+    users:User[];
 
 }

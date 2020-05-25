@@ -5,7 +5,7 @@ import { ProcessService } from '../Services/Process.Service';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { UserService } from '../Services/User.Service';
-import { UsersService } from '../Services/Users.Service';
+
 import { userGeneric } from '../Models/UserGeneric';
 import { User } from '../Models/Entity/User';
 //import { Users } from '../Models/Entity/User';
@@ -15,13 +15,13 @@ export class UserController{
     private processService:ProcessService;
     private userService:UserService;
     private productService:ProductService
-    private usersService:UsersService;
+    private usersService:UserService;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
-        this.userService = new UserService();
+        this.userService = new UserService(this.firebaseInstance);
         this.productService = new ProductService();
-        this.usersService = new UsersService(this.firebaseInstance);
+        
     }
 
     async createUserProcess(req:Request,res:Response){
@@ -76,12 +76,12 @@ export class UserController{
         try{
             console.log("entra");
             console.log(email);
-            let getUser = await this.usersService.getUserByEmail(email);
+            let getUser = await this.usersService.getByEmail(email);
             console.log("sale");
             if(getUser[0]){
                 return res.status(409).send({msg:"usuario ya registrado"});
             }else{
-                await this.usersService.createUser(req.body,userGeneric);
+                await this.usersService.createUserF(req.body,userGeneric);
                 //await this.nodemailers.sendMailNewAccount(email, { email: email, password });
                 return res.status(201).send();
             }
