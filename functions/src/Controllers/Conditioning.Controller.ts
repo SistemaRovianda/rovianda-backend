@@ -14,13 +14,11 @@ export class ConditioningController{
     private conditionigService: ConditioningService;
     private processService:ProcessService;
     private productService: ProductService;
-    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.conditionigService = new ConditioningService();
         this.productService = new ProductService();
-        this.processRepository = new ProcessRepository();
     }
 
     async createConditioning(req:Request, res:Response){
@@ -64,7 +62,7 @@ export class ConditioningController{
                 if(processToUpdate[0]){
                     console.log("actualizando")
                     processToUpdate.conditioningId=conditioning;
-                    await this.processRepository.createProcess(processToUpdate)
+                    await this.processService.updateProcessProperties(processToUpdate)
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg:"No existe"});

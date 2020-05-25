@@ -10,12 +10,10 @@ export class GrindingController{
 
     private processService:ProcessService;
     private grindingService:GrindingService;
-    private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
         this.grindingService = new GrindingService();
-        this.processRepository = new ProcessRepository();
     }
 
     async createGrinding(req:Request,res:Response){
@@ -37,7 +35,7 @@ export class GrindingController{
                 await this.grindingService.saveGrinding(grinding);
                 let objGrinding:Grinding = await this.grindingService.getLastGrinding();
                 processObj.grindingId = objGrinding[0];
-                await this.processRepository.createProcess(processObj);
+                await this.processService.updateProcessProperties(processObj);
                 return res.status(201).send();
             }else{
                 return res.status(404).send({msg: "Process not found"});

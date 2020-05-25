@@ -15,6 +15,5 @@ export class EntranceMeatRepository{
         await this.getConnection();
         return await this.entrancesMeatRepository.save(entranceMeat);
     }
-
     
 }

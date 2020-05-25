@@ -1,6 +1,5 @@
 import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
 import { EntranceMeat } from "../Models/Entity/Entrances.Meat";
-import { Users } from '../Models/Entity/User';
 import { EntranceMeatDTO } from '../Models/DTO/EntranceMeatDTO';
 import { Fridge } from '../Models/Entity/Fridges';
 import { FridgeRepository } from '../Repositories/Fridges.Repository';
@@ -10,6 +9,7 @@ import { CoolingRepository } from '../Repositories/Cooling.Repository';
 import { Cooling } from '../Models/Entity/Cooling';
 import { WarehouseStatus } from '../Models/Enum/WarehouseStatus';
 import { UsersRepository } from '../Repositories/Users.Repository';
+import { User } from '../Models/Entity/User';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -28,7 +28,7 @@ export class EntranceMeatService {
         let entranceMeatDTO: EntranceMeatDTO = req.body;
         //let photo:any= req.files[0];
         entranceMeatDTO.createdAt = new Date().toLocaleDateString();
-        if (!entranceMeatDTO.lotInernal) throw new Error("[400],Falta la propiedad loteInterno");
+        if (!entranceMeatDTO.lotInternal) throw new Error("[400],Falta la propiedad loteInterno");
         if (!entranceMeatDTO.lotProveedor) throw new Error("[400],Falta la propiedad loteProveedor");
         if (!entranceMeatDTO.proveedor) throw new Error("[400],Falta la propiedad proveedor");
         if (!entranceMeatDTO.rawMaterial) throw new Error("[400],Falta la propiedad rawMaterial");
@@ -46,7 +46,7 @@ export class EntranceMeatService {
         if (!entranceMeatDTO.photo) throw new Error("[400],Falta la propiedad photo");
         if (!entranceMeatDTO.qualityInspector) throw new Error("[400], qualitiInspector is required")
 
-        let userInspector: Users = await this.userRepository.getUserById(entranceMeatDTO.qualityInspector);
+        let userInspector: User = await this.userRepository.getUserById(entranceMeatDTO.qualityInspector);
         console.log(userInspector);
         if (!userInspector) throw new Error("[404],Usuario inspector de calidad no existe");
 
@@ -56,14 +56,14 @@ export class EntranceMeatService {
 
 
         let photo = Buffer.from(entranceMeatDTO.photo, 'base64');
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`/${entranceMeatDTO.createdAt.replace(/\//g, "")}/${entranceMeatDTO.lotInernal}/`, photo);
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`/${entranceMeatDTO.createdAt.replace(/\//g, "")}/${entranceMeatDTO.lotInternal}/`, photo);
         let file: File = {
             fileId: 0,
             url: urlOfImage
         }
         let entranceMeat: EntranceMeat = {
             createdAt: entranceMeatDTO.createdAt,
-            loteInterno: entranceMeatDTO.lotInernal,
+            loteInterno: entranceMeatDTO.lotInternal,
             loteProveedor: entranceMeatDTO.lotProveedor,
             proveedor: entranceMeatDTO.proveedor,
             rawMaterial: entranceMeatDTO.rawMaterial,
@@ -87,7 +87,7 @@ export class EntranceMeatService {
         entranceMeat.photo = file;
 
         let cooling: Cooling = {
-            loteInterno: entranceMeatDTO.lotInernal,
+            loteInterno: entranceMeatDTO.lotInternal,
             loteProveedor: entranceMeatDTO.lotProveedor,
             quantity: entranceMeatDTO.weight.value,
             rawMaterial: entranceMeatDTO.rawMaterial,

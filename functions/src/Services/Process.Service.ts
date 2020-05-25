@@ -3,19 +3,30 @@ import { Process } from "../Models/Entity/Process";
 import { Request, Response } from "express";
 import { ProcessUpdateDTO, ProcessCreationDTO } from '../Models/DTO/ProcessDTO';
 import { ProductService } from './Product.Services';
+import { ProductRoviandaService } from './Product.Rovianda.Service';
+import { EntranceMeatService } from './Entrances.Meat.Services';
+import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
+import { Cooling } from '../Models/Entity/Cooling';
+import { CoolingService } from './Cooling.Service';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsCoolingService } from './Outputs.Cooling.Service';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
-    private productCatalogService:ProductService;
+    private productRoviandaService:ProductRoviandaService;
+    private outputCoolingService:OutputsCoolingService;
     constructor(){
         this.processRepository = new ProcessRepository();
-        this.productCatalogService= new ProductService();
+        this.productRoviandaService= new ProductRoviandaService();
+        this.outputCoolingService = new OutputsCoolingService();
     }
 
     async createProcess(process:ProcessCreationDTO){
-        
-        let productCatalog = await this.productCatalogService.getProductById(process.productId);
+        let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
+        if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         let processEntity:Process = new Process();
         processEntity.productId = productCatalog;
         processEntity.entranceHour= process.dateIni;
@@ -23,8 +34,12 @@ export class ProcessService{
         processEntity.loteInterno = process.lotId;
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
-        
+
         return await this.processRepository.createProcess(processEntity);
+    }
+    
+    async updateProcessProperties(process:Process){
+        return await this.processRepository.createProcess(process);
     }
 
     async getProcessActive(){

@@ -54,7 +54,7 @@ export class SausagedController{
                     await this.sausagedService.saveSausaged(sausaged);
                     let objSausaged:Sausaged = await this.sausagedService.getLastSausaged();
                     processObj.sausageId = objSausaged[0];
-                    await this.processRepository.createProcess(processObj);
+                    await this.processService.updateProcessProperties(processObj);
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg: "Product not found"});

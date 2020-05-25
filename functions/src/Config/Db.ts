@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
-import { User } from '../Models/Entity/Users';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
 import { Product } from '../Models/Entity/Product';
@@ -28,7 +27,7 @@ import { OvenProducts } from "../Models/Entity/Oven.Products";
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Packaging } from "../Models/Entity/Packaging";
-import { Users } from "../Models/Entity/User";
+import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 
@@ -48,7 +47,6 @@ const config: ConnectionOptions = {
         Roles,
         File,
         User,
-        Users,
         Pin,
         Product,
         WarehousePacking,
