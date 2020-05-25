@@ -1,6 +1,5 @@
 import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
 import { EntranceMeat } from "../Models/Entity/Entrances.Meat";
-import { Users } from '../Models/Entity/User';
 import { EntranceMeatDTO } from '../Models/DTO/EntranceMeatDTO';
 import { Fridge } from '../Models/Entity/Fridges';
 import { FridgeRepository } from '../Repositories/Fridges.Repository';
@@ -10,6 +9,7 @@ import { CoolingRepository } from '../Repositories/Cooling.Repository';
 import { Cooling } from '../Models/Entity/Cooling';
 import { WarehouseStatus } from '../Models/Enum/WarehouseStatus';
 import { UsersRepository } from '../Repositories/Users.Repository';
+import { User } from '../Models/Entity/User';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -46,7 +46,7 @@ export class EntranceMeatService {
         if (!entranceMeatDTO.photo) throw new Error("[400],Falta la propiedad photo");
         if (!entranceMeatDTO.qualityInspector) throw new Error("[400], qualitiInspector is required")
 
-        let userInspector: Users = await this.userRepository.getUserById(entranceMeatDTO.qualityInspector);
+        let userInspector: User = await this.userRepository.getUserById(entranceMeatDTO.qualityInspector);
         console.log(userInspector);
         if (!userInspector) throw new Error("[404],Usuario inspector de calidad no existe");
 
