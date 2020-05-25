@@ -146,6 +146,10 @@ export class ProcessController{
         this.processService = new ProcessService();
     }
 
+    async createProcess(req:Request,res:Response){
+        
+    }
+
     async updateProcessHourAndDate(req:Request,res:Response){
         await this.processService.updateProcess(req);
         return res.status(204).send();

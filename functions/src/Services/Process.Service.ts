@@ -1,16 +1,30 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, Response } from "express";
-import { ProcessUpdateDTO } from '../Models/DTO/ProcessDTO';
+import { ProcessUpdateDTO, ProcessCreationDTO } from '../Models/DTO/ProcessDTO';
+import { ProductService } from './Product.Services';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
+    private productCatalogService:ProductService;
     constructor(){
         this.processRepository = new ProcessRepository();
+        this.productCatalogService= new ProductService();
     }
 
-    async createProcess(process:Process){
-        return await this.processRepository.createProcess(process);
+    async createProcess(process:ProcessCreationDTO){
+        
+        let productCatalog = await this.productCatalogService.getProductById(process.productId);
+        if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
+        let processEntity:Process = new Process();
+        processEntity.productId = productCatalog;
+        processEntity.entranceHour= process.dateIni;
+        processEntity.weigth=process.weight.toString();
+        processEntity.loteInterno = process.lotId;
+        processEntity.temperature = process.temperature;
+        processEntity.startDate = process.dateIni;
+        
+        return await this.processRepository.createProcess(processEntity);
     }
 
     async getProcessActive(){
