@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Grinding } from './Grinding';
 
 import { Tenderized } from './Tenderized';
@@ -14,8 +14,7 @@ export class Process{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @OneToOne(type => ProductRovianda)
-    @JoinColumn({name:"product_id"})
+    @ManyToOne(type => ProductRovianda,productR=>productR.process)
     productId:ProductRovianda;
     
     @Column({name:"lote_interno"})

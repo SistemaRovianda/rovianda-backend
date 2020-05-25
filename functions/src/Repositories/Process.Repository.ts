@@ -16,10 +16,10 @@ export class ProcessRepository{
         return await this.processRepository.save(process);
     }
 
-    async getProcessActive(){
+    async getProcessByStatus(status:string){
         await this.getConnection();
         console.log("consulta")
-        return await this.processRepository.query(`SELECT * FROM process WHERE status='ACTIVE';`);
+        return await this.processRepository.find({status});
     }
 
     async getAllProcess(){

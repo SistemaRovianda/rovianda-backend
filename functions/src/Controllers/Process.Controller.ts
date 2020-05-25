@@ -137,6 +137,8 @@
 import {Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { ProcessService } from '../Services/Process.Service';
+import { Process } from '../Models/Entity/Process';
+import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 
 export class ProcessController{
 
@@ -169,5 +171,13 @@ export class ProcessController{
         return res.status(200).send(response);
 
     }
+
+        async getAllProcess(req:Request,res:Response){
+            let status:string = req.query.status;
+            if(status!=ProcessStatus.ACTIVE && status!=ProcessStatus.INACTIVE) throw new Error("[400], status no valido");
+        let process:Process[] = await this.processService.getProcessByStatus(status);
+        return res.status(200).send(process);
+         }
+
 
 }

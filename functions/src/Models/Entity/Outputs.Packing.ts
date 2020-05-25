@@ -18,6 +18,7 @@ export class OutputsPacking{
     @Column()
     quantity:number;
 
+    @Column()
     operatorOutlet: string;
 
     @ManyToOne(type=>Product, product=>product.warehousePacking,{eager:true, onDelete:"SET NULL"})
