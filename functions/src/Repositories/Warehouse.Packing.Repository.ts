@@ -21,9 +21,24 @@ export class WarehousePackingRepository{
         return await this.warehousePackingRepository.findOne({loteProveedor:loteProveedor})
     }
 
-    async getWarehousePackingByStatus(status:string){
+    // async getWarehousePackingByStatus(status:string){
+    //     await this.getConnection();
+    //     return await this.warehousePackingRepository.query(`SELECT lote_proveedor, productId FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);
+    // }
+
+    async getWarehousePackingByStatusGroup(status:string){
         await this.getConnection();
-        return await this.warehousePackingRepository.query(`SELECT lote_proveedor, productId FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);
+        return await this.warehousePackingRepository.query(`SELECT * FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);
+    }
+
+    async getWarehousePackingByLoteProveedor(loteProveedor:string, status:string){
+        await this.getConnection();
+        return await this.warehousePackingRepository.query(`
+        SELECT warehouse_packing.lote_proveedor, warehouse_packing.productId, product_catalog.description 
+        FROM warehouse_packing 
+        INNER JOIN product_catalog  ON product_catalog.id = warehouse_packing.productId 
+        WHERE lote_proveedor = "${loteProveedor}" 
+        AND status = "${status}"`);
     }
 
     async saveWarehousePacking(warehousepacking:WarehousePacking){

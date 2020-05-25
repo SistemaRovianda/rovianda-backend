@@ -1,13 +1,13 @@
 export interface EntranceMeatDTO{
 
     proveedor:string;
-    loteProveedor:string;
+    lotProveedor:string;
     createdAt:string;
     rawMaterial:string;
-    loteInterno:string;
+    lotInernal:string;
     weight:PropsEntrance;
     temperature:PropsEntrance;
-    strangeMaterial:PropsEntrance;
+    strageMaterial:PropsEntrance;
     expiration:PropsEntrance;
     packing: PropsEntrance;
     odor: PropsEntrance;
@@ -15,8 +15,9 @@ export interface EntranceMeatDTO{
     texture: PropsEntrance;
     fridge: PropsFridge;
     slaughterDate: PropsEntrance;
+    photo: string;
     job: string;
-    qualityInspectorId:string;
+    qualityInspector:string;
     
     }
 
@@ -26,7 +27,7 @@ export interface EntranceMeatDTO{
         accepted: boolean
     }
     export interface PropsFridge{
-        fridgeld: string,
+        fridgeId: number,
         descriptions: string,
         accepted: boolean
         }

@@ -23,7 +23,8 @@ export class UsersRepository{
 
     async getUserById(uuid:string){
         await this.getConnection();
-        return await this.usersRepository.findOne(uuid);
+        return await this.usersRepository.findOne({
+            where: {id:uuid}});
     }
 
     // async getUserById(userId:string){
