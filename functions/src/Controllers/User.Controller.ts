@@ -73,7 +73,7 @@ export class UserController{
             name,
             password
         }
-        try{
+        //try{
             console.log("entra");
             console.log(email);
             let getUser = await this.usersService.getByEmail(email);
@@ -85,10 +85,10 @@ export class UserController{
                 //await this.nodemailers.sendMailNewAccount(email, { email: email, password });
                 return res.status(201).send();
             }
-        }catch(err){
-            console.log(err);
-            return res.status(500).send(err);
-        }
+        // }catch(err){
+        //     console.log(err);
+        //     return res.status(500).send(err);
+        // }
     }
 
     async getUserById(req:Request,res:Response){
