@@ -45,7 +45,9 @@ export class ProcessService{
         processEntity.status=ProcessStatus.ACTIVE;
         return await this.processRepository.createProcess(processEntity);
     }
-    
+    async getProcessActive(){
+        return await this.processRepository.getProcessActive();
+    }
     async updateProcessProperties(process:Process){
         return await this.processRepository.createProcess(process);
     }

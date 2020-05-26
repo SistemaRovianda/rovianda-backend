@@ -15,7 +15,6 @@ export class InspectionService{
         console.log(inspection); 
         if (!inspection)
             throw Error(`[404], Inspection not found`);
-
         let response = {
             nameElaborated: inspection.nameElaborated? inspection.nameElaborated : null,
             jobElaborated: inspection.jobElaborated? inspection.jobElaborated : null,
