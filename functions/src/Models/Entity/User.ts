@@ -2,8 +2,8 @@ import { Column, Entity, ManyToOne, PrimaryColumn, JoinColumn, OneToMany } from 
 import { Roles } from './Roles';
 import { EntranceMeat } from "./Entrances.Meat";
 
-@Entity({name:"user"})
-export class Users{
+@Entity({name:"users"})
+export class User{
 
     @PrimaryColumn()
     id:string;

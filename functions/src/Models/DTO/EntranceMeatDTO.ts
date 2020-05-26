@@ -4,7 +4,6 @@ export interface EntranceMeatDTO{
     lotProveedor:string;
     createdAt:string;
     rawMaterial:string;
-    lotInernal:string;
     weight:PropsEntrance;
     temperature:PropsEntrance;
     strageMaterial:PropsEntrance;
@@ -18,7 +17,7 @@ export interface EntranceMeatDTO{
     photo: string;
     job: string;
     qualityInspector:string;
-    
+    lotInternal:string;
     }
 
     export interface PropsEntrance{

@@ -61,7 +61,7 @@ export class ConditioningController{
                 if(processToUpdate[0]){
                     console.log("actualizando")
                     processToUpdate.conditioningId=conditioning;
-                    await this.processService.createProcess(processToUpdate)
+                    await this.processService.updateProcessProperties(processToUpdate)
                     return res.status(201).send();
                 }else{
                     return res.status(404).send({msg:"No existe"});

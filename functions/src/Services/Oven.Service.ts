@@ -9,7 +9,7 @@ import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products'
 import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
 import { OvenDTO } from '../Models/DTO/OvenProductDTO';
 import { Product } from '../Models/Entity/Product';
-import { User } from '../Models/Entity/Users';
+import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
 export class OvenService{

@@ -1,5 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne  } from "typeorm";
-import { User } from "./Users";
+
 import { Product } from "./Product";
 
 
@@ -18,6 +18,7 @@ export class OutputsPacking{
     @Column()
     quantity:number;
 
+    @Column()
     operatorOutlet: string;
 
     @ManyToOne(type=>Product, product=>product.warehousePacking,{eager:true, onDelete:"SET NULL"})

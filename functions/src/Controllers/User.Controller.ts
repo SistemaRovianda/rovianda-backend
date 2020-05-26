@@ -2,26 +2,26 @@ import {Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Process } from '../Models/Entity/Process';
 import { ProcessService } from '../Services/Process.Service';
-import { User } from '../Models/Entity/Users';
 import { Product } from '../Models/Entity/Product';
 import { ProductService } from '../Services/Product.Services';
 import { UserService } from '../Services/User.Service';
-import { UsersService } from '../Services/Users.Service';
+
 import { userGeneric } from '../Models/UserGeneric';
+import { User } from '../Models/Entity/User';
 //import { Users } from '../Models/Entity/User';
 
 export class UserController{
 
     private processService:ProcessService;
-    private userService:UserService;
+    //private userService:UserService;
     private productService:ProductService
-    private usersService:UsersService;
+    private usersService:UserService;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
-        this.userService = new UserService();
+        this.usersService = new UserService(this.firebaseInstance);
         this.productService = new ProductService();
-        this.usersService = new UsersService(this.firebaseInstance);
+        
     }
 
     async createUserProcess(req:Request,res:Response){
@@ -35,7 +35,7 @@ export class UserController{
         if (!processId) return res.status(400).send({ msg: 'processId is required'});
 
         try{
-            let user:User = await this.userService.getUserByName(nameElaborated);
+            let user:User = await this.usersService.getUserByName(nameElaborated);
             if(user){
                 let processToUpdate:Process = await this.processService.getProcessById(+processId);
                 if(processToUpdate){
@@ -47,7 +47,7 @@ export class UserController{
                         processToUpdate.jobElaborated = jobElaborated;
                         processToUpdate.jobVerify = jobVerify;
                         processToUpdate.userId = user[0];
-                        await this.processService.createProcess(processToUpdate);
+                        await this.processService.updateProcessProperties(processToUpdate);
                         return res.status(201).send();
                     }else{
                         return res.status(404).send({msg:  'There is no product related to this process.'});
@@ -76,12 +76,12 @@ export class UserController{
         try{
             console.log("entra");
             console.log(email);
-            let getUser = await this.usersService.getUserByEmail(email);
+            let getUser = await this.usersService.getByEmail(email);
             console.log("sale");
-            if(getUser[0]){
+            if(getUser){
                 return res.status(409).send({msg:"usuario ya registrado"});
             }else{
-                await this.usersService.createUser(req.body,userGeneric);
+                await this.usersService.createUserF(req.body,userGeneric);
                 //await this.nodemailers.sendMailNewAccount(email, { email: email, password });
                 return res.status(201).send();
             }

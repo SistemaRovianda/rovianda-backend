@@ -14,12 +14,13 @@ export const processRoutes:Array<routeInterface>=[
         controller:ProcessController,
         target:"createProcess"
     },
+    {
+        url:"/rovianda/process",
+        method:"get",
+        controller:ProcessController,
+        target:"getAllProcess"
+    },
     //{
-    //     url:"/rovianda/process",
-    //     method:"get",
-    //     controller:ProcessController,
-    //     target:"getAllProcess"
-    // },{
     //     url:"/rovianda/process/grinding/:processId",
     //     method: "get",
     //     controller: ProcessController,
