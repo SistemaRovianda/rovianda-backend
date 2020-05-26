@@ -15,10 +15,26 @@ export class ProductRepository{
         return await this.productRepository.save(product);
     }
 
-    async getAllProducts(type: string){
+    async getAllProductsDrief(type: string){
         await this.getConnection();
         console.log("consulta")
-        return await this.productRepository.find({where:{type}})
+        return await this.productRepository.query(
+            `SELECT product_catalog.id, product_catalog.description 
+                FROM product_catalog 
+                INNER JOIN warehouse_drief ON
+                product_catalog.id = warehouse_drief.productId`
+            );
+    }
+
+    async getAllProductsPacking(type: string){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(
+            `SELECT product_catalog.id, product_catalog.description 
+                FROM product_catalog 
+                INNER JOIN warehouse_packing ON
+                product_catalog.id = warehouse_packing.productId`
+            );  
     }
 
     async getProductById(id:number){
