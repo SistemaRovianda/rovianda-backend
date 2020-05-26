@@ -6,5 +6,6 @@ export const TYPE ={
 
 export const LOTESTATUS= {
     OPENED:"OPENED",
-    CLOSED:"CLOSED"
+    CLOSED:"CLOSED",
+    PENDING:"PENDING"
 }

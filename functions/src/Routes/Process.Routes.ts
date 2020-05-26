@@ -14,12 +14,13 @@ export const processRoutes:Array<routeInterface>=[
         controller:ProcessController,
         target:"createProcess"
     },
+    {
+        url:"/rovianda/process",
+        method:"get",
+        controller:ProcessController,
+        target:"getAllProcess"
+    },
     //{
-    //     url:"/rovianda/process",
-    //     method:"get",
-    //     controller:ProcessController,
-    //     target:"getAllProcess"
-    // },{
     //     url:"/rovianda/process/grinding/:processId",
     //     method: "get",
     //     controller: ProcessController,
@@ -77,10 +78,17 @@ export const processRoutes:Array<routeInterface>=[
         method:"patch",
         controller:ProcessController,
         target:"updateStatusProcess"
-    }, {
+    }, 
+    {
         url: "/rovianda/process/users/:processId",
         method: "get",
         controller: ProcessController,
         target: "getUserProcessVerifier"
+    },
+    {
+        url:"/rovianda/process",
+        method:"post",
+        controller:ProcessController,
+        target:"saveProcess"
     }
 ];

@@ -19,7 +19,7 @@ export class ProductController{
         return res.status(201).send();
     }
 
-    async getAllProductsCatalog(req:Request,res:Response){
+    async getAllProductsCatalogByType(req:Request,res:Response){
         let products:Product[] = await this.productService.getAllProducts(req.params.type);   
         return res.status(200).send(products);
     }
@@ -45,7 +45,6 @@ export class ProductController{
     }
 
     async getProductsByLotId(req:Request,res:Response){
-
         let products:Product[] = await this.productService.getProductsByLotId(+req.params.lotId);
         return res.status(200).send(products);
     }

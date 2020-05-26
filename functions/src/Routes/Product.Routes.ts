@@ -7,7 +7,7 @@ export const productRoutes:Array<routeInterface>=[
         url:"/rovianda/products/:type",
         method:"get",
         controller:ProductController,
-        target:"getAllProductsCatalog"
+        target:"getAllProductsCatalogByType"
     },
     {
         url:"/rovianda/product-catalog",

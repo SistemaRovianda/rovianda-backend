@@ -30,6 +30,7 @@ import { Packaging } from "../Models/Entity/Packaging";
 import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
+import { Inspection } from '../Models/Entity/Inspection';
 
 
 const config: ConnectionOptions = {
@@ -76,9 +77,9 @@ const config: ConnectionOptions = {
         OvenProducts,
         RevisionsOvenProducts,
         Packaging,
-        DryingLabel
+        DryingLabel,
+        Inspection
     ]
-
 }
 let connection: Connection;
 export const connect = async () => {

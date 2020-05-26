@@ -36,7 +36,7 @@ export class WarehouseDriefRepository{
 
     async getWarehouseDriefByStatusGroup(status:string){
         await this.getConnection();
-        return await this.warehouseDriefRepository.query(`SELECT * FROM warehouse_drief WHERE status = "${status}" GROUP BY lote_proveedor`);
+        return await this.warehouseDriefRepository.query(`SELECT distinct(lote_proveedor) FROM warehouse_drief WHERE status = "${status}"`);
     }
 
     async getWarehouseDriefByLoteProveedor(loteProveedor:string, status:string){

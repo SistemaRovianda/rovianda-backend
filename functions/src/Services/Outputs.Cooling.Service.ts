@@ -26,7 +26,7 @@ export class OutputsCoolingService{
 
         let outputsCooling:OutputsCooling = new OutputsCooling();
         outputsCooling.loteInterno = outputsMeat.loteId;
-        outputsCooling.rawMaterial = outputsMeat.rawMaterial;
+        outputsCooling.rawMaterial = lote.rawMaterial;
         outputsCooling.observations = outputsMeat.observations;
         outputsCooling.outputDate = outputsMeat.date;
         outputsCooling.quantity = outputsMeat.quantity;

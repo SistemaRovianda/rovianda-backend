@@ -21,7 +21,6 @@ export class EntranceDriefService{
 
 
     async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
-   
         
         if(!entranceDriefDTO.expiration== null) throw new Error("[400],el parametro expiration es requerido");
         if(!entranceDriefDTO.loteProveedor) throw new Error("[400],el parametro loteProveedor es requerido");

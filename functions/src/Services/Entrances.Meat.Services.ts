@@ -8,17 +8,17 @@ import { File } from '../Models/Entity/Files';
 import { CoolingRepository } from '../Repositories/Cooling.Repository';
 import { Cooling } from '../Models/Entity/Cooling';
 import { WarehouseStatus } from '../Models/Enum/WarehouseStatus';
-import { UsersRepository } from '../Repositories/Users.Repository';
+import { UserRepository } from '../Repositories/User.Repository';
 import { User } from '../Models/Entity/User';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
-    private userRepository: UsersRepository;
+    private userRepository: UserRepository;
     private fridgeRepository: FridgeRepository;
     private coolingRepository: CoolingRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
-        this.userRepository = new UsersRepository();
+        this.userRepository = new UserRepository();
         this.fridgeRepository = new FridgeRepository();
         this.coolingRepository = new CoolingRepository();
     }

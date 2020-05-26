@@ -24,7 +24,7 @@ export class EntrancePackingService{
         let userId=req.headers.authorization;
         if(!userId) throw new Error("[403],Credenciales invalidas");
         if(!entrancePackingDTO.date) throw new Error("[400],el parametro date es requirido");
-        if(!entrancePackingDTO.is_pz) throw new Error("[400],el parametro isPz es requerido");
+        if(!entrancePackingDTO.isPz) throw new Error("[400],el parametro isPz es requerido");
         if(!entrancePackingDTO.lotProveedor) throw new Error("[400],el parametro lotProveedor es requerido");
         if(!entrancePackingDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entrancePackingDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");
@@ -39,7 +39,7 @@ export class EntrancePackingService{
 
         let entrancePacking:EntrancePacking = new EntrancePacking();
         entrancePacking.date = entrancePackingDTO.date;
-        entrancePacking.isPz = entrancePackingDTO.is_pz;
+        entrancePacking.isPz = entrancePackingDTO.isPz;
         entrancePacking.loteProveedor = entrancePackingDTO.lotProveedor;
         entrancePacking.proveedor = entrancePackingDTO.proveedor;
         entrancePacking.observations = entrancePackingDTO.observations;
@@ -51,7 +51,7 @@ export class EntrancePackingService{
         entrancePacking.transport = entrancePackingDTO.transport;
 
         let warehousePacking:WarehousePacking = new WarehousePacking();
-        warehousePacking.isPz = entrancePackingDTO.is_pz;
+        warehousePacking.isPz = entrancePackingDTO.isPz;
         warehousePacking.loteProveedor = entrancePackingDTO.lotProveedor;
         warehousePacking.observations = entrancePackingDTO.observations;
         warehousePacking.product = product;
