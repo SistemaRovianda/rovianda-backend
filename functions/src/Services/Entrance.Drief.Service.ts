@@ -22,10 +22,10 @@ export class EntranceDriefService{
 
     async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
         
-        if(!entranceDriefDTO.expiration) throw new Error("[400],el parametro expiration es requerido");
+        if(!entranceDriefDTO.expiration== null) throw new Error("[400],el parametro expiration es requerido");
         if(!entranceDriefDTO.loteProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
-        if(!entranceDriefDTO.odor) throw new Error("[400],el parametro odor es requerido");
-        if(!entranceDriefDTO.paking) throw new Error("[400],el parametro packing es requerido");
+        if(!entranceDriefDTO.odor==null) throw new Error("[400],el parametro odor es requerido");
+        if(!entranceDriefDTO.paking==null) throw new Error("[400],el parametro packing es requerido");
         if(!entranceDriefDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entranceDriefDTO.proveedorid) throw new Error("[400],el parametro proveedorId es requerido");
         if(entranceDriefDTO.quality == null) throw new Error("[400],el parametro quality es requerido");
