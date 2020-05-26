@@ -78,7 +78,7 @@ export class UserController{
             console.log(email);
             let getUser = await this.usersService.getByEmail(email);
             console.log("sale");
-            if(getUser[0]){
+            if(getUser){
                 return res.status(409).send({msg:"usuario ya registrado"});
             }else{
                 await this.usersService.createUserF(req.body,userGeneric);
