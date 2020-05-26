@@ -147,7 +147,10 @@ export class ProcessController{
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
     }
-
+  
+    async saveProcess(req:Request,res:Response){
+        await this.processService.saveProcess(req.body);
+    }
     async createProcess(req:Request,res:Response){
         await this.processService.createProcess(req.body);
         return res.status(201).send();

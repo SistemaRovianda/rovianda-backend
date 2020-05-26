@@ -12,10 +12,9 @@ export class InspectionService{
 
     async getUsersInspection(inspectionId: number) {
         let inspection: Inspection = await this.inspectionRepository.getInspectionById(+inspectionId);
-
+        console.log(inspection); 
         if (!inspection)
-            throw Error(`[400], Inspection not found`);
-        console.log(process);
+            throw Error(`[404], Inspection not found`);
         let response = {
             nameElaborated: inspection.nameElaborated? inspection.nameElaborated : null,
             jobElaborated: inspection.jobElaborated? inspection.jobElaborated : null,
@@ -24,5 +23,4 @@ export class InspectionService{
         }
         return response;
     }
-
 }
