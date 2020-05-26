@@ -1,22 +1,21 @@
-import { UserRepository } from '../Repositories/User.Repository';
+import { UserRepository } from "../Repositories/User.Repository";
+import { RolesRepository } from "../Repositories/Roles.Repository";
 import { User } from '../Models/Entity/User';
 import { UserDTO } from '../Models/DTO/UserDTO';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-import { RolesRepository } from '../Repositories/Roles.Repository';
 import { userGeneric } from '../Models/UserGeneric';
 import { Request } from 'express';
 
 export class UserService{
     private userRepository:UserRepository;
-    private rolesRepository:RolesRepository;
+    private rolesRepository:RolesRepository
     constructor(private firebaseHelper:FirebaseHelper){
         this.userRepository = new UserRepository();
         this.rolesRepository = new RolesRepository();
+        
     }
 
-
     async createUserF(userDTO:UserDTO, userGeneric:userGeneric){
-
         let roles = await this.rolesRepository.getRole(userDTO.rol);
         console.log(roles)
         if(!roles[0])  throw new Error("[404],roles not found");
@@ -47,7 +46,7 @@ export class UserService{
     async getUserByName(name:string){
         return await this.userRepository.getUserByName(name);
     }
-    
+
     async getUserById(req:Request){
         if(!req.params.uuid) throw new Error("[400], uuid is required");
         let user:User = await this.userRepository.getUserById(req.params.uuid);
@@ -67,4 +66,5 @@ export class UserService{
     async getByEmail(email:string){
         return await this.userRepository.getUserByEmail(email);
     }
+
 }

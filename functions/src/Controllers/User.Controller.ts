@@ -13,13 +13,13 @@ import { User } from '../Models/Entity/User';
 export class UserController{
 
     private processService:ProcessService;
-    private userService:UserService;
+    //private userService:UserService;
     private productService:ProductService
     private usersService:UserService;
 
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
-        this.userService = new UserService(this.firebaseInstance);
+        this.usersService = new UserService(this.firebaseInstance);
         this.productService = new ProductService();
         
     }
@@ -35,7 +35,7 @@ export class UserController{
         if (!processId) return res.status(400).send({ msg: 'processId is required'});
 
         try{
-            let user:User = await this.userService.getUserByName(nameElaborated);
+            let user:User = await this.usersService.getUserByName(nameElaborated);
             if(user){
                 let processToUpdate:Process = await this.processService.getProcessById(+processId);
                 if(processToUpdate){
