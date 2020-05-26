@@ -1,6 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn } from "typeorm";
 import { Product } from "./Product";
-import { User } from './Users';
+import { User } from './User';
 
 @Entity({name:"entranceStore"})
 export class EntranceStore{

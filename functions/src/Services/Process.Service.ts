@@ -1,51 +1,59 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, Response } from "express";
-import { ProcessUpdateDTO, ProcessDTO } from '../Models/DTO/ProcessDTO';
-import { Product } from '../Models/Entity/Product';
-import { ProductRepository } from '../Repositories/Product.Repository';
+import { ProcessUpdateDTO, ProcessCreationDTO } from '../Models/DTO/ProcessDTO';
+import { ProductService } from './Product.Services';
+import { ProductRoviandaService } from './Product.Rovianda.Service';
+import { EntranceMeatService } from './Entrances.Meat.Services';
+import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
+import { Cooling } from '../Models/Entity/Cooling';
+import { CoolingService } from './Cooling.Service';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsCoolingService } from './Outputs.Cooling.Service';
+import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
-    private productRepository:ProductRepository;
+    private productRoviandaService:ProductRoviandaService;
+    private outputCoolingService:OutputsCoolingService;
     constructor(){
         this.processRepository = new ProcessRepository();
-        this.productRepository = new ProductRepository();
+        this.productRoviandaService= new ProductRoviandaService();
+        this.outputCoolingService = new OutputsCoolingService();
     }
 
-    async saveProcess(processDTO:ProcessDTO){
-        
-        if(!processDTO.productId) throw new Error("[400], productId is required");
-        if(!processDTO.lotId) throw new Error("[400], lotId is required");
-        if(!processDTO.weight) throw new Error("[400], weight is required");
-        if(!processDTO.temperature) throw new Error("[400], temperature is required");
-        if(!processDTO.hourEntrance) throw new Error("[400], hourEntrance is required");
-        if(!processDTO.dateIni) throw new Error("[400], dateIni is required");
-
-        let product:Product = await this.productRepository.getProductById(processDTO.productId);
-        if(!product) throw new Error("[400], product not found");
-        console.log(product);
-        let productId = product.id
-        
-        let processProduct:Process = await this.processRepository.getProceesByProduct(productId);
-        if(processProduct) throw new Error("[409], product already assigned to a process");
-
-        let process: Process = new Process();
-        process.productId = product;
-        process.newLote = processDTO.lotId;
-        process.weigth = processDTO.weight;
-        process.temperature = processDTO.temperature;
-        process.startDate = processDTO.dateIni;
-        process.entranceHour = processDTO.hourEntrance;
-
-        return await this.processRepository.saveProcess(process);
-    }
-    
-    async createProcess(process:Process){
-        return await this.processRepository.createProcess(process);
+    async createProcess(process:ProcessCreationDTO){
+        if(!process.lotId || process.lotId=="") throw new Error("[400], falta el parametro loteId");
+        if(!process.productId) throw new Error("[400], falta el parametro productId");
+        let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
+        if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
+        if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
+        let processEntity:Process = new Process();
+        if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
+        if(!process.hourEntrance || process.hourEntrance=="") throw new Error("[400], falta el parametro hourEntrance");
+        if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
+        if(!process.weight) throw new Error("[400], falta el parametro weigth");
+        if(process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
+        processEntity.productId = productCatalog;
+        processEntity.entranceHour= process.dateIni;
+        processEntity.weigth=process.weight.toString();
+        processEntity.loteInterno = process.lotId;
+        processEntity.temperature = process.temperature;
+        processEntity.startDate = process.dateIni;
+        processEntity.status=ProcessStatus.ACTIVE;
+        return await this.processRepository.createProcess(processEntity);
     }
     async getProcessActive(){
         return await this.processRepository.getProcessActive();
+    }
+    async updateProcessProperties(process:Process){
+        return await this.processRepository.createProcess(process);
+    }
+
+    async getProcessByStatus(status:string){
+        return await this.processRepository.getProcessByStatus(status);
     }
 
     async getProcessById(id:number){

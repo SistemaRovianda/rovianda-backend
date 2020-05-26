@@ -21,11 +21,14 @@ export class CoolingService{
     async updateStatus(coolingDTO:WarehouseCollingDTO){
         // let product = await this.productRepository.getProductById(coolingDTO.productId);
         // if(!product) throw new Error("[404], producto no existe");
+        if(!coolingDTO.fridgeId) throw new Error("[400], falta el parametro fridgeId");
+        if(!coolingDTO.loteId || coolingDTO.loteId=="") throw new Error("[400], falta el parametro logeId");
         let fridge = await this.fridgeRepository.getFridgeById(coolingDTO.fridgeId);
         if(!fridge[0]) throw new Error("[404], refrigerador no existe");
         let lote:Cooling = await this.coolingRepository.getCoolingByLote(coolingDTO.loteId);
         if(!lote) throw new Error("[404],el lote no existe");
-    
+        if(!coolingDTO.date || coolingDTO.date=="") throw new Error("[400], falta el parametro date");
+        
         switch(coolingDTO.status){
             case WarehouseStatus.CLOSED:
                 lote.status = WarehouseStatus.CLOSED;

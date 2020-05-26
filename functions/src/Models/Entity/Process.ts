@@ -1,10 +1,12 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Grinding } from './Grinding';
-import { User } from './Users';
+
 import { Tenderized } from './Tenderized';
 import { Conditioning } from './Conditioning';
 import { Sausaged } from './Sausaged';
 import { Product } from './Product';
+import { ProductRovianda } from "./Product.Rovianda";
+import { User } from "./User";
 
 @Entity({name:"process"})
 export class Process{
@@ -12,9 +14,8 @@ export class Process{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @OneToOne(type => Product)
-    @JoinColumn({name:"product_id"})
-    productId:Product;
+    @ManyToOne(type => ProductRovianda,productR=>productR.process)
+    productId:ProductRovianda;
     
     @Column({name:"lote_interno"})
     loteInterno:string;

@@ -10,7 +10,7 @@ export class EntrancesMeatController{
     private coolingMeat:CoolingService;
     private outputCoolingService:OutputsCoolingService;
     constructor(private firebaseInstance:FirebaseHelper){
-        
+        this.outputCoolingService = new OutputsCoolingService();
         this.entrancesmeatService = new EntranceMeatService(this.firebaseInstance);
         this.coolingMeat = new CoolingService();
     }

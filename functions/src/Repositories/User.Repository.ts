@@ -1,6 +1,6 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
-import { User } from '../Models/Entity/Users';
+import { User } from '../Models/Entity/User';
 export class UserRepository{
     private userRepository:Repository<User>;
 
@@ -17,13 +17,20 @@ export class UserRepository{
 
     async getUserById(userId:string){
         await this.getConnection();
-        return await this.userRepository.findOne({userId});
+        return await this.userRepository.findOne({id:userId});
     }
 
     async getUserByName(name:string){
         await this.getConnection();
         return await this.userRepository.findOne({
             where: {name: `${name}`},
+        });
+    }
+
+    async getUserByEmail(email:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({
+            email
         });
     }
 }

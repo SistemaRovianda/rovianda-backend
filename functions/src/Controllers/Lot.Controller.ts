@@ -29,7 +29,7 @@ export class LotController{
 
     async getAllLots(req:Request,res:Response){
         let {type,status} = req.query;
-        if(!(status==LOTESTATUS.OPENED || status ==LOTESTATUS.CLOSED)) throw new Error("[400], status parameter value is invalid");
+        if(!(status==LOTESTATUS.OPENED || status ==LOTESTATUS.CLOSED || status==LOTESTATUS.PENDING)) throw new Error("[400], status parameter value is invalid");
         let response = null;
         if(TYPE.DRIEF == type){
             let wareHouseDriefStatus = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatus(status);

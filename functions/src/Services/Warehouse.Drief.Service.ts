@@ -60,7 +60,7 @@ export class WarehouseDriefService{
                     description: `${warehouseDriefLote[n].description}`
                 });
             }
-            response.push({
+            response.push({ 
                 loteId: `${warehouseDriefStatus[i].lote_proveedor}`,
                 products: response1
             })
