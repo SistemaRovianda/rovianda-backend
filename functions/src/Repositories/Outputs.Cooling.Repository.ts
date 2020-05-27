@@ -27,8 +27,7 @@ export class OutputsCoolingRepository{
 
     async getOutputsCoolingByLot(lot:string){
         await this.getConnection();
-        return await this.outputsCoolingRepository.findOne({
-            where: {lote_interno: `${lot}`},
+        return await this.outputsCoolingRepository.findOne({loteInterno:lot
         });
     }
 }

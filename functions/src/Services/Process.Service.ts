@@ -27,7 +27,7 @@ export class ProcessService{
     }
 
     async createProcess(process:ProcessDTO){
-        if(!process.lotId || isNaN(+process.lotId)) throw new Error("[400], falta el parametro loteId");
+        if(!process.lotId) throw new Error("[400], falta el parametro loteId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");

@@ -10,6 +10,8 @@ import { OutputsDriefRepository } from "../Repositories/Outputs.Drief.Repository
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { FormulatioIngredientsRepository } from "../Repositories/Formulation.Ingredients.Repository";
+import { OutputsCoolingService } from "./Outputs.Cooling.Service";
+import { OutputsCooling } from "../Models/Entity/outputs.cooling";
 
 export class FormulationService {
     private formulationRepository: FormulationRepository;
@@ -17,12 +19,14 @@ export class FormulationService {
     private productRepository: ProductRepository;
     private outputsDriedRepository: OutputsDriefRepository;
     private formulationIngredientsRepository: FormulatioIngredientsRepository;
+    private outputsCooling:OutputsCoolingService;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.outputsDriedRepository = new OutputsDriefRepository();
         this.formulationIngredientsRepository = new FormulatioIngredientsRepository();
+        this.outputsCooling = new OutputsCoolingService();
     }
 
     async createFormulation(req: Request) {
@@ -49,8 +53,8 @@ export class FormulationService {
             if (!ingredient.lotId)
             throw new Error("[400], One of ingredients is missing lotId attribute");
         }
-        
-
+        let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingByLot(formulationDTO.lotId);       
+        if(!outputCooling) throw new Error("[404], no existe salida de este lote");
         let formulationToSave: Formulation =new Formulation();
         
         formulationToSave.loteInterno= formulationDTO.lotId;
