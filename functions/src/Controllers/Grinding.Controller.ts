@@ -4,6 +4,7 @@ import { Process } from '../Models/Entity/Process';
 import { Grinding } from '../Models/Entity/Grinding';
 import { ProcessService } from '../Services/Process.Service';
 import { GrindingService } from '../Services/Grinding.Service';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 
 export class GrindingController{
 

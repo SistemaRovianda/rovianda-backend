@@ -52,7 +52,9 @@ export class ProcessService{
         processEntity.newLote = formulation.newLote;
         return await this.processRepository.createProcess(processEntity);
     }
-    
+    async getProcessActive(){
+        return await this.processRepository.getProcessActive();
+    }
     async updateProcessProperties(process:Process){
         return await this.processRepository.createProcess(process);
     }
@@ -69,7 +71,7 @@ export class ProcessService{
         return await this.processRepository.getProcessWithGrindingById(id);
     }
 
-    async updateProcess(req:Request){
+    async updateProcess(req:Request){ 
         let process:Process = await this.processRepository.getProcessById(+req.params.processId);
         console.log(process)
         if(!process[0]) throw new Error("[404], process not found");

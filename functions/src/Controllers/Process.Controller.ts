@@ -147,7 +147,10 @@ export class ProcessController{
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService();
     }
-
+  
+    async saveProcess(req:Request,res:Response){
+        await this.processService.saveProcess(req.body);
+    }
     async createProcess(req:Request,res:Response){
         await this.processService.createProcess(req.body);
         return res.status(201).send();
@@ -169,7 +172,6 @@ export class ProcessController{
             throw Error(`[400], Invalid id path param `);
         let response = await this.processService.getUserProcessVerifier(+id);
         return res.status(200).send(response);
-
     }
 
         async getAllProcess(req:Request,res:Response){

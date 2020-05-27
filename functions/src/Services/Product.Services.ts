@@ -10,8 +10,12 @@ export class ProductService{
     }
 
     async getAllProducts(type:string){
-        if(type==TYPE.DRIEF || type == TYPE.PACKING){
-        return await this.productRepository.getAllProducts(type);
+
+        if(type==TYPE.DRIEF )
+            return await this.productRepository.getAllProductsDrief(TYPE.DRIEF);
+        
+        if(type == TYPE.PACKING){
+            return await this.productRepository.getAllProductsPacking(TYPE.PACKING);
         }else{
             throw new Error("[400], type parameter has a invalid value")
         }

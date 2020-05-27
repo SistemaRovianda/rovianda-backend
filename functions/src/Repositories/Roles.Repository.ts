@@ -14,7 +14,10 @@ export class RolesRepository{
     async getRole(rol:string){
         await this.getConnection();
         console.log("consulta")
-        return await this.rolesRepository.query(`SELECT * FROM roles WHERE description = "${rol}"`)
+        return await this.rolesRepository.findOne({
+            where: {description: `${rol}`},
+        });
+        //return await this.rolesRepository.query(`SELECT * FROM roles WHERE description = "${rol}"`)
     }
     
 }
