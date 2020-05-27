@@ -21,7 +21,7 @@ export class Process{
     loteInterno:string;
 
     @Column({name:"new_lote"})
-    newLote:number;
+    newLote:string;
 
     @Column()
     weigth:number;
