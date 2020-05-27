@@ -12,6 +12,6 @@ export class FormulationController {
 
     async createFormulation(req: Request, res: Response) {
         await this.formulationService.createFormulation(req);
-        return res.status(200).send();
+        return res.status(201).send();
     }
 }

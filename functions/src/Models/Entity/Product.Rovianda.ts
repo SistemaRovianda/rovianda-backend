@@ -2,6 +2,8 @@ import { Entity, ManyToMany, JoinColumn, PrimaryGeneratedColumn, Column, ManyToO
 import { Product } from "./Product";
 import { Packaging } from './Packaging';
 import { Process } from "./Process";
+import { Formulation } from "./Formulation";
+import { OvenProducts } from "./Oven.Products";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -20,4 +22,8 @@ export class ProductRovianda {
 
     @OneToMany(type=>Process,process=>process.productId)
     process:Process[];
+
+    @OneToMany(type=>Formulation,form=>form.productRoviandaId)
+    formulations:Formulation[];
+
 }

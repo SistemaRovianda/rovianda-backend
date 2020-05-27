@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, JoinColumn, OneToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, JoinColumn, OneToOne, ManyToOne } from "typeorm";
 import { OvenProducts } from "./Oven.Products";
 
 @Entity({name:"revisions_oven_products"})
@@ -22,8 +22,7 @@ export class RevisionsOvenProducts{
     @Column({name:"observations"})
     observations: string;
 
-    @OneToOne(type=>OvenProducts)
-    @JoinColumn({name:"oven_products_id"})
+    @ManyToOne(type=>OvenProducts,oven=>oven.revisions)
     ovenProducts:OvenProducts;
 
     // @ManyToOne(type=>OvenProducts, ovenProducts=>ovenProducts.revisionsOvenProducts, {eager:true, onDelete:"SET NULL"})

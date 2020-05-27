@@ -1,10 +1,11 @@
 import { Formulation } from "../Models/Entity/Formulation";
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
 export class FormulationRepository{
     private formulatioRepository: Repository<Formulation>;
-
+    
     async getConnection(){
         if(!this.formulatioRepository)
             this.formulatioRepository = (await connect()).getRepository(Formulation);
@@ -15,4 +16,8 @@ export class FormulationRepository{
         return await this.formulatioRepository.save(formulation);
     }
     
+    async getByLoteId(loteId:string,productId:ProductRovianda){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({loteInterno:loteId,productRoviandaId:productId});
+    }
 }
