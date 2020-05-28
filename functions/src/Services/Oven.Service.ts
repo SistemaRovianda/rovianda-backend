@@ -94,7 +94,7 @@ export class OvenService{
         let process:Process = await this.processRepository.findProcessById(processId);
         console.log(process);
         if(!process) throw new Error("[400], process not found");
-        if(!process.productId) throw new Error("[400], The process has no assigned product ");
+        if(!process.product) throw new Error("[400], The process has no assigned product ");
         let productId = process[0].productId;
         console.log(productId);
         console.log("inicio")

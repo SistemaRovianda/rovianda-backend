@@ -15,7 +15,8 @@ export class Process{
     id:number;
 
     @ManyToOne(type => ProductRovianda,productR=>productR.process)
-    productId:ProductRovianda;
+    @JoinColumn({name:"product_rovianda_id"})
+    product:ProductRovianda;
     
     @Column({name:"lote_interno"})
     loteInterno:string;

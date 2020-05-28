@@ -42,7 +42,7 @@ export class ProcessService{
         let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId,productCatalog);
         if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let processEntity:Process = new Process();
-        processEntity.productId = productCatalog;
+        processEntity.product = productCatalog;
         processEntity.entranceHour= process.dateIni;
         processEntity.weigth=+process.weight;
         processEntity.loteInterno = process.lotId.toString();

@@ -20,7 +20,7 @@ export class ProductRovianda {
     @ManyToOne(type => Packaging, packaging => packaging.productId)
     pack: Product;
 
-    @OneToMany(type=>Process,process=>process.productId)
+    @OneToMany(type=>Process,process=>process.product)
     process:Process[];
 
     @OneToMany(type=>Formulation,form=>form.productRoviandaId)
