@@ -12,7 +12,7 @@ export class OvenProducts {
     @Column({ name: "estimated_time" })
     stimatedTime: string;
 
-    @OneToOne(type=> ProductRovianda, {eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=> ProductRovianda, productR=>productR.ovenProducts)
     @JoinColumn({name:"product_id"})
     product:ProductRovianda;
  
