@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 
 export class OvenRepository{
     private ovenRepository:Repository<OvenProducts>;
@@ -32,6 +33,12 @@ export class OvenRepository{
         await this.getConnection();
         console.log("consulta")
         return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE product_id = ${product_id}`)
+    }
+
+    async getOvenProductByProduct(product:ProductRovianda){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.ovenRepository.findOne({product})
     }
 
     async getOvenProductByLot(newLote:number){

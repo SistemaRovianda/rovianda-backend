@@ -109,7 +109,7 @@ export class OvenService{
         console.log(process);
         if(!process) throw new Error("[400], process not found");
         if(!process.product) throw new Error("[400], The process has no assigned product ");
-        let productId = process[0].productId;
+        let productId = process.product.id;
         console.log(productId);
         console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
@@ -121,11 +121,11 @@ export class OvenService{
 
         let ovenUser:OvenProducts = await this.ovenRepository.getOvenProductByProductId(productId);
         if(!ovenUser) throw new Error("[400], Oven product not found");
-
-        ovenUser.nameElaborated = ovenUserDTO.nameElaborated;
-        ovenUser.nameVerify = ovenUserDTO.nameVerify;
-        ovenUser.jobElaborated = ovenUserDTO.jobElaborated;
-        ovenUser.jobVerify = ovenUserDTO.jobVerify;
+        console.log(ovenUser)
+        ovenUser[0].nameElaborated = ovenUserDTO.nameElaborated;
+        ovenUser[0].nameVerify = ovenUserDTO.nameVerify;
+        ovenUser[0].jobElaborated = ovenUserDTO.jobElaborated;
+        ovenUser[0].jobVerify = ovenUserDTO.jobVerify;
 
         console.log("hecho")
         return await this.ovenRepository.saveOvenUser(ovenUser);

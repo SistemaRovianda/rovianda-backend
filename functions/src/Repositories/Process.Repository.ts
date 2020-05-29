@@ -58,7 +58,8 @@ export class ProcessRepository{
     async findProcessById(id:number){
         await this.getConnection();
         return await this.processRepository.findOne({
-            where: {id}
+            where: {id},
+            relations: ["product"] 
         });
     }
      
