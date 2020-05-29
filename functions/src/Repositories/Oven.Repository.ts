@@ -18,8 +18,8 @@ export class OvenRepository{
         return await this.ovenRepository.query(`
         SELECT oven_products.id, oven_products.pcc, 
         oven_products.new_lote, oven_products.date, 
-        oven_products.product_id, product_catalog.description 
-        FROM oven_products INNER JOIN product_catalog WHERE oven_products.product_id = product_catalog.id`);
+        oven_products.product_id, products_rovianda.name 
+        FROM oven_products INNER JOIN products_rovianda WHERE oven_products.product_id = products_rovianda.id`);
     }
 
     async getOvenProductById(ovenProduct_id:number){

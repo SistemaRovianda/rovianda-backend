@@ -3,6 +3,7 @@ import { Product } from "./Product";
 import { Packaging } from './Packaging';
 import { Process } from "./Process";
 import { Formulation } from "./Formulation";
+import { OvenProducts } from "./Oven.Products";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -19,12 +20,10 @@ export class ProductRovianda {
     @ManyToOne(type => Packaging, packaging => packaging.productId)
     pack: Product;
 
-    @OneToMany(type=>Process,process=>process.productId)
+    @OneToMany(type=>Process,process=>process.product)
     process:Process[];
 
     @OneToMany(type=> Formulation,formulation=>formulation.productRovianda,{eager:false})
     formulation: Formulation[];
 
-    // @OneToMany(type=> Cooling,cooling=>cooling.fridge,{eager:false})
-    // coolings: Cooling[];
 }

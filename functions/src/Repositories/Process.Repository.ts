@@ -62,9 +62,9 @@ export class ProcessRepository{
         });
     }
      
-    async getProceesByLot(newLote:string){
+    async getProceesByLot(newLote:string,productId:number){
         await this.getConnection();
-        return await this.processRepository.query(`SELECT * FROM process WHERE new_lote = "${newLote}"`)
+        return await this.processRepository.query(`SELECT * FROM process WHERE new_lote = "${newLote}" and product_rovianda_id=${productId}`)
     }
 
     async getProceesByProduct(productId:number){

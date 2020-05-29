@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, ManyToOne } from "typeorm";
 import { Product } from "./Product";
+import { RevisionsOvenProducts } from "./Revisions.Oven.Products";
+import { ProductRovianda } from "./Product.Rovianda";
 
 @Entity({ name: "oven_products" })
 export class OvenProducts {
@@ -10,9 +12,9 @@ export class OvenProducts {
     @Column({ name: "estimated_time" })
     stimatedTime: string;
 
-    @OneToOne(type=> Product, {eager:true, onDelete:"SET NULL"})
+    @OneToOne(type=> ProductRovianda, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"product_id"})
-    product:Product;
+    product:ProductRovianda;
  
     @Column({ name: "new_lote" })
     newLote: string;
@@ -37,5 +39,8 @@ export class OvenProducts {
 
     @Column({ name: "job_verify" })
     jobVerify: string;
+
+    @OneToMany(type=>RevisionsOvenProducts,ovenProducts=>ovenProducts.ovenProducts)
+    revisions:RevisionsOvenProducts[];
 
 }

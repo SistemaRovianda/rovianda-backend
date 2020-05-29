@@ -12,42 +12,47 @@ import { CoolingService } from './Cooling.Service';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
+import { FormulationService } from './Formulation.Service';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
     private productRoviandaService:ProductRoviandaService;
     private outputCoolingService:OutputsCoolingService;
+    private formulationService:FormulationService;
     constructor(){
         this.processRepository = new ProcessRepository();
         this.productRoviandaService= new ProductRoviandaService();
         this.outputCoolingService = new OutputsCoolingService();
+        this.formulationService = new FormulationService();
     }
 
     async createProcess(process:ProcessDTO){
-        if(!process.lotId || process.lotId==0) throw new Error("[400], falta el parametro loteId");
+        if(!process.lotId) throw new Error("[400], falta el parametro loteId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
         let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId.toString());
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
-        let processEntity:Process = new Process();
+        
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
         if(!process.hourEntrance || process.hourEntrance=="") throw new Error("[400], falta el parametro hourEntrance");
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
-        if(process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        processEntity.productId = productCatalog;
+        if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
+        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId.toString(),productCatalog);
+        if(!formulation) throw new Error("[404], el lote no existe en formulacion");
+        let processEntity:Process = new Process();
+        processEntity.product = productCatalog;
         processEntity.entranceHour= process.dateIni;
-        processEntity.weigth=process.weight;
+        processEntity.weigth=+process.weight;
         processEntity.loteInterno = process.lotId.toString();
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
+        processEntity.newLote = formulation.newLote;
         return await this.processRepository.createProcess(processEntity);
     }
-    // async getProcessActive(){
-    //     return await this.processRepository.getProcessActive();
-    // }
+    
     async updateProcessProperties(process:Process){
         return await this.processRepository.createProcess(process);
     }

@@ -11,6 +11,8 @@ import { OvenDTO } from '../Models/DTO/OvenProductDTO';
 import { Product } from '../Models/Entity/Product';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
+import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
 export class OvenService{
 
@@ -19,13 +21,14 @@ export class OvenService{
     private processRepository: ProcessRepository;
     private userRepository: UserRepository;
     private revisionsOvenProductsRepository:RevisionsOvenProductsRepository;
-
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor() {
         this.ovenRepository = new OvenRepository();
         this.productRepository = new ProductRepository();
         this.processRepository = new ProcessRepository();
         this.userRepository = new UserRepository();
         this.revisionsOvenProductsRepository = new RevisionsOvenProductsRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
     async getOvenProducts() {
@@ -37,7 +40,7 @@ export class OvenService{
                 pcc: `${oven[i].pcc}`,
                 product: {
                     id: `${oven[i].product_id}`,
-                    description: `${oven[i].description}`, 
+                    description: `${oven[i].name}`, 
                 },
                 newLotId: `${oven[i].new_lote}`,
                 date: `${oven[i].date}`
@@ -105,11 +108,11 @@ export class OvenService{
         let process:Process = await this.processRepository.findProcessById(processId);
         console.log(process);
         if(!process) throw new Error("[400], process not found");
-        if(!process.productId) throw new Error("[400], The process has no assigned product ");
+        if(!process.product) throw new Error("[400], The process has no assigned product ");
         let productId = process[0].productId;
         console.log(productId);
         console.log("inicio")
-        let product:Product = await this.productRepository.getProductByProductId(productId);
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
         console.log("Consulta")
         if(!product) throw new Error("[400], product not found");
         console.log("Consulta")
@@ -141,13 +144,14 @@ export class OvenService{
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
         if(!ovenDTO.firstRevision.observations) throw new Error("[400], observations is required");
         console.log("hace00")
-        let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote);
+        let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
         console.log("hace00")
+        if(!process.length) throw new Error("[404],no existe el proceso");
         if(process[0].status == "COOKING") throw new Error("[400], process is COOKING");
         process[0].status = "COOKING";
         await this.processRepository.createProcess(process[0]);
         console.log("hace0aaa0")
-        let product:Product[] = await this.productRepository.getProductByProductId(+ovenDTO.productId);
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
         console.log("hace0a0ss")
         if(!product) throw new Error("[400], product not found");
         let oven:OvenProducts = new OvenProducts();
@@ -155,7 +159,7 @@ export class OvenService{
         oven.newLote = ovenDTO.newLote;
         oven.pcc = ovenDTO.pcc;
         oven.date = ovenDTO.date;
-        oven.product = product[0];
+        oven.product = product;
         await this.ovenRepository.saveOvenProduct(oven);
         console.log("hace0a0")
         let ovenObj:OvenProducts[] = await this.ovenRepository.getLastOven();

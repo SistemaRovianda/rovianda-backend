@@ -43,12 +43,7 @@ export class ProductRepository{
         return await this.productRepository.findOne({id});
     }
 
-    async getProductByProductId(id:number){
-        await this.getConnection();
-        console.log("consulta")
-        return await this.productRepository.query(`SELECT * FROM product WHERE id = ${id}`)
-    }
-    
+ 
     async getProductsByLotId(lotId:number){
         await this.getConnection();
         console.log("consulta")
