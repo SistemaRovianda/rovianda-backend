@@ -62,7 +62,7 @@ export class OvenService{
                 pcc: `${i.pcc}`,
                 product: {
                     id: `${i.product_id}`,
-                    description: `${i.description}`
+                    description: `${i.name}`
                 },
                 date: `${i.date}`,
                 revisions: [{
