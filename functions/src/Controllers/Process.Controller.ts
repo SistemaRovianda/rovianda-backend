@@ -172,12 +172,16 @@ export class ProcessController{
         return res.status(200).send(response);
     }
 
-        async getAllProcess(req:Request,res:Response){
+    async getAllProcess(req:Request,res:Response){
             let status:string = req.query.status;
             if(status!=ProcessStatus.ACTIVE && status!=ProcessStatus.INACTIVE) throw new Error("[400], status no valido");
         let process:Process[] = await this.processService.getProcessByStatus(status);
         return res.status(200).send(process);
-         }
+    }
 
+    async createUserProcess(req:Request,res:Response){
+        await this.processService.createUserProcess(req.body , req.params.processId);
+        return res.status(201).send();
+    }
 
 }

@@ -13,3 +13,10 @@ export interface ProcessDTO{
     hourEntrance: string;
     dateIni: string;
 }
+
+export interface UserProcessDTO{
+    nameElaborated: string
+    jobElaborated: string
+    nameVerify: string
+    jobVerify: string
+}

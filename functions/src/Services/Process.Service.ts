@@ -1,29 +1,31 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, Response } from "express";
-import { ProcessUpdateDTO, ProcessDTO } from '../Models/DTO/ProcessDTO';
-import { ProductService } from './Product.Services';
+import { ProcessUpdateDTO, ProcessDTO, UserProcessDTO } from '../Models/DTO/ProcessDTO';
 import { ProductRoviandaService } from './Product.Rovianda.Service';
-import { EntranceMeatService } from './Entrances.Meat.Services';
-import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
-import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
-import { Cooling } from '../Models/Entity/Cooling';
-import { CoolingService } from './Cooling.Service';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 import { FormulationService } from './Formulation.Service';
+import { User } from '../Models/Entity/User';
+import { UserRepository } from '../Repositories/User.Repository';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
     private productRoviandaService:ProductRoviandaService;
     private outputCoolingService:OutputsCoolingService;
     private formulationService:FormulationService;
+    private userRepository:UserRepository;
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor(){
         this.processRepository = new ProcessRepository();
         this.productRoviandaService= new ProductRoviandaService();
         this.outputCoolingService = new OutputsCoolingService();
         this.formulationService = new FormulationService();
+        this.userRepository = new UserRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
     async createProcess(process:ProcessDTO){
@@ -110,5 +112,33 @@ export class ProcessService{
             jobVerify: process.jobVerify? process.jobVerify : null
         }
         return response;
+    }
+
+    async createUserProcess(userProcessDTO:UserProcessDTO, processId:string){
+
+        if(!userProcessDTO.jobElaborated) throw new Error("[400], falta el parametro jobElaborated");
+        if(!userProcessDTO.jobVerify) throw new Error("[400], falta el parametro jobVerify");
+        if(!userProcessDTO.nameElaborated) throw new Error("[400], falta el parametro nameElaborated");
+        if(!userProcessDTO.nameVerify) throw new Error("[400], falta el parametro nameVerify");
+
+        let userVerify : User = await this.userRepository.getUserByName(userProcessDTO.nameVerify);
+        if(!userVerify) throw new Error(`[400], no existe usuario${userVerify}`);
+        let userElaborated : User = await this.userRepository.getUserByName(userProcessDTO.nameElaborated);
+        if(!userElaborated) throw new Error(`[400], no existe usuario${userElaborated}`);
+        
+        let process: Process = await this.processRepository.findProcessById(+processId);
+        if(!process) throw new Error("[400], no existe proceso");
+        console.log(process);
+        let productId:Process = await this.processRepository.findProductByProcessId(+processId);
+        console.log(productId.product.id);
+        let product: ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+productId.product.id);
+        if(!product) throw new Error("[400], no existe producto relacionado a este proceso");
+        
+        process.jobElaborated = userProcessDTO.jobElaborated;
+        process.nameElaborated = userProcessDTO.nameElaborated;
+        process.nameVerify = userProcessDTO.nameVerify;
+        process.jobVerify = userProcessDTO.jobVerify;
+
+        return await this.processRepository.createProcess(process);
     }
 }
