@@ -64,7 +64,7 @@ export const processRoutes:Array<routeInterface>=[
     },{
         url:"/rovianda/process/users/:processId",
         method:"post",
-        controller:UserController,
+        controller:ProcessController,
         target:"createUserProcess"
     },
     {
