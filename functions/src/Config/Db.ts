@@ -73,7 +73,6 @@ const config: ConnectionOptions = {
         WarehouseDrief,
         OutputsDrief,
         OutputsPacking,
-        ProductRovianda,
         OvenProducts,
         RevisionsOvenProducts,
         Packaging,

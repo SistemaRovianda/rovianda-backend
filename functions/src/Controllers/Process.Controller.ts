@@ -149,7 +149,7 @@ export class ProcessController{
     }
   
     async saveProcess(req:Request,res:Response){
-        await this.processService.saveProcess(req.body);
+        await this.processService.createProcess(req.body);
     }
     async createProcess(req:Request,res:Response){
         await this.processService.createProcess(req.body);

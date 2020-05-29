@@ -1,7 +1,7 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, Response } from "express";
-import { ProcessUpdateDTO, ProcessCreationDTO } from '../Models/DTO/ProcessDTO';
+import { ProcessUpdateDTO, ProcessDTO } from '../Models/DTO/ProcessDTO';
 import { ProductService } from './Product.Services';
 import { ProductRoviandaService } from './Product.Rovianda.Service';
 import { EntranceMeatService } from './Entrances.Meat.Services';
@@ -23,12 +23,12 @@ export class ProcessService{
         this.outputCoolingService = new OutputsCoolingService();
     }
 
-    async createProcess(process:ProcessCreationDTO){
-        if(!process.lotId || process.lotId=="") throw new Error("[400], falta el parametro loteId");
+    async createProcess(process:ProcessDTO){
+        if(!process.lotId || process.lotId==0) throw new Error("[400], falta el parametro loteId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId.toString());
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         let processEntity:Process = new Process();
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -38,16 +38,16 @@ export class ProcessService{
         if(process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
         processEntity.productId = productCatalog;
         processEntity.entranceHour= process.dateIni;
-        processEntity.weigth=process.weight.toString();
-        processEntity.loteInterno = process.lotId;
+        processEntity.weigth=process.weight;
+        processEntity.loteInterno = process.lotId.toString();
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
         return await this.processRepository.createProcess(processEntity);
     }
-    async getProcessActive(){
-        return await this.processRepository.getProcessActive();
-    }
+    // async getProcessActive(){
+    //     return await this.processRepository.getProcessActive();
+    // }
     async updateProcessProperties(process:Process){
         return await this.processRepository.createProcess(process);
     }

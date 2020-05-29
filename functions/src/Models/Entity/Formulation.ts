@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, ManyToOne } from "typeorm";
 import { ProductRovianda } from "./Product.Rovianda";
 import { Product } from "./Product";
 import { OutputsDrief } from "./Outputs.Drief";
@@ -10,9 +10,16 @@ export class Formulation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(type => ProductRovianda)
+    // @OneToOne(type => ProductRovianda)
+    // @JoinColumn({ name: "product_rovianda_id" })
+    // productRoviandaId: ProductRovianda;
+
+    @ManyToOne(type=>ProductRovianda, productRovianda=>productRovianda.formulation, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({ name: "product_rovianda_id" })
-    productRoviandaId: ProductRovianda;
+    productRovianda:ProductRovianda;
+
+    //@ManyToOne(type=>Fridge, fridge=>fridge.coolings, {eager:true, onDelete:"SET NULL"})
+    //fridge:Fridge;
 
     @Column({ name: "lote_interno" })
     loteInterno: string;
@@ -25,5 +32,4 @@ export class Formulation {
 
     @Column({ name: "new_lote" })
     newLote: string;
-
 }

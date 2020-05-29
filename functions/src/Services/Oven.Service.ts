@@ -29,7 +29,21 @@ export class OvenService{
     }
 
     async getOvenProducts() {
-        return await this.ovenRepository.getOvenProducts();
+        let oven = await this.ovenRepository.getOvenProducts();
+        let response = [];
+        for(let i =0; i<oven.length; i++){
+            response.push({
+                oven_product_id: `${oven[i].id}`,
+                pcc: `${oven[i].pcc}`,
+                product: {
+                    id: `${oven[i].product_id}`,
+                    description: `${oven[i].description}`, 
+                },
+                newLotId: `${oven[i].new_lote}`,
+                date: `${oven[i].date}`
+            });
+        }
+        return response;
     }
 
     async getOvenProductsByProductId(req:Request){
