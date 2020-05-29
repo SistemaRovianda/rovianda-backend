@@ -143,12 +143,13 @@ export class OvenService{
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
         if(!ovenDTO.firstRevision.observations) throw new Error("[400], observations is required");
-        console.log("hace00")
+        if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
+        console.log("se obtiene el proceso")
         let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
-        console.log("hace00")
+        console.log("se obtuvo el proceso")
         if(!process.length) throw new Error("[404],no existe el proceso");
         if(process[0].status == "COOKING") throw new Error("[400], process is COOKING");
-        process[0].status = "COOKING";
+        process[0].status = " ";
         await this.processRepository.createProcess(process[0]);
         console.log("hace0aaa0")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
