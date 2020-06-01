@@ -21,7 +21,7 @@ export class Conditioning{
     healthing:boolean;
 
     @Column()
-    weight:string;
+    weight:number;
 
     @Column()
     date:string;

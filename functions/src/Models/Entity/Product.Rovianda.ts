@@ -25,5 +25,4 @@ export class ProductRovianda {
 
     @OneToMany(type=>Formulation,form=>form.productRoviandaId)
     formulations:Formulation[];
-
 }

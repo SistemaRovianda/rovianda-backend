@@ -15,14 +15,24 @@ export class ConditioningRepository{
         return await this.conditioningRepository.save(conditioning);
     }
 
-    async getConditioningById(conditioning_id:number){
+    async getConditioningById( id:number){
         await this.getConnection();
-        return await this.conditioningRepository.query(`SELECT * FROM conditioning WHERE id = ${conditioning_id}`)
+        return await this.conditioningRepository.findOne({id});
     }
 
     async getAllConditioning(){
         await this.getConnection();
         console.log("consulta")
         return await this.conditioningRepository.find();
+    }
+
+    async getLastConditioning(){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.conditioningRepository.findOne({ 
+            order : {  
+                id:"DESC" 
+                } 
+        });
     }
 }
