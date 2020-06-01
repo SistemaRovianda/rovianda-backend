@@ -25,12 +25,17 @@ export class ProductService{
         let {description,type} = req.body;
         if(!type && (type == TYPE.DRIEF || type == TYPE.PACKING) ) throw new Error("[400],type is missing or type has a invalid value");
         if (!description) throw new Error('[400],description is required');
-        let productToSave = new Product();   
-        console.log("inicio")
-        productToSave.description = description;
-        //productToSave.type = type;
-        console.log("creando")
-        return await this.productRepository.createProduct(productToSave);
+        let objProdcuts:Product = await this.productRepository.getProductByDescription(description);
+        if(!objProdcuts){
+            let productToSave = new Product();   
+            console.log("inicio")
+            productToSave.description = description;
+            //productToSave.type = type;
+            console.log("creando")
+            return await this.productRepository.createProduct(productToSave);
+        }else{
+            throw new Error('[409],There is already a product with that name');
+        }
     }
 
     async getProductById(productId:number){

@@ -58,7 +58,7 @@ export class FormulationService {
         let formulationToSave: Formulation =new Formulation();
         
         formulationToSave.loteInterno= formulationDTO.lotId;
-        formulationToSave.productRoviandaId= productRovianda;
+        formulationToSave.productRovianda= productRovianda;
         formulationToSave.temp= formulationDTO.temperature;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
         formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
