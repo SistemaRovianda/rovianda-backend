@@ -37,12 +37,12 @@ export const processRoutes:Array<routeInterface>=[
         controller:ConditioningController,
         target:"getConditioning"
     },{
-        url:"/rovianda/process/injection-tenderized/:processid",
+        url:"/rovianda/process/injection-tenderized/:processId",
         method:"post",
         controller:TenderizedController,
         target:"createTenderized"
     },{
-        url:"/process/injection-tenderized/:processid",
+        url:"/rovianda/process/injection-tenderized/:processId",
         method:"get",
         controller:TenderizedController,
         target:"getTenderized"
