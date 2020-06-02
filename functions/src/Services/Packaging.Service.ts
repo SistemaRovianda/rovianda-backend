@@ -42,7 +42,7 @@ export class PackagingService{
         packaging.observations = packagingDTO.observations;
         packaging.packs = packagingDTO.packs;
         packaging.pieces = packagingDTO.pieces;
-        packaging.productId = product[0];
+        packaging.productId = product;
         packaging.registerDate = packagingDTO.registerDate;
         packaging.weight = packagingDTO.weight;
     

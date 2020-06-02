@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ProductRovianda } from './Product.Rovianda';
 
 @Entity({name:"packaging"})
@@ -6,10 +6,11 @@ export class Packaging{
 
     @PrimaryGeneratedColumn()
     id:number;
-
-    @OneToMany(type => ProductRovianda,productRovianda => productRovianda.pack)
-    productId:ProductRovianda[];
     
+    @ManyToOne(type => ProductRovianda, productRovianda=>productRovianda.packaging)
+    @JoinColumn({name:"product_id"})
+    productId:ProductRovianda;
+
     @Column({name:"register_date"})
     registerDate:string;
 
