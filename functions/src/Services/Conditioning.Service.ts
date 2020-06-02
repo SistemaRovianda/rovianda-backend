@@ -18,8 +18,8 @@ export class ConditioningService{
     }
     
     async createConditioningByProcessId(conditioningDTO:ConditioningDTO, processId:string){
-
-    
+        console.log(processId);
+        if(!processId)throw new Error("[400], processId in path is required");
         if (!conditioningDTO.rawMaterial)  throw new Error("[400],rawMaterial is required");
         if (conditioningDTO.bone == null)  throw new Error("[400],bone is required");
         if (conditioningDTO.clean == null)  throw new Error("[400],clean is required");
@@ -30,18 +30,18 @@ export class ConditioningService{
         if (isNaN(conditioningDTO.productId) || conditioningDTO.productId < 1)  throw new Error("[400],productId is required");
         if (!conditioningDTO.date)  throw new Error("[400],date is required");
 
-    console.log("inicio");  
-    let process: Process = await this.processRepository.findProcessById(+processId);
+        let process: Process = await this.processRepository.findProcessById(+processId);
     if(!process) throw new Error("[400], no existe proceso");
-    console.log(process);
+    console.log(process); 
+        let processConditioning :Process = await this.processRepository.findConditioningByProcessId(+processId);
+    if(processConditioning.conditioningId != null ) throw new Error("[400], este proceso ya tiene acondicionamiento asignado");
+        
+    let product: Product = await this.productRepository.getProductById(conditioningDTO.productId);
+    if(!product) throw new Error("[400], no existe producto");
+        let productConditioning = await this.conditioningRepository.getConditioningByProductId(product.id);
+    if(productConditioning) throw new Error("[400], este producto ya tiene acondicionamiento asignado");
+    console.log(product);
 
-    let processConditioning :Process = await this.processRepository.findConditioningByProcessId(+processId);
-    
-    if(processConditioning.conditioningId == null ) {
-        let product: Product = await this.productRepository.getProductById(conditioningDTO.productId);
-        if(!product) throw new Error("[400], no existe producto");
-            console.log(product);
-         
             let conditioning :Conditioning = new Conditioning();
             conditioning.raw = conditioningDTO.rawMaterial;
             conditioning.bone = conditioningDTO.bone;
@@ -58,17 +58,39 @@ export class ConditioningService{
             console.log(lastConditioning);
             process.conditioningId = lastConditioning;
     
-            return await this.processRepository.createProcess(process);
-
-    }else
-      throw new Error("[400], este proceso ya tiene acondicionamiento asignado");
+            return await this.processRepository.createProcess(process);    
     }
+
 
     async getConditioningById(conditioning_id:number){
         return await this.conditioningRepository.getConditioningById(conditioning_id);
     }
 
-    async getAllConditioning(){
-        return await this.conditioningRepository.getAllConditioning();
+    async getConditioning(processId:string){
+    
+        if (!processId) throw new Error("[400], processId in path is required");
+        let process:Process = await this.processRepository.findProcessById(+processId)
+        if(!process)throw new Error("[404], No existe proceso");
+        console.log(process);
+       
+        let conditioning = await this.processRepository.findConditioningByProcessId(+processId);
+        if(conditioning.conditioningId ==null) throw new Error("[404], no existe tenderized relacionado a este proceso");
+        console.log(conditioning.conditioningId);
+        let product = await this.processRepository.findProductByProcessId(+processId);
+        if(product.product==null) throw new Error("[404], no existe product relacionado a este proceso");
+        console.log(product.product);
+        let response = ({
+            rawMaterial: `${conditioning.conditioningId.raw}`,
+            clean: `${conditioning.conditioningId.clean}`,
+            healthing: `${conditioning.conditioningId.healthing}`,
+            weight: `${conditioning.conditioningId.weight}`,
+            temperature: `${conditioning.conditioningId.temperature}`,
+            product: {
+                id: `${product.product.id}`,
+                description: `${product.product.name}`
+            },
+            date: `${conditioning.conditioningId.date}`,
+        });
+        return response;
     }
 }

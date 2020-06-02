@@ -18,6 +18,7 @@ export class TenderizedService{
     }
  
     async createTenderized(tenderizedDTO:TenderizedDTO, processId:string){
+        
         console.log(processId);
         if(!processId)throw new Error("[400], processId in path is required");
         let process :Process = await this.processRepository.findProcessById(+processId);
@@ -29,9 +30,13 @@ export class TenderizedService{
         if(!tenderizedDTO.weight) throw new Error("[400], falta el parametro weight");
         if(!tenderizedDTO.weightSalmuera) throw new Error("[400], falta el parametro weightSalmuera");
 
-        let product :Product = await this.productRepository.getProductById(tenderizedDTO.productId);
+            let product :Product = await this.productRepository.getProductById(tenderizedDTO.productId);
         if(!product) throw new Error("[400],No existe producto");
         console.log(product);
+            let productTenderized = await this.tenderizedRepository.getTenderizedByProductId(product.id);
+        if(productTenderized) throw new Error("[400], este producto ya tiene tenderized asignado");
+        console.log(product);
+        
      
         let tenderized: Tenderized = new Tenderized();
         tenderized.date = tenderizedDTO.date;

@@ -45,4 +45,11 @@ export class TenderizedRepository{
                 } 
         });
     }
+
+    async getTenderizedByProductId( id:number){
+        await this.getConnection();
+        return await this.tenderizedRepository.findOne({
+            where: {productId: `${id}`},
+        });
+    }
 }

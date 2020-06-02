@@ -35,4 +35,11 @@ export class ConditioningRepository{
                 } 
         });
     }
+
+    async getConditioningByProductId( id:number){
+        await this.getConnection();
+        return await this.conditioningRepository.findOne({
+            where: {productId: `${id}`},
+        });
+    }
 }
