@@ -23,7 +23,7 @@ export class EntranceDriefService{
     async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
         
         if(!entranceDriefDTO.expiration== null) throw new Error("[400],el parametro expiration es requerido");
-        if(!entranceDriefDTO.loteProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
+        if(!entranceDriefDTO.lotProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
         if(!entranceDriefDTO.odor==null) throw new Error("[400],el parametro odor es requerido");
         if(!entranceDriefDTO.paking==null) throw new Error("[400],el parametro packing es requerido");
         if(!entranceDriefDTO.productId) throw new Error("[400],el parametro productId es requerido");
@@ -43,7 +43,7 @@ export class EntranceDriefService{
         
         entranceDrief.date=entranceDriefDTO.date; 
         entranceDrief.expiration=entranceDriefDTO.expiration;
-        entranceDrief.loteProveedor=entranceDriefDTO.loteProveedor;
+        entranceDrief.loteProveedor=entranceDriefDTO.lotProveedor;
         entranceDrief.paking=entranceDriefDTO.paking;
         entranceDrief.product=product;
         entranceDrief.proveedor= entranceDriefDTO.proveedorid;
@@ -62,14 +62,14 @@ export class EntranceDriefService{
         warehouseDrief.userId = req.headers.uid as string;
         warehouseDrief.date= entranceDriefDTO.date;
         warehouseDrief.isPz = entranceDriefDTO.isPz;
-        warehouseDrief.loteProveedor = entranceDriefDTO.loteProveedor;
+        warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
         warehouseDrief.observations = entranceDriefDTO.observations;
         warehouseDrief.product = product;
         warehouseDrief.quantity = entranceDriefDTO.quantity;
         warehouseDrief.status = WarehouseStatus.PENDING
         
-        this.entranceDriefRepository.saveDrief(entranceDrief);
-        this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+        await this.entranceDriefRepository.saveDrief(entranceDrief);
+        await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
     }
 
 }
