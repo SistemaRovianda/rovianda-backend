@@ -27,10 +27,10 @@ export const processRoutes:Array<routeInterface>=[
     //     target: "getGrindingByProcessId"
     // }
     {
-        url:"/rovianda/process/conditioning/:processid",
+        url:"/rovianda/process/conditioning/:processId",
         method:"post",
         controller:ConditioningController,
-        target:"createConditioning"
+        target:"createConditioningByProcessId"
     },{
         url:"/rovianda/process/conditioning/:processid",
         method:"get",
