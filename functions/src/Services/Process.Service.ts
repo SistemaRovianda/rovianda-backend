@@ -33,7 +33,7 @@ export class ProcessService{
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId.toString());
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -41,7 +41,7 @@ export class ProcessService{
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
         if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId,productCatalog);
+        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId.toString(),productCatalog);
         if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let processEntity:Process = new Process();
         processEntity.product = productCatalog;

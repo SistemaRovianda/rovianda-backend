@@ -32,7 +32,21 @@ export class OvenService{
     }
 
     async getOvenProducts() {
-        return await this.ovenRepository.getOvenProducts();
+        let oven = await this.ovenRepository.getOvenProducts();
+        let response = [];
+        for(let i =0; i<oven.length; i++){
+            response.push({
+                oven_product_id: `${oven[i].id}`,
+                pcc: `${oven[i].pcc}`,
+                product: {
+                    id: `${oven[i].product_id}`,
+                    description: `${oven[i].name}`, 
+                },
+                newLotId: `${oven[i].new_lote}`,
+                date: `${oven[i].date}`
+            });
+        }
+        return response;
     }
 
     async getOvenProductsByProductId(req:Request){
@@ -48,7 +62,7 @@ export class OvenService{
                 pcc: `${i.pcc}`,
                 product: {
                     id: `${i.product_id}`,
-                    description: `${i.description}`
+                    description: `${i.name}`
                 },
                 date: `${i.date}`,
                 revisions: [{
@@ -91,11 +105,10 @@ export class OvenService{
         if(!ovenUserDTO.nameElaborated) throw new Error("[400], nameElaborated is required");
         if(!ovenUserDTO.jobElaborated) throw new Error("[400], jobElaborated is required");
         
-        let process:Process = await this.processRepository.findProcessById(processId);
-        console.log(process);
-        if(!process) throw new Error("[400], process not found");
-        if(!process.product) throw new Error("[400], The process has no assigned product ");
-        let productId = process[0].productId;
+        let ovenProducts:OvenProducts = await this.ovenRepository.getOvenProductById(processId);
+        console.log(ovenProducts);
+        if(!ovenProducts) throw new Error("[400], process not found");
+        let productId = ovenProducts.product.id;
         console.log(productId);
         console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
@@ -105,16 +118,15 @@ export class OvenService{
         let user:User = await this.userRepository.getUserByName(ovenUserDTO.nameElaborated);
         if(!user) throw new Error("[400], user not found");
 
-        let ovenUser:OvenProducts = await this.ovenRepository.getOvenProductByProductId(productId);
-        if(!ovenUser) throw new Error("[400], Oven product not found");
-
-        ovenUser.nameElaborated = ovenUserDTO.nameElaborated;
-        ovenUser.nameVerify = ovenUserDTO.nameVerify;
-        ovenUser.jobElaborated = ovenUserDTO.jobElaborated;
-        ovenUser.jobVerify = ovenUserDTO.jobVerify;
+        
+        console.log(ovenProducts)
+        ovenProducts.nameElaborated = ovenUserDTO.nameElaborated;
+        ovenProducts.nameVerify = ovenUserDTO.nameVerify;
+        ovenProducts.jobElaborated = ovenUserDTO.jobElaborated;
+        ovenProducts.jobVerify = ovenUserDTO.jobVerify;
 
         console.log("hecho")
-        return await this.ovenRepository.saveOvenUser(ovenUser);
+        return await this.ovenRepository.saveOvenUser(ovenProducts);
     }
     
 
@@ -129,12 +141,13 @@ export class OvenService{
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
         if(!ovenDTO.firstRevision.observations) throw new Error("[400], observations is required");
-        console.log("hace00")
+        if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
+        console.log("se obtiene el proceso")
         let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
-        console.log("hace00")
+        console.log("se obtuvo el proceso")
         if(!process.length) throw new Error("[404],no existe el proceso");
         if(process[0].status == "COOKING") throw new Error("[400], process is COOKING");
-        process[0].status = "COOKING";
+        process[0].status = " ";
         await this.processRepository.createProcess(process[0]);
         console.log("hace0aaa0")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);

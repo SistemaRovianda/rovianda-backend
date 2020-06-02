@@ -23,49 +23,8 @@ export class SausagedController{
     }
 
     async createSausaged(req:Request,res:Response){
-        let {productId,temperature,date} = req.body;
-        let {hour1,weightInitial,hour2,weightMedium,hour3,weightFinal} = req.body.time;
-        let processId = req.params.processId;
-        if (!productId) return res.status(400).send({ msg: 'productId is required'});
-        if (!temperature) return res.status(400).send({ msg: 'temperature is required'});
-        if (!date) return res.status(400).send({ msg: 'date is required'});
-        if (!hour1) return res.status(400).send({ msg: 'hour1 is required'});
-        if (!weightInitial) return res.status(400).send({ msg: 'weightInitial is required'});
-        if (!hour2) return res.status(400).send({ msg: 'hour2 is required'});
-        if (!weightMedium) return res.status(400).send({ msg: 'weightMedium is required'});
-        if (!hour3) return res.status(400).send({ msg: 'hour3 is required'});
-        if (!weightFinal) return res.status(400).send({ msg: 'weightFinal is required'});
-        if (!processId) return res.status(400).send({ msg: 'processId is required'});
-        let sausaged = new Sausaged();
-        try{
-            let processObj:Process = await this.processService.getProcessById(+processId);
-            if(processObj){
-                let product:Product = await this.productService.getProductById(+productId);
-                if(product){
-                    sausaged.date = date;
-                    sausaged.hour1 = hour1;
-                    sausaged.hour2 = hour2;
-                    sausaged.hour3 = hour3;
-                    sausaged.temperature = temperature;
-                    sausaged.weightIni = weightInitial;
-                    sausaged.weightMedium = weightMedium;
-                    sausaged.weightExit = weightFinal;
-                    sausaged.productId = product[0];
-                    await this.sausagedService.saveSausaged(sausaged);
-                    let objSausaged:Sausaged = await this.sausagedService.getLastSausaged();
-                    processObj.sausageId = objSausaged[0];
-                    await this.processService.updateProcessProperties(processObj);
-                    return res.status(201).send();
-                }else{
-                    return res.status(404).send({msg: "Product not found"});
-                }
-            }else{
-                return res.status(404).send({msg: "Process not found"});
-            }
-        }catch(err){
-            console.log(err);
-            return res.status(500).send(err);
-        }
+        await this.sausagedService.saveSausaged(req.body,req.params.processId);
+        return res.status(201).send();
     }
 
     async getSausagedByProcess(req:Request,res:Response){

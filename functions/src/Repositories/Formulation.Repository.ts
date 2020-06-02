@@ -18,6 +18,6 @@ export class FormulationRepository{
     
     async getByLoteId(loteId:string,productId:ProductRovianda){
         await this.getConnection();
-        return await this.formulatioRepository.findOne({loteInterno:loteId,productRoviandaId:productId});
+        return await this.formulatioRepository.findOne({loteInterno:loteId,productRovianda:productId});
     }
 }
