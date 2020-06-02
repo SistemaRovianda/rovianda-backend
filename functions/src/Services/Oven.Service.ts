@@ -105,11 +105,10 @@ export class OvenService{
         if(!ovenUserDTO.nameElaborated) throw new Error("[400], nameElaborated is required");
         if(!ovenUserDTO.jobElaborated) throw new Error("[400], jobElaborated is required");
         
-        let process:Process = await this.processRepository.findProcessById(processId);
-        console.log(process);
-        if(!process) throw new Error("[400], process not found");
-        if(!process.product) throw new Error("[400], The process has no assigned product ");
-        let productId = process.product.id;
+        let ovenProducts:OvenProducts = await this.ovenRepository.getOvenProductById(processId);
+        console.log(ovenProducts);
+        if(!ovenProducts) throw new Error("[400], process not found");
+        let productId = ovenProducts.product.id;
         console.log(productId);
         console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
@@ -119,16 +118,15 @@ export class OvenService{
         let user:User = await this.userRepository.getUserByName(ovenUserDTO.nameElaborated);
         if(!user) throw new Error("[400], user not found");
 
-        let ovenUser:OvenProducts = await this.ovenRepository.getOvenProductByProductId(productId);
-        if(!ovenUser) throw new Error("[400], Oven product not found");
-        console.log(ovenUser)
-        ovenUser[0].nameElaborated = ovenUserDTO.nameElaborated;
-        ovenUser[0].nameVerify = ovenUserDTO.nameVerify;
-        ovenUser[0].jobElaborated = ovenUserDTO.jobElaborated;
-        ovenUser[0].jobVerify = ovenUserDTO.jobVerify;
+        
+        console.log(ovenProducts)
+        ovenProducts.nameElaborated = ovenUserDTO.nameElaborated;
+        ovenProducts.nameVerify = ovenUserDTO.nameVerify;
+        ovenProducts.jobElaborated = ovenUserDTO.jobElaborated;
+        ovenProducts.jobVerify = ovenUserDTO.jobVerify;
 
         console.log("hecho")
-        return await this.ovenRepository.saveOvenUser(ovenUser);
+        return await this.ovenRepository.saveOvenUser(ovenProducts);
     }
     
 

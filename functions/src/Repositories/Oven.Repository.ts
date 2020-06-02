@@ -26,7 +26,7 @@ export class OvenRepository{
     async getOvenProductById(ovenProduct_id:number){
         await this.getConnection();
         console.log("consulta")
-        return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE id = ${ovenProduct_id}`)
+        return await this.ovenRepository.findOne({id:ovenProduct_id},{relations:["product"]});
     }
 
     async getOvenProductByProductId(product_id:number){
@@ -53,6 +53,8 @@ export class OvenRepository{
         .where("id = :id",{id})
         .getOne();
     }
+
+   
 
     async saveOvenProduct(ovenProduct: OvenProducts){
         await this.getConnection();
