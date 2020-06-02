@@ -23,6 +23,7 @@ export class ProductRovianda {
     @OneToMany(type=>Process, process=>process.product)
     process:Process[];
 
-    @OneToMany(type=>Formulation,form=>form.productRoviandaId)
-    formulations:Formulation[];
+    @OneToMany(type=> Formulation,formulation=>formulation.productRovianda,{eager:false})
+    formulation: Formulation[];
+
 }

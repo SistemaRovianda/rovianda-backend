@@ -31,7 +31,7 @@ export class EntrancesMeatController{
     }
 
     async getCoollingByFridge(req:Request,res:Response){
-        let coolling = await this.coolingMeat.getCoollingByFridge(+req.params.fridgeId);
+        let coolling = await this.coolingMeat.getCoollingByFridge(+req.params.fridgeId,req.query.status);
         return res.status(200).send(coolling);
     }
 }

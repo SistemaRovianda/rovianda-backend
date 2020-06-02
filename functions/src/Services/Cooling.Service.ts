@@ -6,6 +6,7 @@ import { Fridge } from "../Models/Entity/Fridges";
 import { FridgeRepository } from "../Repositories/Fridges.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { WarehouseCollingDTO } from "../Models/DTO/WarehouseDTO";
+import { CoolingStatus } from '../Models/Enum/CoolingStatus';
 import { response } from "express";
 
 export class CoolingService{
@@ -59,35 +60,39 @@ export class CoolingService{
         return await this.coolingRepository.getCoollingByStatus(status);
     }
 
-    async getCoollingByFridge(fridgeId:number){
-
+    async getCoollingByFridge(fridgeId:number,status:string){
+        //throw new Error("[400], status incorrecto");
         if(!fridgeId) throw new Error("[400], fridgeId es requerido");
-
-        let fridge = await this.fridgeRepository.getFridgeById(fridgeId);
-        if(!fridge[0]) throw new Error("[404], refrigerador no existe");
-
-        let coollingGroup = await this.coolingRepository.getCoollingByFridgeGroup(fridgeId);
-        console.log(coollingGroup);
-        let response:any = [];
-        for(let i =0; i<coollingGroup.length; i++){
-            let coollingLote = await this.coolingRepository.getCoollingByFridge(coollingGroup[i].lote_interno, fridgeId);
-            console.log(coollingLote)
-            let response1:any = [];
-            for(let n = 0; n<coollingLote.length; n++){
-                response1.push({
-                    id: `${coollingLote[n].id}`,
-                    rawMaterial: `${coollingLote[n].raw_material}`,
-                    fridge: {
-                        fridgeId: `${coollingLote[n].fridgeFridgeId}`,
-                        temp: `${coollingLote[n].temp}`
-                    }
-                });
+        if(!status) throw new Error("[400], status es requerido");
+        if(status == CoolingStatus.CLOSED || status == CoolingStatus.OPENED || status == CoolingStatus.PENDING){
+            let fridge = await this.fridgeRepository.getFridgeById(fridgeId);
+            if(!fridge[0]) throw new Error("[404], refrigerador no existe");
+    
+            let coollingGroup = await this.coolingRepository.getCoollingByFridgeGroup(fridgeId,status);
+            console.log(coollingGroup);
+            let response:any = [];
+            for(let i =0; i<coollingGroup.length; i++){
+                let coollingLote = await this.coolingRepository.getCoollingByFridge(coollingGroup[i].lote_interno, fridgeId);
+                console.log(coollingLote)
+                let response1:any = [];
+                for(let n = 0; n<coollingLote.length; n++){
+                    response1.push({
+                        id: `${coollingLote[n].id}`,
+                        rawMaterial: `${coollingLote[n].raw_material}`,
+                        fridge: {
+                            fridgeId: `${coollingLote[n].fridgeFridgeId}`,
+                            temp: `${coollingLote[n].temp}`
+                        }
+                    });
+                }
+                response.push({
+                    loteId: `${coollingGroup[i].lote_interno}`,
+                    Material: response1
+                })
             }
-            response.push({
-                loteId: `${coollingGroup[i].lote_interno}`,
-                Material: response1
-            })
+            return response;
+        }else{
+            throw new Error("[400], status incorrecto");
         }
-        return response;
     }
 }
