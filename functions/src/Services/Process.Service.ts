@@ -123,17 +123,18 @@ export class ProcessService{
 
         let userVerify : User = await this.userRepository.getUserByName(userProcessDTO.nameVerify);
         if(!userVerify) throw new Error(`[400], no existe usuario${userVerify}`);
+
         let userElaborated : User = await this.userRepository.getUserByName(userProcessDTO.nameElaborated);
         if(!userElaborated) throw new Error(`[400], no existe usuario${userElaborated}`);
-        
+
         let process: Process = await this.processRepository.findProcessById(+processId);
         if(!process) throw new Error("[400], no existe proceso");
         console.log(process);
         let productId:Process = await this.processRepository.findProductByProcessId(+processId);
+        if(productId.product==null) throw new Error("[404], no existe producto relacionado a este proceso");
         console.log(productId.product.id);
         let product: ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+productId.product.id);
-        if(!product) throw new Error("[400], no existe producto relacionado a este proceso");
-        
+
         process.jobElaborated = userProcessDTO.jobElaborated;
         process.nameElaborated = userProcessDTO.nameElaborated;
         process.nameVerify = userProcessDTO.nameVerify;

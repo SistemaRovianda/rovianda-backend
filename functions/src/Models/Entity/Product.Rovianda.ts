@@ -17,15 +17,13 @@ export class ProductRovianda {
     @JoinTable({name:"ingredients"})
     ingredients: Product[];
 
-    @ManyToOne(type => Packaging, packaging => packaging.productId)
-    pack: Product;
+    @OneToMany(type => Packaging, packaging => packaging.productId)
+    packaging: Packaging[];
 
-    @OneToMany(type=>Process,process=>process.product)
+    @OneToMany(type=>Process, process=>process.product)
     process:Process[];
 
     @OneToMany(type=> Formulation,formulation=>formulation.productRovianda,{eager:false})
     formulation: Formulation[];
 
-    @OneToMany(type=> OvenProducts,ovenProducts=>ovenProducts.product,{eager:false})
-    ovenProducts: OvenProducts[];
 }

@@ -57,7 +57,7 @@ export class ProcessRepository{
 
     async findProcessById(id:number){
         await this.getConnection();
-         return await this.processRepository.findOne({id});
+        return await this.processRepository.findOne({id});
     }
      
     async getProceesByLot(newLote:string,productId:number){
@@ -79,7 +79,6 @@ export class ProcessRepository{
 
     async findProductByProcessId(id:number){
         await this.getConnection();
-
         return await this.processRepository.findOne({
             where: {id: `${id}`},
             relations:["product"]
