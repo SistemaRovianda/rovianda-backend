@@ -18,4 +18,9 @@ export class InspectionController{
         return res.status(200).send(response);
     }
 
+    async createInspection(req:Request,res:Response){
+        await this.inspectionService.createInspection(req.body);
+        return res.status(201).send();
+    }
+
 }
