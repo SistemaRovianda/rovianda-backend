@@ -19,4 +19,13 @@ export class PackagingRepository{
         await this.getConnection();
         return await this.packagingRepository.find();
     }
+
+    async getHistoryPackaging(lotId:number){
+        await this.getConnection();
+        return await this.packagingRepository.createQueryBuilder("packaging")
+        .innerJoin("packaging.productId", "*")
+        .innerJoin("products_rovianda.id", "*")
+        .innerJoin("process.id", "*")
+        .getMany();
+    }
 }

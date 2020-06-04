@@ -13,5 +13,11 @@ export const inspectionRoutes:Array<routeInterface>=[
         method:"post",
         controller:InspectionController,
         target:"createInspection" 
+    },{
+        url:"/rovianda/quality/users/:inspectionId",
+        method:"post",
+        controller:InspectionController,
+        target:"createInspectionUsers" 
     }
+
 ];

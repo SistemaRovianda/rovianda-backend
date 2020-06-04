@@ -1,5 +1,4 @@
 import { EntrancePackingRepository } from "../Repositories/Entrance.Packing.Repository";
-import { EntranceMeatRepository } from "../Repositories/Entrances.Meat.Repository";
 import {  EntrancePackingDTO } from "../Models/DTO/EntrancePackingDTO";
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 import { Product } from "../Models/Entity/Product";

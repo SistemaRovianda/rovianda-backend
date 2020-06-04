@@ -1,12 +1,14 @@
 import { InspectionRepository } from '../Repositories/Inspection.Repository';
 import { Inspection } from '../Models/Entity/Inspection';
-import { Request, Response } from "express";
-import { InspectionDTO } from '../Models/DTO/InspectionDTO';
+import { InspectionDTO, InspectionUsersDTO } from '../Models/DTO/InspectionDTO';
+import { UserRepository } from '../Repositories/User.Repository';
 
 export class InspectionService{
     private inspectionRepository:InspectionRepository;
+    private userRepository:UserRepository;
     constructor(){
         this.inspectionRepository = new InspectionRepository();
+        this.userRepository = new UserRepository();
     }
 
 
@@ -59,6 +61,29 @@ export class InspectionService{
             inspection.odor = inspectionDTO.validations.odor;
             inspection.colour = inspectionDTO.validations.colour;
             inspection.texture = inspectionDTO.validations.texture;
+    
+            await this.inspectionRepository.createInspection(inspection);   
+    }
+
+    async createInspectionUsers(inspectionUsersDTO:InspectionUsersDTO,inspectionId:string){
+      
+        if (!inspectionUsersDTO.jobElaborated)  throw new Error("[400],jobElaborated is required");
+        if (!inspectionUsersDTO.jobVerify)  throw new Error("[400],jobVerify is required");
+        if (!inspectionUsersDTO.nameElaborated)  throw new Error("[400],nameElaborated is required");
+        if (!inspectionUsersDTO.nameVerify)  throw new Error("[400],nameVerify is required");
+
+        let userElaborated = await this.userRepository.getUserByName(inspectionUsersDTO.nameElaborated);
+        if (!userElaborated)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameElaborated}`);
+        let userVerify = await this.userRepository.getUserByName(inspectionUsersDTO.nameVerify);
+        if (!userVerify)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameVerify}`);
+
+            let inspection :Inspection = await this.inspectionRepository.getInspectionById(+inspectionId);
+            if(!inspection)  throw new Error("[404],No existe inspection ");
+
+            inspection.nameElaborated = inspectionUsersDTO.nameElaborated;
+            inspection.nameVerify = inspectionUsersDTO.nameVerify;
+            inspection.jobElaborated = inspectionUsersDTO.jobElaborated;
+            inspection.jobVerify = inspectionUsersDTO.jobVerify;
     
             await this.inspectionRepository.createInspection(inspection);   
     }
