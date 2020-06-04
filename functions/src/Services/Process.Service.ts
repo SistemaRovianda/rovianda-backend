@@ -83,6 +83,10 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
+    async getProcessByIdWithGrinding(processId:number){
+        return await this.processRepository.getProcessWithGrindingById(processId);
+    }
+
     async updateStatusProcess(res:Response, req:Request){
         let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process);

@@ -10,7 +10,16 @@ export class ProcessRepository{
             this.processRepository = (await connect()).getRepository(Process);
         }
     }
+    async findProcessByIdWithTenderized(processId:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({id:processId},{relations:["tenderizedId"]});
+    }
 
+    async findProcessByIdWithSausaged(processId:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.processRepository.findOne({id:processId},{relations:["sausageId"]});
+    }
     async saveProcess(process:Process){
         await this.getConnection();
         return await this.processRepository.save(process);

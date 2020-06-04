@@ -28,9 +28,10 @@ export class SausagedService{
         if(!sausagedDTO.time.hour3) throw new Error("[400], hour3 is required");
         if(!sausagedDTO.time.weightFinal) throw new Error("[400], weightFinal is required");
         let sausaged = new Sausaged();
-        let processObj:Process = await this.processRepository.findProcessById(+processId);
+        let processObj:Process = await this.processRepository.getProcessWithSausagedById(+processId);
         if(processObj){
             let product:Product = await this.productRepository.getProductById(sausagedDTO.productId);
+            if(processObj.sausageId) throw new Error("[409],el proceso ya tiene embutido registrado");
             if(product){
                 sausaged.date = sausagedDTO.date;
                 sausaged.hour1 = sausagedDTO.time.hour1;

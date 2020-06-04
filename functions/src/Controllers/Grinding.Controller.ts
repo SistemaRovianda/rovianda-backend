@@ -26,7 +26,8 @@ export class GrindingController{
         if (!processId) return res.status(400).send({ msg: 'processId is required'});
         let grinding = new Grinding();
         try{
-            let processObj:Process = await this.processService.getProcessById(+processId);
+            let processObj:Process = await this.processService.getProcessWithGrindingById(+processId);
+            if(processObj.grindingId) throw new Error("[409],El proceso ya tiene molienda registrado");
             if(processObj){
                 grinding.process = process;
                 grinding.date = date;
