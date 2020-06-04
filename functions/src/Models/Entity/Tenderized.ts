@@ -11,7 +11,7 @@ export class Tenderized{
     temperature:string;
 
     @Column()
-    weight:string;
+    weight:number;
 
     @Column({name:"weight_salmuera"})
     weightSalmuera:number;

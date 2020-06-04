@@ -33,17 +33,11 @@ export class ProcessRepository{
         return await this.processRepository.find();
     }
 
-    async getProcessById(process_id:number){
-        await this.getConnection();
-        console.log("consulta")
-        return await this.processRepository.query(`SELECT * FROM process WHERE id = ${process_id}`)
-    }
-
     async getProcessWithGrindingById(id:number){
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["molienda_id"]
+            relations:["moliendaId"]
         });
     }
 
@@ -57,7 +51,7 @@ export class ProcessRepository{
 
     async findProcessById(id:number){
         await this.getConnection();
-         return await this.processRepository.findOne({id});
+        return await this.processRepository.findOne({id});
     }
      
     async getProceesByLot(newLote:string,productId:number){
@@ -79,7 +73,6 @@ export class ProcessRepository{
 
     async findProductByProcessId(id:number){
         await this.getConnection();
-
         return await this.processRepository.findOne({
             where: {id: `${id}`},
             relations:["product"]
@@ -91,6 +84,14 @@ export class ProcessRepository{
         return await this.processRepository.findOne({
             where: {id: `${id}`},
             relations:["conditioningId"]
+        });
+    }
+
+    async findTenderizedByProcessId(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id: `${id}`},
+            relations:["tenderizedId"]
         });
     }
 }

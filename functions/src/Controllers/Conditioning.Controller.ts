@@ -26,6 +26,11 @@ export class ConditioningController{
         return res.status(201).send();
     }
 
+    async getConditioning(req:Request, res:Response){
+        let conditioning = await this.conditionigService.getConditioning(req.params.processId);
+        return res.status(200).send(conditioning);
+    }
+
 /*         async getConditioning(req:Request,res:Response){
 
             let processid = req.params.processid

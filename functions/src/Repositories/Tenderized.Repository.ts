@@ -35,4 +35,21 @@ export class TenderizedRepository{
         await this.getConnection();
         return await this.tenderizedRepository.find();
     }
+
+    async getLastTenderized(){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.tenderizedRepository.findOne({ 
+            order : {  
+                id:"DESC" 
+                } 
+        });
+    }
+
+    async getTenderizedByProductId( id:number){
+        await this.getConnection();
+        return await this.tenderizedRepository.findOne({
+            where: {productId: `${id}`},
+        });
+    }
 }
