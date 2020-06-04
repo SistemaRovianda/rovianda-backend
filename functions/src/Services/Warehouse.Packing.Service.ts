@@ -17,24 +17,24 @@ export class WarehousePackingService{
         let product:Product = await this.productRepository.getProductById(+warehousePackinDTO.productId);
         if(!product) throw new Error("[404], el producto no existe en la seccion de empaques");
         
-        let lote:WarehousePacking = await this.warehousePackingRepository.getWarehousePackingByLoteId(warehousePackinDTO.loteId); 
-        if(!lote) throw new Error("[404], el lote indicado en el request no existe");
+        let lote:WarehousePacking[] = await this.warehousePackingRepository.getWarehousePackingByLoteIdAndProductId(warehousePackinDTO.loteId,warehousePackinDTO.productId); 
+        if(!lote.length) throw new Error("[404], el lote indicado en el request no existe");
 
         switch(warehousePackinDTO.status){
             case WarehouseStatus.OPENED:
-                lote.status=WarehouseStatus.OPENED;
-                lote.openingDate = warehousePackinDTO.date;
+                lote[0].status=WarehouseStatus.OPENED;
+                lote[0].openingDate = warehousePackinDTO.date;
                 break;
             case WarehouseStatus.CLOSED:
-                lote.status=WarehouseStatus.CLOSED;
-                lote.closingDate = warehousePackinDTO.date;
+                lote[0].status=WarehouseStatus.CLOSED;
+                lote[0].closingDate = warehousePackinDTO.date;
                 break;
             default:
                 throw new Error("[400], status no valido");
                 break;
         }
 
-        await this.warehousePackingRepository.saveWarehousePacking(lote);
+        await this.warehousePackingRepository.saveWarehousePacking(lote[0]);
         
     }
 

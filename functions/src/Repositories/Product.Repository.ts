@@ -43,6 +43,8 @@ export class ProductRepository{
         return await this.productRepository.findOne({id});
     }
 
+    
+
     async getProductByDescription(description:number){
         await this.getConnection();
         console.log("consulta")

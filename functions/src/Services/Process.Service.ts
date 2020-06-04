@@ -83,6 +83,10 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
+    async getProcessByIdWithGrinding(processId:number){
+        return await this.processRepository.getProcessWithGrindingById(processId);
+    }
+
     async updateStatusProcess(res:Response, req:Request){
         let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process);
@@ -90,7 +94,7 @@ export class ProcessService{
         if(!process[0]) throw new Error("[404], process not found");
        
         let processToClose = process[0];
-        if(processToClose.status = "CLOSED"){
+        if(processToClose.status == "CLOSED"){
             return res.status(403).send({ msg: "PROCESO ANTERIORMENTE CERRADO" });
         }else{
             processToClose.status = "CLOSED";
