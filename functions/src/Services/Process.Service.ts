@@ -64,7 +64,7 @@ export class ProcessService{
     }
 
     async getProcessById(id:number){
-        return await this.processRepository.getProcessById(id);
+        return await this.processRepository.findProcessById(id);
     }
 
     async getProcessWithGrindingById(id:number){
@@ -72,7 +72,7 @@ export class ProcessService{
     }
 
     async updateProcess(req:Request){ 
-        let process:Process = await this.processRepository.getProcessById(+req.params.processId);
+        let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process)
         if(!process[0]) throw new Error("[404], process not found");
         let updateProcess:ProcessUpdateDTO = req.body;
@@ -84,7 +84,7 @@ export class ProcessService{
     }
 
     async updateStatusProcess(res:Response, req:Request){
-        let process:Process = await this.processRepository.getProcessById(+req.params.processId);
+        let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process);
 
         if(!process[0]) throw new Error("[404], process not found");

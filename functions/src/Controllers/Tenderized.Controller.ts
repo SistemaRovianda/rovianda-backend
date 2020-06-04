@@ -1,4 +1,4 @@
-import {Request,Response, response} from 'express';
+/* import {Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { Product } from '../Models/Entity/Product';
@@ -106,6 +106,31 @@ export class TenderizedController{
                 }
             }
         }
+    }
+
+}
+ */
+
+import {Request,Response, response} from 'express';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { TenderizedService } from '../Services/Tenderized.Service';
+
+export class TenderizedController{
+
+    private tenderizedService: TenderizedService;
+
+    constructor(private firebaseInstance:FirebaseHelper){
+        this.tenderizedService = new TenderizedService();
+    }
+    
+    async createTenderized(req:Request,res:Response){
+        await this.tenderizedService.createTenderized(req.body,req.params.processId);
+        return res.status(201).send();
+    }
+
+    async getTenderized(req:Request,res:Response){
+        let tenderized = await this.tenderizedService.getTenderized(req.params.processId);
+        return res.status(200).send(tenderized);
     }
 
 }

@@ -35,4 +35,14 @@ export class TenderizedRepository{
         await this.getConnection();
         return await this.tenderizedRepository.find();
     }
+
+    async getLastTenderized(){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.tenderizedRepository.findOne({ 
+            order : {  
+                id:"DESC" 
+                } 
+        });
+    }
 }

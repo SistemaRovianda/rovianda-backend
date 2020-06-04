@@ -33,12 +33,6 @@ export class ProcessRepository{
         return await this.processRepository.find();
     }
 
-    async getProcessById(process_id:number){
-        await this.getConnection();
-        console.log("consulta")
-        return await this.processRepository.query(`SELECT * FROM process WHERE id = ${process_id}`)
-    }
-
     async getProcessWithGrindingById(id:number){
         await this.getConnection();
         return await this.processRepository.findOne({
@@ -90,6 +84,14 @@ export class ProcessRepository{
         return await this.processRepository.findOne({
             where: {id: `${id}`},
             relations:["conditioningId"]
+        });
+    }
+
+    async findTenderizedByProcessId(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id: `${id}`},
+            relations:["tenderizedId"]
         });
     }
 }
