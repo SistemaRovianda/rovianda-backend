@@ -28,8 +28,8 @@ export class SausagedService{
         if(!sausagedDTO.time.hour3) throw new Error("[400], hour3 is required");
         if(!sausagedDTO.time.weightFinal) throw new Error("[400], weightFinal is required");
         let sausaged = new Sausaged();
-        let processObj:Process = await this.processRepository.getProcessById(+processId);
-        if(processObj[0]){
+        let processObj:Process = await this.processRepository.findProcessById(+processId);
+        if(processObj){
             let product:Product = await this.productRepository.getProductById(sausagedDTO.productId);
             if(product){
                 sausaged.date = sausagedDTO.date;
@@ -43,8 +43,8 @@ export class SausagedService{
                 sausaged.productId = product;
                 await this.sausagedRepository.saveSausaged(sausaged);
                 let objSausaged:Sausaged = await this.sausagedRepository.getLastSausaged();
-                processObj[0].sausageId = objSausaged[0];
-                await this.processRepository.saveProcess(processObj[0]);
+                processObj.sausageId = objSausaged[0];
+                await this.processRepository.saveProcess(processObj);
             }else{
                 throw new Error("[404], Product not found");
             }
