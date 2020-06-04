@@ -32,7 +32,7 @@ export const processRoutes:Array<routeInterface>=[
         controller:ConditioningController,
         target:"createConditioningByProcessId"
     },{
-        url:"/rovianda/process/conditioning/:processid",
+        url:"/rovianda/process/conditioning/:processId",
         method:"get",
         controller:ConditioningController,
         target:"getConditioning"
