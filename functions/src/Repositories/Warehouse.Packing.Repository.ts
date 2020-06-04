@@ -21,6 +21,10 @@ export class WarehousePackingRepository{
         return await this.warehousePackingRepository.findOne({loteProveedor:loteProveedor})
     }
 
+    async getWarehousePackingByLoteIdAndProductId(loteProveedor:string,productId:number){
+        await this.getConnection();
+        return await this.warehousePackingRepository.query(`SELECT * from warehouse_packing where lote_proveedor="${loteProveedor}" and productId=${productId}`);
+    }
     // async getWarehousePackingByStatus(status:string){
     //     await this.getConnection();
     //     return await this.warehousePackingRepository.query(`SELECT lote_proveedor, productId FROM warehouse_packing WHERE status = "${status}" GROUP BY lote_proveedor`);

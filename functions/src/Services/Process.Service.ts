@@ -90,7 +90,7 @@ export class ProcessService{
         if(!process[0]) throw new Error("[404], process not found");
        
         let processToClose = process[0];
-        if(processToClose.status = "CLOSED"){
+        if(processToClose.status == "CLOSED"){
             return res.status(403).send({ msg: "PROCESO ANTERIORMENTE CERRADO" });
         }else{
             processToClose.status = "CLOSED";

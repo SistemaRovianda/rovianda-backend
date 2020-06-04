@@ -17,24 +17,24 @@ export class WarehouseDriefService{
     async updateWarehouseDrief(warehouseDTO:WarehouseDTO){
         let product:Product = await this.productRepository.getProductById(warehouseDTO.productId);
         if(!product) throw new Error("[404], el producto no existe");
-        let lote:WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefByLoteId(warehouseDTO.loteId);
-        if(!lote) throw new Error("[404], el lote no existe");
+        let lote:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLoteIdAndProductId(warehouseDTO.loteId,warehouseDTO.productId);
+        if(!lote.length) throw new Error("[404], el lote no existe");
         
         switch(warehouseDTO.status){
             case WarehouseStatus.CLOSED:
-                lote.status = WarehouseStatus.CLOSED;
-                lote.closingDate = warehouseDTO.date;
+                lote[0].status = WarehouseStatus.CLOSED;
+                lote[0].closingDate = warehouseDTO.date;
                 break;
             case WarehouseStatus.OPENED:
-                lote.status = WarehouseStatus.OPENED;
-                lote.openingDate = warehouseDTO.date;
+                lote[0].status = WarehouseStatus.OPENED;
+                lote[0].openingDate = warehouseDTO.date;
                 break;
             default:
                 throw new Error("[400], el valor del status es invalido");
                 break;
         }
 
-        await this.warehouseDriefRepository.saveWarehouseDrief(lote);
+        await this.warehouseDriefRepository.saveWarehouseDrief(lote[0]);
     }
 
    
