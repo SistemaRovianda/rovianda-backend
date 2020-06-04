@@ -49,4 +49,11 @@ export class CoolingRepository{
         ON fridges.fridge_id = cooling.fridgeFridgeId 
         WHERE cooling.lote_interno = "${loteInterno}" AND cooling.fridgeFridgeId = ${fridgeId}`);
     }
+
+    async getCollingByLotInterno(loteInterno:string){
+        await this.getConnection();
+        return await this.coolingRepository.find({
+            where: {loteInterno: `${loteInterno}`},
+        });
+    }
 }

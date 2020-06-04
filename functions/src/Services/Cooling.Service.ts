@@ -95,4 +95,20 @@ export class CoolingService{
             throw new Error("[400], status incorrecto");
         }
     }
+
+    async getCollingByLotInterno(loteInterno:string){
+        if(!loteInterno) throw new Error("[400], lotId is requerid");
+        let colling:Cooling[] = await this.coolingRepository.getCollingByLotInterno(loteInterno);
+        if(!colling) throw new Error("[404], lot not found");
+        let response:any = [];
+        colling.forEach(i => {
+            response.push({
+                status: `${i.status}`,
+                nameMaterial: `${i.rawMaterial}`,
+                lotProveedor: `${i.loteProveedor}`  
+            });
+        });
+        return response;
+    }
+
 }
