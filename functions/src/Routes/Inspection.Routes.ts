@@ -8,11 +8,10 @@ export const inspectionRoutes:Array<routeInterface>=[
         method:"get",
         controller:InspectionController,
         target:"getUserInspection"
-    },
-    {
-        url:"/rovianda/users/:inspectionId",
+    },{
+        url:"/rovianda/quality/inspection",
         method:"post",
         controller:InspectionController,
-        target:"getDryngLabelById"
+        target:"createInspection" 
     }
 ];

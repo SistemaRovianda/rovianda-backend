@@ -22,4 +22,24 @@ export class InspectionRepository{
         return await this.inspectionRepository.query(`SELECT * FROM inspection ORDER BY id DESC LIMIT 1`)
     }
 
+    async getProductInspection(productId:number){
+        await this.getConnection();
+        return await this.inspectionRepository.find(
+            { relations: ["productId"] }
+        );
+    }
+
+    async getLotInspection(productId:number){
+        await this.getConnection();
+        return await this.inspectionRepository.find(
+            { relations: ["lotId"] }
+        );
+    }
+
+    async createInspection(inspection:Inspection){
+        await this.getConnection();
+        return await this.inspectionRepository.save(inspection);
+    }
+
+
 }

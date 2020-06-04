@@ -17,13 +17,13 @@ export class Inspection{
 
     @OneToOne(type => Packaging)
     @JoinColumn({name:"product_id"})
-    productId:number;
+    productId:string;
     
     @Column({name:"number_packages"})
-    numberPackages:number;
+    numberPackages:string;
 
     @Column()
-    observations:number;
+    observations:string;
 
     @Column({name:"packaging_control"})
     packagingControl:boolean;
