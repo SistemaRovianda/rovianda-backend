@@ -23,7 +23,7 @@
 //         let {new_lote, weight, lote_interno, temperature,hourEntrance,hourExit,
 //             dateIni,dateFin,status,current_process,name_elaborated,job_elaborated,name_verify,
 //             job_verify,product_id} = req.body;
-                
+
 //         let process = new Process();
 //         try{
 //             console.log("inicio")
@@ -113,57 +113,45 @@
 //         }
 //     }
 
-//     async getGrindingByProcessId(req:Request, res: Response){
-//         let id = req.params.processId;
-//         let process: Process = await this.processService.getProcessWithGrindingById(+id);
-//         if(!process)
-//             return res.status(409).send({msg:`process with id ${id} wasn't found`});
-        
-//         if(!process.molienda_id)
-//             return res.status(200).send({});
-        
-//         let response = {
-//             rawMaterial: process.molienda_id.raw,
-//             process: process.molienda_id.process,
-//             weight: process.molienda_id.weight,
-//             date: process.molienda_id.date
-//         }
-//         return res.status(200).send(response);
-
-//     }
-// }
+     
+ //}
 
 
-import {Request,Response, response} from 'express';
+import { Request, Response, response } from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { ProcessService } from '../Services/Process.Service';
 import { Process } from '../Models/Entity/Process';
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
+import { GrindingService } from '../Services/Grinding.Service';
 
-export class ProcessController{
+export class ProcessController {
 
-    private processService:ProcessService;
+    private processService: ProcessService;
+    private grindingService: GrindingService;
 
-    constructor(private firebaseInstance:FirebaseHelper){
+    constructor(private firebaseInstance: FirebaseHelper) {
         this.processService = new ProcessService();
+        this.grindingService = new GrindingService();
     }
-  
-    
-    async createProcess(req:Request,res:Response){
+
+    async saveProcess(req: Request, res: Response) {
+        await this.processService.createProcess(req.body);
+    }
+    async createProcess(req: Request, res: Response) {
         await this.processService.createProcess(req.body);
         return res.status(201).send();
     }
 
-    async updateProcessHourAndDate(req:Request,res:Response){
+    async updateProcessHourAndDate(req: Request, res: Response) {
         await this.processService.updateProcess(req);
         return res.status(204).send();
     }
 
-    async updateStatusProcess(req:Request,res:Response){
-        await this.processService.updateStatusProcess(res,req);
+    async updateStatusProcess(req: Request, res: Response) {
+        await this.processService.updateStatusProcess(res, req);
         return res.status(204).send();
     }
-  
+
     async getUserProcessVerifier(req: Request, res: Response) {
         let id = req.params.processId;
         if (isNaN(+id) || +id < 1)
@@ -172,16 +160,22 @@ export class ProcessController{
         return res.status(200).send(response);
     }
 
-    async getAllProcess(req:Request,res:Response){
-            let status:string = req.query.status;
-            if(status!=ProcessStatus.ACTIVE && status!=ProcessStatus.INACTIVE) throw new Error("[400], status no valido");
-        let process:Process[] = await this.processService.getProcessByStatus(status);
+    async getAllProcess(req: Request, res: Response) {
+        let status: string = req.query.status;
+        if (status != ProcessStatus.ACTIVE && status != ProcessStatus.INACTIVE) throw new Error("[400], status no valido");
+        let process: Process[] = await this.processService.getProcessByStatus(status);
         return res.status(200).send(process);
     }
 
-    async createUserProcess(req:Request,res:Response){
-        await this.processService.createUserProcess(req.body , req.params.processId);
+    async createUserProcess(req: Request, res: Response) {
+        await this.processService.createUserProcess(req.body, req.params.processId);
         return res.status(201).send();
+    }
+
+    async getGrindingByProcessId(req:Request, res: Response){
+        let response = await this.grindingService.getGrindingByProcessId(req);
+        return res.status(200).send(response);
+
     }
 
 }

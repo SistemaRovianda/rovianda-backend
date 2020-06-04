@@ -43,7 +43,7 @@ export const entrancesRoutes:Array<routeInterface>=[
     },
     {
         url:"/rovianda/drief/status",
-        method:"post",
+        method:"patch",
         controller: EntranceDriefController,
         target:"updateWarehousePacking"
     },
@@ -70,5 +70,11 @@ export const entrancesRoutes:Array<routeInterface>=[
          method:"get",
          controller:EntranceDriefController,
          target:"getOutputsDriefIngredients"
-     }
+     },
+     {
+        url:"/rovianda/meat/raw/:lotId",
+        method:"get",
+        controller:EntrancesMeatController,
+        target:"getCollingByLotInterno"
+    }
 ];

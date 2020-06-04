@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, OneToMany, ManyToOne } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, ManyToOne } from "typeorm";
 import { ProductRovianda } from "./Product.Rovianda";
 import { Product } from "./Product";
 import { OutputsDrief } from "./Outputs.Drief";
@@ -10,8 +10,9 @@ export class Formulation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => ProductRovianda,productR=>productR.formulations)
-    productRoviandaId: ProductRovianda;
+    @ManyToOne(type=>ProductRovianda, productRovianda=>productRovianda.formulation, {eager:true, onDelete:"SET NULL"})
+    @JoinColumn({ name: "product_rovianda_id" })
+    productRovianda:ProductRovianda;
 
     @Column({ name: "lote_interno" })
     loteInterno: string;
@@ -24,5 +25,4 @@ export class Formulation {
 
     @Column({ name: "new_lote" })
     newLote: string;
-
 }

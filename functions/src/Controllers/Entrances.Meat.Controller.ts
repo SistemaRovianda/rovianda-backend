@@ -31,8 +31,13 @@ export class EntrancesMeatController{
     }
 
     async getCoollingByFridge(req:Request,res:Response){
-        let coolling = await this.coolingMeat.getCoollingByFridge(+req.params.fridgeId);
+        let coolling = await this.coolingMeat.getCoollingByFridge(+req.params.fridgeId,req.query.status);
         return res.status(200).send(coolling);
+    }
+
+    async getCollingByLotInterno(req:Request,res:Response){
+        let colling = await this.coolingMeat.getCollingByLotInterno(req.params.lotId);
+        return res.status(200).send(colling);
     }
 }
 

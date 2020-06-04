@@ -24,21 +24,8 @@ export class OvenController{
 
     async getOvenProducts(req:Request, res:Response){ 
              
-        let oven_products:OvenProducts[] = await this.ovenService.getOvenProducts(); 
-        let response:any = [];
-        oven_products.forEach((i:any) => {
-            response.push({
-                oven_product_id: `${i.id}`,
-                pcc: `${i.pcc}`,
-                product: {
-                    id: `${i.product_id}`,
-                    description: `${i.description}`, 
-                },
-                newLotId: `${i.new_lote}`,
-                date: `${i.date}`
-            });
-        });
-        return res.status(200).send(response);
+        let oven_products = await this.ovenService.getOvenProducts(); 
+        return res.status(200).send(oven_products);
     }
 
     async getOvenProductsByProductId(req:Request,res:Response){

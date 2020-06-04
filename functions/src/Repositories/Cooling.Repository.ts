@@ -32,10 +32,11 @@ export class CoolingRepository{
         });
     }
 
-    async getCoollingByFridgeGroup(fridgeId:number){
+    async getCoollingByFridgeGroup(fridgeId:number,status:string){
         await this.getConnection();
         return await this.coolingRepository.query(`
-        SELECT * FROM cooling WHERE cooling.fridgeFridgeId = ${fridgeId} GROUP BY cooling.lote_interno`);
+        SELECT * FROM cooling WHERE cooling.fridgeFridgeId = ${fridgeId} 
+        AND cooling.status = "${status}" GROUP BY cooling.lote_interno`);
     }
 
     async getCoollingByFridge(loteInterno:string,fridgeId:number){
@@ -47,5 +48,12 @@ export class CoolingRepository{
         INNER JOIN fridges 
         ON fridges.fridge_id = cooling.fridgeFridgeId 
         WHERE cooling.lote_interno = "${loteInterno}" AND cooling.fridgeFridgeId = ${fridgeId}`);
+    }
+
+    async getCollingByLotInterno(loteInterno:string){
+        await this.getConnection();
+        return await this.coolingRepository.find({
+            where: {loteInterno: `${loteInterno}`},
+        });
     }
 }

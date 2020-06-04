@@ -25,9 +25,9 @@ export class SausagedRepository{
         return await this.sausagedRepository.query(`SELECT 
         sausaged.id, sausaged.product_id, sausaged.date, sausaged.temperature, 
         sausaged.weight_ini, sausaged.hour1, sausaged.weight_medium, sausaged.hour2, 
-        sausaged.weight_exit, sausaged.hour3, product.description, 
-        product.id FROM sausaged 
-        INNER JOIN product ON sausaged.product_id = product.id
+        sausaged.weight_exit, sausaged.hour3, product_catalog.description 
+        FROM sausaged 
+        INNER JOIN product_catalog ON sausaged.product_id = product_catalog.id
         INNER JOIN process ON sausaged.id = process.sausage_id
         WHERE process.id= ${processid};`)
     }

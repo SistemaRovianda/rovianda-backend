@@ -3,4 +3,5 @@ export interface OutputMeatDTO{
     loteId:string;
     quantity:string;
     observations:string;
+    materialId:number;
 }
