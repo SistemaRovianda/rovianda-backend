@@ -33,7 +33,7 @@ export class ProcessService{
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId.toString());
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -41,7 +41,7 @@ export class ProcessService{
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
         if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId.toString(),productCatalog);
+        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId,productCatalog);
         if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let processEntity:Process = new Process();
         processEntity.product = productCatalog;
@@ -83,18 +83,14 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
-    async getProcessByIdWithGrinding(processId:number){
-        return await this.processRepository.getProcessWithGrindingById(processId);
-    }
-
     async updateStatusProcess(res:Response, req:Request){
         let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process);
 
-        if(!process[0]) throw new Error("[404], process not found");
+        if(!process) throw new Error("[404], process not found");
        
-        let processToClose = process[0];
-        if(processToClose.status == "CLOSED"){
+        let processToClose = process;
+        if(processToClose.status = "CLOSED"){
             return res.status(403).send({ msg: "PROCESO ANTERIORMENTE CERRADO" });
         }else{
             processToClose.status = "CLOSED";

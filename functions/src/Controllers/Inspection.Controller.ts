@@ -23,4 +23,12 @@ export class InspectionController{
         return res.status(201).send();
     }
 
+    async createInspectionUsers(req:Request,res:Response){
+        let id = req.params.inspectionId;
+        if (isNaN(+id) || +id < 1)
+            throw Error(`[400], Invalid id path param `);
+            await this.inspectionService.createInspectionUsers(req.body,id);
+            return res.status(201).send();
+    }
+
 }

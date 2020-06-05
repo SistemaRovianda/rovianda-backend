@@ -21,4 +21,8 @@ export class PackagingController{
         return res.status(200).send(products);
     }
   
+    async getHistoryPackaging(req:Request,res:Response){
+        let packaging = await this.packagingService.getHistoryPackaging(req.params.lotId);
+        return res.status(200).send(packaging);
+    }
 }

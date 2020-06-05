@@ -16,3 +16,10 @@ export interface InspectionDTO{
         texture: boolean
        }
 }
+
+export interface InspectionUsersDTO{
+    nameElaborated: string
+    jobElaborated: string
+    nameVerify: string
+    jobVerify: string
+}

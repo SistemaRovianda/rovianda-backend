@@ -16,12 +16,11 @@ export class EntrancesPackingController  {
     }
 
     async createEntrancePacking(req:Request,res:Response){
-        await this.entrancePackingService.saveEntrancePacking(req);
+        await this.entrancePackingService.saveEntrancePacking(req.body);
         return res.status(201).send();
     }
 
     async updateWarehousePacking(req:Request,res:Response){
-       
         
         await this.warehousepackingService.updateWarehouseStatus(req.body);
         return res.status(204).send();

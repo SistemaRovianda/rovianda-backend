@@ -53,4 +53,9 @@ export class PackagingService{
     async getProducts(){
         return await this.productRoviandaRepository.getAllProducts();
     }
+
+    async getHistoryPackaging(lotId: string){
+
+    }
+        
 }
