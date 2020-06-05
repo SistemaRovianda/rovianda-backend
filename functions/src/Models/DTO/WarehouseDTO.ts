@@ -8,10 +8,11 @@ export interface WarehouseDTO{
 }
 
 export interface WarehouseCollingDTO{
-    loteId:string,
-    fridgeId:number,
-    date:string
-    status: WarehouseStatus
+    loteId:string;
+    fridgeId:number;
+    date:string;
+    status: WarehouseStatus;
+    materialId:number;
 }
 
 export interface WarehouseExitPackingDTO{
