@@ -39,7 +39,7 @@ export class CoolingRepository{
         AND cooling.status = "${status}" GROUP BY cooling.lote_interno`);
     }
 
-    async getCoollingByFridge(loteInterno:string,fridgeId:number){
+    async getCoollingByFridge(loteInterno:string,fridgeId:number,status:string){
         await this.getConnection();
         return await this.coolingRepository.query(`
         SELECT cooling.id, cooling.raw_material, cooling.lote_interno, 
@@ -47,7 +47,7 @@ export class CoolingRepository{
         FROM cooling 
         INNER JOIN fridges 
         ON fridges.fridge_id = cooling.fridgeFridgeId 
-        WHERE cooling.lote_interno = "${loteInterno}" AND cooling.fridgeFridgeId = ${fridgeId}`);
+        WHERE cooling.lote_interno = "${loteInterno}" AND cooling.status = "${status}" AND cooling.fridgeFridgeId = ${fridgeId}`);
     }
 
     async getCollingByLotInterno(loteInterno:string){

@@ -74,7 +74,7 @@ export class CoolingService{
             console.log(coollingGroup);
             let response:any = [];
             for(let i =0; i<coollingGroup.length; i++){
-                let coollingLote = await this.coolingRepository.getCoollingByFridge(coollingGroup[i].lote_interno, fridgeId);
+                let coollingLote = await this.coolingRepository.getCoollingByFridge(coollingGroup[i].lote_interno, fridgeId,status);
                 console.log(coollingLote)
                 let response1:any = [];
                 for(let n = 0; n<coollingLote.length; n++){
@@ -102,9 +102,11 @@ export class CoolingService{
         if(!loteInterno) throw new Error("[400], lotId is requerid");
         let colling:Cooling[] = await this.coolingRepository.getCollingByLotInterno(loteInterno);
         if(!colling) throw new Error("[404], lot not found");
+        console.log(colling);
         let response:any = [];
         colling.forEach(i => {
             response.push({
+                rawMaterialId:`${i.id}`,
                 status: `${i.status}`,
                 nameMaterial: `${i.rawMaterial}`,
                 lotProveedor: `${i.loteProveedor}`  

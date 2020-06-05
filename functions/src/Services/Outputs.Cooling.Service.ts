@@ -21,15 +21,15 @@ export class OutputsCoolingService{
 
         let lote:Cooling = await this.coolingRepository.getCoolingByLote(outputsMeat.loteId);
         if(!lote) throw new Error("[404],no existe el lote");
-        if(lote.status==WarehouseStatus.CLOSED) throw new Error("[409], el lote esta cerrado");
-        if(lote.status==WarehouseStatus.PENDING) throw new Error("[409], el lote no ah sido abierto");
 
         let colling:Cooling = await this.coolingRepository.getCoolingById(outputsMeat.materialId)
         if(!colling) throw new Error("[404],no existe materialId");
+        if(colling.status==WarehouseStatus.CLOSED) throw new Error("[409], el lote esta cerrado");
+        if(colling.status==WarehouseStatus.PENDING) throw new Error("[409], el lote no ah sido abierto");
 
         let outputsCooling:OutputsCooling = new OutputsCooling();
         outputsCooling.loteInterno = outputsMeat.loteId;
-        outputsCooling.rawMaterial = lote.rawMaterial;
+        outputsCooling.rawMaterial = colling.rawMaterial;
         outputsCooling.observations = outputsMeat.observations;
         outputsCooling.outputDate = outputsMeat.date;
         outputsCooling.quantity = outputsMeat.quantity;
