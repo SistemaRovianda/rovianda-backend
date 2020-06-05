@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Process } from '../Models/Entity/Process';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 
 export class ProcessRepository{
     private processRepository:Repository<Process>;
@@ -73,6 +74,11 @@ export class ProcessRepository{
         return await this.processRepository.findOne({
             where: {productId: `${productId}`}
         });
+    }
+
+    async getProceesByProductID(product:ProductRovianda){
+        await this.getConnection();
+        return await this.processRepository.findOne({product});
     }
 
     async getProceesByLotIner(loteInterno:string){

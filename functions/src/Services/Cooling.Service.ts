@@ -34,18 +34,18 @@ export class CoolingService{
         
         switch(coolingDTO.status){
             case WarehouseStatus.CLOSED:
-                lote.status = WarehouseStatus.CLOSED;
-                lote.closingDate = coolingDTO.date;
+                colling.status = WarehouseStatus.CLOSED;
+                colling.closingDate = coolingDTO.date;
                 break;
             case WarehouseStatus.OPENED:
-                lote.status = WarehouseStatus.OPENED;
-                lote.openingDate = coolingDTO.date;
+                colling.status = WarehouseStatus.OPENED;
+                colling.openingDate = coolingDTO.date;
                 break;
             default:
                 throw new Error("[400], estatus no valido");
                 break;
         }
-        await this.coolingRepository.saveCooling(lote);
+        await this.coolingRepository.saveCooling(colling);
 
     }
 
