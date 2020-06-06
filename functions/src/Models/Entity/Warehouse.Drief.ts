@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne, JoinTable  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne, JoinTable, OneToMany  } from "typeorm";
 import { Product } from './Product';
+import { OutputsDrief } from "./Outputs.Drief";
 
 
 @Entity({name:"warehouse_drief"})
@@ -37,6 +38,10 @@ export class WarehouseDrief{
 
     @Column({name:"user_id"})
     userId:string;
+
+    @OneToMany(type=> OutputsDrief, outputsDrief => outputsDrief.warehouseDrief)
+    @JoinColumn({name:"output_drief_id"})
+    outputDriefs: OutputsDrief[];
 
     // @OneToOne(type=>Product,{cascade:true})
     // @JoinColumn()

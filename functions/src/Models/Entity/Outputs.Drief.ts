@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinTable  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinTable, ManyToMany  } from "typeorm";
 import { Product } from './Product';
+import { WarehouseDrief } from "./Warehouse.Drief";
 
 
 @Entity({name:"outputs_drief"})
@@ -11,6 +12,9 @@ export class OutputsDrief{
     @ManyToOne(type=>Product, product=>product.outputsDrief,{eager:true, onDelete:"SET NULL"})
     product:Product; 
 
+    @ManyToOne(type => WarehouseDrief, warehouseDrief => warehouseDrief.outputDriefs)
+    warehouseDrief: WarehouseDrief;
+
     @Column({name:"lote_proveedor"})
     loteProveedor:string;
 
@@ -19,6 +23,7 @@ export class OutputsDrief{
 
     @Column()
     observations:string;
+
 
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
     //product:Product;

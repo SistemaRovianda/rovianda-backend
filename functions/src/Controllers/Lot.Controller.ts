@@ -46,4 +46,9 @@ export class LotController{
         let ingredients = await this.outputsDriefServices.getOutputIngredients();
         return res.status(200).send(ingredients);
     }
+
+    async getDriefHistory(req: Request, res: Response){
+        let response = await this.warehouseDriefService.getDriefHistory(req);
+        return res.status(200).send(response);
+    }
 }
