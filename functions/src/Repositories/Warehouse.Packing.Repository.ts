@@ -13,7 +13,8 @@ export class WarehousePackingRepository{
 
     async getWarehousePackingfById(id:number){
         await this.getConnection();
-        return await this.warehousePackingRepository.findOne({id})
+        return await this.warehousePackingRepository.findOne({where: {id},
+        relations:["outputsPacking"]});
     }
 
     async getWarehousePackingByLoteId(loteProveedor:string){
