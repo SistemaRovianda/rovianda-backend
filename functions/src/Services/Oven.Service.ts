@@ -36,7 +36,7 @@ export class OvenService{
         let response = [];
         for(let i =0; i<oven.length; i++){
             response.push({
-                oven_product_id: `${oven[i].id}`,
+                ovenProductId: `${oven[i].id}`,
                 pcc: `${oven[i].pcc}`,
                 product: {
                     id: `${oven[i].product_id}`,
