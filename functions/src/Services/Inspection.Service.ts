@@ -2,13 +2,16 @@ import { InspectionRepository } from '../Repositories/Inspection.Repository';
 import { Inspection } from '../Models/Entity/Inspection';
 import { InspectionDTO, InspectionUsersDTO } from '../Models/DTO/InspectionDTO';
 import { UserRepository } from '../Repositories/User.Repository';
+import { PackagingRepository } from '../Repositories/Packaging.Repository';
 
 export class InspectionService{
     private inspectionRepository:InspectionRepository;
     private userRepository:UserRepository;
+    private packagingRepository:PackagingRepository;
     constructor(){
         this.inspectionRepository = new InspectionRepository();
         this.userRepository = new UserRepository();
+        this.packagingRepository = new PackagingRepository();
     }
 
 
@@ -27,7 +30,7 @@ export class InspectionService{
     }
 
     async createInspection(inspectionDTO:InspectionDTO){
-        console.log(inspectionDTO);
+
         if (!inspectionDTO.lotId)  throw new Error("[400],lotId is required");
         if (!inspectionDTO.expirationDate)  throw new Error("[400],expirationDate is required");
         if (!inspectionDTO.productId)  throw new Error("[400],productId is required");
@@ -44,8 +47,9 @@ export class InspectionService{
 
         let product = await this.inspectionRepository.getProductInspection(+inspectionDTO.productId);
         if (!product)  throw new Error("[400],producto no encontrado en tabla packaging");
-        let lot = await this.inspectionRepository.getLotInspection(+inspectionDTO.lotId);
-        if (!lot)  throw new Error("[400],lot no encontrado en tabla packaging");
+        let lot = await this.packagingRepository.getPackagingByLotId(+inspectionDTO.lotId);
+        if (!lot)  throw new Error("[400],No existe lote");
+        console.log(lot);
 
             let inspection :Inspection = new Inspection();
             inspection.lotId = inspectionDTO.lotId;

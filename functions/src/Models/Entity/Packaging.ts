@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { ProductRovianda } from './Product.Rovianda';
+import { Inspection } from './Inspection';
 
 @Entity({name:"packaging"})
 export class Packaging{
@@ -13,7 +14,7 @@ export class Packaging{
 
     @Column({name:"register_date"})
     registerDate:string;
-
+    
     @Column({name:"lot_id"})
     lotId:number;
 

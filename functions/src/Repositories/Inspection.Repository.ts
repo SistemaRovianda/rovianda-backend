@@ -29,13 +29,6 @@ export class InspectionRepository{
         );
     }
 
-    async getLotInspection(productId:number){
-        await this.getConnection();
-        return await this.inspectionRepository.find(
-            { relations: ["lotId"] }
-        );
-    }
-
     async createInspection(inspection:Inspection){
         await this.getConnection();
         return await this.inspectionRepository.save(inspection);
