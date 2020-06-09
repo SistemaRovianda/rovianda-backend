@@ -12,5 +12,10 @@ export const lotRoutes:Array<routeInterface>=[
         method:"get",
         controller: LotController,
         target: "getOutputIngredients"
+    },{
+        url:"/rovianda/ingredients/lots",
+        method:"post",
+        controller: LotController,
+        target: "getIngredientsLots"
     }
 ];

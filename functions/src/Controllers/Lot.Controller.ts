@@ -1,13 +1,5 @@
 import {Request,Response} from 'express';
-import { OutputsCooling } from '../Models/Entity/outputs.cooling';
-import { Cooling } from '../Models/Entity/Cooling';
-import { OutputsDrief } from '../Models/Entity/Outputs.Drief';
-import { OutputsPacking } from '../Models/Entity/Outputs.Packing';
-import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
-import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
-import { OutputsPackingService } from '../Services/Outputs.Packing.Service';
 import { CoolingService } from '../Services/Cooling.Service';
 import { OutputsDriefService } from '../Services/Outputs.Drief.Service';
 import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
@@ -44,6 +36,12 @@ export class LotController{
 
     async getOutputIngredients(req: Request, res: Response){
         let ingredients = await this.outputsDriefServices.getOutputIngredients();
+        return res.status(200).send(ingredients);
+    }
+
+    async getIngredientsLots(req: Request, res: Response){
+        let lots:[]= req.body.lotsId;
+        let ingredients = await this.outputsDriefServices.getIngredients(lots);
         return res.status(200).send(ingredients);
     }
 }

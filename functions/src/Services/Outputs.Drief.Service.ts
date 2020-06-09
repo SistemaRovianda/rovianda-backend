@@ -6,6 +6,7 @@ import { ProductRepository } from "../Repositories/Product.Repository";
 import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
 import { WarehouseDriefRepository } from "../Repositories/Warehouse.Drief.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { OutputDriefDTO } from '../Models/DTO/OutputsDriefDTO';
 
 export class OutputsDriefService {
     private outputsDriefRepository: OutputsDriefRepository;
@@ -59,10 +60,12 @@ export class OutputsDriefService {
         return ingredients;
     }
 
-    async getOutputsDriefs(lotId:number,productId: number){
-        console.log(productId,lotId);
+    async getIngredients(lotsId:[]){
 
-       let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByLotIdByProductId(lotId, productId);
+        if (!lotsId) throw new Error("[404], lotsId is required");
+       console.log(lotsId);
+       let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByLotId(lotsId);
+       
        let response = [];
        outputs.forEach(i => {
            response.push({
@@ -70,6 +73,6 @@ export class OutputsDriefService {
                lots:[`${i.loteProveedor}`]   
            });
        });
-       return response;
+       return response; 
     }
 }
