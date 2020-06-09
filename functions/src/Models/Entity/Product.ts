@@ -5,6 +5,7 @@ import { WarehouseDrief } from "./Warehouse.Drief";
 import { OutputsPacking } from "./Outputs.Packing";
 import { OutputsDrief } from "./Outputs.Drief";
 import { ProductRovianda } from "./Product.Rovianda";
+import { Tenderized } from "./Tenderized";
 
 @Entity({ name: "product_catalog" })
 export class Product {
@@ -32,5 +33,8 @@ export class Product {
 
     @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.ingredients)
     productRovianda: ProductRovianda[];
+
+    @OneToMany(type=> Tenderized,tenderized=>tenderized.productId)
+    tenderized: Tenderized[];
 
 }
