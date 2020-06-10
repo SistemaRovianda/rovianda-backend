@@ -28,4 +28,11 @@ export class PackagingRepository{
         .innerJoin("process.id", "*")
         .getMany();
     }
+    
+    async getPackagingByLotId(lotId:number){
+        await this.getConnection();
+        return await this.packagingRepository.findOne({
+            where: {lotId: `${lotId}`}
+        });
+    }
 }

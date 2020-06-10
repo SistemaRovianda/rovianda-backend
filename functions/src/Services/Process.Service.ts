@@ -129,7 +129,7 @@ export class ProcessService{
 
         let process: Process = await this.processRepository.findProcessById(+processId);
         if(!process) throw new Error("[400], no existe proceso");
-        console.log(process);
+
         let productId:Process = await this.processRepository.findProductByProcessId(+processId);
         if(productId.product==null) throw new Error("[404], no existe producto relacionado a este proceso");
         console.log(productId.product.id);

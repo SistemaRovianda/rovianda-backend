@@ -8,15 +8,14 @@ export class Inspection{
     @PrimaryGeneratedColumn({name:"inspection_id"})
     id:number;
 
-    @OneToOne(type => Packaging)
-    @JoinColumn({name:"lot_id"})
+    @Column({name:"lot_id"})
     lotId:string;
 
     @Column({name:"expiration_date"})
     expirationDate:string;
 
-    @OneToOne(type => Packaging)
-    @JoinColumn({name:"product_id"})
+    @OneToOne(type => Packaging, packaging=>packaging.productId)
+    @JoinColumn()
     productId:string;
     
     @Column({name:"number_packages"})
