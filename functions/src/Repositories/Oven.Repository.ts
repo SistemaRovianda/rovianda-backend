@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
 
 export class OvenRepository{
     private ovenRepository:Repository<OvenProducts>;
@@ -78,6 +79,14 @@ export class OvenRepository{
     async getLastOven(){
         await this.getConnection();
         return await this.ovenRepository.query(`SELECT * FROM oven_products ORDER BY id DESC LIMIT 1`)
+    }
+
+    async getProductsByOvenClosed(){
+        await this.getConnection();
+        return this.ovenRepository.find({
+            where: {status : OvenProductStatusEnum.CLOSED},
+            relations: ["product"]
+        });
     }
 
     async saveOvenUser(ovenUser: OvenProducts){

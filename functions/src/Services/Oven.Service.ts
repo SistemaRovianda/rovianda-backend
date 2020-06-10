@@ -13,6 +13,7 @@ import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { OvenController } from "../Controllers/Oven.Controller";
 
 export class OvenService{
 
@@ -86,8 +87,8 @@ export class OvenService{
 
         let ovenProducts: OvenProducts | undefined = await this.ovenRepository.findOvenProductById(id);
 
-        if (!ovenProducts)
-        throw new Error(`[404],OvenProduct with id ${id} was not found`);
+        if(!ovenProducts)
+            throw new Error(`[404],OvenProduct with id ${id} was not found`);
 
         ovenProducts.status = OvenProductStatusEnum.CLOSED;
 
@@ -187,6 +188,17 @@ export class OvenService{
         }
 
         return response;
+    }
+
+    async getProductsByOvenClosed(){
+        let ovensClosed = await this.ovenRepository.getProductsByOvenClosed();
+        let result = ovensClosed.map(ovenClosed=>{
+            return {
+                productId: ovenClosed.product.id,
+                name: ovenClosed.product.name
+            }
+        })
+        return result;
     }
 
 }
