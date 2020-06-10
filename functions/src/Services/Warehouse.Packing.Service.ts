@@ -4,6 +4,7 @@ import { WarehouseDTO } from "../Models/DTO/WarehouseDTO";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { Product } from "../Models/Entity/Product";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { Request } from "express";
 
 export class WarehousePackingService{
     private warehousePackingRepository:WarehousePackingRepository;
@@ -64,8 +65,32 @@ export class WarehousePackingService{
     }
 
 
-        async saveWarehousePacking(warehousePacking:WarehousePacking){
-            return await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
-        }
+    async saveWarehousePacking(warehousePacking:WarehousePacking){
+        return await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
+    }
     
+    async getPackingHistory(req: Request){
+        let {lotId} = req.params;
+
+        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(+lotId);
+
+        if(!warehousePacking)
+            throw new Error(`[404], warehousePacking with id ${lotId} was not found`);
+        let outputs = warehousePacking.outputsPacking.map(output =>{ 
+            return {
+                outputName: output.product.description,
+                date: output.date
+            }
+        })
+
+        let response = {
+            receptionDate: warehousePacking.date,
+            openingDate: warehousePacking.openingDate,
+            closedDate: warehousePacking.closingDate,
+            outputs
+        }
+
+        return response;
+    }
+
 }

@@ -47,6 +47,11 @@ export class LotController{
         return res.status(200).send(ingredients);
     }
 
+    async getPackingHistory(req: Request, res: Response){
+        let response = await this.warehousePackingService.getPackingHistory(req);
+        return res.status(200).send(response);
+    }
+    
     async getDriefHistory(req: Request, res: Response){
         let response = await this.warehouseDriefService.getDriefHistory(req);
         return res.status(200).send(response);
