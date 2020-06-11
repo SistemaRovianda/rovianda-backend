@@ -8,18 +8,22 @@ import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 export class PackagingService{
 
     private packagingRepository:PackagingRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private ovenRepository: OvenRepository;
-    private reprocessingRepository: ReprocessingRepository
+    private reprocessingRepository: ReprocessingRepository;
+    private propertiesPackagingRepository:PropertiesPackagingRepository;
 
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
         this.packagingRepository = new PackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
+        this.propertiesPackagingRepository = new PropertiesPackagingRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO){
@@ -37,29 +41,22 @@ export class PackagingService{
         console.log("Consulta")
         let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(packagingDTO.lotId);
         if(!lot) throw new Error("[400], lot not found");
-
+        let packaging:Packaging = new Packaging();
+        packaging.registerDate = packagingDTO.registerDate;
+        packaging.productId = product;
+        packaging.lotId = packagingDTO.lotId;
+        packaging.expiration = packagingDTO.expiration;
+        await this.packagingRepository.savePackaging(packaging);
+        let packing = await this.propertiesPackagingRepository.getLastPropertiesPackaging();
         for( let i =0; i<packagingDTO.products.length; i++){
-            let packaging:Packaging = new Packaging();
-            packaging.registerDate = packagingDTO.registerDate;
-            packaging.productId = product;
-            packaging.lotId = packagingDTO.lotId;
-            packaging.expiration = packagingDTO.expiration;
-            packaging.pieces = packagingDTO.products[i].pieces;
-            packaging.packs = packagingDTO.products[i].packs;
-            packaging.weight = packagingDTO.products[i].weight;
-            packaging.observations = packagingDTO.products[i].observations;
-            await this.packagingRepository.savePackaging(packaging)
+            let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
+            propertiesPackaging.pieces = packagingDTO.products[i].pieces;
+            propertiesPackaging.packs = packagingDTO.products[i].packs;
+            propertiesPackaging.weight = packagingDTO.products[i].weight;
+            propertiesPackaging.observations = packagingDTO.products[i].observations;
+            propertiesPackaging.packaging = packing[0];
+            await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
-        // let packaging:Packaging = new Packaging();
-        // packaging.expiration = packagingDTO.expiration;
-        // packaging.lotId = packagingDTO.lotId;
-        // packaging.observations = packagingDTO.observations;
-        // packaging.packs = packagingDTO.packs;
-        // packaging.pieces = packagingDTO.pieces;
-        // packaging.productId = product;
-        // packaging.registerDate = packagingDTO.registerDate;
-        // packaging.weight = packagingDTO.weight;
-    
         console.log("hecho")
         return "registrado";
     }

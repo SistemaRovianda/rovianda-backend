@@ -25,17 +25,17 @@ export class Packaging{
     @Column()
     expiration:string;
     
-    @Column()
-    pieces:number;
+    @Column({name:"name_elabored"})
+    nameElabored:number;
 
-    @Column()
-    packs:number;
+    @Column({name:"job_elabored"})
+    jobElabored:number;
 
-    @Column()
-    weight:number;
+    @Column({name:"name_verify"})
+    nameVerify:number;
 
-    @Column()
-    observations:string;
+    @Column({name:"job_verify"})
+    jobVerify:string;
 }
 
 
