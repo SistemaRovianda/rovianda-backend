@@ -30,4 +30,10 @@ export class PackagingController{
         await this.packagingService.saveReprocessing(req.body);
         return res.status(201).send();
     }
+
+    async saveUsersPackaging(req:Request,res:Response){
+        await this.packagingService.saveUsersPackaging(req.body, req.params.packagingId);
+        return res.status(201).send();
+    }
+
 }

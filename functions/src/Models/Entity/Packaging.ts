@@ -32,6 +32,18 @@ export class Packaging{
 
     @Column()
     observations:string;
+
+    @Column({name:"name_elaborated"})
+    nameElaborated:string;
+
+    @Column({name:"job_elaborated"})
+    jobElaborated:string;
+
+    @Column({name:"name_verify"})
+    nameVerify:string;
+
+    @Column({name:"job_verify"})
+    jobVerify:string;
 }
 
 

@@ -35,4 +35,10 @@ export class PackagingRepository{
             where: {lotId: `${lotId}`}
         });
     }
+
+    async findPackagingById(id:number){
+        await this.getConnection();
+        return await this.packagingRepository.findOne({id});
+    }
+
 }
