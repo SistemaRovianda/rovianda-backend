@@ -12,18 +12,12 @@ export class Reprocessing{
     @Column()
     date:string;
 
-    @OneToOne(type => ProductRovianda ,productRovianda => productRovianda.id)
-    @JoinColumn()
     @Column({name:"product_id"})
     productId:number;
 
-    @OneToOne(type => Process , process => process.newLote)
-    @JoinColumn()
     @Column({name:"lot_process"})
     lotProcess:string;
 
-    @OneToOne(type => OvenProducts , ovenProducts=>ovenProducts.newLote)
-    @JoinColumn()
     @Column({name:"lot_repro"})
     lotRepro:string;
 

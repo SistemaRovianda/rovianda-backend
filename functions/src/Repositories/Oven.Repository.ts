@@ -44,7 +44,9 @@ export class OvenRepository{
     async getOvenProductByLot(newLote:number){
         await this.getConnection();
         console.log("consulta")
-        return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE new_lote = ${newLote}`)
+        return await this.ovenRepository.findOne({
+            where:{newLote :`${newLote}`}
+            });
     }
 
     async findOvenProductById(id: number){

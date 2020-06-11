@@ -64,6 +64,7 @@ export class PackagingService{
     }
         
     async saveReprocessing(reprocessingDTO:ReprocessingDTO){
+
         if(!reprocessingDTO.date) throw new Error("[400], date is required");
         if(!reprocessingDTO.allergen) throw new Error("[400], allergen is required");
         if(!reprocessingDTO.area) throw new Error("[400], area is required");
@@ -74,10 +75,10 @@ export class PackagingService{
         console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(reprocessingDTO.productId);
         console.log("Consulta")
-        if(!product) throw new Error("[400], product not found");
+        if(!product) throw new Error("[404], product not found");
         console.log("Consulta")
         let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(reprocessingDTO.lotId);
-        if(!lot) throw new Error("[400], lot not found");
+        if(!lot) throw new Error("[404], lot not found");
 
         let reprocessing:Reprocessing = new Reprocessing();
         reprocessing.allergens = reprocessingDTO.allergen;
