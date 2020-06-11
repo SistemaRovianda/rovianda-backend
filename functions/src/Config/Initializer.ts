@@ -18,6 +18,7 @@ import { PackagingController } from '../Controllers/Packaging.Controller';
 import { EntranceDriefController } from '../Controllers/Entrances.Drief.Controller';
 import { DryngLabelController } from '../Controllers/Dryng.Label.Controller';
 import { InspectionController } from '../Controllers/Inspection.Controller';
+import { SalesRequestController } from '../Controllers/Sales.Controller';
 
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
@@ -39,6 +40,7 @@ export class Initializer {
     private entranceDriefController: EntranceDriefController;
     private dryngLabelController: DryngLabelController;
     private inspectionController: InspectionController;
+    private salesRequestController: SalesRequestController;
 
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
@@ -60,6 +62,7 @@ export class Initializer {
         this.entranceDriefController = new EntranceDriefController(this.firebaseInstance);
         this.dryngLabelController = new DryngLabelController();
         this.inspectionController = new InspectionController(this.firebaseInstance);
+        this.salesRequestController = new SalesRequestController();
     }
 
     getController(prototype: string) {
@@ -121,6 +124,9 @@ export class Initializer {
                 break;
             case InspectionController.name:
                 return this.inspectionController;
+                break;
+            case SalesRequestController.name:
+                return this.salesRequestController;
                 break;
             default:
                 return null;

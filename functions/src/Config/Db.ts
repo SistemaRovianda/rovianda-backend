@@ -25,12 +25,12 @@ import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { OvenProducts } from "../Models/Entity/Oven.Products";
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
-import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Packaging } from "../Models/Entity/Packaging";
 import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
+import { SalesRequest } from '../Models/Entity/Sales.Request';
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { BoxPackaging } from "../Models/Entity/Box.Packaging";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
@@ -81,6 +81,7 @@ const config: ConnectionOptions = {
         Packaging,
         DryingLabel,
         Inspection,
+        SalesRequest,
         PresentationProducts,
         BoxPackaging,
         PropertiesPackaging

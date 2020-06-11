@@ -34,10 +34,11 @@ export class OutputsDriefRepository{
         });
     }
 
-    async getOutputsDriefByLotIdByProductId(lotId:number,productId:number){
+    async getOutputsDriefByLotId( lotsId:any){
         await this.getConnection();
-        return await this.outputsDriefRepository.find({
-            where:{product:`${productId}`, lotId:`${lotId}`} 
-        });
+
+        return this.outputsDriefRepository.find({
+                where: {loteProveedor: `${lotsId}` }   
+            });
     }
 }
