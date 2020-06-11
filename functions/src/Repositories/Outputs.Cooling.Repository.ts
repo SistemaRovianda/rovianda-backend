@@ -30,4 +30,9 @@ export class OutputsCoolingRepository{
         return await this.outputsCoolingRepository.findOne({loteInterno:lot
         });
     }
+
+    async getOutputsCoolingByStatus(status:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.find({status});
+    }
 }

@@ -10,13 +10,18 @@ import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+
 export class PackagingService{
 
     private packagingRepository:PackagingRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private ovenRepository: OvenRepository;
-    private reprocessingRepository: ReprocessingRepository
     private userRepository: UserRepository;
+    private reprocessingRepository: ReprocessingRepository;
+    private propertiesPackagingRepository:PropertiesPackagingRepository;
+
 
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -24,18 +29,16 @@ export class PackagingService{
         this.packagingRepository = new PackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
         this.userRepository = new UserRepository();
+        this.propertiesPackagingRepository = new PropertiesPackagingRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO){
 
-        if(!packagingDTO.expiration) throw new Error("[400], expiration is required");
-        if(!packagingDTO.lotId) throw new Error("[400], lotId is required");
-        if(!packagingDTO.observations) throw new Error("[400], observations is required");
-        if(!packagingDTO.packs) throw new Error("[400], packs is required");
-        if(!packagingDTO.pieces) throw new Error("[400], pieces is required");
-        if(!packagingDTO.productId) throw new Error("[400], productId is required");
         if(!packagingDTO.registerDate) throw new Error("[400], registerDate is required");
-        if(!packagingDTO.weight) throw new Error("[400], weight is required");
+        if(!packagingDTO.productId) throw new Error("[400], productId is required");
+        if(!packagingDTO.lotId) throw new Error("[400], lotId is required");
+        if(!packagingDTO.expiration) throw new Error("[400], expiration is required");
+        if(!packagingDTO.products) throw new Error("[400], products is required");
         
         console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(packagingDTO.productId);
@@ -44,19 +47,24 @@ export class PackagingService{
         console.log("Consulta")
         let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(packagingDTO.lotId);
         if(!lot) throw new Error("[400], lot not found");
-
         let packaging:Packaging = new Packaging();
-        packaging.expiration = packagingDTO.expiration;
-        packaging.lotId = packagingDTO.lotId;
-        packaging.observations = packagingDTO.observations;
-        packaging.packs = packagingDTO.packs;
-        packaging.pieces = packagingDTO.pieces;
-        packaging.productId = product;
         packaging.registerDate = packagingDTO.registerDate;
-        packaging.weight = packagingDTO.weight;
-    
+        packaging.productId = product;
+        packaging.lotId = packagingDTO.lotId;
+        packaging.expiration = packagingDTO.expiration;
+        await this.packagingRepository.savePackaging(packaging);
+        let packing = await this.propertiesPackagingRepository.getLastPropertiesPackaging();
+        for( let i =0; i<packagingDTO.products.length; i++){
+            let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
+            propertiesPackaging.pieces = packagingDTO.products[i].pieces;
+            propertiesPackaging.packs = packagingDTO.products[i].packs;
+            propertiesPackaging.weight = packagingDTO.products[i].weight;
+            propertiesPackaging.observations = packagingDTO.products[i].observations;
+            propertiesPackaging.packaging = packing[0];
+            await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
+        }
         console.log("hecho")
-        return await this.packagingRepository.savePackaging(packaging);
+        return "registrado";
     }
 
     async getProducts(){
@@ -93,7 +101,7 @@ export class PackagingService{
         console.log("hecho")
         return await this.reprocessingRepository.saveRepocessing(reprocessing);
     }
-
+  
     async saveUsersPackaging(userPackagingDTO:UserPackagingDTO, packagingId:string){
 
             if(!userPackagingDTO.jobElaborated) throw new Error("[400], falta el parametro jobElaborated");
@@ -116,5 +124,19 @@ export class PackagingService{
             packaging.jobVerify = userPackagingDTO.jobVerify;
     
             return await this.packagingRepository.savePackaging(packaging);
+    }
+
+    async getPackagingColaboratedById(packagingId:number){
+        if(!packagingId) throw new Error("[400], packagingId is required");
+        let packaging:Packaging = await this.packagingRepository.getPackagingById(packagingId);
+        if(!packaging) throw new Error("[404], packaging not found");
+        let response = {};
+        response = {
+            nameElaborated: `${packaging.nameElabored}`,
+            jobElaborated: `${packaging.jobElabored}`,
+            nameVerify: `${packaging.nameElabored}`,
+            jobVerify: `${packaging.jobVerify}`
+        }
+        return response;
     }
 }

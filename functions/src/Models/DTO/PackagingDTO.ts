@@ -3,11 +3,15 @@ export interface PackagingDTO{
     productId: number;
     lotId : number;
     expiration: string;
-    pieces : number;
-    packs: number;
-    weight: number;
-    observations: string;
-}
+    products: [
+        {
+            pieces: number;
+            packs: number;
+            weight: number;
+            observations: string;
+        }
+    ]
+ }
 
 export interface UserPackagingDTO{
     nameElaborated: string;

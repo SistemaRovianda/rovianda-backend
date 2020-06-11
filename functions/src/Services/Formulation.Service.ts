@@ -49,9 +49,12 @@ export class FormulationService {
             throw new Error("[400], assigmentLot is missing dateEntry attribute");
         for(let ingredient of formulationDTO.ingredient){
             if (!ingredient.ingredentId)
-            throw new Error("[400], One of ingredients is missing ingredentId attribute");
+                throw new Error("[400], One of ingredients is missing ingredentId attribute");
+            
             if (!ingredient.lotId)
-            throw new Error("[400], One of ingredients is missing lotId attribute");
+                throw new Error("[400], One of ingredients is missing lotId attribute");
+            if (isNaN(ingredient.lotId))
+                throw new Error("[400], attribute lotId has not a valid format, must be a numeric value");
         }
         let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingByLot(formulationDTO.lotId);       
         if(!outputCooling) throw new Error("[404], no existe salida de este lote");

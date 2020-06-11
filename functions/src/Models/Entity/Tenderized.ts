@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Product } from "./Product";
 
 @Entity({name:"tenderized"})
@@ -22,9 +22,10 @@ export class Tenderized{
     @Column({name:"percent_inject"})
     percentInject:number;
 
-    @OneToOne(type => Product)
+    @ManyToOne(type=> Product, productId=>productId.tenderized)
     @JoinColumn({name:"product_id"})
     productId:Product;
+
 
 }
 

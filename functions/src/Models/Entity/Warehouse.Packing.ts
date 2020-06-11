@@ -1,6 +1,7 @@
 
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Product } from "./Product";
+import { OutputsPacking } from "./Outputs.Packing";
 
 @Entity({name:"warehouse_packing"})
 export class WarehousePacking{
@@ -37,4 +38,8 @@ export class WarehousePacking{
 
     @Column({name:"closing_date",nullable:true})
     closingDate: string;
+
+    @OneToMany(type => OutputsPacking , outputsPacking => outputsPacking.warehousePacking)
+    @JoinColumn({ name: "output_packing_id"})
+    outputsPacking: OutputsPacking[];
 }

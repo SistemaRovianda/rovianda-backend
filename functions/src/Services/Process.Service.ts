@@ -11,6 +11,8 @@ import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
+import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
+import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
@@ -19,6 +21,7 @@ export class ProcessService{
     private formulationService:FormulationService;
     private userRepository:UserRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private outputsCoolingRepository:OutputsCoolingRepository;
     constructor(){
         this.processRepository = new ProcessRepository();
         this.productRoviandaService= new ProductRoviandaService();
@@ -26,14 +29,16 @@ export class ProcessService{
         this.formulationService = new FormulationService();
         this.userRepository = new UserRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
+        this.outputsCoolingRepository = new OutputsCoolingRepository();
     }
 
     async createProcess(process:ProcessDTO){
-        if(!process.lotId) throw new Error("[400], falta el parametro loteId");
+        if(!process.lote.lotId) throw new Error("[400], falta el parametro loteId");
+        if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
-        let productCatalog = await this.productRoviandaService.getProductoRoviandaById(process.productId);
+        let productCatalog = await this.productRoviandaRepository.getProductRoviandaByIds(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lotId);
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.lotId);
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -41,17 +46,21 @@ export class ProcessService{
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
         if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lotId,productCatalog);
+        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.lotId,productCatalog);
         if(!formulation) throw new Error("[404], el lote no existe en formulacion");
+        let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
+        if(!updateoutputCooling) throw new Error("[404], no existe outputId");
+        updateoutputCooling.status = OutputsCoolingStatus.USED;
         let processEntity:Process = new Process();
         processEntity.product = productCatalog;
         processEntity.entranceHour= process.dateIni;
         processEntity.weigth=+process.weight;
-        processEntity.loteInterno = process.lotId.toString();
+        processEntity.loteInterno = process.lote.lotId;
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
         processEntity.newLote = formulation.newLote;
+        await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
         return await this.processRepository.createProcess(processEntity);
     }
     

@@ -28,6 +28,7 @@ export class ProcessRepository{
 
     async createProcess(process:Process){
         await this.getConnection();
+        console.log("consulta")
         return await this.processRepository.save(process);
     }
 

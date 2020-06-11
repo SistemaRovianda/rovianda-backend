@@ -21,7 +21,17 @@ export class ProductRoviandaRepository {
     }
     async getProductRoviandaById(id: number) {
         await this.getConnection();
-        return await this.repository.findOne({ id });
+        return await this.repository.findOne({
+            where: {id},
+            relations: ["presentationProducts"]
+        });
+    }
+
+    async getProductRoviandaByIds(id: number) {
+        await this.getConnection();
+        return await this.repository.findOne({
+            where: {id}
+        });
     }
 
     async deleteProductRoviandaById(id: number) {
