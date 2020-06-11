@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -8,21 +8,27 @@ import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
+import { User } from '../Models/Entity/User';
+import { UserRepository } from '../Repositories/User.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+
 export class PackagingService{
 
     private packagingRepository:PackagingRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private ovenRepository: OvenRepository;
+    private userRepository: UserRepository;
     private reprocessingRepository: ReprocessingRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
+
 
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
         this.packagingRepository = new PackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
+        this.userRepository = new UserRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
     }
 
@@ -74,11 +80,10 @@ export class PackagingService{
         if(!reprocessingDTO.date) throw new Error("[400], date is required");
         if(!reprocessingDTO.allergen) throw new Error("[400], allergen is required");
         if(!reprocessingDTO.area) throw new Error("[400], area is required");
-        if(!reprocessingDTO.lotId) throw new Error("[400], date is required");
-        if(!reprocessingDTO.productId) throw new Error("[400], date is required");
-        if(!reprocessingDTO.weight) throw new Error("[400], date is required");
+        if(!reprocessingDTO.lotId) throw new Error("[400], lotId is required");
+        if(!reprocessingDTO.productId) throw new Error("[400], productId is required");
+        if(!reprocessingDTO.weight) throw new Error("[400], weight is required");
         
-        console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(reprocessingDTO.productId);
         console.log("Consulta")
         if(!product) throw new Error("[404], product not found");
@@ -95,6 +100,30 @@ export class PackagingService{
     
         console.log("hecho")
         return await this.reprocessingRepository.saveRepocessing(reprocessing);
+    }
+  
+    async saveUsersPackaging(userPackagingDTO:UserPackagingDTO, packagingId:string){
+
+            if(!userPackagingDTO.jobElaborated) throw new Error("[400], falta el parametro jobElaborated");
+            if(!userPackagingDTO.jobVerify) throw new Error("[400], falta el parametro jobVerify");
+            if(!userPackagingDTO.nameElaborated) throw new Error("[400], falta el parametro nameElaborated");
+            if(!userPackagingDTO.nameVerify) throw new Error("[400], falta el parametro nameVerify");
+    
+            let userVerify : User = await this.userRepository.getUserByName(userPackagingDTO.nameVerify);
+            if(!userVerify) throw new Error(`[400], no existe usuario ${userVerify}`);
+    
+            let userElaborated : User = await this.userRepository.getUserByName(userPackagingDTO.nameElaborated);
+            if(!userElaborated) throw new Error(`[400], no existe usuario ${userElaborated}`);
+    
+            let packaging: Packaging = await this.packagingRepository.findPackagingById(+packagingId);
+            if(!packaging) throw new Error("[400], packaging not found");
+
+            packaging.jobElaborated = userPackagingDTO.jobElaborated;
+            packaging.nameElaborated = userPackagingDTO.nameElaborated;
+            packaging.nameVerify = userPackagingDTO.nameVerify;
+            packaging.jobVerify = userPackagingDTO.jobVerify;
+    
+            return await this.packagingRepository.savePackaging(packaging);
     }
 
     async getPackagingColaboratedById(packagingId:number){
