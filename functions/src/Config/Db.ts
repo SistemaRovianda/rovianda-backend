@@ -31,6 +31,7 @@ import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
 import { SalesRequest } from '../Models/Entity/Sales.Request';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
 
 
 const config: ConnectionOptions = {
@@ -78,7 +79,8 @@ const config: ConnectionOptions = {
         Packaging,
         DryingLabel,
         Inspection,
-        SalesRequest
+        SalesRequest,
+        Reprocessing
     ]
 }
 let connection: Connection;

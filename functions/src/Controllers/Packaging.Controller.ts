@@ -25,4 +25,9 @@ export class PackagingController{
         let packaging = await this.packagingService.getHistoryPackaging(req.params.lotId);
         return res.status(200).send(packaging);
     }
+
+    async saveReprocessing(req:Request,res:Response){
+        await this.packagingService.saveReprocessing(req.body);
+        return res.status(201).send();
+    }
 }
