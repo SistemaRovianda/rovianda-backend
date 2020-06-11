@@ -26,13 +26,13 @@ export class Packaging{
     expiration:string;
     
     @Column({name:"name_elabored"})
-    nameElabored:number;
+    nameElabored:string;
 
     @Column({name:"job_elabored"})
-    jobElabored:number;
+    jobElabored:string;
 
     @Column({name:"name_verify"})
-    nameVerify:number;
+    nameVerify:string;
 
     @Column({name:"job_verify"})
     jobVerify:string;

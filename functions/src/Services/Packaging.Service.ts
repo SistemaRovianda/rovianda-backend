@@ -96,4 +96,18 @@ export class PackagingService{
         console.log("hecho")
         return await this.reprocessingRepository.saveRepocessing(reprocessing);
     }
+
+    async getPackagingColaboratedById(packagingId:number){
+        if(!packagingId) throw new Error("[400], packagingId is required");
+        let packaging:Packaging = await this.packagingRepository.getPackagingById(packagingId);
+        if(!packaging) throw new Error("[404], packaging not found");
+        let response = {};
+        response = {
+            nameElaborated: `${packaging.nameElabored}`,
+            jobElaborated: `${packaging.jobElabored}`,
+            nameVerify: `${packaging.nameElabored}`,
+            jobVerify: `${packaging.jobVerify}`
+        }
+        return response;
+    }
 }
