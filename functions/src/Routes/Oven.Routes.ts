@@ -44,5 +44,11 @@ export const ovenRoutes:Array<routeInterface>=[
         method: "get",
         controller: OvenController,
         target: "getOvenProductUser"
+     },
+     {
+         url: "/rovianda/packaging/products/oven",
+         method: "get",
+         controller: OvenController,
+         target: "getProductsByOvenClosed"
      }
 ];
