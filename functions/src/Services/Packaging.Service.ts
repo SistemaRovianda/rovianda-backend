@@ -118,8 +118,8 @@ export class PackagingService{
             let packaging: Packaging = await this.packagingRepository.findPackagingById(+packagingId);
             if(!packaging) throw new Error("[400], packaging not found");
 
-            packaging.jobElaborated = userPackagingDTO.jobElaborated;
-            packaging.nameElaborated = userPackagingDTO.nameElaborated;
+            packaging.jobElabored = userPackagingDTO.jobElaborated;
+            packaging.nameElabored = userPackagingDTO.nameElaborated;
             packaging.nameVerify = userPackagingDTO.nameVerify;
             packaging.jobVerify = userPackagingDTO.jobVerify;
     
@@ -128,7 +128,7 @@ export class PackagingService{
 
     async getPackagingColaboratedById(packagingId:number){
         if(!packagingId) throw new Error("[400], packagingId is required");
-        let packaging:Packaging = await this.packagingRepository.getPackagingById(packagingId);
+        let packaging:Packaging = await this.packagingRepository.findPackagingById(packagingId);
         if(!packaging) throw new Error("[404], packaging not found");
         let response = {};
         response = {
