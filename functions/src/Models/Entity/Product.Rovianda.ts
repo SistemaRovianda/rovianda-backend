@@ -19,7 +19,6 @@ export class ProductRovianda {
     ingredients: Product[];
 
     @ManyToMany(type => PresentationProducts, presentationProducts => presentationProducts.productsRovianda)
-    @JoinTable()
     presentationProducts: PresentationProducts[];
 
     @OneToMany(type => Packaging, packaging => packaging.productId)

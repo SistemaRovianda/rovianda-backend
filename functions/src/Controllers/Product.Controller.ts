@@ -48,4 +48,9 @@ export class ProductController{
         let products:Product[] = await this.productService.getProductsByLotId(+req.params.lotId);
         return res.status(200).send(products);
     }
+
+    async getProductsPresentationByRoviandaId(req: Request, res: Response){
+        const response = await this.productRoviandaService.getProductsPresentationByRoviandaId(req);
+        return res.status(200).send(response)
+    }
 }   
