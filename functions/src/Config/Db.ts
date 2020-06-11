@@ -25,12 +25,12 @@ import { OutputsPacking } from "../Models/Entity/Outputs.Packing";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { OvenProducts } from "../Models/Entity/Oven.Products";
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
-import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Packaging } from "../Models/Entity/Packaging";
 import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
+import { SalesRequest } from '../Models/Entity/Sales.Request';
 
 
 const config: ConnectionOptions = {
@@ -77,7 +77,8 @@ const config: ConnectionOptions = {
         RevisionsOvenProducts,
         Packaging,
         DryingLabel,
-        Inspection
+        Inspection,
+        SalesRequest
     ]
 }
 let connection: Connection;
