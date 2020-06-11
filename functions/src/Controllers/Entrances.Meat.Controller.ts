@@ -39,6 +39,11 @@ export class EntrancesMeatController{
         let colling = await this.coolingMeat.getCollingByLotInterno(req.params.lotId);
         return res.status(200).send(colling);
     }
+
+    async getOutputsCoolingByStatus(req:Request,res:Response){
+        let outputsCooling = await this.outputCoolingService.getOutputsCoolingByStatus(req.query.status);
+        return res.status(200).send(outputsCooling);
+    }
 }
 
 
