@@ -35,7 +35,10 @@ export class ProcessRepository{
     async getProcessByStatus(status:string){
         await this.getConnection();
         console.log("consulta")
-        return await this.processRepository.find({status});
+        return await this.processRepository.find({
+            where: {status},
+            relations:["product"]
+        });
     }
 
     async getAllProcess(){

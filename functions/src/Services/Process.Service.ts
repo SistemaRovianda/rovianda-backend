@@ -69,7 +69,19 @@ export class ProcessService{
     }
 
     async getProcessByStatus(status:string){
-        return await this.processRepository.getProcessByStatus(status);
+        let process:Process[] = await this.processRepository.getProcessByStatus(status);
+        let response:any = [];
+        console.log(process)
+        process.forEach(i => {
+            response.push({
+                processId:`${i.id}`,
+                productName: i.product.name,
+                lotId: `${i.loteInterno}`,
+                date: `${i.startDate}` ,
+                currentProccess: `${i.currentProcess}`  
+            });
+        });
+        return response;
     }
 
     async getProcessById(id:number){
