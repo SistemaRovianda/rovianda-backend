@@ -6,6 +6,7 @@ import { ProductRepository } from "../Repositories/Product.Repository";
 import { Cooling } from "../Models/Entity/Cooling";
 import { CoolingRepository } from "../Repositories/Cooling.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
 
 export class OutputsCoolingService{
     private outputsCoolingRepository:OutputsCoolingRepository;
@@ -33,6 +34,7 @@ export class OutputsCoolingService{
         outputsCooling.observations = outputsMeat.observations;
         outputsCooling.outputDate = outputsMeat.date;
         outputsCooling.quantity = outputsMeat.quantity;
+        outputsCooling.status = OutputsCoolingStatus.NOTUSED;
         
         return await this.outputsCoolingRepository.createOutputsCooling(outputsCooling);
     }
