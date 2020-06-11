@@ -25,7 +25,7 @@ export class ProductService{
         let {description,type} = req.body;
         if(!type) throw new Error("[400],type is required");
         if (!description) throw new Error('[400],description is required');
-        if(type == TYPE.DRIEF || type == TYPE.PACKING){
+        if(type == TYPE.DRIEF || type == TYPE.PACKING || type == TYPE.FRIDGE){
             let objProdcuts:Product = await this.productRepository.getProductByDescription(description);
             if(!objProdcuts){
                 let productToSave = new Product();   

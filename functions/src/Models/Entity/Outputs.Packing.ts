@@ -1,6 +1,7 @@
 import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, OneToOne, ManyToOne  } from "typeorm";
 
 import { Product } from "./Product";
+import { WarehousePacking } from "./Warehouse.Packing";
 
 
 @Entity({name:"outputs_packing"})
@@ -23,4 +24,7 @@ export class OutputsPacking{
 
     @ManyToOne(type=>Product, product=>product.warehousePacking,{eager:true, onDelete:"SET NULL"})
     product:Product; 
+
+    @ManyToOne(type=> WarehousePacking, warehousePacking => warehousePacking.outputsPacking)
+    warehousePacking: WarehousePacking;
 }

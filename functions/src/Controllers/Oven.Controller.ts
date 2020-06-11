@@ -56,5 +56,10 @@ export class OvenController{
         let response = await this.ovenService.getOvenProductUserById(+id);
         return res.status(200).send(response);
     }
+
+    async getProductsByOvenClosed(req: Request, res: Response){
+        const result = await this.ovenService.getProductsByOvenClosed();
+        return res.status(200).send(result);
+    }
   
 }
