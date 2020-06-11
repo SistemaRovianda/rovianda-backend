@@ -4,6 +4,7 @@ import { Packaging } from './Packaging';
 import { Process } from "./Process";
 import { Formulation } from "./Formulation";
 import { OvenProducts } from "./Oven.Products";
+import { PresentationProducts } from "./Presentation.Products";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -16,6 +17,10 @@ export class ProductRovianda {
     @ManyToMany(type => Product, product => product.productRovianda)
     @JoinTable({name:"ingredients"})
     ingredients: Product[];
+
+    @ManyToMany(type => PresentationProducts, presentationProducts => presentationProducts.productsRovianda)
+    @JoinTable()
+    presentationProducts: PresentationProducts[];
 
     @OneToMany(type => Packaging, packaging => packaging.productId)
     packaging: Packaging[];

@@ -87,7 +87,7 @@ export class OvenService{
         let ovenProducts: OvenProducts | undefined = await this.ovenRepository.findOvenProductById(id);
 
         if (!ovenProducts)
-        throw new Error(`[404],OvenProduct with id ${id} was not found`);
+            throw new Error(`[404],OvenProduct with id ${id} was not found`);
 
         ovenProducts.status = OvenProductStatusEnum.CLOSED;
 

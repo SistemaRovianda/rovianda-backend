@@ -26,7 +26,7 @@ export class Tenderized{
     // @JoinColumn({name:"product_id"})
     // productId:Product;
 
-    @ManyToOne(type=> Product, productId=>productId.tenderized,{eager:true})
+    @ManyToOne(type=> Product, productId=>productId.tenderized)
     @JoinColumn({name:"product_id"})
     productId:Product;
 
