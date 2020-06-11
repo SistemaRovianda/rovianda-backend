@@ -48,5 +48,18 @@ export class OutputsCoolingService{
     async getOutputsCoolingByLot(lot:string){
         return await this.outputsCoolingRepository.getOutputsCoolingByLot(lot);
     }
+
+    async getOutputsCoolingByStatus(status:string){
+        let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByStatus(status);
+        let response:any = [];
+        outputsCooling.forEach(i => {
+            response.push({
+                lotId:`${i.loteInterno}`,
+                quantity: `${i.quantity}`,
+                outputId: `${i.id}`
+            });
+        });
+        return response;
+    }
     
 }

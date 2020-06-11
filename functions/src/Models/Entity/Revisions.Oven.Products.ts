@@ -19,7 +19,7 @@ export class RevisionsOvenProducts{
     @Column({name:"humidity"})
     humidity: string;
 
-    @Column({name:"observations"})
+    @Column({name:"observations",nullable: true})
     observations: string;
 
     @ManyToOne(type=>OvenProducts,oven=>oven.revisions)

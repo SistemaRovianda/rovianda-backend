@@ -5,6 +5,7 @@ import { Product } from "../Models/Entity/Product";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
+import { Request } from "express";
 
 export class WarehouseDriefService{
     private warehouseDriefRepository:WarehouseDriefRepository;
@@ -65,6 +66,33 @@ export class WarehouseDriefService{
                 products: response1
             })
         }
+        return response;
+    }
+
+    async getDriefHistory(req: Request) {
+        let { lotId } = req.params;
+
+        let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(+lotId);
+
+        if (!warehouseDrief)
+            throw new Error(`[404], warehouseDrief with id ${lotId} was not found`);
+
+        let outputs = warehouseDrief.outputDriefs.map(outputDrief => {
+            return {
+                outputDate: outputDrief.date,
+                product: outputDrief.product.description,
+                productId: outputDrief.product.id,
+                observations: outputDrief.observations
+            }
+        });
+
+        let response = {
+            receptionDate: warehouseDrief.date,
+            openingDate: warehouseDrief.openingDate,
+            closedDate: warehouseDrief.closingDate,
+            outputs
+        }
+
         return response;
     }
 }

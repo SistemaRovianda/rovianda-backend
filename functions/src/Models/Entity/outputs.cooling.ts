@@ -21,6 +21,9 @@ export class OutputsCooling{
 
     @Column()
     observations:string;
+
+    @Column()
+    status:string;
     
     
 }
