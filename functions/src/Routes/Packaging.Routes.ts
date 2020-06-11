@@ -12,5 +12,10 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"get",
         controller:PackagingController,
         target:"getProducts" 
+    },{
+        url:"/rovianda/packaging/reprocessing",
+        method:"post",
+        controller:PackagingController,
+        target:"saveReprocessing" 
     }
 ];

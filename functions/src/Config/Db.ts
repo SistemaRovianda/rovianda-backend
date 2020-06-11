@@ -31,10 +31,10 @@ import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
 import { SalesRequest } from '../Models/Entity/Sales.Request';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { BoxPackaging } from "../Models/Entity/Box.Packaging";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
-
 
 const config: ConnectionOptions = {
 
@@ -82,6 +82,7 @@ const config: ConnectionOptions = {
         DryingLabel,
         Inspection,
         SalesRequest,
+        Reprocessing,
         PresentationProducts,
         BoxPackaging,
         PropertiesPackaging

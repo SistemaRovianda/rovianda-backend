@@ -5,16 +5,21 @@ import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
+import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 export class PackagingService{
 
     private packagingRepository:PackagingRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private ovenRepository: OvenRepository;
+    private reprocessingRepository: ReprocessingRepository
 
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
         this.packagingRepository = new PackagingRepository();
+        this.reprocessingRepository = new ReprocessingRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO){
@@ -67,4 +72,31 @@ export class PackagingService{
 
     }
         
+    async saveReprocessing(reprocessingDTO:ReprocessingDTO){
+
+        if(!reprocessingDTO.date) throw new Error("[400], date is required");
+        if(!reprocessingDTO.allergen) throw new Error("[400], allergen is required");
+        if(!reprocessingDTO.area) throw new Error("[400], area is required");
+        if(!reprocessingDTO.lotId) throw new Error("[400], date is required");
+        if(!reprocessingDTO.productId) throw new Error("[400], date is required");
+        if(!reprocessingDTO.weight) throw new Error("[400], date is required");
+        
+        console.log("inicio")
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(reprocessingDTO.productId);
+        console.log("Consulta")
+        if(!product) throw new Error("[404], product not found");
+        console.log("Consulta")
+        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(reprocessingDTO.lotId);
+        if(!lot) throw new Error("[404], lot not found");
+
+        let reprocessing:Reprocessing = new Reprocessing();
+        reprocessing.allergens = reprocessingDTO.allergen;
+        reprocessing.area = reprocessingDTO.area;
+        reprocessing.date = reprocessingDTO.date;
+        reprocessing.lotRepro = lot.newLote;
+        reprocessing.productId = product.id;
+    
+        console.log("hecho")
+        return await this.reprocessingRepository.saveRepocessing(reprocessing);
+    }
 }
