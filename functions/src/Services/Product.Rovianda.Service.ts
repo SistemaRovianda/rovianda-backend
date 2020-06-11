@@ -52,4 +52,23 @@ export class ProductRoviandaService{
     async getProductoRoviandaById(productId:number){
         return await this.productRoviandaRepository.getProductRoviandaById(productId);
     }
+
+    async getProductsPresentationByRoviandaId(req: Request) {
+        let id = req.params.productRoviandaId;
+        let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+
+        console.log(productRovianda);
+        if (!productRovianda)
+            throw new Error(`[400], Product rovianda with id ${id} was not found`);
+        
+        let response = productRovianda.presentationProducts.map(presentationProduct=>{
+            return {
+                presentationId: presentationProduct.id,
+                presentation: presentationProduct.presentation,
+                typePresentation: presentationProduct.presentationType
+            }
+        });
+
+        return response;
+    }
 }

@@ -31,6 +31,9 @@ import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
+import { PresentationProducts } from "../Models/Entity/Presentation.Products";
+import { BoxPackaging } from "../Models/Entity/Box.Packaging";
+import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 
 
 const config: ConnectionOptions = {
@@ -77,7 +80,10 @@ const config: ConnectionOptions = {
         RevisionsOvenProducts,
         Packaging,
         DryingLabel,
-        Inspection
+        Inspection,
+        PresentationProducts,
+        BoxPackaging,
+        PropertiesPackaging
     ]
 }
 let connection: Connection;
