@@ -8,7 +8,7 @@ import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { Request } from 'express';
 import { isArguments } from 'lodash';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
-import { PresentationProductsRepository } from '../Repositories/Presentation.Products.Repository';
+import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
@@ -25,7 +25,7 @@ export class PackagingService{
     private packagingRepository: PackagingRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private ovenRepository: OvenRepository;
-    private presentationProductRepository: PresentationProductsRepository;
+    private presentationProductRepository: PresentationsProductsRepository;
     private userRepository: UserRepository;
     private reprocessingRepository: ReprocessingRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
@@ -37,7 +37,7 @@ export class PackagingService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
         this.packagingRepository = new PackagingRepository();
-        this.presentationProductRepository = new PresentationProductsRepository();
+        this.presentationProductRepository = new PresentationsProductsRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
         this.userRepository = new UserRepository();
@@ -67,25 +67,25 @@ export class PackagingService{
             throw new Error("[400],products is required");
         
         console.log("inicio")
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(packagingDTO.productId);
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
         console.log("Consulta")
         if(!product) throw new Error("[400], product not found");
         console.log("Consulta")
-        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(packagingDTO.lotId);
+        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(lotId);
         if(!lot) throw new Error("[400], lot not found");
         let packaging:Packaging = new Packaging();
-        packaging.registerDate = packagingDTO.registerDate;
+        packaging.registerDate = registerDate;
         packaging.productId = product;
-        packaging.lotId = packagingDTO.lotId;
-        packaging.expiration = packagingDTO.expiration;
+        packaging.lotId = lotId;
+        packaging.expiration = expiration;
         await this.packagingRepository.savePackaging(packaging);
         let packing = await this.propertiesPackagingRepository.getLastPropertiesPackaging();
-        for( let i =0; i<packagingDTO.products.length; i++){
+        for( let i =0; i<products.length; i++){
             let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
-            propertiesPackaging.pieces = packagingDTO.products[i].pieces;
-            propertiesPackaging.packs = packagingDTO.products[i].packs;
-            propertiesPackaging.weight = packagingDTO.products[i].weight;
-            propertiesPackaging.observations = packagingDTO.products[i].observations;
+            propertiesPackaging.pieces = products[i].pieces;
+            propertiesPackaging.packs = products[i].packs;
+            propertiesPackaging.weight = products[i].weight;
+            propertiesPackaging.observations = products[i].observations;
             propertiesPackaging.packagingId = packing[0];
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
       
@@ -108,7 +108,7 @@ export class PackagingService{
                 throw new Error("[400],a product is missing weight attribute");
             if (isNaN(product.weight))
                 throw new Error("[400],weight in one of the products has invalid format");
-            let presentation = await this.presentationProductRepository.getPresentationProductsById(product.presentationId);
+            let presentation = await this.presentationProductRepository.getPresentatiosProductsById(product.presentationId);
             if (!presentation)
                 throw new Error(`[404], Presentation product with id ${product.presentationId} was not found`);
             presentations.push(presentation);
@@ -147,10 +147,10 @@ export class PackagingService{
                     id: 0,
                     boxPackaging: null,
                     observations: product.observations,
-                    packaging: packagingSaved,
+                    packagingId: packagingSaved,
                     packs: product.packs,
                     pieces: product.pieces,
-                    presentationProduct: presentations[index],
+                    presentationId: presentations[index],
                     weight: product.weight
                 }
                 await this.propertiesPackagingRepository.savePropertiesPackaging(propertiePackaging);
@@ -256,11 +256,12 @@ export class PackagingService{
         console.log(countEnd.max);
 
         let boxPackaging: BoxPackaging = new BoxPackaging();
-        boxPackaging.propertiesId = presentationPropierties;
+        boxPackaging.propertiesPackaging = presentationPropierties;
         boxPackaging.countInitial = ""+(parseInt(countEnd.max)+1);
         boxPackaging.countEnd = ""+(parseInt(countEnd.max)+packagingAssigned.boxs);
 
-        return await this.boxPackagingRepository.createBoxPackaging(boxPackaging);        
+        return await this.boxPackagingRepository.createBoxPackaging(boxPackaging);  
+    }      
 
     async getPackagingAssignedBoxes(req: Request){
         let id = req.params.packagingId;
@@ -278,8 +279,8 @@ export class PackagingService{
         }
 
         let response = {
-            presentation: packaging.presentationProduct.id,
-            typePresentation: packaging.presentationProduct.presentationType,
+            presentation: packaging.presentationId.id,
+            typePresentation: packaging.presentationId.presentationType,
             ids
         }
 

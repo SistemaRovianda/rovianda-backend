@@ -25,14 +25,14 @@ export class PropertiesPackagingRepository{
   
     async findPropiertiesPackagingByPackagingId(id:number){
         await this.getConnection();
-        return await this.repository.findOne({
+        return await this.propertiesPackaginRepository.findOne({
             where: {productId: `${id}`}
         });
     }
 
     async findPropiertiesPackagingByPresentationId(id:number){
         await this.getConnection();
-        return await this.repository.findOne({
+        return await this.propertiesPackaginRepository.findOne({
             where: {presentationId: `${id}`}
         });
     }

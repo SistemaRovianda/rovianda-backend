@@ -53,4 +53,9 @@ export class UserController{
         let user = await this.usersService.getUserById(req);
         return res.status(200).send(user);
     }
+
+    async getAllUsers(req:Request,res:Response){
+        let users = await this.usersService.getAllUsers();
+        return res.status(200).send(users);
+    }
 }
