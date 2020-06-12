@@ -262,5 +262,27 @@ export class PackagingService{
 
         return await this.boxPackagingRepository.createBoxPackaging(boxPackaging);        
 
+    async getPackagingAssignedBoxes(req: Request){
+        let id = req.params.packagingId;
+
+        let packaging = await this.propertiesPackagingRepository.getPropertiesPackaginById(+id);
+
+        if (!packaging) 
+            throw new Error(`[404], Properties packaging with id ${id} was not found`);
+        
+        if (!packaging.boxPackaging)
+            throw new Error(`[404], Properties packaging with id ${id} does not have a box packaging assigned`);
+        let ids: number[] = [];
+        for (let i = parseInt(packaging.boxPackaging.countInitial); i <= parseInt(packaging.boxPackaging.countEnd); i++){
+            ids.push(i);
+        }
+
+        let response = {
+            presentation: packaging.presentationProduct.id,
+            typePresentation: packaging.presentationProduct.presentationType,
+            ids
+        }
+
+        return response;
     }
 }

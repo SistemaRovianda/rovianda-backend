@@ -44,5 +44,9 @@ export class PackagingController{
     async savePackagingAssigned(req:Request,res:Response){
             await this.packagingService.savePackagingAssigned(req.body);
             return res.status(201).send();
+      
+    async getPackagingAssignedBoxes(req: Request, res: Response){
+        let response = await this.packagingService.getPackagingAssignedBoxes(req);
+        return res.status(200).send(response);
     }
 }

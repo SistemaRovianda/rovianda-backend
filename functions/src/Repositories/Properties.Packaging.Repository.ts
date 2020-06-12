@@ -13,7 +13,8 @@ export class PropertiesPackagingRepository{
     async getPropertiesPackaginById(id: number){
         await this.getConnection();
         return await this.propertiesPackaginRepository.findOne({
-            where: {id}
+            where: {id},
+            relations: ["presentationProduct", "boxPackaging"]
         });
     }
 
