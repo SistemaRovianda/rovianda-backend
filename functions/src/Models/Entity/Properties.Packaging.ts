@@ -10,14 +10,14 @@ export class PropertiesPackaging {
 
     @ManyToOne(type => Packaging, packaging => packaging.propertiesPackaging)
     @JoinColumn({ name: "packaging_id" })
-    packaging: Packaging;
+    packagingId: Packaging;
 
     @OneToOne(type => BoxPackaging, boxPackaging => boxPackaging.propertiesPackaging)
     boxPackaging: BoxPackaging;
 
     @ManyToOne(type => PresentationProducts, presentationProducts => presentationProducts.propertiesPackaging)
     @JoinColumn({ name: "presentation_id" })
-    presentationProduct: PresentationProducts;
+    presentationId: PresentationProducts;
 
     @Column({ name: "weight" })
     weight: number;

@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -16,6 +16,9 @@ import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
+import { BoxPackaging } from '../Models/Entity/Box.Packaging';
+import { BoxPackagingRepository } from '../Repositories/Box.Packaging.Repository';
+
 
 export class PackagingService{
 
@@ -26,6 +29,8 @@ export class PackagingService{
     private userRepository: UserRepository;
     private reprocessingRepository: ReprocessingRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
+    private presentationsProductsRepository:PresentationsProductsRepository;
+    private boxPackagingRepository:BoxPackagingRepository;
 
 
     constructor() {
@@ -37,10 +42,12 @@ export class PackagingService{
         this.reprocessingRepository = new ReprocessingRepository();
         this.userRepository = new UserRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
-    
+        this.presentationsProductsRepository = new PresentationsProductsRepository();
+        this.boxPackagingRepository= new BoxPackagingRepository();
     }
 
     async savePackaging(req: Request) {
+      
         let { registerDate, productId, lotId, expiration, products } = req.body;
         if (!registerDate)
             throw new Error("[400],registerDate is required");
@@ -58,7 +65,30 @@ export class PackagingService{
             throw new Error("[400],expiration has invalid format, expiration must be a numeric value");
         if (!products)
             throw new Error("[400],products is required");
-
+        
+        console.log("inicio")
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(packagingDTO.productId);
+        console.log("Consulta")
+        if(!product) throw new Error("[400], product not found");
+        console.log("Consulta")
+        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(packagingDTO.lotId);
+        if(!lot) throw new Error("[400], lot not found");
+        let packaging:Packaging = new Packaging();
+        packaging.registerDate = packagingDTO.registerDate;
+        packaging.productId = product;
+        packaging.lotId = packagingDTO.lotId;
+        packaging.expiration = packagingDTO.expiration;
+        await this.packagingRepository.savePackaging(packaging);
+        let packing = await this.propertiesPackagingRepository.getLastPropertiesPackaging();
+        for( let i =0; i<packagingDTO.products.length; i++){
+            let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
+            propertiesPackaging.pieces = packagingDTO.products[i].pieces;
+            propertiesPackaging.packs = packagingDTO.products[i].packs;
+            propertiesPackaging.weight = packagingDTO.products[i].weight;
+            propertiesPackaging.observations = packagingDTO.products[i].observations;
+            propertiesPackaging.packagingId = packing[0];
+            await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
+      
         let presentations: PresentationProducts[] = [];
 
         for (let product of products) {
@@ -82,6 +112,7 @@ export class PackagingService{
             if (!presentation)
                 throw new Error(`[404], Presentation product with id ${product.presentationId} was not found`);
             presentations.push(presentation);
+
         }
 
         let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+productId);
@@ -130,7 +161,8 @@ export class PackagingService{
         }
 
     }
-
+   }
+  
     async getProducts() {
         return await this.productRoviandaRepository.getAllProducts();
     }
@@ -203,6 +235,32 @@ export class PackagingService{
         }
         return response;
     }
+
+    async savePackagingAssigned(packagingAssigned:PackagingAssignedDTO){
+
+        if(!packagingAssigned.boxs) throw new Error("[400], boxs is required");
+        if(!packagingAssigned.packagingId) throw new Error("[400], packagingId is required");
+        if(!packagingAssigned.presentationId) throw new Error("[400], presentationId is required");
+    
+        let packaging: Packaging = await this.packagingRepository.findPackagingById(packagingAssigned.packagingId);
+        if(!packaging) throw new Error("[404], packaging not found");
+        let packagingPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPackagingId(packaging.id);
+        if(!packagingPropierties) throw new Error("[404], packaging no relacionado a propierties packaging");
+
+        let presentation: PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(packagingAssigned.presentationId);
+        if(!presentation) throw new Error("[404], presentation products not found");
+        let presentationPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPresentationId(presentation.id);
+        if(!presentationPropierties) throw new Error("[404], presentation product no relacionado a propierties packaging");
+
+        let countEnd = await this.boxPackagingRepository.getMaxBox(); 
+        console.log(countEnd.max);
+
+        let boxPackaging: BoxPackaging = new BoxPackaging();
+        boxPackaging.propertiesId = presentationPropierties;
+        boxPackaging.countInitial = ""+(parseInt(countEnd.max)+1);
+        boxPackaging.countEnd = ""+(parseInt(countEnd.max)+packagingAssigned.boxs);
+
+        return await this.boxPackagingRepository.createBoxPackaging(boxPackaging);        
 
     async getPackagingAssignedBoxes(req: Request){
         let id = req.params.packagingId;

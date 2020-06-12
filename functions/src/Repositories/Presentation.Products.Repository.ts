@@ -1,19 +1,17 @@
-import { Repository } from "typeorm";
-import { PresentationProducts } from "../Models/Entity/Presentation.Products";
-import { connect } from "../Config/Db";
+import {connect} from '../Config/Db';
+import { Repository } from 'typeorm';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+export class PresentationsProductsRepository{
+    private presentationsProductsRepository:Repository<PresentationProducts>;
 
-export class PresentationProductsRepository {
-    private presentationRepository: Repository<PresentationProducts>;
-
-    async getConnection() {
-        if (!this.presentationRepository)
-            this.presentationRepository = (await connect()).getRepository(PresentationProducts);
+    async getConnection(){
+        if(!this.presentationsProductsRepository){
+            this.presentationsProductsRepository = (await connect()).getRepository(PresentationProducts);
+        }
     }
 
-    async getPresentationProductsById(id: number) {
+    async getPresentatiosProductsById(id:number){
         await this.getConnection();
-        return await this.presentationRepository.findOne(
-            { where: { id } }
-        )
+        return await this.presentationsProductsRepository.findOne({id});
     }
 }

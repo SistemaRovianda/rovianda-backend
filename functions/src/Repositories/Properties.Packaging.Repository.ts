@@ -22,6 +22,20 @@ export class PropertiesPackagingRepository{
         await this.getConnection();
         return await this.propertiesPackaginRepository.save(propertyPackagin);
     }
+  
+    async findPropiertiesPackagingByPackagingId(id:number){
+        await this.getConnection();
+        return await this.repository.findOne({
+            where: {productId: `${id}`}
+        });
+    }
+
+    async findPropiertiesPackagingByPresentationId(id:number){
+        await this.getConnection();
+        return await this.repository.findOne({
+            where: {presentationId: `${id}`}
+        });
+    }
 
     async getLastPropertiesPackaging(){
         await this.getConnection();
