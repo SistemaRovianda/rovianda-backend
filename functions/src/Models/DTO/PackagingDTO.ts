@@ -19,3 +19,9 @@ export interface UserPackagingDTO{
     nameVerify: string;
     jobVerify: string;
 }
+
+export interface PackagingAssignedDTO{
+    boxs: number,
+    presentationId: number,
+    packagingId: number
+}

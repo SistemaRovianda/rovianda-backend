@@ -40,4 +40,9 @@ export class PackagingController{
         let packaging = await this.packagingService.getPackagingColaboratedById(+req.params.packagingId);
         return res.status(200).send(packaging);
     }
+
+    async savePackagingAssigned(req:Request,res:Response){
+            await this.packagingService.savePackagingAssigned(req.body);
+            return res.status(201).send();
+    }
 }

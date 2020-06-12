@@ -13,7 +13,7 @@ export class PresentationProducts {
     @Column({ name: "type_presentation" })
     presentationType: string;
 
-    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentationProduct)
+    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentationId)
     propertiesPackaging: PropertiesPackaging[];
 
     @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.presentationProducts)

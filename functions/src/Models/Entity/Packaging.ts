@@ -9,7 +9,7 @@ export class Packaging{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.packaging)
+    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.packagingId)
     propertiesPackaging: PropertiesPackaging[];
     
     @ManyToOne(type => ProductRovianda, productRovianda=>productRovianda.packaging)

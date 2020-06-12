@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -12,6 +12,10 @@ import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
+import { BoxPackaging } from '../Models/Entity/Box.Packaging';
+import { BoxPackagingRepository } from '../Repositories/Box.Packaging.Repository';
 
 export class PackagingService{
 
@@ -21,6 +25,8 @@ export class PackagingService{
     private userRepository: UserRepository;
     private reprocessingRepository: ReprocessingRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
+    private presentationsProductsRepository:PresentationsProductsRepository;
+    private boxPackagingRepository:BoxPackagingRepository;
 
 
     constructor() {
@@ -30,6 +36,8 @@ export class PackagingService{
         this.reprocessingRepository = new ReprocessingRepository();
         this.userRepository = new UserRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
+        this.presentationsProductsRepository = new PresentationsProductsRepository();
+        this.boxPackagingRepository= new BoxPackagingRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO){
@@ -60,7 +68,7 @@ export class PackagingService{
             propertiesPackaging.packs = packagingDTO.products[i].packs;
             propertiesPackaging.weight = packagingDTO.products[i].weight;
             propertiesPackaging.observations = packagingDTO.products[i].observations;
-            propertiesPackaging.packaging = packing[0];
+            propertiesPackaging.packagingId = packing[0];
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
         console.log("hecho")
@@ -138,5 +146,33 @@ export class PackagingService{
             jobVerify: `${packaging.jobVerify}`
         }
         return response;
+    }
+
+    async savePackagingAssigned(packagingAssigned:PackagingAssignedDTO){
+
+        if(!packagingAssigned.boxs) throw new Error("[400], boxs is required");
+        if(!packagingAssigned.packagingId) throw new Error("[400], packagingId is required");
+        if(!packagingAssigned.presentationId) throw new Error("[400], presentationId is required");
+    
+        let packaging: Packaging = await this.packagingRepository.findPackagingById(packagingAssigned.packagingId);
+        if(!packaging) throw new Error("[404], packaging not found");
+        let packagingPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPackagingId(packaging.id);
+        if(!packagingPropierties) throw new Error("[404], packaging no relacionado a propierties packaging");
+
+        let presentation: PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(packagingAssigned.presentationId);
+        if(!presentation) throw new Error("[404], presentation products not found");
+        let presentationPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPresentationId(presentation.id);
+        if(!presentationPropierties) throw new Error("[404], presentation product no relacionado a propierties packaging");
+
+        let countEnd = await this.boxPackagingRepository.getMaxBox(); 
+        console.log(countEnd.max);
+
+        let boxPackaging: BoxPackaging = new BoxPackaging();
+        boxPackaging.propertiesId = presentationPropierties;
+        boxPackaging.countInitial = ""+(parseInt(countEnd.max)+1);
+        boxPackaging.countEnd = ""+(parseInt(countEnd.max)+packagingAssigned.boxs);
+
+        return await this.boxPackagingRepository.createBoxPackaging(boxPackaging);        
+
     }
 }
