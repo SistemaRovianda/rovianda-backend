@@ -22,10 +22,6 @@ export class Tenderized{
     @Column({name:"percent_inject"})
     percentInject:number;
 
-    // @OneToOne(type => Product)
-    // @JoinColumn({name:"product_id"})
-    // productId:Product;
-
     @ManyToOne(type=> Product, productId=>productId.tenderized)
     @JoinColumn({name:"product_id"})
     productId:Product;

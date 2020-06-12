@@ -11,4 +11,11 @@ export interface PackagingDTO{
             observations: string;
         }
     ]
+ }
+
+export interface UserPackagingDTO{
+    nameElaborated: string;
+    jobElaborated: string;
+    nameVerify: string;
+    jobVerify: string;
 }

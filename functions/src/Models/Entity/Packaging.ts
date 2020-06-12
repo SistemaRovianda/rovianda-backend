@@ -1,6 +1,5 @@
-import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToOne, OneToMany } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ProductRovianda } from './Product.Rovianda';
-import { Inspection } from './Inspection';
 import { PropertiesPackaging } from './Properties.Packaging';
 
 @Entity({name:"packaging"})

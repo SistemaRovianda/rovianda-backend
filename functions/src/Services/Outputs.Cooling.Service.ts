@@ -6,6 +6,7 @@ import { ProductRepository } from "../Repositories/Product.Repository";
 import { Cooling } from "../Models/Entity/Cooling";
 import { CoolingRepository } from "../Repositories/Cooling.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
 
 export class OutputsCoolingService{
     private outputsCoolingRepository:OutputsCoolingRepository;
@@ -33,6 +34,7 @@ export class OutputsCoolingService{
         outputsCooling.observations = outputsMeat.observations;
         outputsCooling.outputDate = outputsMeat.date;
         outputsCooling.quantity = outputsMeat.quantity;
+        outputsCooling.status = OutputsCoolingStatus.NOTUSED;
         
         return await this.outputsCoolingRepository.createOutputsCooling(outputsCooling);
     }
@@ -47,6 +49,19 @@ export class OutputsCoolingService{
 
     async getOutputsCoolingByLot(lot:string){
         return await this.outputsCoolingRepository.getOutputsCoolingByLot(lot);
+    }
+
+    async getOutputsCoolingByStatus(status:string){
+        let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByStatus(status);
+        let response:any = [];
+        outputsCooling.forEach(i => {
+            response.push({
+                lotId:`${i.loteInterno}`,
+                quantity: `${i.quantity}`,
+                outputId: `${i.id}`
+            });
+        });
+        return response;
     }
     
 }

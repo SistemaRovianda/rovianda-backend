@@ -23,6 +23,11 @@ export class WarehouseDriefRepository{
         })
     }
 
+    async getWarehouseDriefByIds(id:number){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({id})
+    }
+
     async getWarehouseDriefByLoteId(loteProveedor:string){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({

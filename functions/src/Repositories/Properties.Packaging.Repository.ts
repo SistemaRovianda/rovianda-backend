@@ -21,4 +21,9 @@ export class PropertiesPackagingRepository{
         await this.getConnection();
         return await this.propertiesPackaginRepository.save(propertyPackagin);
     }
+
+    async getLastPropertiesPackaging(){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
+    }
 }

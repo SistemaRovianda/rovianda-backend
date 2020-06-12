@@ -141,7 +141,6 @@ export class OvenService{
         if(!ovenDTO.firstRevision.interTemp) throw new Error("[400], interTemp is required");
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
-        if(!ovenDTO.firstRevision.observations) throw new Error("[400], observations is required");
         if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
         console.log("se obtiene el proceso")
         let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
