@@ -1,25 +1,27 @@
 import { Repository } from "typeorm";
-import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { connect } from "../Config/Db";
+import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 
-export class PropertiesPackagingRepository {
-    private repository: Repository<PropertiesPackaging>;
-    async getConnection() {
-        if (!this.repository) {
-            this.repository = (await connect()).getRepository(PropertiesPackaging);
-        }
+export class PropertiesPackagingRepository{
+    private propertiesPackaginRepository: Repository<PropertiesPackaging>;
+
+    async getConnection(){
+        if (!this.propertiesPackaginRepository)
+            this.propertiesPackaginRepository = (await connect()).getRepository(PropertiesPackaging);
     }
 
-    async savePropertiesPackaging(propertiesPackaging: PropertiesPackaging) {
+    async getPropertiesPackaginById(id: number){
         await this.getConnection();
-        return await this.repository.save(propertiesPackaging);
+        return await this.propertiesPackaginRepository.findOne({
+            where: {id}
+        });
     }
 
-    async getLastPropertiesPackaging(){
+    async savePropertiesPackaging(propertyPackagin: PropertiesPackaging){
         await this.getConnection();
-        return await this.repository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
+        return await this.propertiesPackaginRepository.save(propertyPackagin);
     }
-
+  
     async findPropiertiesPackagingByPackagingId(id:number){
         await this.getConnection();
         return await this.repository.findOne({
@@ -34,4 +36,8 @@ export class PropertiesPackagingRepository {
         });
     }
 
+    async getLastPropertiesPackaging(){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
+    }
 }

@@ -22,7 +22,7 @@ export class PropertiesPackaging {
     @Column({ name: "weight" })
     weight: number;
 
-    @Column({ name: "observations" })
+    @Column({ name: "observations" , nullable: true})
     observations: string;
 
     @Column({ name: "packs" })

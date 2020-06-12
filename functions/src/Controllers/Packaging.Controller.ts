@@ -12,7 +12,7 @@ export class PackagingController{
     }
 
     async savePackaging(req:Request,res:Response){
-        await this.packagingService.savePackaging(req.body);
+        await this.packagingService.savePackaging(req);
         return res.status(201).send();
     }
 
