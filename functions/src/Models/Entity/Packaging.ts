@@ -1,6 +1,5 @@
-import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToOne, OneToMany } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ProductRovianda } from './Product.Rovianda';
-import { Inspection } from './Inspection';
 import { PropertiesPackaging } from './Properties.Packaging';
 
 @Entity({name:"packaging"})
@@ -24,18 +23,19 @@ export class Packaging{
 
     @Column()
     expiration:string;
-    
-    @Column({name:"name_elabored"})
-    nameElabored:string;
 
-    @Column({name:"job_elabored"})
-    jobElabored:string;
+    @Column({name: "name_elabored", nullable: true})
+    nameElabored: string;
 
-    @Column({name:"name_verify"})
-    nameVerify:string;
+    @Column({name: "job_elabored", nullable: true})
+    jobElabored: string;
 
-    @Column({name:"job_verify"})
-    jobVerify:string;
+    @Column({name: "name_verify", nullable: true})
+    nameVerify: string;
+
+    @Column({name: "job_verify", nullable: true})
+    jobVerify: string;
+
 }
 
 
