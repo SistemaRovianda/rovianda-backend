@@ -35,4 +35,9 @@ export class EntranceDriefController{
         let outputs = await this.outputDriefService.getOutputsDriefByLot(req.body.lotId);
         return res.status(200).send(outputs);
     }
+
+    async getAllWarehouseDrief(req:Request,res:Response){
+        let warehouseDrief = await this.warehouseDriefService.getAllWarehouseDrief();
+        return res.status(200).send(warehouseDrief);
+    }
 }

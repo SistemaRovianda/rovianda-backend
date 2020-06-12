@@ -101,4 +101,18 @@ export class WarehouseDriefService{
 
         return response;
     }
+
+    async getAllWarehouseDrief(){
+        let warehouseDrief:WarehouseDrief[] = await this.warehouseDriefRepository.getAllWarehouseDrief();
+        let response:any = [];
+        warehouseDrief.forEach(i => {
+            response.push({
+                warehouseDriefId:`${i.id}`,
+                loteProveedor: `${i.loteProveedor}`,
+                quantity: `${i.quantity}`
+            });
+        });
+        return response;
+    }
+
 }

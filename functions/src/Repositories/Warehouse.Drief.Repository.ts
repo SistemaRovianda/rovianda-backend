@@ -15,6 +15,11 @@ export class WarehouseDriefRepository{
         return await this.warehouseDriefRepository.save(warehouseDrief);
     }
 
+    async getAllWarehouseDrief(){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.find();
+    }
+
     async getWarehouseDriefById(id:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({

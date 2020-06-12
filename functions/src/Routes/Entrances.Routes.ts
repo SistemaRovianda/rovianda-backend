@@ -48,6 +48,12 @@ export const entrancesRoutes:Array<routeInterface>=[
         target:"updateWarehousePacking"
     },
     {
+        url:"/rovianda/drief",
+        method:"get",
+        controller: EntranceDriefController,
+        target:"getAllWarehouseDrief"
+    },
+    {
         url:"/rovianda/meat/status",
         method:"patch",
         controller:EntrancesMeatController,
