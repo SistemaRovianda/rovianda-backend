@@ -15,27 +15,33 @@ export class WarehouseDriefService{
         this.productRepository = new ProductRepository();
     }
 
-    async updateWarehouseDrief(warehouseDTO:WarehouseDTO){
+    async updateWarehouseDrief(warehouseDTO:WarehouseDTO,warehouseDriefId:number){
+        if(!warehouseDriefId) throw new Error("[400], warehouseDriefId es requerido");
+        if(!warehouseDTO.loteId) throw new Error("[400], loteId es requerido");
+        if(!warehouseDTO.productId) throw new Error("[400], productId es requerido");
+        if(!warehouseDTO.date) throw new Error("[400], date es requerido");
+        if(!warehouseDTO.status) throw new Error("[400], status es requerido");
         let product:Product = await this.productRepository.getProductById(warehouseDTO.productId);
         if(!product) throw new Error("[404], el producto no existe");
         let lote:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLoteIdAndProductId(warehouseDTO.loteId,warehouseDTO.productId);
         if(!lote.length) throw new Error("[404], el lote no existe");
+        let warehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefByIds(warehouseDriefId);
         
         switch(warehouseDTO.status){
             case WarehouseStatus.CLOSED:
-                lote[0].status = WarehouseStatus.CLOSED;
-                lote[0].closingDate = warehouseDTO.date;
+                warehouseDrief.status = WarehouseStatus.CLOSED;
+                warehouseDrief.closingDate = warehouseDTO.date;
                 break;
             case WarehouseStatus.OPENED:
-                lote[0].status = WarehouseStatus.OPENED;
-                lote[0].openingDate = warehouseDTO.date;
+                warehouseDrief.status = WarehouseStatus.OPENED;
+                warehouseDrief.openingDate = warehouseDTO.date;
                 break;
             default:
                 throw new Error("[400], el valor del status es invalido");
                 break;
         }
 
-        await this.warehouseDriefRepository.saveWarehouseDrief(lote[0]);
+        await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
     }
 
    

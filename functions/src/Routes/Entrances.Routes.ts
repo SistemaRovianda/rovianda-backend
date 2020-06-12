@@ -42,7 +42,7 @@ export const entrancesRoutes:Array<routeInterface>=[
         target:"saveOutputsDrief"
     },
     {
-        url:"/rovianda/drief/status",
+        url:"/rovianda/drief/status/:warehouseDriefId",
         method:"patch",
         controller: EntranceDriefController,
         target:"updateWarehousePacking"
