@@ -28,7 +28,7 @@ export const packagingRoutes:Array<routeInterface>=[
         controller:PackagingController,
         target:"getPackagingColaboratedById"
     },{
-        url:"/rovianda//packaging/assigned",
+        url:"/rovianda/packaging/assigned",
         method:"post",
         controller:PackagingController,
         target:"savePackagingAssigned"
