@@ -58,4 +58,9 @@ export class UserController{
         let users = await this.usersService.getAllUsers();
         return res.status(200).send(users);
     }
+
+    async createToken(req:Request,res:Response){
+        await this.usersService.createToken(req.query.uid);
+        return res.status(200).send();
+    }
 }

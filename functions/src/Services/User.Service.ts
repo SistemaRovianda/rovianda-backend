@@ -41,6 +41,10 @@ export class UserService{
         });
     }
 
+    async createToken(uid){
+        return this.firebaseHelper.createToken(uid);
+    }
+
     async createUser(user:User){
         return await this.userRepository.saveUser(user);
     }

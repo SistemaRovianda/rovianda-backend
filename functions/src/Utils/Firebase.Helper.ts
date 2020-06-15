@@ -23,6 +23,26 @@ export class FirebaseHelper{
             return req;
         }
     }
+    // async authentication(req:Request){
+    //     admin.auth().verifyIdToken(req.headers.authorization)
+    //       .then(function(decodedToken) {
+    //         let uid = decodedToken.uid;
+    //         return req;
+    //       }).catch(function(error) {
+    //         // Handle error
+    //       });
+    // }
+
+    async createToken(uid){
+        //let uid = 'some-uid';
+        admin.auth().createCustomToken(uid)
+          .then(function(customToken) {
+            console.log(customToken)
+          })
+          .catch(function(error) {
+            console.log('Error creating custom token:', error);
+          });
+    }
 
     async createUser(user:userGeneric){
         console.log("entra log")
