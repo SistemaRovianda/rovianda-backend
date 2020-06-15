@@ -34,4 +34,9 @@ export class PropertiesPackagingRepository {
         });
     }
 
+    async findPropiertiesPackagingById(id: number){
+        await this.getConnection();
+        return await this.repository.findOne({id});
+    }
+
 }
