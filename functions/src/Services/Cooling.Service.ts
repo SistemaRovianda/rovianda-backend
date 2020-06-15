@@ -23,6 +23,8 @@ export class CoolingService{
         // let product = await this.productRepository.getProductById(coolingDTO.productId);
         // if(!product) throw new Error("[404], producto no existe");
         if(!coolingDTO.fridgeId) throw new Error("[400], falta el parametro fridgeId");
+        if(!coolingDTO.status) throw new Error("[400], falta el parametro status");
+        if(!coolingDTO.materialId) throw new Error("[400], falta el parametro materialId");
         if(!coolingDTO.loteId || coolingDTO.loteId=="") throw new Error("[400], falta el parametro logeId");
         let colling:Cooling = await this.coolingRepository.getCoolingById(coolingDTO.materialId)
         if(!colling) throw new Error("[404],no existe materialId");

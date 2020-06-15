@@ -41,6 +41,10 @@ export class UserService{
         });
     }
 
+    async createToken(uid){
+        return this.firebaseHelper.createToken(uid);
+    }
+
     async createUser(user:User){
         return await this.userRepository.saveUser(user);
     }
@@ -67,6 +71,19 @@ export class UserService{
 
     async getByEmail(email:string){
         return await this.userRepository.getUserByEmail(email);
+    }
+
+    async getAllUsers(){
+        let users:User[] = await this.userRepository.getAllUsers();
+        let response:any = []
+        users.forEach(i =>{
+            response.push({
+                userId: `${i.id}`,
+                fullName: `${i.name} ${i.firstSurname} ${i.lastSurname}`,
+                rol: `${i.roles.description}`
+            })
+        })
+        return response;
     }
 
 }

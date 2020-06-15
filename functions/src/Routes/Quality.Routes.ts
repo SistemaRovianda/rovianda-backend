@@ -14,5 +14,17 @@ export const qualityRoutes:Array<routeInterface>=[
         method:"get",
         controller:UserController,
         target:"getUserById"
+    },
+    {
+        url:"/rovianda/user",
+        method:"get",
+        controller:UserController,
+        target:"getAllUsers"
+    },
+    {
+        url:"/rovianda/token",
+        method:"get",
+        controller:UserController,
+        target:"createToken"
     }
 ];
