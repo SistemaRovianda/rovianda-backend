@@ -35,6 +35,7 @@ import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { BoxPackaging } from "../Models/Entity/Box.Packaging";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
+import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 
 const config: ConnectionOptions = {
 
@@ -63,7 +64,7 @@ const config: ConnectionOptions = {
         Product,
         ProductRovianda,
         Formulation,
-        /*FormulationIngredients,*/
+        FormulationIngredients,
         OutletStore,
         Sausaged,
         Tenderized,
