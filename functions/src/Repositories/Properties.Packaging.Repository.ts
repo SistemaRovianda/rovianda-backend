@@ -36,9 +36,15 @@ export class PropertiesPackagingRepository{
             where: {presentationId: `${id}`}
         });
     }
+  
+    async findPropiertiesPackagingById(id: number){
+        await this.getConnection();
+        return await this.repository.findOne({id});
+    }
 
     async getLastPropertiesPackaging(){
         await this.getConnection();
         return await this.propertiesPackaginRepository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
     }
 }
+

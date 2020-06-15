@@ -24,4 +24,11 @@ export class BoxPackagingRepository{
 
         return max;
     }
+
+    async findBoxPackagingByPropiertiesId(id:number){
+        await this.getConnection();
+        return await this.boxPackagingRepository.findOne({
+            where:{ propertiesId : id }
+        });
+    }
 }
