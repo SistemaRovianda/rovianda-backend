@@ -164,9 +164,6 @@ export class PackagingService{
         let presentationPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPresentationId(presentation.id);
         if(!presentationPropierties) throw new Error("[404], presentation product no relacionado a propierties packaging");
 
-        let propertyId = await this.boxPackagingRepository.findBoxPackagingByPropiertiesId(presentationPropierties.id);
-        if(propertyId) throw new Error("[409], presentacion products ya relacionado a otro box packaging");
-        
 
         let countEnd = await this.boxPackagingRepository.getMaxBox(); 
         console.log(countEnd.max);

@@ -43,10 +43,4 @@ export class WarehouseDrief{
     @JoinColumn({name:"output_drief_id"})
     outputDriefs: OutputsDrief[];
 
-    // @OneToOne(type=>Product,{cascade:true})
-    // @JoinColumn()
-    // product:Product;
-    
-    // @OneToMany(type => Product, product => product.id)
-    // productId: Product[];
 }
