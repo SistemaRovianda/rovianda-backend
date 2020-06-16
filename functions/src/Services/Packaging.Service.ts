@@ -61,8 +61,6 @@ export class PackagingService{
             throw new Error("[400],lotId has invalid format, lotId must be a numeric value")
         if (!expiration)
             throw new Error("[400],expiration is required");
-        if (isNaN(expiration))
-            throw new Error("[400],expiration has invalid format, expiration must be a numeric value");
         if (!products)
             throw new Error("[400],products is required");
         
