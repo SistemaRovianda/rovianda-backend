@@ -84,11 +84,5 @@ export const processRoutes: Array<routeInterface> = [
         method: "get",
         controller: ProcessController,
         target: "getUserProcessVerifier"
-    },
-    {
-        url: "/rovianda/process",
-        method: "post",
-        controller: ProcessController,
-        target: "saveProcess"
     }
 ];

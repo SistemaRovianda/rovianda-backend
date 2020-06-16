@@ -51,7 +51,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["moliendaId"]
+            relations:["grindingId"]
         });
     }
 

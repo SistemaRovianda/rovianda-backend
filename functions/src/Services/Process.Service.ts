@@ -33,12 +33,12 @@ export class ProcessService{
     }
 
     async createProcess(process:ProcessDTO){
-        if(!process.lote.lotId) throw new Error("[400], falta el parametro loteId");
+        if(!process.lote.loteId) throw new Error("[400], falta el parametro loteId");
         if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         let productCatalog = await this.productRoviandaRepository.getProductRoviandaByIds(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.lotId);
+        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -46,7 +46,7 @@ export class ProcessService{
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
         if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.lotId,productCatalog);
+        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.loteId,productCatalog);
         if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
         if(!updateoutputCooling) throw new Error("[404], no existe outputId");
@@ -55,7 +55,7 @@ export class ProcessService{
         processEntity.product = productCatalog;
         processEntity.entranceHour= process.dateIni;
         processEntity.weigth=+process.weight;
-        processEntity.loteInterno = process.lote.lotId;
+        processEntity.loteInterno = process.lote.loteId;
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
