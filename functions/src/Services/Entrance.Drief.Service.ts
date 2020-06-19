@@ -50,7 +50,7 @@ export class EntranceDriefService{
         entranceDrief.quality=entranceDriefDTO.quality;
         entranceDrief.quantity=entranceDriefDTO.quantity;
         entranceDrief.strangeMaterial=entranceDriefDTO.strangeMaterial;
-        entranceDrief.texture=entranceDrief.texture;
+        entranceDrief.texture=entranceDriefDTO.texture;
         entranceDrief.transport=entranceDriefDTO.transport;
         entranceDrief.weight = entranceDriefDTO.weight;
         entranceDrief.color = entranceDriefDTO.color;
