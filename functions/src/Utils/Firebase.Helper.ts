@@ -14,19 +14,6 @@ export class FirebaseHelper{
     }
 
     async createToken(uid){
-        // //let uid = 'some-uid';
-        // let token:string =""
-        // admin.auth().createCustomToken(uid)
-        //   .then(function(customToken) {
-        //     console.log(customToken)
-        //     token = customToken;
-        //   })
-        //   .catch(function(error) {
-        //     console.log('Error creating custom token:', error);
-        //   });
-        //   console.log("pasa")
-        //   console.log(token)
-        //   return token;
         try{
             let token = await admin.auth().createCustomToken(uid);
             console.log(token);
@@ -47,31 +34,6 @@ export class FirebaseHelper{
             return req;
         }
     }
-    // async authentication(req:Request){
-    //     admin.auth().verifyIdToken(req.headers.authorization)
-    //       .then(function(decodedToken) {
-    //         let uid = decodedToken.uid;
-    //         return req;
-    //       }).catch(function(error) {
-    //         // Handle error
-    //       });
-    // }
-
-    // async createToken(uid){
-    //     //let uid = 'some-uid';
-    //     let token:string =""
-    //     admin.auth().createCustomToken(uid)
-    //       .then(function(customToken) {
-    //         console.log(customToken)
-    //         token = customToken;
-    //       })
-    //       .catch(function(error) {
-    //         console.log('Error creating custom token:', error);
-    //       });
-    //       console.log("pasa")
-    //       console.log(token)
-    //       return token;
-    // }
 
     async createUser(user:userGeneric){
         console.log("entra log")
