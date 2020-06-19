@@ -60,7 +60,7 @@ export class UserController{
     }
 
     async createToken(req:Request,res:Response){
-        await this.usersService.createToken(req.query.uid);
-        return res.status(200).send();
+        let token = await this.usersService.createToken(req.query.uid);
+        return res.status(200).send({toke:token});
     }
 }

@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OutputsDrief } from '../Models/Entity/Outputs.Drief';
+import { Product } from '../Models/Entity/Product';
 export class OutputsDriefRepository{
     private outputsDriefRepository:Repository<OutputsDrief>;
 
@@ -40,5 +41,11 @@ export class OutputsDriefRepository{
         return this.outputsDriefRepository.find({
                 where: {loteProveedor: `${lotsId}` }   
             });
+    }
+
+    async getOutputsDriefByProduct(product:Product){
+        await this.getConnection();
+
+        return this.outputsDriefRepository.find({product});
     }
 }

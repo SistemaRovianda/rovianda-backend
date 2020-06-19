@@ -64,6 +64,8 @@ export class WarehouseDriefService{
             for(let n = 0; n<warehouseDriefLote.length; n++){
                 response1.push({
                     id: `${warehouseDriefLote[n].productId}`,
+                    warehouseDriefId: `${warehouseDriefLote[n].id}`,
+                    quantity: `${warehouseDriefLote[n].quantity}`,
                     description: `${warehouseDriefLote[n].description}`
                 });
             }

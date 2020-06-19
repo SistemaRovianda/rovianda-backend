@@ -48,13 +48,11 @@ export class FormulationService {
         if (!formulationDTO.assignmentLot.dateEntry)
             throw new Error("[400], assigmentLot is missing dateEntry attribute");
         for(let ingredient of formulationDTO.ingredient){
-            if (!ingredient.ingredentId)
+            if (!ingredient.ingredientId)
                 throw new Error("[400], One of ingredients is missing ingredentId attribute");
             
             if (!ingredient.lotId)
                 throw new Error("[400], One of ingredients is missing lotId attribute");
-            if (isNaN(ingredient.lotId))
-                throw new Error("[400], attribute lotId has not a valid format, must be a numeric value");
         }
         let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingByLot(formulationDTO.lotId);       
         if(!outputCooling) throw new Error("[404], no existe salida de este lote");
@@ -68,19 +66,24 @@ export class FormulationService {
         
         try {
             let formulationSaved = await this.formulationRepository.saveFormulation(formulationToSave);
+            
+            let fors:Formulation[] = await this.formulationRepository.getLastFormulation();
+            console.log(fors[0])
             for (let i = 0; i < formulationDTO.ingredient.length; i++) {
 
-                let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredentId);
-
+                let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredientId);
+                console.log(product)
                 if (product) {
-                    let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefById(+formulationDTO.ingredient[i].lotId);
+                    let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefByLot(formulationDTO.ingredient[i].lotId);
+                    console.log(outputDried)
                     if (outputDried) {
                         let formulationIngredients: FormulationIngredients = {
                             id: 0,
-                            formulationId: formulationSaved,
+                            formulationId: fors[0],
                             lotId: outputDried,
                             productId: product
                         }
+                        console.log("pasa")
                         await this.formulationIngredientsRepository.saveFormulationIngredients(formulationIngredients);
                     }
                 }

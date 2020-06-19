@@ -42,6 +42,9 @@ export class UserService{
     }
 
     async createToken(uid){
+        if(!uid) throw new Error("[400], uid is required");
+        let user:User = await this.userRepository.getUserById(uid);
+        if(!user) throw new Error("[404], user not found");
         return this.firebaseHelper.createToken(uid);
     }
 

@@ -13,6 +13,30 @@ export class FirebaseHelper{
         });
     }
 
+    async createToken(uid){
+        // //let uid = 'some-uid';
+        // let token:string =""
+        // admin.auth().createCustomToken(uid)
+        //   .then(function(customToken) {
+        //     console.log(customToken)
+        //     token = customToken;
+        //   })
+        //   .catch(function(error) {
+        //     console.log('Error creating custom token:', error);
+        //   });
+        //   console.log("pasa")
+        //   console.log(token)
+        //   return token;
+        try{
+            let token = await admin.auth().createCustomToken(uid);
+            console.log(token);
+            return token;
+        }catch(err){
+            console.log(err);
+            return err;
+        }
+    }
+
     async authentication(req:Request){
         try{
             let tokenDecoded=await admin.auth().verifyIdToken(req.headers.authorization);
@@ -33,16 +57,21 @@ export class FirebaseHelper{
     //       });
     // }
 
-    async createToken(uid){
-        //let uid = 'some-uid';
-        admin.auth().createCustomToken(uid)
-          .then(function(customToken) {
-            console.log(customToken)
-          })
-          .catch(function(error) {
-            console.log('Error creating custom token:', error);
-          });
-    }
+    // async createToken(uid){
+    //     //let uid = 'some-uid';
+    //     let token:string =""
+    //     admin.auth().createCustomToken(uid)
+    //       .then(function(customToken) {
+    //         console.log(customToken)
+    //         token = customToken;
+    //       })
+    //       .catch(function(error) {
+    //         console.log('Error creating custom token:', error);
+    //       });
+    //       console.log("pasa")
+    //       console.log(token)
+    //       return token;
+    // }
 
     async createUser(user:userGeneric){
         console.log("entra log")

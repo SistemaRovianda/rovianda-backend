@@ -92,7 +92,7 @@ export class EntranceMeatService {
             quantity: entranceMeatDTO.weight.value,
             rawMaterial: entranceMeatDTO.rawMaterial,
             status: WarehouseStatus.PENDING,
-            fridge: fridge,
+            fridge: fridge[0],
             userId: req.headers.uid,
             closingDate:null,
             openingDate:null,

@@ -10,9 +10,9 @@ export class CoolingRepository{
         }
     }
 
-    async getCoolingByLote(loteProveedor:string){
+    async getCoolingByLote(loteInterno:string){
         await this.getConnection();
-        return await this.coolingRepository.findOne({loteProveedor});
+        return await this.coolingRepository.findOne({loteInterno});
     }
 
     async saveCooling(cooling:Cooling){
