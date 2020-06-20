@@ -44,7 +44,7 @@ export class EntrancePackingService{
         entrancePacking.observations = entrancePackingDTO.observations;
         entrancePacking.product = product
         entrancePacking.proveedor = entrancePackingDTO.proveedor;
-        entrancePacking.quality = entrancePacking.quality;
+        entrancePacking.quality = entrancePackingDTO.quality;
         entrancePacking.quantity = entrancePackingDTO.quantity;
         entrancePacking.strangeMaterial = entrancePackingDTO.strageMaterial;
         entrancePacking.transport = entrancePackingDTO.transport;

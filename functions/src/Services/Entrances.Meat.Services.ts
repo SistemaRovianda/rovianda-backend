@@ -50,7 +50,7 @@ export class EntranceMeatService {
         console.log(userInspector);
         if (!userInspector) throw new Error("[404],Usuario inspector de calidad no existe");
 
-        let fridge: Fridge = await this.fridgeRepository.getFridgeById(+entranceMeatDTO.fridge.fridgeId);
+        let fridge:Fridge = await this.fridgeRepository.getFridgeByIdFridge(+entranceMeatDTO.fridge.fridgeId);
 
         if (!fridge) throw new Error("[404],Refrigerador no existe");
 
@@ -92,17 +92,14 @@ export class EntranceMeatService {
             quantity: entranceMeatDTO.weight.value,
             rawMaterial: entranceMeatDTO.rawMaterial,
             status: WarehouseStatus.PENDING,
-            fridge: fridge[0],
+            fridge: fridge,
             userId: req.headers.uid,
             closingDate:null,
             openingDate:null,
             id:0
         }
-        console.log("es cooling");
         await this.coolingRepository.saveCooling(cooling);
-        console.log("no es cooling");
         await this.entrancesMeatRepository.saveEntrancesMeat(entranceMeat);
-        console.log("tampoco entrances");
     }
 
 }
