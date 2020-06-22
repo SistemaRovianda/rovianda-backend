@@ -8,8 +8,8 @@ export interface ProcessUpdateDTO{
 export interface ProcessDTO{
     productId: number;
     lote: {
-        lotId : string;
-        outputId : number;
+        loteId: string;
+        outputId: number;
     };
     weight: string;
     temperature: string;

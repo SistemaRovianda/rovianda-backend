@@ -24,4 +24,9 @@ export class FridgeRepository{
         await this.getConnection();
         return await this.fridgesRepository.query(`SELECT * FROM fridges WHERE fridge_id = ${id}`)
     }
+
+    async getFridgeByIdFridge(id:number){
+        await this.getConnection();
+        return await this.fridgesRepository.findOne({fridgeId:id})
+    }
 }

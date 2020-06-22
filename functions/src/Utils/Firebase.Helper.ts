@@ -13,6 +13,17 @@ export class FirebaseHelper{
         });
     }
 
+    async createToken(uid){
+        try{
+            let token = await admin.auth().createCustomToken(uid);
+            console.log(token);
+            return token;
+        }catch(err){
+            console.log(err);
+            return err;
+        }
+    }
+
     async authentication(req:Request){
         try{
             let tokenDecoded=await admin.auth().verifyIdToken(req.headers.authorization);

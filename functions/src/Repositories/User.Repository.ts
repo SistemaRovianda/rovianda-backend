@@ -33,4 +33,9 @@ export class UserRepository{
             email
         });
     }
+
+    async getAllUsers(){
+        await this.getConnection();
+        return await this.userRepository.find();
+    }
 }

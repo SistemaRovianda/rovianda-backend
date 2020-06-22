@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Packaging } from "./Packaging";
 import { BoxPackaging } from "./Box.Packaging";
 import { PresentationProducts } from "./Presentation.Products";
@@ -11,10 +11,10 @@ export class PropertiesPackaging {
     @ManyToOne(type => Packaging, packaging => packaging.propertiesPackaging)
     @JoinColumn({ name: "packaging_id" })
     packagingId: Packaging;
-
+  
     @OneToMany(type => BoxPackaging, boxPackaging => boxPackaging.propertiesId,{eager:true})
     boxPackaging: BoxPackaging[];
-    
+
     @ManyToOne(type => PresentationProducts, presentationProducts => presentationProducts.propertiesPackaging)
     @JoinColumn({ name: "presentation_id" })
     presentationId: PresentationProducts;
@@ -22,7 +22,7 @@ export class PropertiesPackaging {
     @Column({ name: "weight" })
     weight: number;
 
-    @Column({ name: "observations" })
+    @Column({ name: "observations" , nullable: true})
     observations: string;
 
     @Column({ name: "packs" })

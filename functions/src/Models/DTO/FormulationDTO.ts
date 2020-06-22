@@ -9,8 +9,8 @@ export interface FormulationDTO {
     },
     ingredient: [
         {
-            lotId: number,
-            ingredentId: number
+            lotId: string,
+            ingredientId: number
         }
     ]
 

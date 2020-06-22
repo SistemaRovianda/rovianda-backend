@@ -33,9 +33,23 @@ export class ProductRoviandaService{
 
     async getProductRovianda(req:Request){
         let productRoviandaId:number = +req.params.productId;
-        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productRoviandaId);
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByIdss(productRoviandaId);
         if(!productRovianda) throw new Error("[404],el produto no existe");
-        return productRovianda;
+        console.log(productRovianda)
+        let response = {};
+        let ingredent = []
+        productRovianda.ingredients.forEach(i =>{
+            ingredent.push({
+                productId: i.id,
+                description: i.description
+            })
+        })
+        response = {
+            id: productRovianda.id,
+            name: productRovianda.name,
+            ingredients: ingredent
+        }
+        return response;
     }
 
     async deleteProductRovianda(req:Request){

@@ -21,14 +21,14 @@ export class GrindingService{
         let process: Process = await this.processRepository.getProcessWithGrindingById(+id);
         if(!process)
             throw new Error(`[409],process with id ${id} wasn't found`);
-        if(!process.moliendaId)
+        if(!process.grindingId)
             return {};
             
         let response = {
-            rawMaterial: process.moliendaId.raw,
-            process: process.moliendaId.process,
-            weight: process.moliendaId.weight,
-            date: process.moliendaId.date
+            rawMaterial: process.grindingId.raw,
+            process: process.grindingId.process,
+            weight: process.grindingId.weight,
+            date: process.grindingId.date
         }
         return response;
     }

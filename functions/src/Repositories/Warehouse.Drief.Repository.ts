@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { Product } from '../Models/Entity/Product';
 export class WarehouseDriefRepository{
     private warehouseDriefRepository:Repository<WarehouseDrief>;
 
@@ -15,12 +16,22 @@ export class WarehouseDriefRepository{
         return await this.warehouseDriefRepository.save(warehouseDrief);
     }
 
+    async getAllWarehouseDrief(){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.find();
+    }
+
     async getWarehouseDriefById(id:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({
             where: {id},
             relations: ["outputDriefs"]
         })
+    }
+
+    async getWarehouseDriefByIds(id:number){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({id})
     }
 
     async getWarehouseDriefByLoteId(loteProveedor:string){
@@ -49,10 +60,19 @@ export class WarehouseDriefRepository{
     async getWarehouseDriefByLoteProveedor(loteProveedor:string, status:string){
         await this.getConnection();
         return await this.warehouseDriefRepository.query(`
-        SELECT warehouse_drief.lote_proveedor, warehouse_drief.productId, product_catalog.description 
+        SELECT warehouse_drief.id, warehouse_drief.quantity, warehouse_drief.lote_proveedor, warehouse_drief.productId, product_catalog.description 
         FROM warehouse_drief 
         INNER JOIN product_catalog  ON product_catalog.id = warehouse_drief.productId 
         WHERE lote_proveedor = "${loteProveedor}" 
         AND status = "${status}"`);
+    }
+
+    async getByProductIdAndStatus(productId:number,status:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.query(`
+        SELECT * FROM warehouse_drief 
+        WHERE warehouse_drief.productId = ${productId} 
+        AND warehouse_drief.status = "${status}"
+        `);
     }
 }

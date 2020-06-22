@@ -34,6 +34,14 @@ export class ProductRoviandaRepository {
         });
     }
 
+    async getProductRoviandaByIdss(id: number) {
+        await this.getConnection();
+        return await this.repository.findOne({
+            where: {id},
+            relations: ["ingredients"]
+        });
+    }
+
     async deleteProductRoviandaById(id: number) {
         await this.getConnection();
         return await this.repository.delete({ id });

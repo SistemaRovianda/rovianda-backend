@@ -32,5 +32,10 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"post",
         controller:PackagingController,
         target:"savePackagingAssigned"
+    },{
+        url: "/rovianda/packaging/assigned/:packagingId",
+        method: "get",
+        controller: PackagingController,
+        target: "getPackagingAssignedBoxes"
     }
 ];

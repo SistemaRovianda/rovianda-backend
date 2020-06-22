@@ -60,19 +60,48 @@ export class OutputsDriefService {
         return ingredients;
     }
 
-    async getIngredients(lotsId:[]){
-
-        if (!lotsId) throw new Error("[404], lotsId is required");
-       console.log(lotsId);
-       let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByLotId(lotsId);
+    // async getIngredients(lotsId:[]){
+    //     //id de ingredientes
+    //     if (!lotsId) throw new Error("[404], lotsId is required");
+    //    console.log(lotsId);
+    //    let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByLotId(lotsId);
        
-       let response = [];
-       outputs.forEach(i => {
-           response.push({
-               productId: `${i.product.id}`,
-               lots:[`${i.loteProveedor}`]   
-           });
-       });
-       return response; 
+    //    let response = [];
+    //    outputs.forEach(i => {
+    //        response.push({
+    //            productId: `${i.product.id}`,
+    //            lots:[`${i.loteProveedor}`]   
+    //        });
+    //    });
+    //    return response; 
+    // }
+
+    async getIngredients(lotsId:[]){
+        if (!lotsId) throw new Error("[404], lotsId is required");
+        console.log(lotsId);
+        let response2:any = []
+        for(let i = 0; i<lotsId.length; i++){
+            let response:any = []
+            let product:Product = await this.productRepository.getProductById(lotsId[i]);
+            let productOpen:WarehouseDrief[] = await this.warehouseDriefRep.getByProductIdAndStatus(lotsId[i],"OPENED");
+            console.log(productOpen)
+            if(productOpen[0]){
+                console.log("pasa")
+                let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByProduct(product);
+                console.log(outputsDrief)
+                if(outputsDrief[0]){
+                    outputsDrief.forEach(e => {
+                        response.push(e.loteProveedor)
+                    })
+                }
+            }
+            response2.push({
+                productId: lotsId[i],
+                lots: response 
+            })
+        }
+        return response2;
     }
+
+
 }
