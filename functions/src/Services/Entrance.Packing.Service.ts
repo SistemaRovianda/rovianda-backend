@@ -27,7 +27,7 @@ export class EntrancePackingService{
         if(!entrancePackingDTO.lotProveedor) throw new Error("[400],el parametro lotProveedor es requerido");
         if(!entrancePackingDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entrancePackingDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");
-        if(!entrancePackingDTO.quality) throw new Error("[400],el parametro quality es requerido");
+        if(entrancePackingDTO.quality == null) throw new Error("[400],el parametro quality es requerido");
         if(!entrancePackingDTO.quantity) throw new Error("[400],el parametro quantity es requerido");
         if(!entrancePackingDTO.strageMaterial) throw new Error("[400],el parametro strangeMaterial es requerido");
         if(!entrancePackingDTO.transport) throw new Error("[400],el parametro transport es requerido");
