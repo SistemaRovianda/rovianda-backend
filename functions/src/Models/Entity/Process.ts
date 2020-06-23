@@ -1,10 +1,8 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Grinding } from './Grinding';
-
 import { Tenderized } from './Tenderized';
 import { Conditioning } from './Conditioning';
 import { Sausaged } from './Sausaged';
-import { Product } from './Product';
 import { ProductRovianda } from "./Product.Rovianda";
 import { User } from "./User";
 

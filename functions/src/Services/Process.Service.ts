@@ -40,7 +40,6 @@ export class ProcessService{
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
         let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
-        
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
         if(!process.hourEntrance || process.hourEntrance=="") throw new Error("[400], falta el parametro hourEntrance");
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");

@@ -5,15 +5,15 @@ import { PresentationProducts } from "./Presentation.Products";
 
 @Entity({ name: "properties_packaging" })
 export class PropertiesPackaging {
-    @PrimaryGeneratedColumn({ name: "porperties_id" })
+    @PrimaryGeneratedColumn({ name: "properties_id" })
     id: number;
 
     @ManyToOne(type => Packaging, packaging => packaging.propertiesPackaging)
     @JoinColumn({ name: "packaging_id" })
     packagingId: Packaging;
-
-    @OneToOne(type => BoxPackaging, boxPackaging => boxPackaging.propertiesPackaging)
-    boxPackaging: BoxPackaging;
+  
+    @OneToMany(type => BoxPackaging, boxPackaging => boxPackaging.propertiesId,{eager:true})
+    boxPackaging: BoxPackaging[];
 
     @ManyToOne(type => PresentationProducts, presentationProducts => presentationProducts.propertiesPackaging)
     @JoinColumn({ name: "presentation_id" })
