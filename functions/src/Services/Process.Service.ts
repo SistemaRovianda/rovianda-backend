@@ -76,8 +76,14 @@ export class ProcessService{
                 processId:`${i.id}`,
                 productName: i.product.name,
                 lotId: `${i.loteInterno}`,
-                date: `${i.startDate}` ,
-                currentProccess: `${i.currentProcess}`  
+                date: `${i.startDate}`,
+                currentProccess: `${i.currentProcess}`,
+                weigth: `${i.weigth}`,
+                temperature: `${i.temperature}`,
+                start_date: `${i.startDate}`,
+                end_date: `${i.endDate}`,
+                entrance_hour: `${i.entranceHour}`,
+                output_hour: `${i.outputHour}`
             });
         });
         return response;

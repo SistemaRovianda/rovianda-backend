@@ -10,17 +10,21 @@ import { Cooling } from '../Models/Entity/Cooling';
 import { WarehouseStatus } from '../Models/Enum/WarehouseStatus';
 import { UserRepository } from '../Repositories/User.Repository';
 import { User } from '../Models/Entity/User';
+import { Raw } from '../Models/Entity/Raw';
+import { RawRepository } from '../Repositories/Raw.Repository';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
     private userRepository: UserRepository;
     private fridgeRepository: FridgeRepository;
     private coolingRepository: CoolingRepository;
+    private rawRepository:RawRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
         this.userRepository = new UserRepository();
         this.fridgeRepository = new FridgeRepository();
         this.coolingRepository = new CoolingRepository();
+        this.rawRepository = new RawRepository();
     }
 
 
@@ -83,21 +87,30 @@ export class EntranceMeatService {
             photo: file
         }
 
+        let cooling:Cooling = new Cooling();
+        cooling.loteInterno = entranceMeatDTO.lotInternal;
+        cooling.loteProveedor = entranceMeatDTO.lotProveedor;
+        cooling.quantity = entranceMeatDTO.weight.value;
+        cooling.status = WarehouseStatus.PENDING;
+        cooling.fridge = fridge;
+        cooling.userId = req.headers.uid;
+        cooling.closingDate = null;
+        cooling.openingDate = null;
+
+        let raw:Raw = await this.rawRepository.getByName(entranceMeatDTO.rawMaterial);
+        if(raw){
+            cooling.rawMaterial = raw;
+        }else{
+            let saveRaw:Raw = new Raw();
+            saveRaw.rawMaterial= entranceMeatDTO.rawMaterial;
+            await this.rawRepository.saveRaw(saveRaw);
+            let enRaw:Raw[] = await this.rawRepository.getLastRaw();
+            cooling.rawMaterial = enRaw[0];
+        }
 
         entranceMeat.photo = file;
 
-        let cooling: Cooling = {
-            loteInterno: entranceMeatDTO.lotInternal,
-            loteProveedor: entranceMeatDTO.lotProveedor,
-            quantity: entranceMeatDTO.weight.value,
-            rawMaterial: entranceMeatDTO.rawMaterial,
-            status: WarehouseStatus.PENDING,
-            fridge: fridge,
-            userId: req.headers.uid,
-            closingDate:null,
-            openingDate:null,
-            id:0
-        }
+        
         await this.coolingRepository.saveCooling(cooling);
         await this.entrancesMeatRepository.saveEntrancesMeat(entranceMeat);
     }

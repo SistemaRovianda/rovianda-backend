@@ -110,7 +110,7 @@ export class CoolingService{
             response.push({
                 rawMaterialId:`${i.id}`,
                 status: `${i.status}`,
-                nameMaterial: `${i.rawMaterial}`,
+                nameMaterial: `${i.rawMaterial.rawMaterial}`,
                 lotProveedor: `${i.loteProveedor}`  
             });
         });

@@ -12,8 +12,11 @@ export class PropertiesPackaging {
     @JoinColumn({ name: "packaging_id" })
     packagingId: Packaging;
   
-    @OneToMany(type => BoxPackaging, boxPackaging => boxPackaging.propertiesId,{eager:true})
-    boxPackaging: BoxPackaging[];
+    // @OneToMany(type => BoxPackaging, boxPackaging => boxPackaging.propertiesId,{eager:true})
+    // boxPackaging: BoxPackaging[];
+
+    @OneToOne(type => BoxPackaging, boxPackaging => boxPackaging.propertiesPackaging)
+    boxPackaging: BoxPackaging;
 
     @ManyToOne(type => PresentationProducts, presentationProducts => presentationProducts.propertiesPackaging)
     @JoinColumn({ name: "presentation_id" })

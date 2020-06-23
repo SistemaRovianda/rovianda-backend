@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinColumn  } from "typeorm";
 import { Fridge } from './Fridges';
+import { Raw } from "./Raw";
 
 
 @Entity({name:"cooling"})
@@ -26,8 +27,12 @@ export class Cooling{
     @Column()
     status:string;
 
-    @Column({name:"raw_material"})
-    rawMaterial:string;
+    //@JoinColumn({name:"product_id"})
+    // @Column({name:"raw_material"})
+    // rawMaterial:string;
+    @ManyToOne(type=>Raw, raw=>raw.coolings, {eager:true, onDelete:"SET NULL"})
+    @JoinColumn({name:"raw_material_id"})
+    rawMaterial:Raw;
 
     @Column({name:"opening_date",nullable:true})
     openingDate:string;
