@@ -1,5 +1,6 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { LotController } from '../Controllers/Lot.Controller';
+import { RawController } from '../Controllers/Raw.Controller';
 export const lotRoutes:Array<routeInterface>=[
 
     {
@@ -27,5 +28,10 @@ export const lotRoutes:Array<routeInterface>=[
         method: "get",
         controller: LotController,
         target: "getDriefHistory"
+    },{
+        url: "/rovianda/raw/material",
+        method: "get",
+        controller: RawController,
+        target: "getRaw"
     }
 ];
