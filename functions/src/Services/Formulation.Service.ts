@@ -98,4 +98,17 @@ export class FormulationService {
     async getbyLoteIdAndProductId(loteId:string,productId:ProductRovianda){
         return await this.formulationRepository.getByLoteId(loteId,productId);
     }
+
+    async getFormulation(){
+        let formulation:Formulation [] = await this.formulationRepository.getAllFormulation();
+        let response = [];
+        formulation.forEach(i => {
+            response.push({
+                productRoviandaId: `${i.productRovianda.id}`,
+                productRovianda: `${i.productRovianda.name}`,
+                lots: [`${i.loteInterno}`,`${i.newLote}`]
+            });
+        });
+        return response;
+    }
 }

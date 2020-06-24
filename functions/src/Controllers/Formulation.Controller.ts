@@ -14,4 +14,9 @@ export class FormulationController {
         await this.formulationService.createFormulation(req);
         return res.status(201).send();
     }
+
+    async getFormulation(req:Request,res:Response){
+        let products = await this.formulationService.getFormulation();   
+        return res.status(200).send(products);
+    }
 }

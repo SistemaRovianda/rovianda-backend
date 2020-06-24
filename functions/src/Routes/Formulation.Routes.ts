@@ -7,5 +7,10 @@ export const formulationRoutes: Array<routeInterface>=[
         method: "post",
         controller: FormulationController,
         target: "createFormulation"
+    },{
+        url: "/rovianda/formulation/products",
+        method: "get",
+        controller: FormulationController,
+        target: "getFormulation"
     }
 ]
