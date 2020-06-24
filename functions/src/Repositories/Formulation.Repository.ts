@@ -25,4 +25,9 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.query(`SELECT * FROM formulation ORDER BY id DESC LIMIT 1`)
     }
+
+    async getAllFormulation(){
+        await this.getConnection();
+        return await this.formulatioRepository.find();
+    }
 }
