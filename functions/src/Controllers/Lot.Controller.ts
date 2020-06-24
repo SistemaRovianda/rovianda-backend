@@ -54,4 +54,5 @@ export class LotController{
         let response = await this.warehouseDriefService.getDriefHistory(req);
         return res.status(200).send(response);
     }
+
 }
