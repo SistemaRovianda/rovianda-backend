@@ -28,11 +28,14 @@ export class UserService{
         if(!userDTO.password) throw new Error("[400], password is required");
         if(!userDTO.rol) throw new Error("[400], rol is required");
         //console.log(roles[0]);
+        let us:User = await this.userRepository.getUserByEmail(userDTO.email);
+        if(us) throw new Error("[409], email exist");
         let users:User= new User();
         users.name = userDTO.name;
         users.firstSurname = userDTO.firstName;
         users.lastSurname = userDTO.lastName;
         users.email = userDTO.email;
+        users.job = userDTO.job;
         users.roles = roles;
 
         return this.firebaseHelper.createUser(userGeneric).then(async(userRecord)=>{
@@ -67,7 +70,8 @@ export class UserService{
             firstSurname: `${user.firstSurname}`,
             lastSurname: `${user.lastSurname}`,
             email: `${user.email}`,
-            rol: `${user.roles.description}`
+            rol: `${user.roles.description}`,
+            job: `${user.job}`
         };
         return response;
     }
@@ -83,7 +87,8 @@ export class UserService{
             response.push({
                 userId: `${i.id}`,
                 fullName: `${i.name} ${i.firstSurname} ${i.lastSurname}`,
-                rol: `${i.roles.description}`
+                rol: `${i.roles.description}`,
+                job: `${i.job}`
             })
         })
         return response;

@@ -8,6 +8,7 @@ export interface OvenDTO{
     jobElaborated: string;
     nameVerify: string;
     jobVerify: string;
+    oven:number
     firstRevision: {
         hour:string;
         interTemp:string;

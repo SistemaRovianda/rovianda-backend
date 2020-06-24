@@ -28,6 +28,18 @@ export class FormulationRepository{
 
     async getAllFormulation(){
         await this.getConnection();
-        return await this.formulatioRepository.find();
+        return await this.formulatioRepository.find({});
+    }
+
+    async getAllFormulationOrderProduct(){
+        await this.getConnection();
+        return await this.formulatioRepository.query(`
+        SELECT * FROM formulation GROUP BY product_rovianda_id
+        `);
+    }
+
+    async getFormulationByProductRovianda(productRovianda:ProductRovianda){
+        await this.getConnection();
+        return await this.formulatioRepository.find({productRovianda});
     }
 }

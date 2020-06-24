@@ -20,6 +20,9 @@ export class User{
     @Column()
     email:string;
 
+    @Column()
+    job:string;
+
     @ManyToOne(type=>Roles,roles=>roles.users,{eager:true})
     @JoinColumn({name:"rol"})
     roles:Roles;

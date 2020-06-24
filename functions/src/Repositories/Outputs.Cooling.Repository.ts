@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { Raw } from '../Models/Entity/Raw';
 export class OutputsCoolingRepository{
     private outputsCoolingRepository:Repository<OutputsCooling>;
 
@@ -34,5 +35,10 @@ export class OutputsCoolingRepository{
     async getOutputsCoolingByStatus(status:string){
         await this.getConnection();
         return await this.outputsCoolingRepository.find({status});
+    }
+
+    async getOutputsCoolingByRaw(rawMaterial:Raw){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.find({rawMaterial});
     }
 }

@@ -39,6 +39,7 @@ export class OvenService{
             response.push({
                 ovenProductId: `${oven[i].id}`,
                 pcc: `${oven[i].pcc}`,
+                oven: `${oven[i].oven}`,
                 product: {
                     id: `${oven[i].product_id}`,
                     description: `${oven[i].name}`, 
@@ -61,6 +62,7 @@ export class OvenService{
                 estimatedTime: `${i.product_id}`,
                 newLote: `${i.new_lote}`,
                 pcc: `${i.pcc}`,
+                oven: `${i.oven}`,
                 product: {
                     id: `${i.product_id}`,
                     description: `${i.name}`
@@ -137,6 +139,7 @@ export class OvenService{
         if(!ovenDTO.pcc) throw new Error("[400], pcc is required");
         if(!ovenDTO.productId) throw new Error("[400], productId is required");
         if(!ovenDTO.date) throw new Error("[400], date is required");
+        if(!ovenDTO.oven) throw new Error("[400], oven is required");
         if(!ovenDTO.firstRevision.hour) throw new Error("[400], hour is required");
         if(!ovenDTO.firstRevision.interTemp) throw new Error("[400], interTemp is required");
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
@@ -157,6 +160,7 @@ export class OvenService{
         oven.stimatedTime = ovenDTO.estimatedTime;
         oven.newLote = ovenDTO.newLote;
         oven.pcc = ovenDTO.pcc;
+        oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;
         oven.product = product;
         await this.ovenRepository.saveOvenProduct(oven);

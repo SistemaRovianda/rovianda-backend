@@ -2,20 +2,24 @@ import { OutputsCoolingRepository } from "../Repositories/Outputs.Cooling.Reposi
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputMeatDTO } from "../Models/DTO/Output.Meat.DTO";
 import { Product } from "../Models/Entity/Product";
+import { Raw } from '../Models/Entity/Raw';
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { Cooling } from "../Models/Entity/Cooling";
 import { CoolingRepository } from "../Repositories/Cooling.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
+import { RawRepository } from '../Repositories/Raw.Repository';
 
 export class OutputsCoolingService{
     private outputsCoolingRepository:OutputsCoolingRepository;
     private productRepository:ProductRepository;
     private coolingRepository:CoolingRepository;
+    private rawRepository:RawRepository;
     constructor(){
         this.outputsCoolingRepository = new OutputsCoolingRepository();
         this.productRepository = new ProductRepository();
         this.coolingRepository= new CoolingRepository();
+        this.rawRepository = new RawRepository();
     }
 
     async createOutputsCooling(outputsMeat:OutputMeatDTO){
@@ -51,17 +55,39 @@ export class OutputsCoolingService{
         return await this.outputsCoolingRepository.getOutputsCoolingByLot(lot);
     }
 
-    async getOutputsCoolingByStatus(status:string){
-        let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByStatus(status);
-        let response:any = [];
-        outputsCooling.forEach(i => {
-            response.push({
-                lotId:`${i.loteInterno}`,
-                quantity: `${i.quantity}`,
-                outputId: `${i.id}`
+    async getOutputsCoolingByStatus(status:string,rawMaterialId:number){
+        console.log("entra")
+        if(!status) throw new Error("[400], status is required");
+        if(!rawMaterialId) throw new Error("[400], rawMaterialId is required");
+        if(status == OutputsCoolingStatus.NOTUSED || status == OutputsCoolingStatus.USED){
+            let raw:Raw = await this.rawRepository.getById(rawMaterialId);
+            console.log(raw);
+            if(!raw) throw new Error("[404], rawMaterialId not found");
+            let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByRaw(raw);
+            let response:any = [];
+            outputsCooling.forEach(i => {
+                if(i.status == status){
+                    response.push({
+                        lotId:`${i.loteInterno}`,
+                        quantity: `${i.quantity}`,
+                        outputId: `${i.id}`
+                    });
+                }
             });
-        });
-        return response;
+            return response;
+        }else{
+            throw new Error("[409], status incorrect");
+        }
+        // let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByStatus(status);
+        // let response:any = [];
+        // outputsCooling.forEach(i => {
+        //     response.push({
+        //         lotId:`${i.loteInterno}`,
+        //         quantity: `${i.quantity}`,
+        //         outputId: `${i.id}`
+        //     });
+        // });
+        // return response;
     }
     
 }

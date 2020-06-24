@@ -100,28 +100,27 @@ export class ProcessService{
     async updateProcess(req:Request){ 
         let process:Process = await this.processRepository.findProcessById(+req.params.processId);
         console.log(process)
-        if(!process[0]) throw new Error("[404], process not found");
+        if(!process) throw new Error("[404], process not found");
         let updateProcess:ProcessUpdateDTO = req.body;
         if(!updateProcess.dateFin) throw new Error("[400],dateFin is required");
         if(!updateProcess.hourExit) throw new Error("[400],hourExit is required");
-        process[0].endDate = updateProcess.dateFin;
-        process[0].outputHour = updateProcess.hourExit;
+        process.endDate = updateProcess.dateFin;
+        process.outputHour = updateProcess.hourExit;
         return await this.processRepository.createProcess(process);
     }
 
-    async updateStatusProcess(res:Response, req:Request){
-        let process:Process = await this.processRepository.findProcessById(+req.params.processId);
+    async updateStatusProcess(processId:number){
+        let process:Process = await this.processRepository.findProcessById(processId);
         console.log(process);
 
         if(!process) throw new Error("[404], process not found");
        
-        let processToClose = process;
-        if(processToClose.status = "CLOSED"){
-            return res.status(403).send({ msg: "PROCESO ANTERIORMENTE CERRADO" });
+        if(process.status == "CLOSED"){
+            throw new Error("[403], PROCESO ANTERIORMENTE CERRADO");
         }else{
-            processToClose.status = "CLOSED";
-            await this.processRepository.createProcess(processToClose);
-                return res.status(204).send({ msg: "CLOSED" });
+            process.status = "CLOSED";
+            await this.processRepository.createProcess(process);
+                return "cerrado";
         }
     }
 

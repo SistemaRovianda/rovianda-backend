@@ -148,7 +148,7 @@ export class ProcessController {
     }
 
     async updateStatusProcess(req: Request, res: Response) {
-        await this.processService.updateStatusProcess(res, req);
+        await this.processService.updateStatusProcess(+req.params.processId);
         return res.status(204).send();
     }
 

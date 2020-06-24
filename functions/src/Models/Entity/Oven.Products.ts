@@ -22,6 +22,9 @@ export class OvenProducts {
     @Column({ name: "pcc" })
     pcc: string;
 
+    @Column({ name: "oven" })
+    oven: number;
+
     @Column({ name: "date" })
     date: string;
 

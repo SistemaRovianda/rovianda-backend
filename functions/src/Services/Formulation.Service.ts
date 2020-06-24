@@ -100,15 +100,21 @@ export class FormulationService {
     }
 
     async getFormulation(){
-        let formulation:Formulation [] = await this.formulationRepository.getAllFormulation();
+        let formulation:any = await this.formulationRepository.getAllFormulationOrderProduct();
         let response = [];
-        formulation.forEach(i => {
+        for(let i = 0; i<formulation.length; i++){
+            let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+formulation[i].product_rovianda_id);
+            let lots:Formulation[] = await this.formulationRepository.getFormulationByProductRovianda(product);
+            let response2:any = []
+            lots.forEach(e =>{
+                response2.push(e.loteInterno)
+            })
             response.push({
-                productRoviandaId: `${i.productRovianda.id}`,
-                productRovianda: `${i.productRovianda.name}`,
-                lots: [`${i.loteInterno}`,`${i.newLote}`]
-            });
-        });
+                productRoviandaId: `${product.id}`,
+                productRovianda: `${product.name}`,
+                lots: response2
+            })
+        }
         return response;
     }
 }
