@@ -42,11 +42,13 @@ export class CoolingRepository{
     async getCoollingByFridge(loteInterno:string,fridgeId:number,status:string){
         await this.getConnection();
         return await this.coolingRepository.query(`
-        SELECT cooling.id, cooling.raw_material, cooling.lote_interno, 
+        SELECT cooling.id, raw.raw_material, cooling.lote_interno, 
         cooling.fridgeFridgeId, fridges.temp 
         FROM cooling 
         INNER JOIN fridges 
         ON fridges.fridge_id = cooling.fridgeFridgeId 
+        INNER JOIN raw 
+        ON raw.id = cooling.raw_material_id 
         WHERE cooling.lote_interno = "${loteInterno}" AND cooling.status = "${status}" AND cooling.fridgeFridgeId = ${fridgeId}`);
     }
 
