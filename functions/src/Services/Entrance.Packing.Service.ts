@@ -60,5 +60,7 @@ export class EntrancePackingService{
         warehousePacking.date = entrancePackingDTO.date;
         await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
         await this.entrancePackingRepository.saveEntracenPacking(entrancePacking);
+        let id:any = await this.entrancePackingRepository.getLastEntrnacePacking();
+        return id[0].id;
     }
 }

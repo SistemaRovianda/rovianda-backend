@@ -16,8 +16,8 @@ export class EntranceDriefController{
     }
 
     async saveEntrance(req:Request,res:Response){
-        await this.entranceDriefService.saveEntranceDrief(req.body,req);
-        return res.status(201).send();
+        let id = await this.entranceDriefService.saveEntranceDrief(req.body,req);
+        return res.status(201).send({driefId: id});
     }
 
     async updateWarehousePacking(req:Request,res:Response){

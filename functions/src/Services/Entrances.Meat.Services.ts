@@ -113,6 +113,8 @@ export class EntranceMeatService {
         
         await this.coolingRepository.saveCooling(cooling);
         await this.entrancesMeatRepository.saveEntrancesMeat(entranceMeat);
+        let id:any = await this.entrancesMeatRepository.getLastEntrnaceMeat();
+        return id[0].id;
     }
 
 }

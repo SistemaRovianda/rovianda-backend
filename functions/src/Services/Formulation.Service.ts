@@ -87,9 +87,9 @@ export class FormulationService {
                         await this.formulationIngredientsRepository.saveFormulationIngredients(formulationIngredients);
                     }
                 }
-
-
             }
+            let id:any = await this.formulationRepository.getLastFormulation();
+            return id[0].id;
         } catch (err) {
             throw new Error(`[500], ${err}`);
         }

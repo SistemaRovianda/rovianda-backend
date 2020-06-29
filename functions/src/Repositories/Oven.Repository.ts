@@ -72,9 +72,14 @@ export class OvenRepository{
         revisions_oven_products.humidity, 
         revisions_oven_products.observations 
         FROM oven_products 
-        INNER JOIN revisions_oven_products ON revisions_oven_products.id = oven_products.id 
+        INNER JOIN revisions_oven_products ON revisions_oven_products.ovenProductsId = oven_products.id 
         INNER JOIN products_rovianda ON products_rovianda.id = oven_products.product_id 
         WHERE oven_products.id = ${id}`);
+    }
+
+    async ById(id:number){
+        await this.getConnection();
+        return await this.ovenRepository.findOne({id});
     }
 
     async getLastOven(){

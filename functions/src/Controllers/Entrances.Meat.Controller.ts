@@ -16,8 +16,8 @@ export class EntrancesMeatController{
     }
 
     async createEntrancesMeat(req:Request,res:Response){       
-        await this.entrancesmeatService.saveEntrancesMeat(req);
-        return res.status(201).send();
+        let id = await this.entrancesmeatService.saveEntrancesMeat(req);
+        return res.status(201).send({meatId: id});
     }
 
     async updateStatusWarehouse(req:Request,res:Response){

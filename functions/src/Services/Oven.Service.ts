@@ -53,31 +53,35 @@ export class OvenService{
 
     async getOvenProductsByProductId(req:Request){
         if(!req.params.productId) throw new Error("[400], productId is required");
-        let oven:OvenProducts[] = await this.ovenRepository.getOvenProductsById(+req.params.productId);
+        let oven:any = await this.ovenRepository.getOvenProductsById(+req.params.productId);
         if(!oven) throw new Error("[404], oven not found");
+        let ovencons:OvenProducts = await this.ovenRepository.ById(+req.params.productId);
+        let revision:RevisionsOvenProducts[] = await this.revisionsOvenProductsRepository.getByOven(ovencons);
+        let response2:any = []
+        revision.forEach(i=>{
+            response2.push({
+                hour: `${i.hour}`,
+                interTemp: `${i.interTemp}`,
+                ovenTemp: `${i.ovenTemp}`,
+                humidity: `${i.humidity}`,
+                observations: `${i.observations}`
+            });
+        })
+        console.log(oven)
         let response:any = {};
-        oven.forEach( async (i:any) => {
-            response = {
-                ovenProductId: `${i.id}`,
-                estimatedTime: `${i.product_id}`,
-                newLote: `${i.new_lote}`,
-                pcc: `${i.pcc}`,
-                oven: `${i.oven}`,
-                product: {
-                    id: `${i.product_id}`,
-                    description: `${i.name}`
-                },
-                date: `${i.date}`,
-                revisions: [{
-                    hour: `${i.hour}`,
-                    interTemp: `${i.inter_temp}`,
-                    ovenTemp: `${i.oven_temp}`,
-                    humidity: `${i.humidity}`,
-                    observations: `${i.observations}`
-                }
-                ]
-            };
-        });
+        response = {
+            ovenProductId: `${oven[0].id}`,
+            estimatedTime: `${oven[0].product_id}`,
+            newLote: `${oven[0].new_lote}`,
+            pcc: `${oven[0].pcc}`,
+            oven: `${oven[0].oven}`,
+            product: {
+                id: `${oven[0].product_id}`,
+                description: `${oven[0].name}`
+            },
+            date: `${oven[0].date}`,
+            revisions: response2
+        };
 
         return response;
     }

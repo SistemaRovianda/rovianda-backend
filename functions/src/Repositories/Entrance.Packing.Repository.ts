@@ -24,4 +24,9 @@ export class EntrancePackingRepository{
         await this.getConnection();
         return await this.repository.delete({id:entrancePackingId});
     }
+
+    async getLastEntrnacePacking(){
+        await this.getConnection();
+        return await this.repository.query(`SELECT * FROM entrances_packing ORDER BY id DESC LIMIT 1`)
+    }
 }

@@ -15,5 +15,10 @@ export class EntranceMeatRepository{
         await this.getConnection();
         return await this.entrancesMeatRepository.save(entranceMeat);
     }
+
+    async getLastEntrnaceMeat(){
+        await this.getConnection();
+        return await this.entrancesMeatRepository.query(`SELECT * FROM entrances_meat ORDER BY id DESC LIMIT 1`)
+    }
     
 }

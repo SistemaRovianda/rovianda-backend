@@ -70,6 +70,8 @@ export class EntranceDriefService{
         
         await this.entranceDriefRepository.saveDrief(entranceDrief);
         await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+        let id:any = await this.entranceDriefRepository.getLastEntrnaceDrief();
+        return id[0].id;
     }
 
 }

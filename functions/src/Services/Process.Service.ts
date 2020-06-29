@@ -52,7 +52,7 @@ export class ProcessService{
         updateoutputCooling.status = OutputsCoolingStatus.USED;
         let processEntity:Process = new Process();
         processEntity.product = productCatalog;
-        processEntity.entranceHour= process.dateIni;
+        processEntity.entranceHour= process.hourEntrance;
         processEntity.weigth=+process.weight;
         processEntity.loteInterno = process.lote.loteId;
         processEntity.temperature = process.temperature;

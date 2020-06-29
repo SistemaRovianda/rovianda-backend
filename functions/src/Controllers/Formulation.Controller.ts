@@ -11,8 +11,8 @@ export class FormulationController {
     }
 
     async createFormulation(req: Request, res: Response) {
-        await this.formulationService.createFormulation(req);
-        return res.status(201).send();
+        let id = await this.formulationService.createFormulation(req);
+        return res.status(201).send({formulationId: id});
     }
 
     async getFormulation(req:Request,res:Response){

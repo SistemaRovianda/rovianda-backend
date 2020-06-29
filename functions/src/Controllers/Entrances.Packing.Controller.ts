@@ -16,8 +16,8 @@ export class EntrancesPackingController  {
     }
 
     async createEntrancePacking(req:Request,res:Response){
-        await this.entrancePackingService.saveEntrancePacking(req);
-        return res.status(201).send();
+        let id = await this.entrancePackingService.saveEntrancePacking(req);
+        return res.status(201).send({packingId:id});
     }
 
     async updateWarehousePacking(req:Request,res:Response){

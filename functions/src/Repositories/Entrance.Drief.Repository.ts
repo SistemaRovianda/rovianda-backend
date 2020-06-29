@@ -26,4 +26,9 @@ export class EntranceDriefRepository{
         return await this.repository.delete({id:entranceDriefId});
     }
 
+    async getLastEntrnaceDrief(){
+        await this.getConnection();
+        return await this.repository.query(`SELECT * FROM entrances_drief ORDER BY id DESC LIMIT 1`)
+    }
+
 }
