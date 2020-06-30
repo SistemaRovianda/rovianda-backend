@@ -11,7 +11,7 @@ export class Devices {
     name: string;
 
     @Column({ name: "cost_device" })
-    costdevice: string;
+    costDevice: string;
 
     @Column()
     model: string;
