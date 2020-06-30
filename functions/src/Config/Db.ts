@@ -37,6 +37,9 @@ import { BoxPackaging } from "../Models/Entity/Box.Packaging";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Raw } from "../Models/Entity/Raw";
+import { Devices } from "../Models/Entity/Devices";
+import { Store } from "../Models/Entity/Store";
+import { Maintenance } from "../Models/Entity/Maintenance";
 
 const config: ConnectionOptions = {
 
@@ -88,7 +91,10 @@ const config: ConnectionOptions = {
         PresentationProducts,
         BoxPackaging,
         PropertiesPackaging,
-        Raw
+        Raw,
+        Devices,
+        Store,
+        Maintenance
     ]
 }
 let connection: Connection;

@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryColumn, JoinColumn, OneToMany } from "typeorm";
 import { Roles } from './Roles';
 import { EntranceMeat } from "./Entrances.Meat";
+import { Maintenance } from "./Maintenance";
 
 @Entity({name:"users"})
 export class User{
@@ -29,4 +30,7 @@ export class User{
 
     @OneToMany(type =>EntranceMeat, entrancesMeat => entrancesMeat.qualityInspector)
     entrancesMeat:EntranceMeat[];
+
+    @OneToMany(type=> Maintenance,maintenance=>maintenance.user,{eager:false})
+    maintenance: Maintenance[];
 }
