@@ -13,11 +13,15 @@ export const maintenanceRoutes:Array<routeInterface>=[
         method:"post",
         controller:MaintenanceController,
         target:"createMaintenance"
-    },
-    {
+    },{
         url:"/rovianda/maintenance/store",
         method:"post",
         controller:MaintenanceController,
         target:"saveStore"
+    },{
+        url:"/rovianda/maintenance/store",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceStore"
     }
 ];

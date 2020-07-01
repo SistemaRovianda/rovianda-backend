@@ -36,8 +36,7 @@ export class MaintenanceService{
             maintenance.description = maintenanceDTO.description;
             maintenance.title = maintenanceDTO.fullName;
             maintenance.descriptionEnd = maintenanceDTO.typeFailure;
-        
-    
             await this.maintenanceRepository.createMaintenance(maintenance);   
     }
+
 }

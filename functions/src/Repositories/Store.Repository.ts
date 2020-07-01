@@ -20,5 +20,11 @@ export class StoreRepository{
         await this.getConnection();
         return await this.storeRepository.findOne({id})
     }
-    
+
+    async getMaintenanceStore(){
+        await this.getConnection();
+        return await this.storeRepository.find({
+            relations:["maintenance"]
+        });
+    }
 }
