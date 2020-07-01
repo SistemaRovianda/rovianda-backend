@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Maintenance } from './Maintenance';
+import { StoreDevice } from './Store.Devices';
 
 @Entity({ name: "devices" })
 export class Devices {
@@ -18,4 +19,7 @@ export class Devices {
 
     @OneToMany(type=> Maintenance,maintenance=>maintenance.devices,{eager:false})
     maintenance: Maintenance[];
+
+    @OneToMany(type=> StoreDevice,storeDevice=>storeDevice.devices,{eager:false})
+    storeDevice: StoreDevice[];
 }

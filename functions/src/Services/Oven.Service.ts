@@ -150,9 +150,10 @@ export class OvenService{
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
         if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
         console.log("se obtiene el proceso")
-        let process:Process[] = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
+        let process:any = await this.processRepository.getProceesByLot(ovenDTO.newLote,+ovenDTO.productId);
+        console.log(process)
         console.log("se obtuvo el proceso")
-        if(!process.length) throw new Error("[404],no existe el proceso");
+        if(!process[0]) throw new Error("[404],no existe el proceso");
         if(process[0].status == "COOKING") throw new Error("[400], process is COOKING");
         process[0].status = " ";
         await this.processRepository.createProcess(process[0]);

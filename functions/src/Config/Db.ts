@@ -40,6 +40,7 @@ import { Raw } from "../Models/Entity/Raw";
 import { Devices } from "../Models/Entity/Devices";
 import { Store } from "../Models/Entity/Store";
 import { Maintenance } from "../Models/Entity/Maintenance";
+import { StoreDevice } from "../Models/Entity/Store.Devices";
 
 const config: ConnectionOptions = {
 
@@ -94,7 +95,8 @@ const config: ConnectionOptions = {
         Raw,
         Devices,
         Store,
-        Maintenance
+        Maintenance,
+        StoreDevice
     ]
 }
 let connection: Connection;
