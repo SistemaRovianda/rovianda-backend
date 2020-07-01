@@ -20,6 +20,7 @@ import { DryngLabelController } from '../Controllers/Dryng.Label.Controller';
 import { InspectionController } from '../Controllers/Inspection.Controller';
 import { SalesRequestController } from '../Controllers/Sales.Controller';
 import { RawController } from '../Controllers/Raw.Controller';
+import { MaintenanceController } from '../Controllers/Maintenance.Controller';
 
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
@@ -43,6 +44,7 @@ export class Initializer {
     private inspectionController: InspectionController;
     private salesRequestController: SalesRequestController;
     private rawController: RawController;
+    private maintenanceController:MaintenanceController;
 
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
@@ -66,6 +68,7 @@ export class Initializer {
         this.inspectionController = new InspectionController(this.firebaseInstance);
         this.salesRequestController = new SalesRequestController();
         this.rawController = new RawController(this.firebaseInstance);
+        this.maintenanceController = new MaintenanceController(this.firebaseInstance);
     }
 
     getController(prototype: string) {
@@ -133,6 +136,9 @@ export class Initializer {
                 break;
             case RawController.name:
                 return this.rawController;
+                break;
+            case MaintenanceController.name:
+                return this.maintenanceController;
                 break;
             default:
                 return null;

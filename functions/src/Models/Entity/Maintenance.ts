@@ -21,7 +21,7 @@ export class Maintenance {
     user:User;
     
     @Column()
-    picture: string
+    picture: string;
 
     @Column({name:"date_init"})
     dateInit: string;
@@ -33,10 +33,10 @@ export class Maintenance {
     status: string;
 
     @Column({ name: "picture_end"})
-    pictureEnd;
+    pictureEnd:string;
 
     @Column({ name: "description_end"})
-    descriptionEnd;
+    descriptionEnd:string;
 
     @Column()
     cost: string;
