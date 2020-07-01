@@ -45,6 +45,11 @@ export class EntrancesMeatController{
         let outputsCooling = await this.outputCoolingService.getOutputsCoolingByStatus(req.query.status, +req.query.rawMaterialId);
         return res.status(200).send(outputsCooling);
     }
+
+    async getReport(req:Request,res:Response){
+        await this.entrancesmeatService.getReport(+req.params.meatId);
+        return res.status(200).send();
+    }
 }
 
 

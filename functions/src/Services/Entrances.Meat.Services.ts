@@ -117,4 +117,8 @@ export class EntranceMeatService {
         return id[0].id;
     }
 
+    async getReport(meatId:number){
+        
+    }
+
 }

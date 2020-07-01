@@ -15,10 +15,11 @@ import { qualityRoutes } from "./Quality.Routes";
 import { dryngLabelRoutes } from "./Drying.Label.Routes";
 import { inspectionRoutes } from './Inspection.Routes';
 import { salesRoutes } from './Sales.Routes';
+import { maintenanceRoutes } from './Maintenance.Routes';
 
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes,inspectionRoutes,salesRoutes
+    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes,inspectionRoutes,salesRoutes,maintenanceRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{
