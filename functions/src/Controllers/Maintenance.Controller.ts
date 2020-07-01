@@ -14,4 +14,9 @@ export class MaintenanceController{
         return res.status(200).send(maintenance);
 
     }
+
+    async createMaintenance(req:Request,res:Response){
+        await this.maintenanceService.createMaintenance(req.body);
+        return res.status(201).send();
+    }
 }

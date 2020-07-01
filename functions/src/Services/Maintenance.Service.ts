@@ -1,5 +1,6 @@
 import { MaintenanceRepository } from "../Repositories/Maintenance.Repository";
-import { Maintenance } from "../Models/Entity/Maintenance";
+import { Maintenance } from '../Models/Entity/Maintenance';
+import { MaintenanceDTO } from '../Models/DTO/MaintenanceDTO';
 
 export class MaintenanceService{
     private maintenanceRepository:MaintenanceRepository;
@@ -21,5 +22,22 @@ export class MaintenanceService{
         });
         return response;
     }
+
+    async createMaintenance(maintenanceDTO:MaintenanceDTO){
+
+        if (!maintenanceDTO.dateInit)  throw new Error("[400],dateInit is required");
+        if (!maintenanceDTO.description)  throw new Error("[400],description is required");
+        if (!maintenanceDTO.fullName)  throw new Error("[400],fullName is required");
+        if (!maintenanceDTO.typeFailure)  throw new Error("[400],typeFailure is required");
+
+
+            let maintenance : Maintenance = new Maintenance();
+            maintenance.dateInit = maintenanceDTO.dateInit;
+            maintenance.description = maintenanceDTO.description;
+            maintenance.title = maintenanceDTO.fullName;
+            maintenance.descriptionEnd = maintenanceDTO.typeFailure;
+        
     
+            await this.maintenanceRepository.createMaintenance(maintenance);   
+    }
 }

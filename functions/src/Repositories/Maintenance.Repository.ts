@@ -14,4 +14,9 @@ export class MaintenanceRepository{
         await this.getConnection();
         return await this.maintenanceRepository.find();
     }
+
+    async createMaintenance(maintenance:Maintenance){
+        await this.getConnection();
+        return await this.maintenanceRepository.save(maintenance);
+    }
 }
