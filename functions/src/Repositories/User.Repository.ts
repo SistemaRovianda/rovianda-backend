@@ -38,4 +38,12 @@ export class UserRepository{
         await this.getConnection();
         return await this.userRepository.find();
     }
+
+    async getByFullName(name:string,firstSurname:string,lastSurname:string){
+        await this.getConnection();
+        return await this.userRepository.query(`
+        SELECT * FROM users WHERE name = "${name}" 
+        AND first_surname = "${firstSurname}" 
+        AND last_surname = "${lastSurname}"`);
+    }
 }
