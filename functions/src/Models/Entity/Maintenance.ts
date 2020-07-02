@@ -32,8 +32,8 @@ export class Maintenance {
     @Column()
     status: string;
 
-    @Column({ name: "picture_end"})
-    pictureEnd:string;
+    // @Column({ name: "picture_end"})
+    // pictureEnd:string;
 
     @Column({ name: "description_end"})
     descriptionEnd:string;
