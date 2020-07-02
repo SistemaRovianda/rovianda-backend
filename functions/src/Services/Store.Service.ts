@@ -20,17 +20,7 @@ export class StoreService{
     }
 
     async getMaintenanceStore(){
-        let maintenanceStore = await this.storeRepository.getMaintenanceStore();
-        let response = [];
-        maintenanceStore.forEach(i => {
-            response.push({
-                store: `${i.name}`,
-                location: `${i.address}`,
-                costTotal: `${i.maintenance[0].cost}`
-              }  
-            );
-        });
-        return response;
+       return await this.storeRepository.getMaintenanceStore();
     }
 
 }

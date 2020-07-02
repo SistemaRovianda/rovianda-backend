@@ -39,4 +39,10 @@ export class MaintenanceService{
             await this.maintenanceRepository.createMaintenance(maintenance);   
     }
 
+    async getMaintenanceMounth(){
+    
+    let response=  await this.maintenanceRepository.getMaintenanceMounth();
+    console.log(response[0].RowDataPacket);
+    return response
+    }
 }
