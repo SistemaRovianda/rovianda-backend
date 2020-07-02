@@ -16,9 +16,19 @@ export class DeviceRepository{
         return await this.deviceRepository.save(device);
     }
 
-    async getCoolingById(id:number){
+    async getDeviceById(id:number){
         await this.getConnection();
         return await this.deviceRepository.findOne({id})
+    }
+
+    async getDeviceByName(name:string){
+        await this.getConnection();
+        return await this.deviceRepository.findOne({name})
+    }
+
+    async getLastDevice(){
+        await this.getConnection();
+        return await this.deviceRepository.query(`SELECT * FROM device_id ORDER BY device_id DESC LIMIT 1`)
     }
     
 }

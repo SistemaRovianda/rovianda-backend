@@ -31,4 +31,9 @@ export class StoreRepository{
     .groupBy("store.id")
     .getRawMany();
     }
+  
+    async getStoreByName(name:string){
+        await this.getConnection();
+        return await this.storeRepository.findOne({name});
+    }
 }

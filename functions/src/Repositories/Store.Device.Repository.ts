@@ -13,29 +13,31 @@ export class StoreDeviceRepository{
         }
     }
 
-    async saveDevice(storeDevice:StoreDevice){
+    async saveStoreDevice(storeDevice:StoreDevice){
         await this.getConnection();
         return await this.storeDeviceRepository.save(storeDevice);
     }
 
-    async getCoolingById(id:number){
+    async getStoreDeviceById(id:number){
         await this.getConnection();
         return await this.storeDeviceRepository.findOne({id})
     }
 
-    async getCoolingByDevice(devices:Devices){
+    async getStoreDeviceByDevice(devices:Devices){
         await this.getConnection();
         return await this.storeDeviceRepository.findOne({devices})
     }
 
-    async getCoolingByStore(store:Store){
+    async getStoreDeviceByStore(store:Store){
         await this.getConnection();
         return await this.storeDeviceRepository.findOne({store})
     }
 
-    async getCoolingByStoreDevice(store:Store,devices:Devices){
+    async getByStoreDevice(storeId:number,devicesId:number){
         await this.getConnection();
-        return await this.storeDeviceRepository.findOne({store,devices})
+        return await this.storeDeviceRepository.query(`
+        SELECT * FROM store_devices WHERE store_id = ${storeId} 
+        AND device_id = ${devicesId}`);
     }
     
 }
