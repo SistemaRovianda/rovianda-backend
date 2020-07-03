@@ -18,17 +18,26 @@ export class MaintenanceController{
     async getAllMaintenance(req:Request,res:Response){
         let maintenance = await this.maintenanceService.getAllMaintenance();
         return res.status(200).send(maintenance);
-
     }
   
     async createMaintenance(req:Request,res:Response){
         await this.maintenanceService.createMaintenance(req.body);
         return res.status(201).send();
     }
-    
+
     async saveStore(req:Request,res:Response){
         await this.storeService.saveStore(req.body);
         return res.status(201).send();
+    }
+
+    async getMaintenanceStore(req:Request,res:Response){
+        let maintenance = await this.storeService.getMaintenanceStore();
+        return res.status(200).send(maintenance);
+    }
+
+    async getMaintenanceMounth(req:Request,res:Response){
+        let maintenance = await this.maintenanceService.getMaintenanceMounth();
+        return res.status(200).send(maintenance);
     }
 
     async saveDevice(req:Request,res:Response){

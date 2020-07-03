@@ -21,6 +21,18 @@ export class MaintenanceRepository{
         return await this.maintenanceRepository.save(maintenance);
     }
 
+    async getMaintenanceMounth(){
+        await this.getConnection();
+       let mes = await this.maintenanceRepository.find();
+      
+        return await this.maintenanceRepository.createQueryBuilder("maintenance")       
+        .select("SUM(maintenance.cost)", "cost")
+        .addSelect("maintenance.dateInit","mounth")
+        .where("maintenance.dateInit = :mounth", { mounth: mes})
+        .groupBy("maintenance.dateInit")
+        .getRawMany();
+    }
+    
     async getMaintenanceByStore(store:Store){
         await this.getConnection();
         return await this.maintenanceRepository.find({store});

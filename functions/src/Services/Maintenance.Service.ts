@@ -78,6 +78,11 @@ export class MaintenanceService{
         return response;
     }
 
+    async getMaintenanceMounth(){
+    let response=  await this.maintenanceRepository.getMaintenanceMounth();
+    console.log(response[0].RowDataPacket);
+    return response
+    }
     async uppdateMaintenance(maintenanceId:number,maintenanceUpdateDTO:MaintenanceUpdateDTO){
         if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
         if (!maintenanceUpdateDTO.image)  throw new Error("[400],image is required");

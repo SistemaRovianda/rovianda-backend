@@ -19,4 +19,8 @@ export class StoreService{
         
     }
 
+    async getMaintenanceStore(){
+       return await this.storeRepository.getMaintenanceStore();
+    }
+
 }
