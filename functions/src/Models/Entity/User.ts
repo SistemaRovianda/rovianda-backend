@@ -31,6 +31,6 @@ export class User{
     @OneToMany(type =>EntranceMeat, entrancesMeat => entrancesMeat.qualityInspector)
     entrancesMeat:EntranceMeat[];
 
-    @OneToMany(type=> Maintenance,maintenance=>maintenance.user,{eager:false})
-    maintenance: Maintenance[];
+    @OneToMany(type=> Maintenance,maintenance=>maintenance.user)
+    maintenance:Maintenance[];
 }

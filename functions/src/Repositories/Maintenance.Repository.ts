@@ -23,10 +23,14 @@ export class MaintenanceRepository{
 
     async getMaintenanceMounth(){
         await this.getConnection();
-        return await this.maintenanceRepository.
-        query(`SELECT sum(cost) as cost, mid(date_init from 3 for 5) as mounth FROM maintenance group by mounth;`)
+        return await this.maintenanceRepository.createQueryBuilder("maintenance")       
+        .select("SUM(maintenance.cost)", "cost")
+        .addSelect("maintenance.dateInit","mounth")
+        .where("maintenance.dateInit = :mounth", { mounth: mes})
+        .groupBy("maintenance.dateInit")
+        .getRawMany();
     }
-  
+    
     async getMaintenanceByStore(store:Store){
         await this.getConnection();
         return await this.maintenanceRepository.find({store});
@@ -48,5 +52,16 @@ export class MaintenanceRepository{
         INNER JOIN devices ON devices.device_id = maintenance.device_id 
         WHERE maintenance.store_id = ${storeId} 
         AND maintenance.device_id = ${deviceId}`);
+    }
+
+    async getMaintenanceById(id:number){
+        await this.getConnection();
+        return await this.maintenanceRepository.findOne({id})
+    }
+
+    async getMaintenanceByIds(id:number){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT * FROM maintenance WHERE maintenance_id = ${id}`);
     }
 }
