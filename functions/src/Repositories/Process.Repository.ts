@@ -35,6 +35,7 @@ export class ProcessRepository{
     async getProcessByStatus(status:string){
         await this.getConnection();
         console.log("consulta")
+<<<<<<< HEAD
         return await this.processRepository.find({
             where: {status},
             relations:["product"]
@@ -45,6 +46,9 @@ export class ProcessRepository{
         await this.getConnection();
         console.log("consulta")
         return await this.processRepository.find();
+=======
+        return await this.processRepository.find({status: "ACTIVE"});
+>>>>>>> 34.-GET-oven-products
     }
 
     async getProcessWithGrindingById(id:number){

@@ -26,9 +26,45 @@ export class ConditioningController{
         return res.status(201).send();
     }
 
+<<<<<<< HEAD
     async getConditioning(req:Request, res:Response){
         let conditioning = await this.conditionigService.getConditioning(req.params.processId);
         return res.status(200).send(conditioning);
+=======
+        let conditioning = new Conditioning();
+        try{
+            console.log("inicio")
+            let processToUpdate:Process = await this.processService.getProcessById(+processid);
+            let product:Product = await this.productService.getProductById(+product_id);
+            if(!product[0]){
+                return res.status(404).send({msg:"No existe product"});
+            }else{
+            console.log(product[0])
+            console.log(processToUpdate[0])
+            conditioning.raw = rawMaterial;
+            conditioning.bone = bone;
+            conditioning.clean = clean;
+            conditioning.healthing = healthing;
+            conditioning.weight = weight;
+            conditioning.temperature = temperature;
+            conditioning.product_id = product[0].id;
+            conditioning.date = date;
+            console.log("curso")
+            await this.conditionigService.createConditioning(conditioning);
+                if(processToUpdate[0]){
+                    console.log("actualizando")
+                    processToUpdate.conditioning_id=conditioning;
+                    await this.processService.createProcess(processToUpdate)
+                    return res.status(201).send();
+                }else{
+                    return res.status(404).send({msg:"No existe"});
+                }
+            }
+        }catch(err){
+            console.log(err)
+            return res.status(500).send(err);
+        }
+>>>>>>> 34.-GET-oven-products
     }
 
 /*         async getConditioning(req:Request,res:Response){

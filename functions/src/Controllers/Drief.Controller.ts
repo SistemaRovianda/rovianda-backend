@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // servicio movido a ENTRANCE.DRIEF.CONTROLLER -> PARA MANEJAR SOLO UN CONTROLLER POR CADA SECCION
 
 // import {Request ,Response} from 'express';
@@ -18,6 +19,65 @@
 //         this.productService = new ProductService();
 //         this.outputsDriefService = new OutputsDriefService();
 //     }
+=======
+import {Request,Response} from 'express';
+import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { OutputsDrief } from '../Models/Entity/Outputs.Drief';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
+import { ProductService } from '../Services/Product.Services';
+import { OutputsDriefService } from '../Services/Outputs.Drief.Service';
+import { Product } from '../Models/Entity/Product';
+import { DriefService } from '../Services/Drief.Service';
+
+export class DriefController{
+
+    private warehouseDriefService:WarehouseDriefService;
+    private productService: ProductService;
+    private driefService: DriefService;
+    private outputsDriefService:OutputsDriefService;
+    constructor(private firebaseInstance:FirebaseHelper){
+        this.warehouseDriefService = new WarehouseDriefService();
+        this.productService = new ProductService();
+        this.driefService = new DriefService();
+        this.outputsDriefService = new OutputsDriefService();
+    }
+
+    async createEntrancesDrief(req:Request, res:Response){
+      
+        await this.driefService.createEntrancesDrief(req.body);
+        return res.status(201).send();
+
+    }
+
+    async createWarehouseDrief(req:Request, res:Response){
+        let {user_id, lote_proveedor, date, quantity, observations, 
+            opening_date, closing_date, productId, is_pz } = req.body;
+        let warehouseDrief = new WarehouseDrief();
+        try{
+            console.log("entra")
+            let product:Product = await this.productService.getProductById(+productId);
+            console.log(product[0])
+            warehouseDrief.user_id = user_id;
+            warehouseDrief.lote_proveedor = lote_proveedor;
+            warehouseDrief.date = date;
+            warehouseDrief.quantity = quantity;
+            warehouseDrief.observations = observations;
+            warehouseDrief.status = "OPENED";
+            warehouseDrief.opening_date = opening_date;
+            warehouseDrief.closing_date = closing_date;
+            warehouseDrief.is_pz = is_pz;
+            warehouseDrief.product = product[0];
+            console.log("realiza")
+            await this.warehouseDriefService.createWarehouseDrief(warehouseDrief);
+            console.log("realiza")
+            return res.status(201).send();
+        }catch(err){
+            console.log(err)
+            return res.status(500).send(err);
+        }
+    }
+>>>>>>> 34.-GET-oven-products
 
 //     async createWarehouseDrief(req:Request, res:Response){
 //         let {user_id, lote_proveedor, date, quantity, observations, 

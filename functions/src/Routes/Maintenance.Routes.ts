@@ -44,5 +44,22 @@ export const maintenanceRoutes:Array<routeInterface>=[
         method:"put",
         controller:MaintenanceController,
         target:"uppdateMaintenance"
-    }
+    },
+    {
+        url:"/rovianda/maintenance/object",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceByObject"
+    },{
+        url:"/rovianda/maintenance/store",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceStore"
+    },{
+        url:"/rovianda/maintenance/mounth",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceMounth"
+    },
+
 ];
