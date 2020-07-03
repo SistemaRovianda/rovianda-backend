@@ -104,4 +104,16 @@ export class MaintenanceService{
 
         await this.maintenanceRepository.createMaintenance(maintenance);
     }
+
+    async getMaintenanceMounth(){    
+        return await this.maintenanceRepository.getMaintenanceMounth();
+    }
+
+    async getMaintenanceByMounth(mounth:string){    
+        return await this.maintenanceRepository.getMaintenanceByMounth(mounth);
+    }
+
+    async getMaintenanceByObject(){    
+        return await this.maintenanceRepository.getMaintenanceByObject();
+    }
 }

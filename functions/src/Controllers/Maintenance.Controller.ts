@@ -45,5 +45,27 @@ export class MaintenanceController{
         await this.maintenanceService.uppdateMaintenance(+req.params.id,req.body);
         return res.status(204).send();
     }
+
+    async getMaintenanceByMounth(req:Request,res:Response){
+        let maintenance = await this.maintenanceService.getMaintenanceByMounth(req.params.mounth);
+        return res.status(200).send(maintenance);
+    }
     
+    async getMaintenanceByObject(req:Request,res:Response){
+        console.log(req.query.dateInit,req.query.dateEnd);
+        let maintenance = await this.maintenanceService.getMaintenanceByObject();
+        return res.status(200).send(maintenance);
+    }
+
+    async getMaintenanceStore(req:Request,res:Response){
+        let maintenance = await this.storeService.getMaintenanceStore();
+        return res.status(200).send(maintenance);
+    }
+
+    async getMaintenanceMounth(req:Request,res:Response){
+        let maintenance = await this.maintenanceService.getMaintenanceMounth();
+        return res.status(200).send(maintenance);
+    }
 }
+
+

@@ -18,5 +18,8 @@ export class StoreService{
         return "registrado";
         
     }
-
+    
+    async getMaintenanceStore(){
+        return await this.storeRepository.getMaintenanceStore();
+     }
 }
