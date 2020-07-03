@@ -36,5 +36,4 @@ export class StoreRepository{
         await this.getConnection();
         return await this.storeRepository.findOne({name});
     }
-    
 }

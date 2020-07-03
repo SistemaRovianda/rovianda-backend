@@ -1,5 +1,6 @@
 import { MaintenanceRepository } from "../Repositories/Maintenance.Repository";
 import { Maintenance } from '../Models/Entity/Maintenance';
+import { response } from 'express';
 import { MaintenanceDTO,MaintenanceUpdateDTO } from '../Models/DTO/MaintenanceDTO';
 import { UserRepository } from "../Repositories/User.Repository";
 import { Store } from "../Models/Entity/Store";
@@ -78,6 +79,9 @@ export class MaintenanceService{
         return response;
     }
 
+    async getMaintenanceMounth(){    
+        return await this.maintenanceRepository.getMaintenanceMounth();
+    }
     async getMaintenanceMounth(){
     let response=  await this.maintenanceRepository.getMaintenanceMounth();
     console.log(response[0].RowDataPacket);

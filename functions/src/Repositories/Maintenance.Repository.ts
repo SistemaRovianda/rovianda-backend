@@ -23,8 +23,6 @@ export class MaintenanceRepository{
 
     async getMaintenanceMounth(){
         await this.getConnection();
-       let mes = await this.maintenanceRepository.find();
-      
         return await this.maintenanceRepository.createQueryBuilder("maintenance")       
         .select("SUM(maintenance.cost)", "cost")
         .addSelect("maintenance.dateInit","mounth")

@@ -29,6 +29,11 @@ export class MaintenanceController{
         await this.storeService.saveStore(req.body);
         return res.status(201).send();
     }
+  
+    async getMaintenanceStore(req:Request,res:Response){
+        let maintenance = await this.storeService.getMaintenanceStore();
+        return res.status(200).send(maintenance);
+    }
 
     async getMaintenanceStore(req:Request,res:Response){
         let maintenance = await this.storeService.getMaintenanceStore();
@@ -39,7 +44,7 @@ export class MaintenanceController{
         let maintenance = await this.maintenanceService.getMaintenanceMounth();
         return res.status(200).send(maintenance);
     }
-
+  
     async saveDevice(req:Request,res:Response){
         await this.deviceService.saveDevice(req.body);
         return res.status(201).send();
