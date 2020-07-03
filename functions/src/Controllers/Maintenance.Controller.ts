@@ -10,7 +10,7 @@ export class MaintenanceController{
     private storeService:StoreService;
     private deviceService:DeviceService
     constructor(private firebaseInstance:FirebaseHelper){
-        this.maintenanceService = new MaintenanceService();
+        this.maintenanceService = new MaintenanceService(this.firebaseInstance);
         this.storeService = new StoreService();
         this.deviceService = new DeviceService();
     }
@@ -39,6 +39,11 @@ export class MaintenanceController{
     async getMaintenanceByStore(req:Request,res:Response){
         let maintenance = await this.maintenanceService.getMaintenanceByStore(req.params.store);
         return res.status(200).send(maintenance);
+    }
+
+    async uppdateMaintenance(req:Request,res:Response){
+        await this.maintenanceService.uppdateMaintenance(+req.params.id,req.body);
+        return res.status(204).send();
     }
     
 }
