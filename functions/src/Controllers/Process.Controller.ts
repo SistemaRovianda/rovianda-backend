@@ -147,6 +147,7 @@ export class ProcessController {
         return res.status(204).send();
     }
 
+<<<<<<< HEAD
     async updateStatusProcess(req: Request, res: Response) {
         await this.processService.updateStatusProcess(+req.params.processId);
         return res.status(204).send();
@@ -157,6 +158,21 @@ export class ProcessController {
         if (isNaN(+id) || +id < 1)
             throw Error(`[400], Invalid id path param `);
         let response = await this.processService.getUserProcessVerifier(+id);
+=======
+    async getProcessActive(req:Request,res:Response){
+        try{
+            let process:Process[] = await this.processService.getProcessActive();
+            let response:any = [];
+            process.forEach((i:any) => {
+                response.push({
+                process_id: `${i.id}`,
+                productName: `${i.description}`,
+                lot_id: `${i.lote_interno}`,
+                date: `${i.start_date},${i.end_date}`,
+                currentProcess: `${i.current_process}`
+                });
+            });
+>>>>>>> 34.-GET-oven-products
         return res.status(200).send(response);
     }
 

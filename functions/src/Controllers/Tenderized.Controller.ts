@@ -38,7 +38,7 @@ export class TenderizedController{
             let product:Product = await this.productService.getProductById(+product_id);
             let processToUpdate:Process = await this.processService.getProcessById(+processid)
             if(!product[0]){
-                return res.status(404).send({msg:"No existe product"});
+                return res.status(404).send({msg:"Product not found"});
             }else{
                 console.log(product[0]);
                 console.log(processToUpdate[0]);
@@ -56,7 +56,7 @@ export class TenderizedController{
                     await this.processService.createProcess(processToUpdate[0])
                     return res.status(201).send();
                 }else{
-                    return res.status(404).send({msg:"No existe process"});
+                    return res.status(404).send({msg:"Process not found"});
                 }
             }
         }catch(err){

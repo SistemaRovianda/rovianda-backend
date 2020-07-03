@@ -1,8 +1,11 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
+<<<<<<< HEAD
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
+=======
+>>>>>>> 34.-GET-oven-products
 
 export class OvenRepository{
     private ovenRepository:Repository<OvenProducts>;
@@ -17,16 +20,22 @@ export class OvenRepository{
             
         await this.getConnection();
         console.log("consulta")
+<<<<<<< HEAD
         return await this.ovenRepository.query(`
         SELECT oven_products.id, oven_products.pcc, oven_products.oven,  
         oven_products.new_lote, oven_products.date, 
         oven_products.product_id, products_rovianda.name 
         FROM oven_products INNER JOIN products_rovianda WHERE oven_products.product_id = products_rovianda.id`);
+=======
+        return await this.ovenRepository.query(`SELECT oven_products.id, oven_products.pcc, oven_products.new_lote, oven_products.date
+        ,product.id,product.description FROM oven_products INNER JOIN products WHERE oven_products.id = product.id`);
+>>>>>>> 34.-GET-oven-products
     }
 
     async getOvenProductById(ovenProduct_id:number){
         await this.getConnection();
         console.log("consulta")
+<<<<<<< HEAD
         return await this.ovenRepository.findOne({id:ovenProduct_id},{relations:["product"]});
     }
 
@@ -98,5 +107,8 @@ export class OvenRepository{
     async saveOvenUser(ovenUser: OvenProducts){
         await this.getConnection();
         return await this.ovenRepository.save(ovenUser);
+=======
+        return await this.ovenRepository.query(`SELECT * FROM oven_products WHERE id = ${ovenProduct_id}`)
+>>>>>>> 34.-GET-oven-products
     }
 }

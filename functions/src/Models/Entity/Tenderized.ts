@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+=======
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+>>>>>>> 34.-GET-oven-products
 import { Product } from "./Product";
 
 @Entity({name:"tenderized"})

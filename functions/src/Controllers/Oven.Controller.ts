@@ -3,14 +3,18 @@ import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Product } from '../Models/Entity/Product';
 import { OvenService } from '../Services/Oven.Service';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
+<<<<<<< HEAD
 import { ErrorHandler } from '../Utils/Error.Handler';
 import { RevisionOvenProductService } from '../Services/Revision.Oven.Product.Service';
 import { resourceToInstanceAndPath } from 'firebase-functions/lib/providers/database';
+=======
+>>>>>>> 34.-GET-oven-products
 
 export class OvenController{
 
    
     private ovenService: OvenService;
+<<<<<<< HEAD
     private revisionOvenProductService: RevisionOvenProductService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.ovenService = new OvenService();
@@ -20,10 +24,15 @@ export class OvenController{
     async saveOvenProduct(req:Request,res:Response){
         await this.ovenService.saveOvenProduct(req.body);
         return res.status(201).send();
+=======
+    constructor(private firebaseInstance:FirebaseHelper){
+        this.ovenService = new OvenService();
+>>>>>>> 34.-GET-oven-products
     }
 
     async getOvenProducts(req:Request, res:Response){ 
              
+<<<<<<< HEAD
         let oven_products = await this.ovenService.getOvenProducts(); 
         return res.status(200).send(oven_products);
     }
@@ -62,4 +71,22 @@ export class OvenController{
         return res.status(200).send(result);
     }
   
+=======
+        let oven_products:OvenProducts[] = await this.ovenService.getOvenProducts(); 
+        let response:any = [];
+        oven_products.forEach((i:any) => {
+            response.push({
+                oven_product_id: `${i.id}`,
+                pcc: `${i.pcc}`,
+                product: {
+                    id: `${i.product_id}`,
+                    description: `${i.description}`, 
+                },
+                newLotId: `${i.new_lote}`,
+                date: `${i.date}`
+            });
+        });
+        return res.status(200).send(response);
+    }
+>>>>>>> 34.-GET-oven-products
 }
