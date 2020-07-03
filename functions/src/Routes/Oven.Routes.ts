@@ -1,10 +1,6 @@
 
 import { routeInterface } from "../Models/Route.Interface";
 import { OvenController } from '../Controllers/Oven.Controller';
-<<<<<<< HEAD
-
-=======
->>>>>>> 34.-GET-oven-products
 export const ovenRoutes:Array<routeInterface>=[
 
     {
@@ -12,7 +8,6 @@ export const ovenRoutes:Array<routeInterface>=[
         method:"get",
         controller:OvenController,
         target:"getOvenProducts"
-<<<<<<< HEAD
     },{
         url: "/rovianda/oven/product/:productId",
         method: "patch",
@@ -55,7 +50,4 @@ export const ovenRoutes:Array<routeInterface>=[
          controller: OvenController,
          target: "getProductsByOvenClosed"
      }
-=======
-    }
->>>>>>> 34.-GET-oven-products
 ];

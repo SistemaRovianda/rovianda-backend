@@ -1,5 +1,5 @@
 import { DriefRepository } from "../Repositories/Drief.Repository";
-import { EntrancesDrief } from '../Models/Entity/Entrances.Drief';
+import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { EntrancesDriefDTO } from "../Models/DTO/Entrances.Drief.DTO";
 import { ProductRepository } from '../Repositories/Product.Repository';
 
@@ -33,23 +33,22 @@ export class DriefService{
         if(!entrancesDrief.transport) throw new Error("[400],transport is required");
         if(!entrancesDrief.weigth) throw new Error("[400],weigth is required");
 
-        let entrancesDriefToSave:EntrancesDrief = new EntrancesDrief();
+        let entrancesDriefToSave:EntranceDrief = new EntranceDrief();
 
         entrancesDriefToSave.color = entrancesDrief.color;
         entrancesDriefToSave.date = entrancesDrief.date;
         entrancesDriefToSave.expiration = entrancesDrief.expiration;
-        entrancesDriefToSave.lote_proveedor = entrancesDrief.lotProveedor;
+        entrancesDriefToSave.loteProveedor = entrancesDrief.lotProveedor;
         entrancesDriefToSave.odor = entrancesDrief.odor;
         entrancesDriefToSave.paking = entrancesDrief.paking;
-        entrancesDriefToSave.product_id = product[0];
-        entrancesDriefToSave.proveedor_id = entrancesDrief.proveedor_id
+        entrancesDriefToSave.product = product[0];
+        entrancesDriefToSave.proveedor = entrancesDrief.proveedor_id.toString();
         entrancesDriefToSave.quality = entrancesDrief.quality;
         entrancesDriefToSave.quantity = entrancesDrief.quantity;
-        entrancesDriefToSave.raw_material = entrancesDrief.rawMaterial;
-        entrancesDriefToSave.strange_material = entrancesDrief.strangeMaterial;
+        entrancesDriefToSave.strangeMaterial = entrancesDrief.strangeMaterial;
         entrancesDriefToSave.texture = entrancesDrief.texture;
         entrancesDriefToSave.transport = entrancesDrief.transport;
-        entrancesDriefToSave.weigth = entrancesDriefToSave.weigth;
+        entrancesDriefToSave.weight = entrancesDriefToSave.weight;
 
         return await this.driefRepository.createEntrancesDrief(entrancesDriefToSave);
     }

@@ -7,7 +7,6 @@ import  {entrancesRoutes} from './Entrances.Routes';
 import * as _ from 'lodash';
 import { productRoutes } from './Product.Routes';
 import { processRoutes } from './Process.Routes';
-<<<<<<< HEAD
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { ovenRoutes } from "./Oven.Routes";
 import { formulationRoutes } from "./Formulation.Routes";
@@ -21,14 +20,6 @@ import { maintenanceRoutes } from './Maintenance.Routes';
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
     pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes,inspectionRoutes,salesRoutes,maintenanceRoutes
-=======
-import { inquietudRoutes } from "./Inquietud.Routes";
-import { ovenRoutes } from './Oven.Routes';
-
-const init:Initializer = new Initializer();
-const routes:Array<Array<routeInterface>>=[
-    pinRoutes,fridgesRoutes,lotRoutes,productRoutes,driefRoutes,entrancesRoutes,processRoutes,inquietudRoutes,ovenRoutes
->>>>>>> 34.-GET-oven-products
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{

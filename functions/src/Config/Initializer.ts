@@ -10,7 +10,6 @@ import { ConditioningController } from '../Controllers/Conditioning.Controller';
 import { TenderizedController } from '../Controllers/Tenderized.Controller';
 import { GrindingController } from '../Controllers/Grinding.Controller';
 import { SausagedController } from '../Controllers/Sausaged.Controller';
-<<<<<<< HEAD
 import { UserController } from '../Controllers/User.Controller'
 import { ProcessController } from '../Controllers/Process.Controller';
 import { OvenController } from '../Controllers/Oven.Controller';
@@ -22,11 +21,6 @@ import { InspectionController } from '../Controllers/Inspection.Controller';
 import { SalesRequestController } from '../Controllers/Sales.Controller';
 import { RawController } from '../Controllers/Raw.Controller';
 import { MaintenanceController } from '../Controllers/Maintenance.Controller';
-=======
-import { UserController } from '../Controllers/User.Controller';
-import { OvenController } from '../Controllers/Oven.Controller';
-
->>>>>>> 34.-GET-oven-products
 
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
@@ -42,7 +36,6 @@ export class Initializer {
     private sausagedController: SausagedController;
     private userController: UserController;
     private ovenController: OvenController;
-<<<<<<< HEAD
     private processController: ProcessController;
     private formulationController: FormulationController;
     private packagingController: PackagingController;
@@ -52,8 +45,6 @@ export class Initializer {
     private salesRequestController: SalesRequestController;
     private rawController: RawController;
     private maintenanceController:MaintenanceController;
-=======
->>>>>>> 34.-GET-oven-products
 
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
@@ -67,7 +58,6 @@ export class Initializer {
         this.tenderizedController = new TenderizedController(this.firebaseInstance);
         this.grindingController = new GrindingController(this.firebaseInstance);
         this.sausagedController = new SausagedController(this.firebaseInstance);
-<<<<<<< HEAD
         this.userController = new UserController(this.firebaseInstance);
         this.processController = new ProcessController(this.firebaseInstance);
         this.ovenController = new OvenController(this.firebaseInstance);
@@ -79,10 +69,6 @@ export class Initializer {
         this.salesRequestController = new SalesRequestController();
         this.rawController = new RawController(this.firebaseInstance);
         this.maintenanceController = new MaintenanceController(this.firebaseInstance);
-=======
-        this.userController = new UserController (this.firebaseInstance);
-        this.ovenController = new OvenController (this.firebaseInstance);
->>>>>>> 34.-GET-oven-products
     }
 
     getController(prototype: string) {
@@ -123,7 +109,6 @@ export class Initializer {
             case UserController.name:
                 return this.userController;
                 break;
-<<<<<<< HEAD
             case ProcessController.name:
                 return this.processController;
                 break;
@@ -140,9 +125,6 @@ export class Initializer {
             case DryngLabelController.name:
                 return this.dryngLabelController;
                 break;
-            case DryngLabelController.name:
-                return this.dryngLabelController;
-                break;
             case InspectionController.name:
                 return this.inspectionController;
                 break;
@@ -154,11 +136,6 @@ export class Initializer {
                 break;
             case MaintenanceController.name:
                 return this.maintenanceController;
-=======
-            case OvenController.name:
-                return this.ovenController;
->>>>>>> 34.-GET-oven-products
-                break;
             default:
                 return null;
                 break;

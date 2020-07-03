@@ -20,12 +20,6 @@ export class MaintenanceRepository{
         await this.getConnection();
         return await this.maintenanceRepository.save(maintenance);
     }
-
-    async getMaintenanceMounth(){
-        await this.getConnection();
-        return await this.maintenanceRepository.
-        query(`SELECT sum(cost) as cost, mid(date_init from 3 for 5) as mounth FROM maintenance group by mounth;`)
-    }
     
     async getMaintenanceByStore(store:Store){
         await this.getConnection();

@@ -9,21 +9,6 @@ import { ProcessController } from "../Controllers/Process.Controller";
 export const processRoutes: Array<routeInterface> = [
 
     {
-<<<<<<< HEAD
-        url: "/rovianda/process",
-        method: "post",
-        controller: ProcessController,
-        target: "createProcess"
-    },
-    {
-        url: "/rovianda/process",
-        method: "get",
-        controller: ProcessController,
-        target: "getAllProcess"
-    },
-    {
-        url: "/rovianda/process/grinding/:processId",
-=======
         url:"/rovianda/process",
         method:"post",
         controller:ProcessController,
@@ -50,7 +35,6 @@ export const processRoutes: Array<routeInterface> = [
         target:"createTenderized"
     },{
         url:"/rovianda/process/grinding/:processId",
->>>>>>> 34.-GET-oven-products
         method: "get",
         controller: ProcessController,
         target: "getGrindingByProcessId"
