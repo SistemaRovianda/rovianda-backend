@@ -15,6 +15,11 @@ export class SausagedRepository{
         return await this.sausagedRepository.save(sausaged);
     }
 
+    async getSausagedById(id:number){
+        await this.getConnection();
+        return await this.sausagedRepository.findOne({id})
+    }
+
     async getLastSausaged(){
         await this.getConnection();
         return await this.sausagedRepository.query(`SELECT * FROM sausaged ORDER BY id DESC LIMIT 1`)

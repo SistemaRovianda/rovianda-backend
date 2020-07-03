@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Product } from "./Product";
 
 @Entity({name:"sausaged"})
@@ -31,7 +31,11 @@ export class Sausaged{
     @Column()
     hour3:string;
     
-    @OneToOne(type => Product)
+    // @OneToOne(type => Product)
+    // @JoinColumn({name:"product_id"})
+    // productId:Product;
+
+    @ManyToOne(type=>Product, productId=>productId.sausaged, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"product_id"})
     productId:Product;
 }

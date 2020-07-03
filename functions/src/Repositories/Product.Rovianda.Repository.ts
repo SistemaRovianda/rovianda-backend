@@ -34,6 +34,11 @@ export class ProductRoviandaRepository {
         });
     }
 
+    async getProductRoviandaByProductId(id: number) {
+        await this.getConnection();
+        return await this.repository.findOne({id});
+    }
+
     async getProductRoviandaByIdss(id: number) {
         await this.getConnection();
         return await this.repository.findOne({

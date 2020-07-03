@@ -1,6 +1,7 @@
 
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Packaging } from "./Packaging";
+import { ProductRovianda } from './Product.Rovianda';
 
 @Entity({name:"inspection"})
 export class Inspection{
@@ -14,9 +15,13 @@ export class Inspection{
     @Column({name:"expiration_date"})
     expirationDate:string;
 
-    @OneToOne(type => Packaging, packaging=>packaging.productId)
-    @JoinColumn()
-    productId:string;
+    // @OneToOne(type => Packaging, packaging=>packaging.productId)
+    // @JoinColumn()
+    // productId:string;
+
+    @ManyToOne(type=>ProductRovianda, productId=>productId.inspection, {eager:true, onDelete:"SET NULL"})
+    productId:ProductRovianda;
+
     
     @Column({name:"number_packages"})
     numberPackages:string;

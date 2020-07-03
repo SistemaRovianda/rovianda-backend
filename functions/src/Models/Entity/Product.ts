@@ -6,6 +6,7 @@ import { OutputsPacking } from "./Outputs.Packing";
 import { OutputsDrief } from "./Outputs.Drief";
 import { ProductRovianda } from "./Product.Rovianda";
 import { Tenderized } from "./Tenderized";
+import { Sausaged } from "./Sausaged";
 
 @Entity({ name: "product_catalog" })
 export class Product {
@@ -36,5 +37,8 @@ export class Product {
 
     @OneToMany(type=> Tenderized,tenderized=>tenderized.productId)
     tenderized: Tenderized[];
+
+    @OneToMany(type=> Sausaged,sausaged=>sausaged.productId)
+    sausaged: Sausaged[];
 
 }

@@ -84,5 +84,11 @@ export const processRoutes: Array<routeInterface> = [
         method: "get",
         controller: ProcessController,
         target: "getUserProcessVerifier"
+    },
+    {
+        url: "/rovianda/sausage/:sausageId",
+        method: "patch",
+        controller: SausagedController,
+        target: "updateSausaged"
     }
 ];

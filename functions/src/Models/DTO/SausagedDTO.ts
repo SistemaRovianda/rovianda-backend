@@ -4,11 +4,12 @@ export interface SausagedDTO{
     date: string;
     time:
     {
-        hour1:string;
-        weightInitial:number;
-        hour2:string;
-        weightMedium:number;
-        hour3:string;
-        weightFinal:number;
+        hour:string;
+        weight:number;
     };
+}
+
+export interface SausagedUpdateDTO{
+    hour:string;
+    weight:number;
 }

@@ -35,11 +35,6 @@ export class MaintenanceController{
         return res.status(200).send(maintenance);
     }
 
-    async getMaintenanceStore(req:Request,res:Response){
-        let maintenance = await this.storeService.getMaintenanceStore();
-        return res.status(200).send(maintenance);
-    }
-
     async getMaintenanceMounth(req:Request,res:Response){
         let maintenance = await this.maintenanceService.getMaintenanceMounth();
         return res.status(200).send(maintenance);

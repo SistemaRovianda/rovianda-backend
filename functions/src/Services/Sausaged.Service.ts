@@ -5,7 +5,7 @@ import { Sausaged } from "../Models/Entity/Sausaged";
 import { Process } from "../Models/Entity/Process";
 import { Product } from "../Models/Entity/Product";
 import { Request } from "express";
-import { SausagedDTO } from "../Models/DTO/SausagedDTO";
+import { SausagedDTO,SausagedUpdateDTO } from "../Models/DTO/SausagedDTO";
 
 export class SausagedService{
     private sausagedRepository:SausagedRepository;
@@ -21,12 +21,8 @@ export class SausagedService{
         if(!sausagedDTO.productId) throw new Error("[400], productId is required");
         if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
         if(!sausagedDTO.date) throw new Error("[400], date is required");
-        if(!sausagedDTO.time.hour1) throw new Error("[400], hour1 is required");
-        if(!sausagedDTO.time.weightInitial) throw new Error("[400], weightInitial is required");
-        if(!sausagedDTO.time.hour2) throw new Error("[400], hour2 is required");
-        if(!sausagedDTO.time.weightMedium) throw new Error("[400], weightMedium is required");
-        if(!sausagedDTO.time.hour3) throw new Error("[400], hour3 is required");
-        if(!sausagedDTO.time.weightFinal) throw new Error("[400], weightFinal is required");
+        if(!sausagedDTO.time.hour) throw new Error("[400], hour1 is required");
+        if(!sausagedDTO.time.weight) throw new Error("[400], weightInitial is required");
         let sausaged = new Sausaged();
         let processObj:Process = await this.processRepository.getProcessWithSausagedById(+processId);
         if(processObj){
@@ -34,13 +30,9 @@ export class SausagedService{
             if(processObj.sausageId) throw new Error("[409],el proceso ya tiene embutido registrado");
             if(product){
                 sausaged.date = sausagedDTO.date;
-                sausaged.hour1 = sausagedDTO.time.hour1;
-                sausaged.hour2 = sausagedDTO.time.hour2;
-                sausaged.hour3 = sausagedDTO.time.hour3;
+                sausaged.hour1 = sausagedDTO.time.hour;
                 sausaged.temperature = sausagedDTO.temperature;
-                sausaged.weightIni = sausagedDTO.time.weightInitial.toString();
-                sausaged.weightMedium = sausagedDTO.time.weightMedium.toString();
-                sausaged.weightExit = sausagedDTO.time.weightFinal.toString();
+                sausaged.weightIni = sausagedDTO.time.weight.toString();
                 sausaged.productId = product;
                 await this.sausagedRepository.saveSausaged(sausaged);
                 let objSausaged:Sausaged = await this.sausagedRepository.getLastSausaged();
@@ -91,4 +83,26 @@ export class SausagedService{
         });
         return response;
     }
+
+    async updateSausaged(sausagedUpdateDTO:SausagedUpdateDTO,sausageId:number){
+        if(!sausagedUpdateDTO.hour) throw new Error("[400], hour is required");
+        if(!sausagedUpdateDTO.weight) throw new Error("[400], weight is required");
+        if(!sausageId) throw new Error("[400], sausageId is required");
+        let sausaged:Sausaged = await this.sausagedRepository.getSausagedById(sausageId);
+        if(!sausaged) throw new Error("[400], sausaged not found");
+        if(!sausaged.hour2 && !sausaged.weightMedium){
+            sausaged.hour2 = sausagedUpdateDTO.hour;
+            sausaged.weightMedium = sausagedUpdateDTO.weight.toString();
+        }else{
+            if(!sausaged.hour3 && !sausaged.weightExit && sausaged.hour2 && sausaged.weightMedium){
+                sausaged.hour3 = sausagedUpdateDTO.hour;
+                sausaged.weightExit = sausagedUpdateDTO.weight.toString();
+            }else{
+                throw new Error("[404], Time and weight are already registered");
+            }   
+        }
+        await this.sausagedRepository.saveSausaged(sausaged);
+    }
+
+
 }

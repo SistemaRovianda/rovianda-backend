@@ -3,15 +3,19 @@ import { Inspection } from '../Models/Entity/Inspection';
 import { InspectionDTO, InspectionUsersDTO } from '../Models/DTO/InspectionDTO';
 import { UserRepository } from '../Repositories/User.Repository';
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 
 export class InspectionService{
     private inspectionRepository:InspectionRepository;
     private userRepository:UserRepository;
     private packagingRepository:PackagingRepository;
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor(){
         this.inspectionRepository = new InspectionRepository();
         this.userRepository = new UserRepository();
         this.packagingRepository = new PackagingRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
 
@@ -47,6 +51,8 @@ export class InspectionService{
 
         let product = await this.inspectionRepository.getProductInspection(+inspectionDTO.productId);
         if (!product)  throw new Error("[400],producto no encontrado en tabla packaging");
+        let prod:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(+inspectionDTO.productId)
+        if (!prod)  throw new Error("[404],producto no encontrado");
         let lot = await this.packagingRepository.getPackagingByLotId(+inspectionDTO.lotId);
         if (!lot)  throw new Error("[400],No existe lote");
         console.log(lot);
@@ -54,7 +60,7 @@ export class InspectionService{
             let inspection :Inspection = new Inspection();
             inspection.lotId = inspectionDTO.lotId;
             inspection.expirationDate = inspectionDTO.expirationDate;
-            inspection.productId = inspectionDTO.productId;
+            inspection.productId = prod;
             inspection.numberPackages = inspectionDTO.numberPackages;
             inspection.observations = inspectionDTO.observations;
             inspection.packagingControl = inspectionDTO.validations.packagingControl;
