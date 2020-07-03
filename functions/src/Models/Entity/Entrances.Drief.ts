@@ -9,7 +9,7 @@ export class EntranceDrief{
     id:number;
 
     @Column()
-    proveedor:string;
+    proveedor_id:number;
 
     @Column({name:"lote_proveedor"})
     loteProveedor:string;
@@ -39,8 +39,14 @@ export class EntranceDrief{
     strangeMaterial:boolean;
 
     @Column()
+    raw_material:boolean;
+
+    @Column()
     paking: boolean;
     
+    @Column()
+    odor:boolean;
+
     @Column()
     color:boolean;
     
