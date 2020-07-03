@@ -21,6 +21,17 @@ export class StoreRepository{
         return await this.storeRepository.findOne({id})
     }
 
+    async getMaintenanceStore(){
+        await this.getConnection();
+        return await this.storeRepository.createQueryBuilder("store")
+    .innerJoin("store.maintenance", "storeMaintenance")
+    .select("store.name","store")
+    .addSelect("store.address","location")
+    .addSelect("SUM(storeMaintenance.cost)", "costTotal")
+    .groupBy("store.id")
+    .getRawMany();
+    }
+  
     async getStoreByName(name:string){
         await this.getConnection();
         return await this.storeRepository.findOne({name});
