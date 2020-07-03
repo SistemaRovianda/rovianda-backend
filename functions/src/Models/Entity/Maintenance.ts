@@ -1,39 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Store } from './Store';
 import { Devices } from './Devices';
 import { User } from './User';
-import { user } from 'firebase-functions/lib/providers/auth';
 
 @Entity({ name: "maintenance" })
 export class Maintenance {
 
     @PrimaryGeneratedColumn({ name: "maintenance_id" })
-    id: number;
+    id:number;
 
     @Column()
-    title: string;
+    title:string;
 
     @Column()
-    description: string;
-
-    @ManyToOne(type=>User, user=>user.maintenance, {eager:true, onDelete:"SET NULL"})
-    @JoinColumn({name:"user_id"})
-    user:User;
+    description:string;
     
     @Column()
-    picture: string;
-
-    @Column({name:"date_init"})
-    dateInit: string;
-
-    @Column({name:"date_end"})
-    dateEnd: string;
+    picture:string;
 
     @Column()
-    status: string;
+    date:string;
 
-    // @Column({ name: "picture_end"})
-    // pictureEnd:string;
+    @Column()
+    status:string;
 
     @Column({ name: "description_end"})
     descriptionEnd:string;
@@ -48,4 +37,8 @@ export class Maintenance {
     @ManyToOne(type=>Devices, devices=>devices.maintenance, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"device_id"})
     devices:Devices;
+
+    @ManyToOne(type=>User, user=>user.maintenance, {eager:true, onDelete:"SET NULL"})
+    @JoinColumn()
+    user:User;
 }

@@ -55,4 +55,15 @@ export class MaintenanceRepository{
         WHERE maintenance.store_id = ${storeId} 
         AND maintenance.device_id = ${deviceId}`);
     }
+
+    async getMaintenanceById(id:number){
+        await this.getConnection();
+        return await this.maintenanceRepository.findOne({id})
+    }
+
+    async getMaintenanceByIds(id:number){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT * FROM maintenance WHERE maintenance_id = ${id}`);
+    }
 }

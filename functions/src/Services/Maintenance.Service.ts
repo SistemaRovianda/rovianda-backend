@@ -1,18 +1,23 @@
 import { MaintenanceRepository } from "../Repositories/Maintenance.Repository";
 import { Maintenance } from '../Models/Entity/Maintenance';
-import { MaintenanceDTO } from '../Models/DTO/MaintenanceDTO';
+import { MaintenanceDTO,MaintenanceUpdateDTO } from '../Models/DTO/MaintenanceDTO';
 import { UserRepository } from "../Repositories/User.Repository";
 import { Store } from "../Models/Entity/Store";
 import { StoreRepository } from "../Repositories/Store.Repository";
+import { Devices } from "../Models/Entity/Devices";
+import { DeviceRepository } from "../Repositories/Device.Repository";
+import { FirebaseHelper } from "../Utils/Firebase.Helper";
 
 export class MaintenanceService{
     private maintenanceRepository:MaintenanceRepository;
     private userRepository:UserRepository;
     private storeRepository:StoreRepository;
-    constructor(){
+    private deviceRepository:DeviceRepository;
+    constructor(private firebaseHelper: FirebaseHelper){
         this.maintenanceRepository = new MaintenanceRepository();
         this.userRepository = new UserRepository();
         this.storeRepository = new StoreRepository();
+        this.deviceRepository = new DeviceRepository();
     }
 
     async getAllMaintenance(){
@@ -21,7 +26,7 @@ export class MaintenanceService{
         maintenance.forEach(i => {
             response.push({
                 titleFailure: `${i.title}`,
-                date: `${i.dateInit}`,
+                date: `${i.date}`,
                 image: `${i.picture}`,
                 description: `${i.description}`
               }
@@ -42,10 +47,11 @@ export class MaintenanceService{
         if (!user[0])  throw new Error("[404],User not found");
 
         let maintenance : Maintenance = new Maintenance();
-        maintenance.dateInit = maintenanceDTO.dateInit;
+        maintenance.date = maintenanceDTO.dateInit;
         maintenance.description = maintenanceDTO.description;
         maintenance.title = maintenanceDTO.typeFailure;
         maintenance.user = user[0];
+        maintenance.status = "OPENED";
 
         await this.maintenanceRepository.createMaintenance(maintenance);
     }
@@ -76,5 +82,31 @@ export class MaintenanceService{
     let response=  await this.maintenanceRepository.getMaintenanceMounth();
     console.log(response[0].RowDataPacket);
     return response
+    }
+    async uppdateMaintenance(maintenanceId:number,maintenanceUpdateDTO:MaintenanceUpdateDTO){
+        if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
+        if (!maintenanceUpdateDTO.image)  throw new Error("[400],image is required");
+        if (!maintenanceUpdateDTO.storeId)  throw new Error("[400],storeId is required");
+        if (!maintenanceUpdateDTO.cost)  throw new Error("[400],cost is required");
+        if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
+        if (!maintenanceUpdateDTO.deviceId)  throw new Error("[400],deviceId is required");
+        if (!maintenanceId)  throw new Error("[400],maintenanceId is required");;
+        let store:Store = await this.storeRepository.getStoreById(maintenanceUpdateDTO.storeId);
+        if (!store)  throw new Error("[404],store not found");
+        let device:Devices = await this.deviceRepository.getDeviceById(maintenanceUpdateDTO.deviceId);
+        if (!device)  throw new Error("[404],device not found");
+        let maintenance = await this.maintenanceRepository.getMaintenanceById(maintenanceId);
+        if (!maintenance)  throw new Error("[404],maintenance not found");
+        let image = Buffer.from(maintenanceUpdateDTO.image, 'base64');
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`/${maintenanceUpdateDTO.description}/${maintenanceId}/`, image);
+
+        maintenance.descriptionEnd = maintenanceUpdateDTO.description;
+        maintenance.picture = urlOfImage;
+        maintenance.store = store;
+        maintenance.cost = maintenanceUpdateDTO.cost.toString();
+        maintenance.status = "CLOSED";
+        maintenance.devices = device;
+
+        await this.maintenanceRepository.createMaintenance(maintenance);
     }
 }

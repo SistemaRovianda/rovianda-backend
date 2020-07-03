@@ -4,3 +4,11 @@ export interface MaintenanceDTO{
     fullName : string;
     dateInit : string;
 }
+
+export interface MaintenanceUpdateDTO{
+    description : string;
+    image : string;
+    storeId : number;
+    cost: number;
+    deviceId: number
+}
