@@ -56,8 +56,9 @@ export class MaintenanceController{
     }
     
     async getMaintenanceObject(req:Request,res:Response){
-        console.log(req.query.dateInit,req.query.dateEnd);
-        let maintenance = await this.maintenanceService.getMaintenanceObject();
+        let dateInit = req.query.dateInit;       
+        let dateEnd = req.query.dateEnd
+        let maintenance = await this.maintenanceService.getMaintenanceObject(dateInit,dateEnd);
         return res.status(200).send(maintenance);
     }
 
