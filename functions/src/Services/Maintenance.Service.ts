@@ -80,9 +80,10 @@ export class MaintenanceService{
     }
 
     async getMaintenanceMounth(){
+
         let response=  await this.maintenanceRepository.getMaintenanceMounth();
-        console.log(response[0].RowDataPacket);
         return response
+
     }
     async uppdateMaintenance(maintenanceId:number,maintenanceUpdateDTO:MaintenanceUpdateDTO){
         if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
@@ -112,6 +113,8 @@ export class MaintenanceService{
     }
 
     async getMaintenanceByMounth(mounth:string){    
+
+        if(parseInt(mounth)<=0 || parseInt(mounth)>12)throw new Error("[400],Invalid mounth");
         return await this.maintenanceRepository.getMaintenanceByMounth(mounth);
     }
 
@@ -124,6 +127,17 @@ export class MaintenanceService{
         if(!dateEnd)throw new Error("[400],dateEnd in query is required");
         if(!object)throw new Error("[400],object in path is required");
 
+        let maintenanceObject = await this.maintenanceRepository.getMaintenanceByObjectName(object);
+        if(!maintenanceObject)throw new Error(`[400],object ${object} not found`);
+
         return await this.maintenanceRepository.getMaintenanceByObject(dateInit,dateEnd,object);
+
+    }
+
+    async getMaintenanceApparatus(dateInit:string,dateEnd:string){    
+        if(!dateInit)throw new Error("[400],dateInit in query is required");
+        if(!dateEnd)throw new Error("[400],dateEnd in query is required");
+
+        return await this.maintenanceRepository.getMaintenanceApparatus(dateInit,dateEnd);
     }
 }

@@ -90,6 +90,24 @@ export class MaintenanceRepository{
         where maintenance.device_id = (SELECT devices.device_id FROM devices where devices.name = '${object}')
         and  maintenance.date BETWEEN '${dateInit}' AND '${dateEnd}';`)
     }
+
+    async getMaintenanceByObjectName(object:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.createQueryBuilder("maintenance")
+        .innerJoin("maintenance.devices", "devices")
+        .where("devices.name = :name", { name: `${object}` })
+        .getOne(); 
+    }
+
+    async getMaintenanceApparatus(dateInit:string, dateEnd:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT devices.cost_device as cost , substring(maintenance.date,1,7) as mounth 
+        FROM devices
+        INNER JOIN maintenance ON maintenance.device_id = devices.device_id 
+        WHERE maintenance.date BETWEEN '${dateInit}' AND '${dateEnd}'
+        GROUP BY devices.device_id;`)
+    }
 }
     /* SELECT * FROM `rovianda-test-dev`.maintenance where date_init BETWEEN CAST('2020-06-21' AS DATE) AND CAST('2020-06-27' AS DATE) order by date_init; */
     
