@@ -115,7 +115,15 @@ export class MaintenanceService{
         return await this.maintenanceRepository.getMaintenanceByMounth(mounth);
     }
 
-    async getMaintenanceByObject(){    
-        return await this.maintenanceRepository.getMaintenanceByObject();
+    async getMaintenanceObject(){    
+        return await this.maintenanceRepository.getMaintenanceObject();
+    }
+
+    async getMaintenanceByObject(dateInit:string,dateEnd:string,object:string){    
+        if(!dateInit)throw new Error("[400],dateInit in query is required");
+        if(!dateEnd)throw new Error("[400],dateEnd in query is required");
+        if(!object)throw new Error("[400],object in path is required");
+
+        return await this.maintenanceRepository.getMaintenanceByObject(dateInit,dateEnd,object);
     }
 }
