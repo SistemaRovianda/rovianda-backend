@@ -118,8 +118,10 @@ export class MaintenanceService{
         return await this.maintenanceRepository.getMaintenanceByMounth(mounth);
     }
 
-    async getMaintenanceObject(){    
-        return await this.maintenanceRepository.getMaintenanceObject();
+    async getMaintenanceObject(dateInit:string,dateEnd:string){    
+        if(!dateInit)throw new Error("[400],dateInit in query is required");
+        if(!dateEnd)throw new Error("[400],dateEnd in query is required");
+        return await this.maintenanceRepository.getMaintenanceObject(dateInit,dateEnd);
     }
 
     async getMaintenanceByObject(dateInit:string,dateEnd:string,object:string){    

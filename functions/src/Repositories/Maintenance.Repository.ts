@@ -71,14 +71,14 @@ export class MaintenanceRepository{
         where substring(maintenance.date,6,2)='${mounth}';`);
     }
     
-    async getMaintenanceObject(){
+    async getMaintenanceObject(dateInit:string,dateEnd:string){
         await this.getConnection();
-        return await this.maintenanceRepository.createQueryBuilder("maintenance")
-        .innerJoin("maintenance.devices", "maintenanceDevices")
-        .select("maintenanceDevices.name","nameObject")
-        .addSelect("SUM(maintenance.cost)", "costTotal")
-        .groupBy("maintenanceDevices.name")
-        .getRawMany();
+        return await this.maintenanceRepository.query(
+        `SELECT devices.name as nameObject, SUM(maintenance.cost) as costTotal
+        FROM maintenance
+        INNER JOIN devices ON maintenance.device_id = devices.device_id
+        WHERE maintenance.date BETWEEN '${dateInit}' AND '${dateEnd}'
+        GROUP BY devices.name;`);
     }
 
     async getMaintenanceByObject(dateInit:string, dateEnd:string,object:string){
