@@ -71,7 +71,7 @@ export class MaintenanceRepository{
         where substring(maintenance.date,6,2)='${mounth}';`);
     }
     
-    async getMaintenanceByObject(){
+    async getMaintenanceObject(){
         await this.getConnection();
         return await this.maintenanceRepository.createQueryBuilder("maintenance")
         .innerJoin("maintenance.devices", "maintenanceDevices")
@@ -81,6 +81,15 @@ export class MaintenanceRepository{
         .getRawMany();
     }
 
+    async getMaintenanceByObject(dateInit:string, dateEnd:string,object:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT store.name as store, store.address as location, sum(maintenance.cost) as cost
+        FROM .maintenance
+        INNER JOIN store ON store.store_id = maintenance.store_id
+        where maintenance.device_id = (SELECT devices.device_id FROM devices where devices.name = '${object}')
+        and  maintenance.date BETWEEN '${dateInit}' AND '${dateEnd}';`)
+    }
 }
     /* SELECT * FROM `rovianda-test-dev`.maintenance where date_init BETWEEN CAST('2020-06-21' AS DATE) AND CAST('2020-06-27' AS DATE) order by date_init; */
     
