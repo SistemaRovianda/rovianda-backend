@@ -46,119 +46,41 @@ export class PackagingService{
         this.boxPackagingRepository= new BoxPackagingRepository();
     }
 
-    async savePackaging(req: Request) {
-      
-        let { registerDate, productId, lotId, expiration, products } = req.body;
-        if (!registerDate)
-            throw new Error("[400],registerDate is required");
-        if (!productId)
-            throw new Error("[400],productId is required");
-        if (isNaN(productId))
-            throw new Error("[400],productId has invalid format, productId must be a numeric value");
-        if (!lotId)
-            throw new Error("[400],lotId is required");
-        if (isNaN(lotId))
-            throw new Error("[400],lotId has invalid format, lotId must be a numeric value")
-        if (!expiration)
-            throw new Error("[400],expiration is required");
-        if (!products)
-            throw new Error("[400],products is required");
-        
-        console.log("inicio")
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
-        console.log("Consulta")
+    async savePackaging(packagingDTO:PackagingDTO) {
+        if (!packagingDTO.registerDate) throw new Error("[400],registerDate is required");
+        if (!packagingDTO.productId) throw new Error("[400],productId is required");
+        if (!packagingDTO.lotId) throw new Error("[400],lotId is required");
+        if (!packagingDTO.expiration) throw new Error("[400],expiration is required");
+        if (!packagingDTO.products) throw new Error("[400],products is required");
+        if (isNaN(packagingDTO.productId)) throw new Error("[400],productId has invalid format, productId must be a numeric value");
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(packagingDTO.productId);
         if(!product) throw new Error("[400], product not found");
-        console.log("Consulta")
-        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(lotId);
+        for(let i = 0; i<packagingDTO.products.length; i++){
+            if (!packagingDTO.products[i].presentationId) throw new Error("[400],presentationId is required");
+            if (!packagingDTO.products[i].pieces) throw new Error("[400],presentationId is required");
+            if (!packagingDTO.products[i].packs) throw new Error("[400],presentationId is required");
+            if (!packagingDTO.products[i].weight) throw new Error("[400],presentationId is required");
+        }
+        let lot:OvenProducts = await this.ovenRepository.getOvenProductByIds(packagingDTO.lotId);
         if(!lot) throw new Error("[400], lot not found");
         let packaging:Packaging = new Packaging();
-        packaging.registerDate = registerDate;
+        packaging.registerDate = packagingDTO.registerDate;
         packaging.productId = product;
-        packaging.lotId = lotId;
-        packaging.expiration = expiration;
+        packaging.lotId = packagingDTO.lotId;
+        packaging.expiration = packagingDTO.expiration;
         await this.packagingRepository.savePackaging(packaging);
-        let packing = await this.propertiesPackagingRepository.getLastPropertiesPackaging();
-        for( let i =0; i<products.length; i++){
+        let packing = await this.packagingRepository.getLastPackaging();
+        for(let e = 0; e<packagingDTO.products.length; e++){
             let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
-            propertiesPackaging.pieces = products[i].pieces;
-            propertiesPackaging.packs = products[i].packs;
-            propertiesPackaging.weight = products[i].weight;
-            propertiesPackaging.observations = products[i].observations;
+            let presentation:PresentationProducts = await this.presentationProductRepository.getPresentatiosProductsById(packagingDTO.products[e].presentationId)
+            propertiesPackaging.weight = packagingDTO.products[e].weight;
+            propertiesPackaging.observations = packagingDTO.products[e].observations;
+            propertiesPackaging.packs = packagingDTO.products[e].packs;
+            propertiesPackaging.pieces = packagingDTO.products[e].pieces;
             propertiesPackaging.packagingId = packing[0];
+            propertiesPackaging.presentationId = presentation;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
-      
-        let presentations: PresentationProducts[] = [];
-
-        for (let product of products) {
-            if (!product.presentationId)
-                throw new Error("[400],a product is missing presntationId");
-            if (isNaN(product.presentationId))
-                throw new Error("[400],presentationId in one of the products has invalid format");
-            if (!product.pieces)
-                throw new Error("[400],a product is missing pieces attribute");
-            if (isNaN(product.pieces))
-                throw new Error("[400],pieces in one of the products has invalid format");
-            if (!product.packs)
-                throw new Error("[400],a product is missing packs attribute");
-            if (isNaN(product.packs))
-                throw new Error("[400],packs in one of the products has invalid format");
-            if (!product.weight)
-                throw new Error("[400],a product is missing weight attribute");
-            if (isNaN(product.weight))
-                throw new Error("[400],weight in one of the products has invalid format");
-            let presentation = await this.presentationProductRepository.getPresentatiosProductsById(product.presentationId);
-            if (!presentation)
-                throw new Error(`[404], Presentation product with id ${product.presentationId} was not found`);
-            presentations.push(presentation);
-
         }
-
-        let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+productId);
-
-        if (!productRovianda)
-            throw new Error(`[404],product rovianda with id ${productId} was not found`);
-
-        let ovenProduct = await this.ovenRepository.getOvenProductById(lotId);
-        if (!ovenProduct)
-            throw new Error(`[404],oven product with id ${lotId} was not found`);
-
-
-        let packaging: Packaging = {
-            id: 0,
-            expiration,
-            productId: productRovianda,
-            lotId: ovenProduct.id,
-            registerDate,
-            jobElabored: null,
-            jobVerify: null,
-            nameElabored: null,
-            nameVerify: null,
-            propertiesPackaging: null
-
-        }
-        try {
-
-            let packagingSaved = await this.packagingRepository.savePackaging(packaging);
-            let index = 0;
-            for (let product of products) {
-                let propertiePackaging: PropertiesPackaging = {
-                    id: 0,
-                    boxPackaging: null,
-                    observations: product.observations,
-                    packagingId: packagingSaved,
-                    packs: product.packs,
-                    pieces: product.pieces,
-                    presentationId: presentations[index],
-                    weight: product.weight
-                }
-                await this.propertiesPackagingRepository.savePropertiesPackaging(propertiePackaging);
-                index++;
-            }
-        } catch (error) {
-            throw new Error(`[500],${error}`);
-        }
-
-    }
    }
   
     async getProducts() {

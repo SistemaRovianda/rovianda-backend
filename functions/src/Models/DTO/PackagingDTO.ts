@@ -5,6 +5,7 @@ export interface PackagingDTO{
     expiration: string;
     products: [
         {
+            presentationId: number;
             pieces: number;
             packs: number;
             weight: number;

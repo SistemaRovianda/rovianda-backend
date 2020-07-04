@@ -41,4 +41,9 @@ export class PackagingRepository{
         return await this.packagingRepository.findOne({id});
     }
 
+    async getLastPackaging(){
+        await this.getConnection();
+        return await this.packagingRepository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
+    }
+
 }
