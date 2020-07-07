@@ -74,4 +74,11 @@ export class EntranceDriefService{
         return id[0].id;
     }
 
+    async reportEntranceDrief(driefId:number){
+        if(!driefId) throw new Error("[400], drifId is required");
+        let drief:EntranceDrief = await this.entranceDriefRepository.getEntranceDriefById(driefId);
+        if(!drief) throw new Error("[404], not found");
+        return drief;
+    }
+
 }

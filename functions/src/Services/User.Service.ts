@@ -94,4 +94,9 @@ export class UserService{
         return response;
     }
 
+    async getUserByUid(uid:string){
+        if(!uid) throw new Error("[400], uid is required");
+        let user:User = await this.userRepository.getUserById(uid);
+        if(!user) throw new Error("[404], User not found");
+        return user;    }
 }

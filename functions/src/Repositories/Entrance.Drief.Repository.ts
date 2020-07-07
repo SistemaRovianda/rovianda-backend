@@ -21,6 +21,11 @@ export class EntranceDriefRepository{
         return await this.repository.findOne({id:entranceDriefId});
     }
 
+    async getEntranceDriefById(id:number){
+        await this.getConnection();
+        return await this.repository.findOne({id}, {relations:["product"]});
+    }
+
     async deleteEntranceDrief(entranceDriefId:number){
         await this.getConnection();
         return await this.repository.delete({id:entranceDriefId});

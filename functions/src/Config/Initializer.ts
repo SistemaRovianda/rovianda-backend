@@ -21,6 +21,7 @@ import { InspectionController } from '../Controllers/Inspection.Controller';
 import { SalesRequestController } from '../Controllers/Sales.Controller';
 import { RawController } from '../Controllers/Raw.Controller';
 import { MaintenanceController } from '../Controllers/Maintenance.Controller';
+import { ReportController } from '../Controllers/Report.Controller';
 
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
@@ -45,6 +46,7 @@ export class Initializer {
     private salesRequestController: SalesRequestController;
     private rawController: RawController;
     private maintenanceController:MaintenanceController;
+    private reportController:ReportController;
 
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
@@ -69,6 +71,7 @@ export class Initializer {
         this.salesRequestController = new SalesRequestController();
         this.rawController = new RawController(this.firebaseInstance);
         this.maintenanceController = new MaintenanceController(this.firebaseInstance);
+        this.reportController = new ReportController(this.firebaseInstance);
     }
 
     getController(prototype: string) {
@@ -136,6 +139,10 @@ export class Initializer {
                 break;
             case MaintenanceController.name:
                 return this.maintenanceController;
+                break;
+            case ReportController.name:
+                return this.reportController;
+                break;
             default:
                 return null;
                 break;
