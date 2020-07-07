@@ -84,5 +84,11 @@ export const maintenanceRoutes:Array<routeInterface>=[
         method:"get",
         controller:MaintenanceController,
         target:"getMaintenanceApparatusByMounth"
+    },   
+    {
+        url:"/rovianda/maintenance/week/:week",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceByWeek"
     }
 ];

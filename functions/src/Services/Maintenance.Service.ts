@@ -148,4 +148,10 @@ export class MaintenanceService{
         if(parseInt(mounth)<=0 || parseInt(mounth)>12)throw new Error("[400],Invalid mounth");
         return await this.maintenanceRepository.getMaintenanceApparatusByMounth(mounth);
     }
+
+    async getMaintenanceByWeek(week:string){    
+        if(!week)throw new Error("[400],week in path is required");
+        if(parseInt(week)<0 || parseInt(week)>53)throw new Error("[400],Invalid week");
+        return await this.maintenanceRepository.getMaintenanceByWeek(week);
+    }
 }

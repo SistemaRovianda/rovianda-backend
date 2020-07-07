@@ -87,6 +87,12 @@ export class MaintenanceController{
         let maintenance = await this.maintenanceService.getMaintenanceApparatusByMounth(mounth);
         return res.status(200).send(maintenance);
     }
+
+    async getMaintenanceByWeek(req:Request,res:Response){
+        let week = req.params.week;
+        let maintenance = await this.maintenanceService.getMaintenanceByWeek(week);
+        return res.status(200).send(maintenance);
+    }
 }
 
 
