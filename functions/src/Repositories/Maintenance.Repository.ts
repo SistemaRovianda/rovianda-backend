@@ -113,15 +113,34 @@ export class MaintenanceRepository{
         await this.getConnection();
         return await this.maintenanceRepository.createQueryBuilder("maintenance")
         .innerJoin("maintenance.devices", "devicesMaintenance")
-        .innerJoin("maintenance.store", "storeMaintenance") 
+        .innerJoin("maintenance.store", "storeMaintenance")
         .select("storeMaintenance.name","store")
-        .addSelect("devicesMaintenance.name","repaired")
-        .addSelect("SUM(maintenance.cost)", "costTotal")
+        .addSelect("devicesMaintenance.name","repaired") 
+        .addSelect("SUM(maintenance.cost)", "cost")
         .andWhere("substring(maintenance.date,6,2)= :mounth",{mounth:`${mounth}`})
         .groupBy("devicesMaintenance.name")
         .getRawMany();
     }
+
+    async getMaintenanceByWeek(week:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.createQueryBuilder("maintenance")
+        .innerJoin("maintenance.store", "storeMaintenance")
+        .innerJoin("maintenance.user", "userMaintenance")
+        .select("maintenance.id","id")
+        .addSelect("maintenance.title","titleFailure") 
+        .addSelect(`CONCAT(userMaintenance.name," ",userMaintenance.first_surname," ",userMaintenance.last_surname) `,"nameReport")
+        .addSelect("maintenance.description","description") 
+        .addSelect("maintenance.date","date") 
+        .addSelect("storeMaintenance.name","store")  
+        .addSelect("SUM(maintenance.cost)", "cost")
+        .andWhere("week(maintenance.date,2)= :week",{week:`${week}`})
+        .groupBy("maintenance.id")
+        .getRawMany();
+
+    }
 }
+
     /* SELECT * FROM `rovianda-test-dev`.maintenance where date_init BETWEEN CAST('2020-06-21' AS DATE) AND CAST('2020-06-27' AS DATE) order by date_init; */
     
     /* SELECT store.name as store , maintenance.title as nameRepair , devices.name as objectRepaired, maintenance.cost 
