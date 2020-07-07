@@ -77,8 +77,14 @@ export class MaintenanceController{
 
     async getMaintenanceApparatus(req:Request,res:Response){
         let dateInit = req.query.dateInit;       
-        let dateEnd = req.query.dateEnd
+        let dateEnd = req.query.dateEnd;
         let maintenance = await this.maintenanceService.getMaintenanceApparatus(dateInit,dateEnd);
+        return res.status(200).send(maintenance);
+    }
+
+    async getMaintenanceApparatusByMounth(req:Request,res:Response){
+        let mounth = req.params.mounth;
+        let maintenance = await this.maintenanceService.getMaintenanceApparatusByMounth(mounth);
         return res.status(200).send(maintenance);
     }
 }

@@ -142,4 +142,10 @@ export class MaintenanceService{
 
         return await this.maintenanceRepository.getMaintenanceApparatus(dateInit,dateEnd);
     }
+
+    async getMaintenanceApparatusByMounth(mounth:string){    
+        if(!mounth)throw new Error("[400],dateInit in query is required");
+        if(parseInt(mounth)<=0 || parseInt(mounth)>12)throw new Error("[400],Invalid mounth");
+        return await this.maintenanceRepository.getMaintenanceApparatusByMounth(mounth);
+    }
 }

@@ -108,6 +108,19 @@ export class MaintenanceRepository{
         WHERE maintenance.date BETWEEN '${dateInit}' AND '${dateEnd}'
         GROUP BY devices.device_id;`)
     }
+
+    async getMaintenanceApparatusByMounth(mounth:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.createQueryBuilder("maintenance")
+        .innerJoin("maintenance.devices", "devicesMaintenance")
+        .innerJoin("maintenance.store", "storeMaintenance") 
+        .select("storeMaintenance.name","store")
+        .addSelect("devicesMaintenance.name","repaired")
+        .addSelect("SUM(maintenance.cost)", "costTotal")
+        .andWhere("substring(maintenance.date,6,2)= :mounth",{mounth:`${mounth}`})
+        .groupBy("devicesMaintenance.name")
+        .getRawMany();
+    }
 }
     /* SELECT * FROM `rovianda-test-dev`.maintenance where date_init BETWEEN CAST('2020-06-21' AS DATE) AND CAST('2020-06-27' AS DATE) order by date_init; */
     
