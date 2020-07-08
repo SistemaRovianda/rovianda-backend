@@ -12,6 +12,8 @@ import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients
 import { FormulatioIngredientsRepository } from "../Repositories/Formulation.Ingredients.Repository";
 import { OutputsCoolingService } from "./Outputs.Cooling.Service";
 import { OutputsCooling } from "../Models/Entity/outputs.cooling";
+import { User } from "../Models/Entity/User";
+import { UserRepository } from "../Repositories/User.Repository";
 
 export class FormulationService {
     private formulationRepository: FormulationRepository;
@@ -20,6 +22,7 @@ export class FormulationService {
     private outputsDriedRepository: OutputsDriefRepository;
     private formulationIngredientsRepository: FormulatioIngredientsRepository;
     private outputsCooling:OutputsCoolingService;
+    private userRepository:UserRepository;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -27,6 +30,7 @@ export class FormulationService {
         this.outputsDriedRepository = new OutputsDriefRepository();
         this.formulationIngredientsRepository = new FormulatioIngredientsRepository();
         this.outputsCooling = new OutputsCoolingService();
+        this.userRepository = new UserRepository();
     }
 
     async createFormulation(req: Request) {
@@ -41,6 +45,12 @@ export class FormulationService {
             throw new Error("[400], lotId is required");
         if (!formulationDTO.temperature)
             throw new Error("[400], lotId is required");
+        if (!formulationDTO.date)
+            throw new Error("[400], date is required");
+        if (!formulationDTO.verifitId)
+            throw new Error("[400], verifitId is required");
+        if (!formulationDTO.makeId)
+            throw new Error("[400], makeId is required");
         if (!formulationDTO.temperatureWater)
             throw new Error("[400], temperatureWater is required");
         if (!formulationDTO.assignmentLot.newLotId)
@@ -56,11 +66,18 @@ export class FormulationService {
         }
         let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingByLot(formulationDTO.lotId);       
         if(!outputCooling) throw new Error("[404], no existe salida de este lote");
+        let verifit:User = await this.userRepository.getUserById(formulationDTO.verifitId);       
+        if(!verifit) throw new Error("[404], no existe verifit");
+        let make:User = await this.userRepository.getUserById(formulationDTO.makeId);       
+        if(!make) throw new Error("[404], no existe make");
         let formulationToSave: Formulation =new Formulation();
         
         formulationToSave.loteInterno= formulationDTO.lotId;
         formulationToSave.productRovianda= productRovianda;
         formulationToSave.temp= formulationDTO.temperature;
+        formulationToSave.verifit = verifit;
+        formulationToSave.make = make;
+        formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
         formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
         
@@ -117,4 +134,20 @@ export class FormulationService {
         }
         return response;
     }
+
+    async reportFormulation(formulationId:number){
+        if (!formulationId) throw new Error("[400], formulationId is required");
+        let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
+        if (!formulation) throw new Error("[404], formulation not found");
+        return formulation;
+    }
+
+    async reportFormulationIngredents(formulationId:number){
+        if (!formulationId) throw new Error("[400], formulationId is required");
+        let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
+        if (!formulation) throw new Error("[404], formulation not found");
+        let formulationIngredients:FormulationIngredients[] = await this.formulationIngredientsRepository.getByFormulation(formulation);
+        return formulationIngredients;
+    }
+
 }

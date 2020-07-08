@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, PrimaryColumn, JoinColumn, OneToMany } from 
 import { Roles } from './Roles';
 import { EntranceMeat } from "./Entrances.Meat";
 import { Maintenance } from "./Maintenance";
+import { Formulation } from "./Formulation";
 
 @Entity({name:"users"})
 export class User{
@@ -33,4 +34,10 @@ export class User{
 
     @OneToMany(type=> Maintenance,maintenance=>maintenance.user)
     maintenance:Maintenance[];
+
+    @OneToMany(type=> Formulation,formulationVerifit=>formulationVerifit.verifit)
+    formulationVerifit:Formulation[];
+
+    @OneToMany(type=> Formulation,formulationVerifit=>formulationVerifit.make)
+    formulationMake:Formulation[];
 }

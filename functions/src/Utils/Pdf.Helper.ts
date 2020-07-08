@@ -1,6 +1,8 @@
 import LOGO from '../models/Logo';
 import { User } from '../Models/Entity/User';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
+import { Formulation } from '../Models/Entity/Formulation';
+import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 
 export default class PdfHelper{
 
@@ -175,6 +177,140 @@ export default class PdfHelper{
 
     async reportEntranceDrief(user:User,drief:EntranceDrief){
         let content = this.headReportEntranceDrief()+this.bodyReportEntranceDrief(user,drief);
+        return content;
+    }
+
+    headReportFormulationf(){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Index4</title>
+            <style>
+                .wi{
+                    width: 30px;
+                    height: 20px;
+                }
+                #ta{
+                    text-align: center;
+                }
+                .pro{
+                    width: 110px;
+                }
+                #ini{
+                    text-align: left;
+                    margin-left: 275px;
+                    width: 350px;
+                    height: 100px;
+                }
+                
+                img{
+                    width: 80px;
+                    height:100px;
+                    transform: translateY(78%) translateX(474%);
+                }
+                #title{
+                transform: translateY(507%) translateX(-2%);
+                top: 200px;
+                }
+                header{
+                    text-align: center;
+                    margin-bottom: -70px;
+                }
+                #fo1{
+                    margin-left: 0px;
+                    width: 627px;
+                    height: 30px;
+                }
+                #fo{
+                    margin-left: 430px;
+                    width:200px ;
+                }
+            </style>
+        </head>
+        `;
+    }
+
+    bodyReportFormulation(formulation:Formulation,ingredents:FormulationIngredients[]){
+        let content = `
+        <body>
+        <br><br><br>
+        <header>
+            <b><p id="title">  BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
+        </header>
+        <img src="${LOGO.data}" alt="">
+        <table id="ini" border="1"  >
+            <tr>
+                <th>Realizo, Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            </tr>
+            <tr>
+                <th>Firma: </th>
+            </tr>      
+            <th>Puesto: ${formulation.make.job}</th>
+            <tr>
+            </tr>
+        </table>
+        `;
+        let content2 = `
+        <table  id="ta" border="1" align="center" width="100%">
+            <tr>
+                <td class="pro" >Producto</td>
+                <td>Lote</td>
+                <td>Temperatura carne</td>
+                <td>Temperatura agua</td>
+                <td>Ingredientes</td>
+                <td>Fechas</td>
+            </tr>
+            <tr>
+                <td class="wi">${formulation.productRovianda.name}</td>
+                <td>${formulation.loteInterno}</td>
+                <td>${formulation.temp}</td>
+                <td>${formulation.waterTemp}</td>
+                <td>${ingredents[0].productId.description}</td>
+                <td>${formulation.date}</td>
+            </tr>
+        `;
+        let content3 = "";
+        for(let i = 1; i<ingredents.length; i++){
+            content3=content3 + `
+            <tr>
+                <td class="wi"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${ingredents[i].productId.description}</td>
+                <td></td>
+            </tr>
+            `;
+        }
+        return content + content2 + content3;
+    }
+
+    footerReportFormulation(formulation:Formulation){
+        return `
+            </table>
+            <table id="fo1" border="1" >
+                <tr>
+                    <td>Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+                    <td>Firma: </td>
+                    <td>Puesto: ${formulation.verifit.job}</td>
+                </tr>
+            </table>
+            <table id="fo" border="1" >
+                <tr>
+                    <th>F-CAL-RO-05</th>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `;
+    }
+
+    async reportFormulation(formulation:Formulation,ingredents:FormulationIngredients[]){
+        let content = this.headReportFormulationf()+this.bodyReportFormulation(formulation,ingredents)+
+        this.footerReportFormulation(formulation);
         return content;
     }
 
