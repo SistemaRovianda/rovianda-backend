@@ -69,13 +69,11 @@ export class WarehousePackingService{
         return await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
     }
     
-    async getPackingHistory(req: Request){
-        let {lotId} = req.params;
+    async getPackingHistory(lotId:string){
 
         let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(+lotId);
-
         if(!warehousePacking)
-            throw new Error(`[404], warehousePacking with id ${lotId} was not found`);
+            throw new Error(`[404], warehousePacking with lot ${lotId} was not found`);
         let outputs = warehousePacking.outputsPacking.map(output =>{ 
             return {
                 outputName: output.product.description,

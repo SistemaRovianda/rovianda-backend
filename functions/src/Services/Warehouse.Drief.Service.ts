@@ -82,7 +82,7 @@ export class WarehouseDriefService{
         let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(+lotId);
 
         if (!warehouseDrief)
-            throw new Error(`[404], warehouseDrief with id ${lotId} was not found`);
+            throw new Error(`[404], warehouseDrief with lot ${lotId} was not found`);
 
         let outputs = warehouseDrief.outputDriefs.map(outputDrief => {
             return {

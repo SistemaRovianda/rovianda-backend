@@ -11,10 +11,12 @@ export class WarehousePackingRepository{
         }
     }
 
-    async getWarehousePackingfById(id:number){
+    async getWarehousePackingfById(lotId:number){
         await this.getConnection();
-        return await this.warehousePackingRepository.findOne({where: {id},
-        relations:["outputsPacking"]});
+        return await this.warehousePackingRepository.findOne({
+            where: {loteProveedor :lotId},
+            relations:["outputsPacking"]
+        });
     }
 
     async getWarehousePackingByLoteId(loteProveedor:string){
