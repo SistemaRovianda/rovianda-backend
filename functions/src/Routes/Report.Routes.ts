@@ -14,5 +14,11 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportEntranceMeat"
+    },
+    {
+        url:"/rovianda/report/formulation/:formulationId",
+        method:"get",
+        controller:ReportController,
+        target:"reportFormulation"
     }
 ];

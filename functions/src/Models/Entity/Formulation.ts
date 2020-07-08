@@ -2,6 +2,7 @@ import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColum
 import { ProductRovianda } from "./Product.Rovianda";
 import { Product } from "./Product";
 import { OutputsDrief } from "./Outputs.Drief";
+import { User } from './User';
 
 
 @Entity({ name: "formulation" })
@@ -20,9 +21,18 @@ export class Formulation {
     @Column()
     temp: string;
 
+    @Column()
+    date: string;
+
     @Column({ name: "water_temp" })
     waterTemp: string;
 
     @Column({ name: "new_lote" })
     newLote: string;
+
+    @ManyToOne(type=>User, verifit=>verifit.formulationVerifit, {eager:true, onDelete:"SET NULL"})
+    verifit:User;
+
+    @ManyToOne(type=>User, make=>make.formulationVerifit, {eager:true, onDelete:"SET NULL"})
+    make:User;
 }

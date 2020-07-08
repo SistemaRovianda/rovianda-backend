@@ -42,4 +42,9 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.find({productRovianda});
     }
+
+    async getByFormulationId(id:number){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({id},{relations:["verifit", "make"]});
+    }
 }

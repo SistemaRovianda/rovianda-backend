@@ -3,6 +3,9 @@ export interface FormulationDTO {
     lotId: string,
     temperature: string,
     temperatureWater: string,
+    verifitId:string,
+    date:string,
+    makeId:string
     assignmentLot: {
         newLotId: string,
         dateEntry: string
