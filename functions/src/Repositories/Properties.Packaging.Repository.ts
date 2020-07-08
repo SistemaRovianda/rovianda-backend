@@ -14,8 +14,8 @@ export class PropertiesPackagingRepository{
         await this.getConnection();
         return await this.propertiesPackaginRepository.findOne({
             where: {id},
-            relations: ["presentationProduct", "boxPackaging"]
-        });
+            relations: ["presentationId", "boxPackaging"]
+        }); 
     }
 
     async savePropertiesPackaging(propertyPackagin: PropertiesPackaging){

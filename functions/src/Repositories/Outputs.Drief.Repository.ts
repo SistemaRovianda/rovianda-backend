@@ -32,12 +32,12 @@ export class OutputsDriefRepository{
         await this.getConnection();
         return await this.outputsDriefRepository.findOne({
             where: {lote_proveedor: `${lot}`},
+            relations: ["warehouseDrief"]
         });
     }
 
     async getOutputsDriefByLotId( lotsId:any){
         await this.getConnection();
-
         return this.outputsDriefRepository.find({
                 where: {loteProveedor: `${lotsId}` }   
             });
