@@ -77,8 +77,7 @@ export class WarehouseDriefService{
         return response;
     }
 
-    async getDriefHistory(req: Request) {
-        let { lotId } = req.params;
+    async getDriefHistory(lotId:string) {
 
         let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(+lotId);
 
