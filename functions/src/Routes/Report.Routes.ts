@@ -8,5 +8,11 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportEntranceDrief"
+    },
+    {
+        url:"/rovianda/report/enty/meat/:meatId",
+        method:"get",
+        controller:ReportController,
+        target:"reportEntranceMeat"
     }
 ];

@@ -1,6 +1,7 @@
-import LOGO from '../models/Logo';
+import LOGO from '../Models/Logo';
 import { User } from '../Models/Entity/User';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 
 export default class PdfHelper{
 
@@ -178,4 +179,190 @@ export default class PdfHelper{
         return content;
     }
 
+
+
+    headReportEntranceMeat(){
+        return`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Rovianda</title>
+        <style>
+            .espa{
+            height: 15px;
+            }
+
+            .separa{
+            height: 15px;
+            }
+
+            table{
+            border: #65768C 3px solid;
+            }
+
+            #ubica{
+            margin-bottom: 150px;;
+            }    
+        </style>
+    </head>`;
+    }
+
+    bodyReportEntranceMeat(user:User,meat:EntranceMeat){
+        return `
+        <body bgcolor="#9FB0BF">
+        <table  align="center" border="1px"   width="50%" > 
+         <tr>
+            <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="90px">    </td>
+            <td align="center">ROVIANDA S.A.P.I. DE C.V.</td>
+            <td colspan="2" align="center">F-CAL-RO-04</td>
+         </tr>
+            <td align="center">RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</td>
+            <td align="center">LOTE INTERNO: ${meat.loteInterno} </td>
+            <td align="center">Pág.: 1 de 1</td>
+        </table>
+<!-- ************************************************************************************************-->
+        <table align="center" border="1px"  width="50%"  >
+         <tr>
+            <img src="" alt="">
+            <th>Fecha</th>
+            <th>Proveedor</th>
+            <th colspan="2">Materia prima</th>
+            <th>Lote proveedor</th>
+         </tr>
+<!-- ************************************************************************************************-->
+         <tr>
+            <th class="espa">${Date.toString}</th>
+            <th class="espa">${meat.proveedor}</th>
+            <th class="espa"  colspan="2">${meat.rawMaterial}</th>
+            <th class="espa">${meat.loteProveedor}</th>
+         </tr>
+<!-- ************************************************************************************************-->  
+        <th>Control</th>
+        <th>Estándar</th>
+        <th>Aceptado</th>
+        <th>Rechazado</th>
+        <th>Observaciones</th>
+<!-- ************************************************************************************************-->
+         <tr>
+            <td>Transporte </td>
+            <td align="center" height="2px">Limpio, sin olores,sin material ajeno, sin plagas </td>
+            <td>${meat.transport.accepted ? "---" : ""}</td>
+            <td>${!meat.transport.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+         
+         <tr>
+            <td>Empaque</td>
+            <td>Sin daños y limpio </td>
+            <td>${meat.packing.accepted ? "---" : ""}</td>
+            <td>${!meat.packing.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td>Caducidad</td>
+            <td>Vigente:</td>
+            <td>${meat.expiration.accepted ? "---" : ""}</td>
+            <td>${!meat.expiration.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td>Peso</td>
+            <td>Según el empaque</td>
+            <td>${meat.weight.accepted ? "---" : ""}</td>
+            <td>${!meat.weight.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td>Materia extraña</td>
+            <td>Ausente</td>
+            <td>${meat.strangeMaterial.accepted ? "---" : ""}</td>
+            <td>${!meat.strangeMaterial.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td rowspan="2">Temperatura</td>
+            <td>Fresco: Max. 4°C </td> 
+            <td>${meat.temperature.accepted ? "---" : ""}</td>
+            <td>${!meat.temperature.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>  
+
+         <tr>
+            <td>Congelado: Max. -18°C</td>
+            <td>${meat.temperature.accepted ? "---" : ""}</td>
+            <td>${!meat.temperature.accepted ? "---" : ""}</td>
+            <td></td>   
+         </tr>
+
+         <tr>
+            <td>Olor</td>
+            <td>Característico</td>
+            <td>${meat.odor.accepted ? "---" : ""}</td>
+            <td>${!meat.odor.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+        
+         <tr>
+            <td>Color</td>
+            <td>Característico</td>
+            <td>${meat.texture.accepted ? "---" : ""}</td>
+            <td>${!meat.texture.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td>Textura </td>
+            <td>Firme, Característico</td>
+            <td>${meat.texture.accepted ? "---" : ""}</td>
+            <td>${!meat.texture.accepted ? "---" : ""}</td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td colspan="5">Desviación:</td>
+         </tr>
+
+         <tr>
+            <td class ="separa" colspan="5"></td>
+         </tr>
+
+         <tr>
+            <td colspan="5">Acción correctiva:</td>
+         </tr>
+
+         <tr>
+            <td  class ="separa" colspan="5"></td>
+         </tr>
+
+         <tr>
+            <td height="180px"  width="" colspan="5" > <div id="ubica"> Etiqueta: </div>  </td>
+         </tr>
+
+         <tr>
+            <th class="fin" >Inspector de calidad</th>
+            <th class="fin"  >${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname} </th>
+            <th class="fin" colspan="3" >Firma:</th>
+         </tr>
+
+        </table>
+
+      </body>
+    </html>
+        `;
+    }
+
+
+    async reportEntranceMeat(user:User,meat:EntranceMeat){
+        let content = this.headReportEntranceMeat()+this.bodyReportEntranceMeat(user,meat);
+        return content;
+    }
+
+
 }
+
