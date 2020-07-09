@@ -11,6 +11,8 @@ import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { EntranceMeatService } from '../Services/Entrances.Meat.Services';
 import { FormulationService } from '../Services/Formulation.Service';
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
+import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
 
 
 export class ReportController{
@@ -19,12 +21,14 @@ export class ReportController{
     private entranceMeatService:EntranceMeatService;
     private userService: UserService;
     private formulationService: FormulationService
+    private warehouseDriefService: WarehouseDriefService;
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
         this.userService = new UserService(this.firebaseInstance);
         this.formulationService = new FormulationService();
+        this.warehouseDriefService = new WarehouseDriefService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -89,6 +93,30 @@ export class ReportController{
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
                 'Content-disposition': `attachment; filename=reporteCárnicos.pdf`
+            });
+            stream.pipe(res);
+        }))
+    }
+
+    async reportWarehouseDrief(req:Request, res:Response){
+        let dateInit = req.query.dateInit;
+        let dateEnd = req.query.dateEnd;
+        let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportWarehouseDrief(data);
+        pdf.create(report, {
+            format: 'Letter',
+            "orientation": "landscape",
+            border: {
+                top: "2cm", // default is 0, units: mm, cm, in, px
+                right: "2cm",
+                bottom: "2cm",
+                left: "2cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reportAlmacenSecos.pdf`
             });
             stream.pipe(res);
         }))

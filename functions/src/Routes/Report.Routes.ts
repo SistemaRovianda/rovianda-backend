@@ -16,9 +16,9 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportEntranceMeat"
     },
     {
-        url:"/rovianda/report/formulation/:formulationId",
+        url:"/rovianda/report/warehouse/",
         method:"get",
         controller:ReportController,
-        target:"reportFormulation"
+        target:"reportWarehouseDrief"
     }
 ];

@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { Product } from '../Models/Entity/Product';
 export class WarehouseDriefRepository{
@@ -74,5 +74,19 @@ export class WarehouseDriefRepository{
         WHERE warehouse_drief.productId = ${productId} 
         AND warehouse_drief.status = "${status}"
         `);
+    }
+
+    async getWarehouseDriefReport(dateInit:string,dateEnd:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.find({
+            where:{ date : Between(dateInit, dateEnd)},
+            relations: ["product"]
+        });
+/*         
+        query(`
+        SELECT warehouse_drief.* ,product_catalog.description FROM warehouse_drief
+        INNER JOIN product_catalog ON warehouse_drief.productId = product_catalog.id 
+        WHERE warehouse_drief.date BETWEEN '${dateInit}' AND '${dateEnd}'
+        ORDER BY warehouse_drief.date;`); */
     }
 }
