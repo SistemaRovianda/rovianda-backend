@@ -1,4 +1,4 @@
-import LOGO from '../models/Logo';
+import  LOGO from '../Models/Logo';
 import { User } from '../Models/Entity/User';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { Formulation } from '../Models/Entity/Formulation';

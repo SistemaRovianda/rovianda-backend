@@ -1,9 +1,6 @@
 import {Request,Response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-import { Product } from '../Models/Entity/Product';
 import { OvenService } from '../Services/Oven.Service';
-import { OvenProducts } from '../Models/Entity/Oven.Products';
-import { ErrorHandler } from '../Utils/Error.Handler';
 import { RevisionOvenProductService } from '../Services/Revision.Oven.Product.Service';
 export class OvenController{
 
