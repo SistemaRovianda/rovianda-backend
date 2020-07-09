@@ -1,5 +1,5 @@
 import { EntranceMeatRepository } from '../Repositories/Entrances.Meat.Repository';
-import { EntranceMeat } from "../Models/Entity/Entrances.Meat";
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { EntranceMeatDTO } from '../Models/DTO/EntranceMeatDTO';
 import { Fridge } from '../Models/Entity/Fridges';
 import { FridgeRepository } from '../Repositories/Fridges.Repository';
@@ -117,8 +117,11 @@ export class EntranceMeatService {
         return id[0].id;
     }
 
-    async getReport(meatId:number){
-        
+    async reportEntranceMeat(meatId:number){
+        if(!meatId) throw new Error("[400], meatId is required");
+        let meat:EntranceMeat = await this.entrancesMeatRepository.getEntranceMeatById(meatId);
+        if(!meat) throw new Error(`[404], meat whit id ${meatId} not found`);
+        return meat;
     }
 
 }

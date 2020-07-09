@@ -46,10 +46,6 @@ export class EntrancesMeatController{
         return res.status(200).send(outputsCooling);
     }
 
-    async getReport(req:Request,res:Response){
-        await this.entrancesmeatService.getReport(+req.params.meatId);
-        return res.status(200).send();
-    }
 }
 
 

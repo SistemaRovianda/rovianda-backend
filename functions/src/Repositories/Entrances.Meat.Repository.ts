@@ -20,5 +20,10 @@ export class EntranceMeatRepository{
         await this.getConnection();
         return await this.entrancesMeatRepository.query(`SELECT * FROM entrances_meat ORDER BY id DESC LIMIT 1`)
     }
+
+    async getEntranceMeatById(id:number){
+        await this.getConnection();
+        return await this.entrancesMeatRepository.findOne({id});
+    }
     
 }
