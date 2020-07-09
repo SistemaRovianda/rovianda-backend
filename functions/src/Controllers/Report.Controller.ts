@@ -9,8 +9,10 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { EntranceMeatService } from '../Services/Entrances.Meat.Services';
+import { EntrancePackingService } from '../Services/Entrance.Packing.Service';
 import { FormulationService } from '../Services/Formulation.Service';
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
+import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 
 
 export class ReportController{
@@ -19,12 +21,14 @@ export class ReportController{
     private entranceMeatService:EntranceMeatService;
     private userService: UserService;
     private formulationService: FormulationService
+    private entrancePackingService: EntrancePackingService;
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
         this.userService = new UserService(this.firebaseInstance);
         this.formulationService = new FormulationService();
+        this.entrancePackingService = new EntrancePackingService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -89,6 +93,27 @@ export class ReportController{
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
                 'Content-disposition': `attachment; filename=reporteCárnicos.pdf`
+            });
+            stream.pipe(res);
+        }))
+    }
+
+    async reportEntrancePacking(req:Request, res:Response){
+        let packin:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
+        let report = await this.pdfHelper.reportEntrancePacking(packin);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "0in", // default is 0, units: mm, cm, in, px
+                right: "1in",
+                bottom: "2in",
+                left: "2cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEmpaquetado.pdf`
             });
             stream.pipe(res);
         }))

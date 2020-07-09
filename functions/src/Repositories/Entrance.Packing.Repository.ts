@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
+import { times } from "lodash";
 
 export class EntrancePackingRepository{
     private repository:Repository<EntrancePacking>;
@@ -28,5 +29,13 @@ export class EntrancePackingRepository{
     async getLastEntrnacePacking(){
         await this.getConnection();
         return await this.repository.query(`SELECT * FROM entrances_packing ORDER BY id DESC LIMIT 1`)
+    }
+
+    async getBypakingId(id:number){
+        await this.getConnection();
+        return await this.repository.findOne(
+            {id},
+            {relations: ["product"]}
+        );
     }
 }

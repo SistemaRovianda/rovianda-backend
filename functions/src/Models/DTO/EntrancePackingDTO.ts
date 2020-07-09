@@ -10,4 +10,6 @@ export interface EntrancePackingDTO{
     isPz:boolean;
     paking:boolean;
     observations:string;
+    makeId:string;
+    verifitId:string
 }
