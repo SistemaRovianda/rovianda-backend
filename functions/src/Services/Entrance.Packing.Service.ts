@@ -28,6 +28,7 @@ export class EntrancePackingService{
         if(!entrancePackingDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entrancePackingDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");
         if(entrancePackingDTO.quality == null ) throw new Error("[400],el parametro quality es requerido");
+        if(entrancePackingDTO.paking == null ) throw new Error("[400],el parametro paking es requerido");
         if(entrancePackingDTO.quantity == null ) throw new Error("[400],el parametro quantity es requerido");
         if(entrancePackingDTO.strageMaterial == null ) throw new Error("[400],el parametro strangeMaterial es requerido");
         if(entrancePackingDTO.transport == null ) throw new Error("[400],el parametro transport es requerido");
@@ -47,6 +48,7 @@ export class EntrancePackingService{
         entrancePacking.quality = entrancePackingDTO.quality;
         entrancePacking.quantity = entrancePackingDTO.quantity;
         entrancePacking.strangeMaterial = entrancePackingDTO.strageMaterial;
+        entrancePacking.paking = entrancePackingDTO.paking;
         entrancePacking.transport = entrancePackingDTO.transport;
 
         let warehousePacking:WarehousePacking = new WarehousePacking();

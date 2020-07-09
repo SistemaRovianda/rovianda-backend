@@ -36,5 +36,8 @@ export class EntrancePacking{
     strangeMaterial:boolean;
 
     @Column()
+    paking:boolean;
+
+    @Column()
     transport:boolean;
 }
