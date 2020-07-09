@@ -10,6 +10,12 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportEntranceDrief"
     },
     {
+        url:"/rovianda/report/enty/meat/:meatId",
+        method:"get",
+        controller:ReportController,
+        target:"reportEntranceMeat"
+    },
+    {
         url:"/rovianda/report/formulation/:formulationId",
         method:"get",
         controller:ReportController,
