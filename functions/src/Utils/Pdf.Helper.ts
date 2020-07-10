@@ -8,6 +8,7 @@ import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
+import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 
 export default class PdfHelper{
 
@@ -678,13 +679,13 @@ export default class PdfHelper{
         <img src="${LOGO.data}" alt="" >
         <table border="1" align="center">
             <tr>
-                <th class="ta">Nombre: ${packing.make.name} ${packing.make.firstSurname} ${packing.make.lastSurname}</th>
+                <th class="ta">Nombre: ${packing.make ? packing.make.name+" "+packing.make.firstSurname+" "+packing.make.lastSurname : "" }</th>
             </tr>
             <tr>
                 <th class="ta">Firma: </th>
             </tr>
             <tr>
-                <th class="ta">Puesto: ${packing.make.job}</th>
+                <th class="ta">Puesto: ${packing.make ? packing.make.job : "" }</th>
             </tr>
         </table>
     
@@ -741,9 +742,9 @@ export default class PdfHelper{
     
         <table border="1px" WIDTH="630" align="center">
                 <tr>
-                    <td class="te"><b>Verifico: ${packing.verifit.name} ${packing.verifit.firstSurname} ${packing.verifit.lastSurname}</b> </td> 
+                    <td class="te"><b>Verifico: ${packing.verifit ? packing.verifit.name+" "+packing.verifit.firstSurname+" "+packing.verifit.lastSurname : "" }</b> </td> 
                 <b> <td class="te"> <b> Firma: </b></td>  
-                <b> <td class="te"> <b> Puesto: ${packing.verifit.job}</b> </td>
+                <b> <td class="te"> <b> Puesto: ${packing.verifit ? packing.verifit.job : "" }</b> </td>
                 </tr> 
         </table>
         <table id="mueve" border="1px">
