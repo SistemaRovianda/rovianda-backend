@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, OneToOne } from "typeorm";
 import { Product } from "./Product";
+import { User } from "./User";
 
 
 @Entity({name:"entrances_packing"})
@@ -36,5 +37,14 @@ export class EntrancePacking{
     strangeMaterial:boolean;
 
     @Column()
+    paking:boolean;
+
+    @Column()
     transport:boolean;
+
+    @ManyToOne(type=>User, verifit=>verifit.entrancePackingVerifit, {eager:true, onDelete:"SET NULL"})
+    verifit:User;
+
+    @ManyToOne(type=>User, make=>make.entrancePackinMake, {eager:true, onDelete:"SET NULL"})
+    make:User;
 }

@@ -6,6 +6,8 @@ import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { Formulation } from '../Models/Entity/Formulation';
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
+import { OvenProducts } from '../Models/Entity/Oven.Products';
 
 export default class PdfHelper{
 
@@ -611,6 +613,154 @@ export default class PdfHelper{
 
     async reportWarehouseDrief(data:WarehouseDrief[]){
         let content = this.headReportWarehouseDrief()+this.bodyReportWarehouseDrief(data);
+        return content;
+    }
+
+
+    headReportEntrancePacking(){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tabla Nueva</title>
+        <style>
+            .ta{
+                width:400px;   
+                text-align: left;
+            }
+            .te{
+                width:187px;   
+                text-align: left;
+            }
+            .ma{
+               text-align: left;
+               width: 300px; 
+            }
+            #fec{
+                width:148px;
+            }
+            header{
+                text-align: center;
+                margin-top: -94px;
+            }
+            #mueve{
+                width: 185px;
+                margin-left: 445px
+            }
+            #go{
+                width: 185px;
+                margin-left: 780px
+            }
+            img{
+                width: 80px;
+                height:100px;
+                transform: translateY(78%) translateX(474%);
+            }
+            #title{
+                transform: translateY(507%) translateX(-2%);
+                top: 200px;
+            }
+        </style>
+        </head>
+        `;
+    }
+
+    bodyReportEntrancePacking(packing:EntrancePacking){
+        return `
+        <body>
+        <br><br><br><br><br>
+        <header>
+            <b><p id="title">EMPACADORA ROVIANDA S.A.P.I DE C.V</p></b>
+            <p id="title">BITACORA DE CONTROL DE CALIDAD ALMACEN EMPAQUES  </p>
+        </header>
+        <img src="${LOGO.data}" alt="" >
+        <table border="1" align="center">
+            <tr>
+                <th class="ta">Nombre: ${packing.make.name} ${packing.make.firstSurname} ${packing.make.lastSurname}</th>
+            </tr>
+            <tr>
+                <th class="ta">Firma: </th>
+            </tr>
+            <tr>
+                <th class="ta">Puesto: ${packing.make.job}</th>
+            </tr>
+        </table>
+    
+    <!--------------------------------------------------------------------------->
+        <table border="1" WIDTH="630" align="center">
+            <tr>
+                <th class="ma">Materia prima: ${packing.product.description}</th>
+                <th  rowspan="2" >Lote proveedor: ${packing.loteProveedor}</th>
+                <th  id="fec" rowspan="2">Fecha: ${packing.date}</th>
+            </tr>
+            <tr>
+                <th class="ma">Proveedor: ${packing.proveedor}</th>
+            </tr>
+        </table>
+    
+    <!--------------------------------------------------------------------------->
+        <table border="1" WIDTH="630" align="center">
+            <tr>
+                <th>Control</th>
+                <th>Estandar</th>
+                <th>Aceptado</th>
+                <th>Rechazado</th>
+                <th>Observaciones</th>
+            </tr>
+            <tr>
+                <th>Certificado de calidad</th>
+                <th>Entrega de Certificado</th>
+                <th>${packing.quality ? "---" : ""}</th>
+                <th>${!packing.quality ? "---" : ""}</th>
+                <th>${packing.observations}</th>
+            </tr>
+            <tr>
+                <th>Materia extraña</th>
+                <th>Ausente</th>
+                <th>${packing.strangeMaterial ? "---" : ""}</th>
+                <th>${!packing.strangeMaterial ? "---" : ""}</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th>Transporte</th>
+                <th>Limpio</th>
+                <th>${packing.transport ? "---" : ""}</th>
+                <th>${!packing.transport ? "---" : ""}</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th>Empaque</th>
+                <th>Sin daños y limpios</th>
+                <th>${packing.paking ? "---" : ""}</th>
+                <th>${!packing.paking ? "---" : ""}</th>
+                <th></th>
+            </tr>
+        </table>
+    
+        <table border="1px" WIDTH="630" align="center">
+                <tr>
+                    <td class="te"><b>Verifico: ${packing.verifit.name} ${packing.verifit.firstSurname} ${packing.verifit.lastSurname}</b> </td> 
+                <b> <td class="te"> <b> Firma: </b></td>  
+                <b> <td class="te"> <b> Puesto: ${packing.verifit.job}</b> </td>
+                </tr> 
+        </table>
+        <table id="mueve" border="1px">
+            <tr>     
+                    <td >F-CAL-RO-03 </td>
+                
+            </tr>
+        </table>
+    
+        
+    </body>
+    </html>
+        `;
+    }
+
+    async reportEntrancePacking(packing:EntrancePacking){
+        let content = this.headReportEntrancePacking()+this.bodyReportEntrancePacking(packing);
         return content;
     }
 }

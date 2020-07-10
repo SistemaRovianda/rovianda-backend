@@ -3,6 +3,7 @@ import { Roles } from './Roles';
 import { EntranceMeat } from "./Entrances.Meat";
 import { Maintenance } from "./Maintenance";
 import { Formulation } from "./Formulation";
+import { EntrancePacking } from "./Entrances.Packing";
 
 @Entity({name:"users"})
 export class User{
@@ -38,6 +39,12 @@ export class User{
     @OneToMany(type=> Formulation,formulationVerifit=>formulationVerifit.verifit)
     formulationVerifit:Formulation[];
 
-    @OneToMany(type=> Formulation,formulationVerifit=>formulationVerifit.make)
+    @OneToMany(type=> Formulation,formulationMake=>formulationMake.make)
     formulationMake:Formulation[];
+
+    @OneToMany(type=> EntrancePacking,entrancePackingVerifit=>entrancePackingVerifit.verifit)
+    entrancePackingVerifit:EntrancePacking[];
+
+    @OneToMany(type=> EntrancePacking,entrancePackinMake=>entrancePackinMake.make)
+    entrancePackinMake:EntrancePacking[];
 }

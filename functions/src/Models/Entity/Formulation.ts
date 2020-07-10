@@ -33,6 +33,6 @@ export class Formulation {
     @ManyToOne(type=>User, verifit=>verifit.formulationVerifit, {eager:true, onDelete:"SET NULL"})
     verifit:User;
 
-    @ManyToOne(type=>User, make=>make.formulationVerifit, {eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=>User, make=>make.formulationMake, {eager:true, onDelete:"SET NULL"})
     make:User;
 }

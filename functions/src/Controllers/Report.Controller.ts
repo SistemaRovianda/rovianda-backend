@@ -9,11 +9,12 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { EntranceMeatService } from '../Services/Entrances.Meat.Services';
+import { EntrancePackingService } from '../Services/Entrance.Packing.Service';
 import { FormulationService } from '../Services/Formulation.Service';
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
-
+import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 
 export class ReportController{
 
@@ -22,6 +23,7 @@ export class ReportController{
     private userService: UserService;
     private formulationService: FormulationService
     private warehouseDriefService: WarehouseDriefService;
+    private entrancePackingService: EntrancePackingService;
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
@@ -29,6 +31,7 @@ export class ReportController{
         this.userService = new UserService(this.firebaseInstance);
         this.formulationService = new FormulationService();
         this.warehouseDriefService = new WarehouseDriefService();
+        this.entrancePackingService = new EntrancePackingService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -98,7 +101,29 @@ export class ReportController{
         }))
     }
 
-    async reportWarehouseDrief(req:Request, res:Response){
+    async reportEntrancePacking(req:Request, res:Response){
+        let packin:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
+        let report = await this.pdfHelper.reportEntrancePacking(packin);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "0in", // default is 0, units: mm, cm, in, px
+                right: "1in",
+                bottom: "2in",
+                left: "2cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEmpaquetado.pdf`
+
+            });
+            stream.pipe(res);
+        }))
+    }
+  
+      async reportWarehouseDrief(req:Request, res:Response){
         let dateInit = req.query.dateInit;
         let dateEnd = req.query.dateEnd;
         let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
@@ -119,6 +144,6 @@ export class ReportController{
                 'Content-disposition': `attachment; filename=reportAlmacenSecos.pdf`
             });
             stream.pipe(res);
-        }))
+        }));
     }
 }

@@ -8,5 +8,8 @@ export interface EntrancePackingDTO{
     strageMaterial:boolean;
     transport:boolean;
     isPz:boolean;
+    paking:boolean;
     observations:string;
+    makeId:string;
+    verifitId:string
 }
