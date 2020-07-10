@@ -209,4 +209,10 @@ export class OvenService{
         return result;
     }
 
+    async getDataReport(id:string){
+        let ovenProduct:OvenProducts =await this.ovenRepository.getOvenProductById(+id);
+        if (!ovenProduct)throw new Error(`[404], OvenProduct with id :${id} was not found`)
+        return ovenProduct
+    }
+
 }
