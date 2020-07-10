@@ -1,10 +1,13 @@
+
 import LOGO from '../Models/Logo';
 import { User } from '../Models/Entity/User';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { Formulation } from '../Models/Entity/Formulation';
 import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
-import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
+import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
+import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
+import { OvenProducts } from '../Models/Entity/Oven.Products';
 
 export default class PdfHelper{
 
@@ -182,8 +185,7 @@ export default class PdfHelper{
         return content;
     }
 
-    
-  headReportEntranceMeat(){
+    headReportEntranceMeat(){
         return`
         <!DOCTYPE html>
         <html lang="en">
@@ -205,129 +207,129 @@ export default class PdfHelper{
             }
 
             #ubica{
-            margin-bottom: 150px;;
+            margin-bottom: 70px;;
             }    
         </style>
     </head>`;
     }
- 
-bodyReportEntranceMeat(user:User,meat:EntranceMeat){
+
+    bodyReportEntranceMeat(user:User,meat:EntranceMeat){
         return `
-        <body bgcolor="#9FB0BF">
-        <table  align="center" border="1px"   width="50%" > 
+        <body bgcolor="">
+        <table  align="center" border="1px"   width="70%" > 
          <tr>
-            <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="90px">    </td>
-            <td align="center">ROVIANDA S.A.P.I. DE C.V.</td>
-            <td colspan="2" align="center">F-CAL-RO-04</td>
+            <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px"></td>
+            <td align="center"><font size=1>ROVIANDA S.A.P.I. DE C.V.</font></td>
+            <td colspan="2" align="center"><font size=1>F-CAL-RO-04</font></td>
          </tr>
-            <td align="center">RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</td>
-            <td align="center">LOTE INTERNO: ${meat.loteInterno} </td>
-            <td align="center">Pág.: 1 de 1</td>
+            <td align="center"><font size=1>RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</font></td>
+            <td align="center"><font size=1>LOTE INTERNO: ${meat.loteInterno}</font> </td>
+            <td align="center"><font size=1>Pág.:1 de 1</font></td>
         </table>
 <!-- ************************************************************************************************-->
-        <table align="center" border="1px"  width="50%"  >
+        <table align="center" border="1px"  width="90%"  >
          <tr>
             <img src="" alt="">
-            <th>Fecha</th>
-            <th>Proveedor</th>
-            <th colspan="2">Materia prima</th>
-            <th>Lote proveedor</th>
+            <th><font size=1>Fecha</font></th>
+            <th><font size=1>Proveedor</font</th>
+            <th colspan="2"><font size=1>Materia prima</font></th>
+            <th><font size=1>Lote proveedor</font></th>
          </tr>
 <!-- ************************************************************************************************-->
          <tr>
-            <th class="espa">${Date.toString}</th>
-            <th class="espa">${meat.proveedor}</th>
-            <th class="espa"  colspan="2">${meat.rawMaterial}</th>
-            <th class="espa">${meat.loteProveedor}</th>
+            <th class="espa"><font size=1>${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</font></th>
+            <th class="espa"><font size=1>${meat.proveedor}</font></th>
+            <th class="espa"  colspan="2"><font size=1>${meat.rawMaterial}</font></th>
+            <th class="espa"><font size=1>${meat.loteProveedor}</font></th>
          </tr>
 <!-- ************************************************************************************************-->  
-        <th>Control</th>
-        <th>Estándar</th>
-        <th>Aceptado</th>
-        <th>Rechazado</th>
-        <th>Observaciones</th>
+        <th><font size=1>Control</font></th>
+        <th><font size=1>Estándar</font></th>
+        <th><font size=1>Aceptado</font></th>
+        <th><font size=1>Rechazado</font></th>
+        <th><font size=1>Observaciones</font></th>
 <!-- ************************************************************************************************-->
          <tr>
-            <td>Transporte </td>
-            <td align="center" height="2px">Limpio, sin olores,sin material ajeno, sin plagas </td>
-            <td>${meat.transport.accepted ? "---" : ""}</td>
-            <td>${!meat.transport.accepted ? "---" : ""}</td>
+            <td><font size=1>Transporte</font> </td>
+            <td align="center" height="2px"><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
+            <td><font size=1>${meat.transport.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.transport.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
          
          <tr>
-            <td>Empaque</td>
-            <td>Sin daños y limpio </td>
-            <td>${meat.packing.accepted ? "---" : ""}</td>
-            <td>${!meat.packing.accepted ? "---" : ""}</td>
+            <td><font size=1>Empaque</font></td>
+            <td><font size=1>Sin daños y limpio</font> </td>
+            <td><font size=1>${meat.packing.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.packing.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td>Caducidad</td>
-            <td>Vigente:</td>
-            <td>${meat.expiration.accepted ? "---" : ""}</td>
-            <td>${!meat.expiration.accepted ? "---" : ""}</td>
+            <td><font size=1>Caducidad</font></td>
+            <td><font size=1>Vigente:</font></td>
+            <td><font size=1>${meat.expiration.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.expiration.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td>Peso</td>
-            <td>Según el empaque</td>
-            <td>${meat.weight.accepted ? "---" : ""}</td>
-            <td>${!meat.weight.accepted ? "---" : ""}</td>
+            <td><font size=1>Peso</font></td>
+            <td><font size=1>Según el empaque</font></td>
+            <td><font size=1>${meat.weight.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.weight.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td>Materia extraña</td>
-            <td>Ausente</td>
-            <td>${meat.strangeMaterial.accepted ? "---" : ""}</td>
-            <td>${!meat.strangeMaterial.accepted ? "---" : ""}</td>
+            <td><font size=1>Materia extraña</font></td>
+            <td><font size=1>Ausente</font></td>
+            <td><font size=1>${meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td rowspan="2">Temperatura</td>
-            <td>Fresco: Max. 4°C </td> 
-            <td>${meat.temperature.accepted ? "---" : ""}</td>
-            <td>${!meat.temperature.accepted ? "---" : ""}</td>
+            <td rowspan="2"><font size=1>Temperatura</font></td>
+            <td><font size=1>Fresco: Max. 4°C</font></td> 
+            <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>  
 
          <tr>
-            <td>Congelado: Max. -18°C</td>
-            <td>${meat.temperature.accepted ? "---" : ""}</td>
-            <td>${!meat.temperature.accepted ? "---" : ""}</td>
+            <td><font size=1>Congelado: Max. -18°C</font></td>
+            <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
             <td></td>   
          </tr>
 
          <tr>
-            <td>Olor</td>
-            <td>Característico</td>
-            <td>${meat.odor.accepted ? "---" : ""}</td>
-            <td>${!meat.odor.accepted ? "---" : ""}</td>
+            <td><font size=1>Olor</font></td>
+            <td><font size=1>Característico</font></td>
+            <td><font size=1>${meat.odor.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.odor.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
         
          <tr>
-            <td>Color</td>
-            <td>Característico</td>
-            <td>${meat.texture.accepted ? "---" : ""}</td>
-            <td>${!meat.texture.accepted ? "---" : ""}</td>
+            <td><font size=1>Color</font></td>
+            <td><font size=1>Característico</font></td>
+            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td>Textura </td>
-            <td>Firme, Característico</td>
-            <td>${meat.texture.accepted ? "---" : ""}</td>
-            <td>${!meat.texture.accepted ? "---" : ""}</td>
+            <td><font size=1>Textura</font></td>
+            <td><font size=1>Firme, Característico</font></td>
+            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
          <tr>
-            <td colspan="5">Desviación:</td>
+            <td colspan="5"><font size=1>Desviación:</font></td>
          </tr>
 
          <tr>
@@ -335,7 +337,7 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
          </tr>
 
          <tr>
-            <td colspan="5">Acción correctiva:</td>
+            <td colspan="5"><font size=1>Acción correctiva:</font></td>
          </tr>
 
          <tr>
@@ -343,28 +345,26 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
          </tr>
 
          <tr>
-            <td height="180px"  width="" colspan="5" > <div id="ubica"> Etiqueta: </div>  </td>
+            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: </font></div>  </td>
          </tr>
-
          <tr>
-            <th class="fin" >${user.job}</th>
-            <th class="fin"  >${user.name} ${user.firstSurname} ${user.lastSurname} </th>
-            <th class="fin" colspan="3" >Firma:</th>
+            <th class="fin" ><font size=1>Inspector de calidad</font></th>
+            <th class="fin"  ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
+            <th class="fin" colspan="3" ><font size=1>Firma:</font></th>
          </tr>
-
         </table>
-
       </body>
-    </html>
-        `;
+    </html>`;
     }
-  
-      async reportEntranceMeat(user:User,meat:EntranceMeat){
+
+
+    async reportEntranceMeat(user:User,meat:EntranceMeat){
         let content = this.headReportEntranceMeat()+this.bodyReportEntranceMeat(user,meat);
         return content;
     }
 
-   headReportFormulationf(){
+
+    headReportFormulationf(){
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -498,6 +498,125 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
         return content;
     }
 
+
+
+    headReportWarehouseDrief(){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tabla2</title>
+        
+            <style>
+        
+                
+        .lista{
+            height: 25px;
+        }
+        
+        .lista2{
+            width: 300px;
+        }
+        
+        img{
+                  width: 80px;
+                  height:100px;
+                  transform: translateY(68%) translateX(394%);
+                  border-radius: 15px;
+        
+              }
+        
+              P{
+                transform: translateY(541%) translateX(33%);
+              }
+        
+              .mueve{
+                  width: 185px;
+               margin-left: 858px;
+               
+            }
+        
+            .AL{
+                height: 70px;
+                width: 220px;
+               margin-left: 821px;
+             
+            }
+        header{
+            margin-top: -5px;
+        }
+        
+        .lo{
+            width: 55px;
+        }
+        
+            </style>
+        </head>
+
+      `;
+    }
+
+    bodyReportWarehouseDrief(data:WarehouseDrief[]){
+       let content = `
+       <body bgcolor="">
+       <header>
+           <img src="${LOGO.data}" alt="" align="left">
+           <p>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p>
+           <P>BITACORA DE CONTROL DE PEP´S ALAMACENES</P>
+       </header>
+   <br>
+   <table align="right"  border="1" width="30%">
+       <tr>
+          <td> ALMACEN:</td>
+       </tr>
+   </table>
+   <br>
+       <table border="1" align="center" width="100%">
+           <tr>
+               <th>Fecha de entrada</th>
+               <th>Producto/Material</th>
+               <th class="lo" >Lote</th>
+               <th>Cantidad</th>
+               <th>Unidad</th>
+               <th>Observaciones</th>
+           </tr>`;
+       
+        let content2 = "";
+        for(let i = 1; i<data.length; i++){
+            content2=content2 + `
+         <tr>
+            <th class="lista">${data[i].date}</th>
+            <th class="lista">${data[i].product.description}</th>
+            <th class="lista">${data[i].loteProveedor}</th>
+            <th class="lista">${data[i].quantity}</th>
+            <th class="lista"></th>
+            <th class="lista">${data[i].observations}</th>
+         </tr>
+            `;
+        }
+
+        let content3 = `
+        </table>
+
+        <table align="right" border="1px" >
+            <tr>     
+                <td >F-TZR-ROV-01</td>
+            </tr>
+        </table>
+        </body>
+      </html>`;
+
+        return content+content2+content3;
+    }
+
+    async reportWarehouseDrief(data:WarehouseDrief[]){
+        let content = this.headReportWarehouseDrief()+this.bodyReportWarehouseDrief(data);
+        return content;
+    }
+
+
     headReportEntrancePacking(){
         return `
         <!DOCTYPE html>
@@ -590,7 +709,6 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
                 <th>Rechazado</th>
                 <th>Observaciones</th>
             </tr>
-
             <tr>
                 <th>Certificado de calidad</th>
                 <th>Entrega de Certificado</th>
@@ -598,7 +716,6 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
                 <th>${!packing.quality ? "---" : ""}</th>
                 <th>${packing.observations}</th>
             </tr>
-
             <tr>
                 <th>Materia extraña</th>
                 <th>Ausente</th>
@@ -606,7 +723,6 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
                 <th>${!packing.strangeMaterial ? "---" : ""}</th>
                 <th></th>
             </tr>
-
             <tr>
                 <th>Transporte</th>
                 <th>Limpio</th>
@@ -614,7 +730,6 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
                 <th>${!packing.transport ? "---" : ""}</th>
                 <th></th>
             </tr>
-
             <tr>
                 <th>Empaque</th>
                 <th>Sin daños y limpios</th>
@@ -631,8 +746,6 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
                 <b> <td class="te"> <b> Puesto: ${packing.verifit.job}</b> </td>
                 </tr> 
         </table>
-
-
         <table id="mueve" border="1px">
             <tr>     
                     <td >F-CAL-RO-03 </td>
@@ -650,6 +763,5 @@ bodyReportEntranceMeat(user:User,meat:EntranceMeat){
         let content = this.headReportEntrancePacking()+this.bodyReportEntrancePacking(packing);
         return content;
     }
-
 }
 

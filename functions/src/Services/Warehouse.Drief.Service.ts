@@ -26,6 +26,7 @@ export class WarehouseDriefService{
         let lote:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLoteIdAndProductId(warehouseDTO.loteId,warehouseDTO.productId);
         if(!lote.length) throw new Error("[404], el lote no existe");
         let warehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefByIds(warehouseDriefId);
+        if(!warehouseDrief) throw new Error(`[404], WarehouseDrief whit Id ${warehouseDriefId} not found`);
         
         switch(warehouseDTO.status){
             case WarehouseStatus.CLOSED:
@@ -116,4 +117,12 @@ export class WarehouseDriefService{
         return response;
     }
 
+    async getDataReport(dateInit:string,dateEnd:string){
+        if(!dateInit) throw new Error(`[400], initDate is required in query`);
+        if(!dateEnd) throw new Error(`[400], finalDate is required in query`);
+        if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], initDate cannot be greater than finalDate`);
+
+        return await this.warehouseDriefRepository.getWarehouseDriefReport(dateInit,dateEnd);
+        
+    }
 }
