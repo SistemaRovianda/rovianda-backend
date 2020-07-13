@@ -15,6 +15,10 @@ import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
 import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
+import { OvenProducts } from '../Models/Entity/Oven.Products';
+import { OvenService } from '../Services/Oven.Service';
+import { RevisionOvenProductService } from '../Services/Revision.Oven.Product.Service';
+import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
 
 export class ReportController{
 
@@ -24,6 +28,8 @@ export class ReportController{
     private formulationService: FormulationService
     private warehouseDriefService: WarehouseDriefService;
     private entrancePackingService: EntrancePackingService;
+    private ovenService:OvenService;
+    private revisionOvenProductService:RevisionOvenProductService;
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
@@ -32,6 +38,8 @@ export class ReportController{
         this.formulationService = new FormulationService();
         this.warehouseDriefService = new WarehouseDriefService();
         this.entrancePackingService = new EntrancePackingService();
+        this.ovenService = new OvenService();
+        this.revisionOvenProductService = new RevisionOvenProductService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -86,16 +94,16 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "0in", // default is 0, units: mm, cm, in, px
-                right: "1in",
-                bottom: "2in",
+                top: "2cm", // default is 0, units: mm, cm, in, px
+                right: "2cm",
+                bottom: "2cm",
                 left: "2cm"
             }
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
-                'Content-disposition': `attachment; filename=reporteCárnicos.pdf`
+                'Content-disposition': `attachment; filename=reporteCarnicos.pdf`
             });
             stream.pipe(res);
         }))
@@ -124,13 +132,13 @@ export class ReportController{
     }
   
       async reportWarehouseDrief(req:Request, res:Response){
-        let dateInit = req.query.dateInit;
-        let dateEnd = req.query.dateEnd;
+        let dateInit = req.query.initDate;
+        let dateEnd = req.query.finalDate;
         let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
         let report = await this.pdfHelper.reportWarehouseDrief(data);
         pdf.create(report, {
             format: 'Letter',
-            "orientation": "landscape",
+            orientation: "landscape",
             border: {
                 top: "2cm", // default is 0, units: mm, cm, in, px
                 right: "2cm",
@@ -146,4 +154,29 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
+
+    async reportOven(req:Request, res:Response){
+        let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
+        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven);
+        let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
+        let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "2cm", // default is 0, units: mm, cm, in, px
+                right: "2cm",
+                bottom: "2cm",
+                left: "2cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reportOven.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
 }

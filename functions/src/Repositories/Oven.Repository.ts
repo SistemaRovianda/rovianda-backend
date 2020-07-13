@@ -28,7 +28,10 @@ export class OvenRepository{
     async getOvenProductById(ovenProduct_id:number){
         await this.getConnection();
         console.log("consulta")
-        return await this.ovenRepository.findOne({id:ovenProduct_id},{relations:["product"]});
+        return await this.ovenRepository.findOne({
+            where:{ id:`${ovenProduct_id}`},
+            relations:["product"]
+         });
     }
 
     async getOvenProductByIds(id:number){

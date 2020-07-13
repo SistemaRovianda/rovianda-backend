@@ -18,6 +18,8 @@ export class RevisionsOvenProductsRepository {
 
     async getByOven(ovenProducts:OvenProducts){
         await this.getConnection();
-        return await this.revisionsOvenProductsRepository.find({ovenProducts})
+        return await this.revisionsOvenProductsRepository.find({
+            where:{ ovenProducts : ovenProducts }
+            });
     }
 }
