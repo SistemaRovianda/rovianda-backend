@@ -58,7 +58,7 @@ export class MaintenanceRepository{
     async getMaintenanceMounth(){
         await this.getConnection();
         return await this.maintenanceRepository.
-        query(`SELECT sum(cost) as cost, mid(date_init from 3 for 5) as mounth FROM maintenance group by mounth;`)
+        query(`SELECT sum(cost) as cost, mid(date from 3 for 5) as mounth FROM maintenance group by mounth;`)
     }
 
     async getMaintenanceByMounth(mounth:string){

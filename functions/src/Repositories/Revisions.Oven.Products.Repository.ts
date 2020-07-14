@@ -22,4 +22,10 @@ export class RevisionsOvenProductsRepository {
             where:{ ovenProducts : ovenProducts }
             });
     }
+    async getByOvenId(id:number){
+        await this.getConnection();
+        return await this.revisionsOvenProductsRepository.find({
+            where:{ ovenProducts : id }
+            });
+    }
 }

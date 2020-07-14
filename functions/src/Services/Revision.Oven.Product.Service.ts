@@ -51,8 +51,8 @@ export class RevisionOvenProductService {
         }
     }
 
-    async getDataReport(ovenProduct:OvenProducts){
-         let revisionOvenProduct = await this.revisionOvenProductRepository.getByOven(ovenProduct);
+    async getDataReport(id:number){
+         let revisionOvenProduct = await this.revisionOvenProductRepository.getByOvenId(id);
          if (!revisionOvenProduct) throw new Error("[404], Not found revision for this oven product"); 
          return revisionOvenProduct;
     }

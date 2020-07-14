@@ -131,7 +131,7 @@ export class ReportController{
         }))
     }
   
-      async reportWarehouseDrief(req:Request, res:Response){
+    async reportWarehouseDrief(req:Request, res:Response){
         let dateInit = req.query.initDate;
         let dateEnd = req.query.finalDate;
         let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
@@ -157,14 +157,14 @@ export class ReportController{
 
     async reportOven(req:Request, res:Response){
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
-        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven);
+        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
         let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
         let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
         let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "1cm", // default is 0, units: mm, cm, in, px
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -178,5 +178,4 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
-
 }
