@@ -94,7 +94,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "2cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -115,7 +115,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "0in", // default is 0, units: mm, cm, in, px
+                top: "0in",
                 right: "1in",
                 bottom: "2in",
                 left: "2cm"
@@ -140,7 +140,7 @@ export class ReportController{
             format: 'Letter',
             orientation: "landscape",
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "2cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -164,7 +164,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "1cm", // default is 0, units: mm, cm, in, px
+                top: "1cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -188,7 +188,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "1cm", // default is 0, units: mm, cm, in, px
+                top: "1cm", 
                 right: "1cm",
                 bottom: "2cm",
                 left: "1cm"
@@ -198,6 +198,30 @@ export class ReportController{
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
                 'Content-disposition': `attachment; filename=reporteEntradaSecos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async reportEntryMeatByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysMeats:EntranceMeat[] = await this.entranceMeatService.reportEntrancesMeats(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryMeats(user,entrysMeats);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaCarnicos.pdf`
             });
             stream.pipe(res);
         }));

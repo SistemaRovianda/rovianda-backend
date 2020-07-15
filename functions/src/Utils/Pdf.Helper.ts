@@ -868,7 +868,7 @@ export default class PdfHelper{
          return content+content2
      }
 
-     footerReportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts){
+    footerReportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts){
         return `
         </table>
         <table align="center" border="1" id="ult" width="100%" ">
@@ -1066,7 +1066,7 @@ export default class PdfHelper{
 
      footerReportEntryDriefs(){
         return `
-        <table align="right" width="40%" border="1px">
+        <table align="right" width="25%" border="1px">
             <tr>     
                 <td>F-CAL-RO-02</td>
             </tr>
@@ -1079,6 +1079,197 @@ export default class PdfHelper{
 
      async reportEntryDriefs(user:User,data:EntranceDrief[]){
         let content = this.headReportEntryDriefs(user)+this.bodyReportEntryDriefs(data)+this.footerReportEntryDriefs();
+        return content;
+    }
+
+
+    headReportEntryMeats(){
+        return`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Rovianda</title>
+        <style>
+            .espa{
+            height: 15px;
+            }
+
+            .separa{
+            height: 15px;
+            }
+
+            table{
+            border: #65768C 3px solid;
+            }
+
+            #ubica{
+            margin-bottom: 70px;;
+            }    
+        </style>
+    </head>
+    <body bgcolor="">
+    <table  align="center" border="1px"   width="70%" > 
+     <tr>
+        <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px"></td>
+        <td align="center"><font size=1>ROVIANDA S.A.P.I. DE C.V.</font></td>
+        <td colspan="2" align="center"><font size=1>F-CAL-RO-04</font></td>
+     </tr>
+        <td align="center"><font size=1>RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</font></td>
+        <td align="center"><font size=1></font> </td>
+        <td align="center"><font size=1>Pág.:1 de 1</font></td>
+    </table>
+    `;
+    }
+
+    bodyReportEntryMeats(meat:EntranceMeat[]){
+        let content=" ";
+        for(let i = 0; i<meat.length; i++){
+            content =content + `
+        <table align="center" border="1px"  width="90%"  >
+         <tr>
+            <img src="" alt="">
+            <th><font size=1>Fecha</font></th>
+            <th><font size=1>Proveedor</font</th>
+            <th colspan="2"><font size=1>Materia prima</font></th>
+            <th><font size=1>Lote proveedor</font></th>
+         </tr>
+<!-- ************************************************************************************************-->
+         <tr>
+            <th class="espa"><font size=1>${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</font></th>
+            <th class="espa"><font size=1>${meat[i].proveedor}</font></th>
+            <th class="espa"  colspan="2"><font size=1>${meat[i].rawMaterial}</font></th>
+            <th class="espa"><font size=1>${meat[i].loteProveedor}</font></th>
+         </tr>
+<!-- ************************************************************************************************-->  
+        <th><font size=1>Control</font></th>
+        <th><font size=1>Estándar</font></th>
+        <th><font size=1>Aceptado</font></th>
+        <th><font size=1>Rechazado</font></th>
+        <th><font size=1>Observaciones</font></th>
+<!-- ************************************************************************************************-->
+         <tr>
+            <td><font size=1>Transporte</font> </td>
+            <td align="center" height="2px"><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
+            <td><font size=1>${meat[i].transport.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].transport.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+         
+         <tr>
+            <td><font size=1>Empaque</font></td>
+            <td><font size=1>Sin daños y limpio</font> </td>
+            <td><font size=1>${meat[i].packing.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].packing.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td><font size=1>Caducidad</font></td>
+            <td><font size=1>Vigente:</font></td>
+            <td><font size=1>${meat[i].expiration.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].expiration.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td><font size=1>Peso</font></td>
+            <td><font size=1>Según el empaque</font></td>
+            <td><font size=1>${meat[i].weight.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].weight.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td><font size=1>Materia extraña</font></td>
+            <td><font size=1>Ausente</font></td>
+            <td><font size=1>${meat[i].strangeMaterial.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].strangeMaterial.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td rowspan="2"><font size=1>Temperatura</font></td>
+            <td><font size=1>Fresco: Max. 4°C</font></td> 
+            <td><font size=1>${meat[i].temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].temperature.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>  
+
+         <tr>
+            <td><font size=1>Congelado: Max. -18°C</font></td>
+            <td><font size=1>${meat[i].temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].temperature.accepted ? "xxx" : ""}</font></td>
+            <td></td>   
+         </tr>
+
+         <tr>
+            <td><font size=1>Olor</font></td>
+            <td><font size=1>Característico</font></td>
+            <td><font size=1>${meat[i].odor.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].odor.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+        
+         <tr>
+            <td><font size=1>Color</font></td>
+            <td><font size=1>Característico</font></td>
+            <td><font size=1>${meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td><font size=1>Textura</font></td>
+            <td><font size=1>Firme, Característico</font></td>
+            <td><font size=1>${meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td></td>
+         </tr>
+
+         <tr>
+            <td colspan="5"><font size=1>Desviación:</font></td>
+         </tr>
+
+         <tr>
+            <td class ="separa" colspan="5"></td>
+         </tr>
+
+         <tr>
+            <td colspan="5"><font size=1>Acción correctiva:</font></td>
+         </tr>
+
+         <tr>
+            <td  class ="separa" colspan="5"></td>
+         </tr>
+
+         <tr>
+            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: </font></div>  </td>
+         </tr>
+         </table>
+         </br>`;
+    }
+
+    return content;
+}
+
+footerReportEntryMeats(user:User){
+    return `
+    <table align="center" width="90%" border="1px">
+      <tr>
+        <th class="fin" ><font size=1>Realizó:</font></th>
+        <th class="fin"  ><font size=1>${user.name} ${user.firstSurname} ${user.lastSurname}</font> </th>
+        <th class="fin" colspan="3" ><font size=1>Firma:</font></th>
+      </tr>
+    </table>
+  </body>
+</html>      
+    `;
+}
+
+    async reportEntryMeats(user:User,meat:EntranceMeat[]){
+        let content = this.headReportEntryMeats()+this.bodyReportEntryMeats(meat)+this.footerReportEntryMeats(user);
         return content;
     }
 }
