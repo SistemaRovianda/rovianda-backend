@@ -173,7 +173,31 @@ export class ReportController{
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
-                'Content-disposition': `attachment; filename=reportOven.pdf`
+                'Content-disposition': `attachment; filename=reporteHornos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async reportEntryDriefByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysDriefs:EntranceDrief[] = await this.entranceDriefService.reportEntrancesDriefs(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryDriefs(user,entrysDriefs);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", // default is 0, units: mm, cm, in, px
+                right: "1cm",
+                bottom: "2cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaSecos.pdf`
             });
             stream.pipe(res);
         }));

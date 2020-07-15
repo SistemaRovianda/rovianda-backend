@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Repository, Between } from "typeorm";
 import { EntranceDrief } from "../Models/Entity/Entrances.Drief";
 import { connect } from "../Config/Db";
 
@@ -34,6 +34,14 @@ export class EntranceDriefRepository{
     async getLastEntrnaceDrief(){
         await this.getConnection();
         return await this.repository.query(`SELECT * FROM entrances_drief ORDER BY id DESC LIMIT 1`)
+    }
+
+    async getEntrancesDriefs(dateInit:string,dateEnd:string){
+        await this.getConnection();
+        return await this.repository.find({
+            where:{ date : Between(dateInit, dateEnd)},
+            relations:["product"]
+        });
     }
 
 }

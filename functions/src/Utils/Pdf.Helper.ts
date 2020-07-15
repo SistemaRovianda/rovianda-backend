@@ -905,5 +905,181 @@ export default class PdfHelper{
         return content;
     }
  
+
+    headReportEntryDriefs(user:User){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tabla 1</title>
+            <style>
+        
+            .ta{   
+                text-align: left;
+            }
+        
+            .ma{
+               text-align: left;
+               width: 200px;
+            }
+        
+            #fec{
+                width:148px;
+            }
+        
+            header{
+                text-align: center;
+            }
+        
+            #mueve{
+                width: 185px;
+                margin-left: 780px
+            }
+        
+            img{
+                width: 80px;
+                height:100px;
+                transform: translateY(78%) translateX(474%);
+            }
+        
+            #title{
+                transform: translateY(507%) translateX(-2%);
+                top: 200px;
+            }
+        </style>
+        </head>
+        <body  bgcolor="">
+        <header>
+            <b><p id="title">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
+        </header>
+            <img src="${LOGO.data}" alt="" align="left" >
+    
+                <table border="1" align="rigth" width="70%">
+                    <tr>
+                        <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                    </tr>
+                    <tr>
+                        <th class="ta">Firma: </th>
+                    </tr>
+                    <tr>
+                        <th class="ta">Puesto: ${user.job}</th>
+                    </tr>
+                </table>
+                
+      `;
+    }
+
+    bodyReportEntryDriefs(data:EntranceDrief[]){
+
+        let content=" ";
+        for(let i = 0; i<data.length; i++){
+            content =content + `
+            <table border="1" align="center" width="100%">
+                    <tr>
+                        <th class="ma">Materia prima: ${data[i].product.description} </th>
+                        <th  rowspan="2">Lote proveedor: ${data[i].loteProveedor} </th>
+                        <th  id="fec" rowspan="2">Fecha: ${data[i].date}</th>
+                    </tr>
+                    <tr>
+                        <th class="ma">Proveedor: ${data[i].proveedor}</th>
+                    </tr>
+                </table>
+    <!--------------------------------------------------------------------------->
+                <table border="1" width="100%">
+                    <tr>
+                        <th>Control</th>
+                        <th>Estandar</th>
+                        <th>Aceptado</th>
+                        <th>Rechazado</th>
+                        <th>Observaciones</th>
+                    </tr>
+                    <tr>
+                        <th><font size=1 > Certificado de calidad </font></th>
+                        <th><font size=1 > Entrega de Certificado </font></th>
+                        <th>${data[i].quality ? "xxx" : ""}</th>
+                        <th>${!data[i].quality ? "xxx" : ""}</th>
+                        <th><font size=1 > ${data[i].observations} </font></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Caducidad </font></th>
+                        <th><font size=1> Vigente </font></th>
+                        <th>${data[i].expiration ? "xxx" : ""}</th>
+                        <th>${!data[i].expiration ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Materia Extraña </font></th>
+                        <th><font size=1> Ausente </font></th>
+                        <th>${data[i].strangeMaterial ? "xxx" : ""}</th>
+                        <th>${!data[i].strangeMaterial ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Transporte </font></th>
+                        <th><font size=1> Limpio </font></th>
+                        <th>${data[i].transport ? "xxx" : ""}</th>
+                        <th>${!data[i].transport ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Empaque </font></th>
+                        <th><font size=1> Sin daños y limpio </font></th>
+                        <th>${data[i].paking ? "xxx" : ""}</th>
+                        <th>${!data[i].paking ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Olor </font></th>
+                        <th><font size=1> Caracteristico </font></th>
+                        <th>${data[i].odor ? "xxx" : ""}</th>
+                        <th>${!data[i].odor ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Color </font></th>
+                        <th><font size=1> Caracteristico </font></th>
+                        <th>${data[i].color ? "xxx" : ""}</th>
+                        <th>${!data[i].color ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th><font size=1> Textura </font></th>
+                        <th><font size=1> Caracteristico </font></th>
+                        <th>${data[i].texture ? "xxx" : ""}</th>
+                        <th>${!data[i].texture ? "xxx" : ""}</th>
+                        <th></th> 
+                    </tr>
+                    <tr>
+                        <th><font size=1> Peso </font></th>
+                        <th><font size=1> Según Empaque </font></th>
+                        <th>${data[i].weight ? "xxx" : ""}</th>
+                        <th>${!data[i].weight ? "xxx" : ""}</th>
+                        <th></th>
+                    </tr>
+                </table>
+             `;
+        }
+        return content
+     }
+
+     footerReportEntryDriefs(){
+        return `
+        <table align="right" width="40%" border="1px">
+            <tr>     
+                <td>F-CAL-RO-02</td>
+            </tr>
+        </table>
+      </body>
+    </html>      
+
+        `;
+    }
+
+     async reportEntryDriefs(user:User,data:EntranceDrief[]){
+        let content = this.headReportEntryDriefs(user)+this.bodyReportEntryDriefs(data)+this.footerReportEntryDriefs();
+        return content;
+    }
 }
 
