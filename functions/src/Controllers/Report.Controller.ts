@@ -226,4 +226,29 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
+
+
+    async reportEntryPackingByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysPacking:EntrancePacking[] = await this.entrancePackingService.getReportEntrysPacking(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryPacking(user,entrysPacking);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaPaquetes.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
 }

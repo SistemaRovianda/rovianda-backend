@@ -1131,7 +1131,7 @@ export default class PdfHelper{
          <tr>
             <img src="" alt="">
             <th><font size=1>Fecha</font></th>
-            <th><font size=1>Proveedor</font</th>
+            <th><font size=1>Proveedor</font></th>
             <th colspan="2"><font size=1>Materia prima</font></th>
             <th><font size=1>Lote proveedor</font></th>
          </tr>
@@ -1254,7 +1254,7 @@ export default class PdfHelper{
     return content;
 }
 
-footerReportEntryMeats(user:User){
+    footerReportEntryMeats(user:User){
     return `
     <table align="center" width="90%" border="1px">
       <tr>
@@ -1266,11 +1266,169 @@ footerReportEntryMeats(user:User){
   </body>
 </html>      
     `;
-}
+    }
 
     async reportEntryMeats(user:User,meat:EntranceMeat[]){
         let content = this.headReportEntryMeats()+this.bodyReportEntryMeats(meat)+this.footerReportEntryMeats(user);
         return content;
     }
+
+
+    headReportEntryPacking(user:User){
+        return`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tabla Nueva</title>
+        <style>
+            .ta{
+                width:400px;   
+                text-align: left;
+            }
+            .te{
+                width:187px;   
+                text-align: left;
+            }
+            .ma{
+               text-align: left;
+               width: 300px; 
+            }
+            #fec{   
+                width:148px;
+            }
+            header{
+                text-align: center;
+            }
+            #mueve{
+                width: 185px;
+                margin-left: 773px
+            }
+            #go{
+                width: 185px;
+                margin-left: 780px
+            }
+            img{
+                width: 60px;
+                height:80px;
+                transform: translateY(78%) translateX(474%);
+              }
+        
+            #title{
+                transform: translateY(507%) translateX(-2%);
+                top: 200px;
+            }
+        </style>
+        </head>
+
+        
+    <header>
+        <b><p id="title">EMPACADORA ROVIANDA S.A.P.I DE C.V</p></b>
+        <p id="title">BITACORA DE CONTROL DE CALIDAD ALMACEN EMPAQUES  </p>
+    </header>
+  
+
+        <img src="${LOGO.data}" alt="" align="left" >
+
+        <table border="1" align="center" width="80%">
+            <tr>
+                <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+            </tr>
+            <tr>
+                <th class="ta">Firma: </th>
+            </tr>
+            <tr>
+                <th class="ta">Puesto: ${user.job}</th>
+            </tr>
+        </table>
+            </br>
+    `;
+    }
+
+    bodyReportEntryPacking(data:EntrancePacking[]){
+        let content=" ";
+        for(let i = 0; i<data.length; i++){
+            content =content + `
+            <!--------------------------------------------------------------------------->
+            <table border="1" align="center" width="90%">
+                <tr>
+                    <th class="ma">Materia prima: ${data[i].product.description}</th>
+                    <th  rowspan="2" >Lote proveedor: ${data[i].loteProveedor} </th>
+                    <th  id="fec" rowspan="2">Fecha: ${data[i].date}</th>
+                </tr>
+                <tr>
+                    <th class="ma">Proveedor: ${data[i].proveedor}</th>
+                </tr>
+            </table>
+
+<!--------------------------------------------------------------------------->
+            <table border="1" align="center" width="90%">
+                <tr>
+                    <th>Control</th>
+                    <th>Estandar</th>
+                    <th>Aceptado</th>
+                    <th>Rechazado</th>
+                    <th>Observaciones</th>
+                </tr>
+
+                  <tr>
+                      <th><font size=1>Certificado de calidad</font></th>
+                      <th><font size=1>Entrega de Certificado</font></th>
+                      <th>${data[i].quality ? "xxx" : ""}</th>
+                      <th>${!data[i].quality ? "xxx" : ""}</th>
+                      <th><font size=1>${data[i].observations}</font></th>
+                </tr>
+                <tr>
+                    <th><font size=1>Materia extraña</font></th>
+                    <th><font size=1>Ausente</font></th>
+                    <th>${data[i].strangeMaterial ? "xxx" : ""}</th>
+                    <th>${!data[i].strangeMaterial ? "xxx" : ""}</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th><font size=1>Transporte</font></th>
+                    <th><font size=1>Limpio</font></th>
+                    <th>${data[i].transport ? "xxx" : ""}</th>
+                    <th>${!data[i].transport ? "xxx" : ""}</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th><font size=1>Empaque</font></th>
+                    <th><font size=1>Sin daños y limpios</font></th>
+                    <th>${data[i].paking ? "xxx" : ""}</th>
+                    <th>${!data[i].paking ? "xxx" : ""}</th>
+                    <th></th>
+                </tr>
+        `;
+    }
+
+    return content;
+}
+
+    footerReportEntryPacking(entrancePacking:EntrancePacking){
+    return `
+    <table border="1px"  align="center" width="90%">
+        <tr>
+            <td class="te"><b>Verifico: ${entrancePacking.verifit.name} ${entrancePacking.verifit.firstSurname} ${entrancePacking.verifit.lastSurname}</b> </td> 
+        <b> <td class="te"> <b> Firma: </b></td>  
+        <b> <td class="te"> <b> Puesto: ${entrancePacking.verifit.job}</b> </td>
+        </tr> 
+    </table>
+    <table align="right" width="25%" border="1px">
+        <tr>     
+           <td >F-CAL-RO-03 </td>
+        </tr>
+    </table>
+    </body>
+    </html>
+    `;
+    }
+
+    async reportEntryPacking(user:User,packing:EntrancePacking[]){
+        let content = this.headReportEntryPacking(user)+this.bodyReportEntryPacking(packing)+this.footerReportEntryPacking(packing[0]);
+        return content;
+    }
+
 }
 
