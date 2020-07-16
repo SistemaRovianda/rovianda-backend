@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
@@ -22,7 +22,6 @@ export class OvenRepository{
         oven_products.new_lote, oven_products.date, 
         oven_products.product_id, products_rovianda.name 
         FROM oven_products INNER JOIN products_rovianda WHERE oven_products.product_id = products_rovianda.id`);
-
     }
 
     async getOvenProductById(ovenProduct_id:number){
@@ -109,4 +108,15 @@ export class OvenRepository{
         await this.getConnection();
         return await this.ovenRepository.save(ovenUser);
     }
+
+    async getOvenProductsByDates(dateInit:string,dateEnd:string){
+        await this.getConnection();
+        return await this.ovenRepository.find({
+            order : { date:"ASC" },
+            where:{ date: Between(dateInit, dateEnd)},
+            relations: ["revisions","product"]
+    });
+    }
+
+    
 }

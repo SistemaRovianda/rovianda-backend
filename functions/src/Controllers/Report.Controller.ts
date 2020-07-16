@@ -251,4 +251,31 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
+
+
+    async reportOvenByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
+        let userElaborated:User= await this.userService.getUserByName(oven[0].nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(oven[0].nameVerify);
+        let report = await this.pdfHelper.reportOvenProducts(userElaborated,userVerify,oven);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteHornos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
 }
