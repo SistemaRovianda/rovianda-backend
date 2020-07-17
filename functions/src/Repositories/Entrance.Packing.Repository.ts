@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Repository, Between } from "typeorm";
 import { connect } from "../Config/Db";
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 import { times } from "lodash";
@@ -37,5 +37,14 @@ export class EntrancePackingRepository{
             {id},
             {relations: ["product"]}
         );
+    }
+
+    async getEntrysPacking(dateInit:string,dateEnd:string){
+        await this.getConnection();
+        return await this.repository.find({
+            order : { date:"ASC" },
+            where:{ date : Between(dateInit, dateEnd)},
+            relations: ["product","verifit"]
+    });
     }
 }

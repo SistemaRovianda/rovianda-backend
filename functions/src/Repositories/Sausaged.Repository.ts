@@ -17,7 +17,10 @@ export class SausagedRepository{
 
     async getSausagedById(id:number){
         await this.getConnection();
-        return await this.sausagedRepository.findOne({id})
+        return await this.sausagedRepository.findOne({
+            where: {id},
+            relations:["productId"]
+        })
     }
 
     async getLastSausaged(){

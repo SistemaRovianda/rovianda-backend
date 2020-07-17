@@ -44,5 +44,35 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "reportFormularionByDate"
+    },
+    {
+        url:"/rovianda/report/entry/drief/:iniDate/:finDate/",
+        method:"get",
+        controller:ReportController,
+        target:"reportEntryDriefByDates"
+    },
+    {
+        url:"/rovianda/report/entry/meat/:iniDate/:finDate/",
+        method:"get",
+        controller:ReportController,
+        target:"reportEntryMeatByDates"
+    },
+    {
+        url:"/rovianda/report/entry/packing/:iniDate/:finDate/",
+        method:"get",
+        controller:ReportController,
+        target:"reportEntryPackingByDates"
+    },
+    {
+        url:"/rovianda/report/oven/:iniDate/:finDate/",
+        method:"get",
+        controller:ReportController,
+        target:"reportOvenByDates"
+    },
+    {
+        url:"/rovianda/report/process/:processId",
+        method:"get",
+        controller:ReportController,
+        target:"reportProcess"
     }
 ];

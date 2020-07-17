@@ -90,7 +90,10 @@ export class ProcessService{
     }
 
     async getProcessById(id:number){
-        return await this.processRepository.findProcessById(id);
+        if(!id) throw new Error("[400], processId is required");
+        let process = await this.processRepository.findProcessById(id);
+        if(!process) throw new Error("[404], process not found");
+        return process;
     }
 
     async getProcessWithGrindingById(id:number){

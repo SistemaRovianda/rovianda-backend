@@ -19,6 +19,14 @@ import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenService } from '../Services/Oven.Service';
 import { RevisionOvenProductService } from '../Services/Revision.Oven.Product.Service';
 import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
+import { Process } from '../Models/Entity/Process';
+import { ProcessService } from '../Services/Process.Service';
+import { Conditioning } from '../Models/Entity/Conditioning';
+import { ConditioningService } from '../Services/Conditioning.Service';
+import { Sausaged } from '../Models/Entity/Sausaged';
+import { Tenderized } from '../Models/Entity/Tenderized';
+import { SausagedService } from '../Services/Sausaged.Service';
+import { TenderizedService } from '../Services/Tenderized.Service';
 
 export class ReportController{
 
@@ -30,6 +38,10 @@ export class ReportController{
     private entrancePackingService: EntrancePackingService;
     private ovenService:OvenService;
     private revisionOvenProductService:RevisionOvenProductService;
+    private processService:ProcessService;
+    private conditioningService:ConditioningService;
+    private sausagedService:SausagedService;
+    private tenderizedService:TenderizedService
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
@@ -40,6 +52,10 @@ export class ReportController{
         this.entrancePackingService = new EntrancePackingService();
         this.ovenService = new OvenService();
         this.revisionOvenProductService = new RevisionOvenProductService();
+        this.processService = new ProcessService();
+        this.conditioningService = new ConditioningService();
+        this.sausagedService = new SausagedService();
+        this.tenderizedService = new TenderizedService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -94,7 +110,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "2cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -115,7 +131,7 @@ export class ReportController{
         pdf.create(report, {
             format: 'Letter',
             border: {
-                top: "0in", // default is 0, units: mm, cm, in, px
+                top: "0in",
                 right: "1in",
                 bottom: "2in",
                 left: "2cm"
@@ -131,7 +147,7 @@ export class ReportController{
         }))
     }
   
-      async reportWarehouseDrief(req:Request, res:Response){
+    async reportWarehouseDrief(req:Request, res:Response){
         let dateInit = req.query.initDate;
         let dateEnd = req.query.finalDate;
         let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
@@ -140,7 +156,7 @@ export class ReportController{
             format: 'Letter',
             orientation: "landscape",
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "2cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -157,7 +173,7 @@ export class ReportController{
 
     async reportOven(req:Request, res:Response){
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
-        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven);
+        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
         let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
         let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
         let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
@@ -182,21 +198,7 @@ export class ReportController{
     }
 
     async reportFormularionByDate(req: Request, res:Response){
-        let user:User = {
-            email: "somemail@yopmail.com",
-            name: "test",
-            roles: {description: "description",roleId:1, users:null},
-            id: 'DSDSDWDW232eWEw2e3#',
-            job: "somejob",
-            firstSurname: "User",
-            lastSurname: "Test",
-            entrancePackinMake: null,
-            entrancePackingVerifit: null,
-            entrancesMeat: null,
-            formulationMake: null,
-            formulationVerifit: null,
-            maintenance: null
-        }
+        let user:User = await this.userService.getUserByUid(req.query.uid);
         let {iniDate, finDate} = req.params;
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
@@ -231,7 +233,7 @@ export class ReportController{
         pdf.create(html, {
             format: 'Letter',
             border: {
-                top: "2cm", // default is 0, units: mm, cm, in, px
+                top: "1cm", 
                 right: "2cm",
                 bottom: "2cm",
                 left: "2cm"
@@ -244,7 +246,134 @@ export class ReportController{
             });
             stream.pipe(res);
         }));
+    }
+
+    async reportEntryDriefByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysDriefs:EntranceDrief[] = await this.entranceDriefService.reportEntrancesDriefs(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryDriefs(user,entrysDriefs);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "2cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaSecos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async reportEntryMeatByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysMeats:EntranceMeat[] = await this.entranceMeatService.reportEntrancesMeats(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryMeats(user,entrysMeats);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaCarnicos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+
+    async reportEntryPackingByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysPacking:EntrancePacking[] = await this.entrancePackingService.getReportEntrysPacking(dateInit,dateEnd);
+        let report = await this.pdfHelper.reportEntryPacking(user,entrysPacking);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntradaPaquetes.pdf`
+            });
+            stream.pipe(res);
+        }));
 
     }
 
+
+    async reportOvenByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
+        let userElaborated:User= await this.userService.getUserByName(oven[0].nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(oven[0].nameVerify);
+        let report = await this.pdfHelper.reportOvenProducts(userElaborated,userVerify,oven);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteHornos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+
+    async reportProcess(req:Request, res:Response){
+        let process:Process = await this.processService.getProcessById(+req.params.processId);
+        let conditioning:Conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
+        let sausaged:Sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
+        let tenderized:Tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
+        let userElaborated:User= await this.userService.getUserByName(process.nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(process.nameVerify);
+        let report = await this.pdfHelper.reportProcess(userElaborated,userVerify,process,conditioning,sausaged,tenderized);
+        pdf.create(report, {
+            format: 'Letter',
+            orientation: "landscape",
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteProceso.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
 }

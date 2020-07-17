@@ -105,4 +105,7 @@ export class SausagedService{
     }
 
 
+    async getSausagedByProcessId(id:number){
+        return await this.sausagedRepository.getSausagedById(id);
+    }
 }
