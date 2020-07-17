@@ -163,6 +163,73 @@ export class ReportController{
         let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
         pdf.create(report, {
             format: 'Letter',
+            zoomFactor: "0",
+            border: {
+              top: "1.2cm",
+              right: "1cm",
+              bottom: "0.5cm",
+              left: "1.5cm",
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reportOven.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async reportFormularionByDate(req: Request, res:Response){
+        let user:User = {
+            email: "somemail@yopmail.com",
+            name: "test",
+            roles: {description: "description",roleId:1, users:null},
+            id: 'DSDSDWDW232eWEw2e3#',
+            job: "somejob",
+            firstSurname: "User",
+            lastSurname: "Test",
+            entrancePackinMake: null,
+            entrancePackingVerifit: null,
+            entrancesMeat: null,
+            formulationMake: null,
+            formulationVerifit: null,
+            maintenance: null
+        }
+        let {iniDate, finDate} = req.params;
+
+        let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
+        
+        let productData = formulations.map(formulation=>{
+            return {
+                name: formulation.productRovianda.name,
+                lot: formulation.loteInterno,
+                meatTemp: formulation.temp,
+                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
+                    return {
+                     name:formulationIngredient.productId.description 
+                    }
+                }),
+                date: formulation.date
+            }
+        });
+
+        let formulationData = {
+            performer: {
+                name: user.name,
+                position: user.job
+            },
+            product: productData,
+            verifier: {
+                name: user.name,
+                ocupation: user.job
+            }
+        };
+
+        let html = this.pdfHelper.generateFormulationReport(formulationData);
+        pdf.create(html, {
+            format: 'Letter',
             border: {
                 top: "2cm", // default is 0, units: mm, cm, in, px
                 right: "2cm",
@@ -173,10 +240,11 @@ export class ReportController{
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
-                'Content-disposition': `attachment; filename=reportOven.pdf`
+                'Content-disposition': `attachment; filename=reportFormulation.pdf`
             });
             stream.pipe(res);
         }));
+
     }
 
 }

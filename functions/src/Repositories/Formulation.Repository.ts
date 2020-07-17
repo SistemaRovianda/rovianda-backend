@@ -1,5 +1,5 @@
 import { Formulation } from "../Models/Entity/Formulation";
-import { Repository } from "typeorm";
+import { Repository, Between } from "typeorm";
 import { connect } from "../Config/Db";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
@@ -46,5 +46,13 @@ export class FormulationRepository{
     async getByFormulationId(id:number){
         await this.getConnection();
         return await this.formulatioRepository.findOne({id},{relations:["verifit", "make"]});
+    }
+
+    async getFormulationsByDate(initDate: Date, finDate: Date){
+        await this.getConnection();
+        return await this.formulatioRepository.find({
+            where: {date: Between(initDate,finDate)},
+            relations: ["formulationIngredients","formulationIngredients.productId"]
+        });
     }
 }
