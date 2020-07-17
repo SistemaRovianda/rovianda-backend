@@ -17,7 +17,10 @@ export class TenderizedRepository{
 
     async getTenderizedById(id:number){
         await this.getConnection();
-        return await this.tenderizedRepository.findOne({id})
+        return await this.tenderizedRepository.findOne({
+            where: {id},
+            relations:["productId"]
+        })
     }
 
     async getProductTenderized(processid:number){

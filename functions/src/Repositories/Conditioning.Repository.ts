@@ -17,7 +17,10 @@ export class ConditioningRepository{
 
     async getConditioningById( id:number){
         await this.getConnection();
-        return await this.conditioningRepository.findOne({id});
+        return await this.conditioningRepository.findOne({
+            where: {id},
+            relations:["productId"]
+        });
     }
 
     async getAllConditioning(){

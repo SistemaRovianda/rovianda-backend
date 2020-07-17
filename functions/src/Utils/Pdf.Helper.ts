@@ -9,6 +9,10 @@ import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
+import { Process } from '../Models/Entity/Process';
+import { Conditioning } from '../Models/Entity/Conditioning';
+import { Sausaged } from '../Models/Entity/Sausaged';
+import { Tenderized } from '../Models/Entity/Tenderized';
 
 export default class PdfHelper{
 
@@ -1569,6 +1573,243 @@ export default class PdfHelper{
 
      async reportOvenProducts(userElaborated:User,userVerify:User,data:OvenProducts[]){
         let content = this.headReportOvenProducts()+this.bodyReportOvenProducts(data)+this.footerReportOvenProducts(userElaborated,userVerify,data[0]);
+        return content;
+    }
+
+
+    headReportProcess(){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Index3</title>
+            <style>
+
+            .formacion{
+                width: 131px;
+                height: 18px;
+            }
+
+            </style>
+        </head>
+        `;
+    }
+
+    bodyReportProcess(userElaborated:User, userVerify:User,data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
+        let content =` 
+        <body bgcolor="">
+    <header align="center">
+        <p>EMPACADORA ROVIANDA S.A.P.I. DE C.V</p>
+        <P>BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO</P>
+    </header>
+
+    <table border="0" width="100%">
+       <tr>
+        <td> <img src="${LOGO.data}" align="left"  height="80px"></td>
+        <td>
+          <p align="right">No.Lote: ${data.loteInterno}</p>
+          <p align="right">Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
+        </td> 
+       </tr>
+    </table>
+   </br>
+    <table  align="left" border="1">
+        <tr>
+            <th>DESCOGELADO</th>
+        </tr>
+    </table>
+    <table border="1"  align="center" width="100%">
+        <tr>
+            <th>MATERIA PRIMA</th>
+            <th>FECHA</th>
+            <th>PESO Kg</th>
+            <th>T*C</th>
+            <th>HORA DE ENTRADA</th>
+            <th>HORA DE SALIDA</th>
+        </tr>
+        <tr>
+        <td class="formacion" >${data.product.name}</td>
+        <td>${data.startDate}</td>
+        <td>${data.weigth}</td>
+        <td>${data.temperature}</td>
+        <td>${data.entranceHour}</td>
+        <td>${data.outputHour}</td>
+        </tr>
+    </table>
+
+    <table  align="left" border="1">
+        <tr>
+            <th>ACONDICIONAMIENTO</th>
+        </tr>
+    </table>
+
+    <table border="1" align="center" width="100%">
+        <tr>
+            <th>MATERIA PRIMA</th>
+            <th>FECHA</th>
+            <th>PROCESO</th>
+            <th>PESO Kg</th>
+            <th>PRODUCTO(s)</th>
+        </tr>
+        <tr>
+            <td  class="formacion">${data.conditioningId.raw}</td>
+            <td>${data.conditioningId.date}</td>
+            <td>${data.currentProcess}</td>
+            <td>${data.conditioningId.weight}</td>
+            <td>${conditioning.productId.description}</td>
+            <td cellspacing="0">clave</td>
+            <td cellspacing="0">Proceso</td>
+            
+    
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>D</td>
+            <td>Deshuese</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>L</td>
+            <td>Limpieza</td>
+    
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>SC</td>
+            <td>Salado y curado</td>
+        </tr>
+        <tr>
+            <td class="formacion" ></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </table>
+
+        <table align="left" border="1">
+            <tr>
+                <th>MOLIENDA</th>
+            </tr>
+        </table>
+
+        <table border="1" align="center" width="100%">
+            <tr>
+                <th>MATERIA PRIMA</th>
+                <th>FECHA</th>
+                <th>PROCESO</th>
+                <th>PESO Kg</th>
+                <th>T*C</td>
+                <th>PRODUCTO(s)</th>
+            </tr>
+
+            <tr>
+                <th class="formacion">${data.grindingId.raw}</th>
+                <th>${data.grindingId.date}</th>
+                <th>${data.grindingId.process}</th>
+                <th>${data.grindingId.weight}</th>
+                <th>${data.temperature}</th>
+                <th>${data.product.name}</th>
+            </tr>
+        </table>
+
+
+          <table align="left" border="1">
+              <tr>
+                  <th>INYECCION/TENDERIZADO</th>
+              </tr>
+          </table>
+
+          <table border="1"  align="center" width="100%">
+              <tr>
+                  <th>PRODUCTO</th>
+                  <th>FECHA</th>
+                  <th>PESO Kg</th>
+                  <th>T*C</th>
+                  <th>PESO SALMUERA Kg</th>
+                  <th>%INYECCION</th>
+              </tr>
+
+              <tr>
+                <th class="formacion">${tenderized.productId.description}</th>
+                <th>${data.tenderizedId.date}</th>
+                <th>${data.tenderizedId.weight}</th>
+                <th>${data.tenderizedId.temperature}</th>
+                <th>${data.tenderizedId.weightSalmuera}</th>
+                <th>${data.tenderizedId.percentInject}</th>
+            </tr>
+          </table>
+
+          <table align="left" border="1">
+            <tr>
+                <th>EMBUTIDO</th>
+            </tr>
+        </table>
+
+          <table border="1"  align="center" width="100%">
+            <tr>
+                <th>PRODUCTO</th>
+                <th>FECHA</th>
+                <th>T*C</th>
+                <th>PESO Kg.Inicio(Hra)</th>
+                <th>PESO Kg.Medio(Hra)</th>
+                <th>PESO Kg. Fin (Hra)</th>
+            </tr>
+
+            <tr>
+              <th class="formacion">${sausaged.productId.description}</th>
+              <th>${data.sausageId.date}</th>
+              <th>${data.sausageId.temperature}</th>
+              <th>${data.sausageId.weightIni} (${data.sausageId.hour1})</th>
+              <th>${data.sausageId.weightMedium} (${data.sausageId.hour2})</th>
+              <th>${data.sausageId.weightExit} (${data.sausageId.hour3})</th>
+          </tr>
+
+        </table>
+
+        <table align="right" width="20%" border="1px">
+            <tr>     
+                    <td>F-CAL-RO-07</td>
+            </tr>
+        </table>
+
+        <table align="center" width="100%" border="1">
+        <tr>
+            <th>Elaboro: ${userElaborated.name} ${userElaborated.firstSurname} ${userElaborated.lastSurname} </th>
+            <th>Firma: </th>
+            <th>Puesto: ${data.jobElaborated}</th>
+        </tr>
+    </table>
+    <table align="center" width="100%" border="1">
+        <tr>
+            <div id="text">
+            <th>Verifico: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</th>
+            <th>Firma: </th>
+            <th>Puesto: ${data.jobVerify}</th>
+        </div>
+        </tr>
+    </table>
+</body>
+</html>`
+         return content;
+     }
+    
+     async reportProcess(userElaborated:User,userVerify:User,data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
+        let content = this.headReportProcess()+this.bodyReportProcess(userElaborated,userVerify,data,conditioning,sausaged,tenderized);
         return content;
     }
 

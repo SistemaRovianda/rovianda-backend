@@ -62,5 +62,11 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportOvenByDates"
+    },
+    {
+        url:"/rovianda/report/process/:processId",
+        method:"get",
+        controller:ReportController,
+        target:"reportProcess"
     }
 ];

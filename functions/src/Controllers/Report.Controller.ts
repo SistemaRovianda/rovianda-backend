@@ -19,6 +19,14 @@ import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenService } from '../Services/Oven.Service';
 import { RevisionOvenProductService } from '../Services/Revision.Oven.Product.Service';
 import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
+import { Process } from '../Models/Entity/Process';
+import { ProcessService } from '../Services/Process.Service';
+import { Conditioning } from '../Models/Entity/Conditioning';
+import { ConditioningService } from '../Services/Conditioning.Service';
+import { Sausaged } from '../Models/Entity/Sausaged';
+import { Tenderized } from '../Models/Entity/Tenderized';
+import { SausagedService } from '../Services/Sausaged.Service';
+import { TenderizedService } from '../Services/Tenderized.Service';
 
 export class ReportController{
 
@@ -30,6 +38,10 @@ export class ReportController{
     private entrancePackingService: EntrancePackingService;
     private ovenService:OvenService;
     private revisionOvenProductService:RevisionOvenProductService;
+    private processService:ProcessService;
+    private conditioningService:ConditioningService;
+    private sausagedService:SausagedService;
+    private tenderizedService:TenderizedService
     private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
@@ -40,6 +52,10 @@ export class ReportController{
         this.entrancePackingService = new EntrancePackingService();
         this.ovenService = new OvenService();
         this.revisionOvenProductService = new RevisionOvenProductService();
+        this.processService = new ProcessService();
+        this.conditioningService = new ConditioningService();
+        this.sausagedService = new SausagedService();
+        this.tenderizedService = new TenderizedService();
         this.pdfHelper = new PdfHelper();
     }
 
@@ -274,6 +290,34 @@ export class ReportController{
                 'Content-Type': 'application/pdf',
                 'responseType': 'blob',
                 'Content-disposition': `attachment; filename=reporteHornos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+
+    async reportProcess(req:Request, res:Response){
+        let process:Process = await this.processService.getProcessById(+req.params.processId);
+        let conditioning:Conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
+        let sausaged:Sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
+        let tenderized:Tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
+        let userElaborated:User= await this.userService.getUserByName(process.nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(process.nameVerify);
+        let report = await this.pdfHelper.reportProcess(userElaborated,userVerify,process,conditioning,sausaged,tenderized);
+        pdf.create(report, {
+            format: 'Letter',
+            orientation: "landscape",
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteProceso.pdf`
             });
             stream.pipe(res);
         }));

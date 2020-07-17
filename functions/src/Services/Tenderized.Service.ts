@@ -82,4 +82,8 @@ export class TenderizedService{
         return response;
     
     }
+
+    async getTenderizedByProcessId(id:number){
+        return await this.tenderizedRepository.getTenderizedById(id);
+    }
 }
