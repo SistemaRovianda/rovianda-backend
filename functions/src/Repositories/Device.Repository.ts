@@ -28,7 +28,12 @@ export class DeviceRepository{
 
     async getLastDevice(){
         await this.getConnection();
-        return await this.deviceRepository.query(`SELECT * FROM device_id ORDER BY device_id DESC LIMIT 1`)
+        console.log("consulta")
+        return await this.deviceRepository.findOne({ 
+            order : {  
+                id:"DESC" 
+                } 
+        });
     }
     
 }

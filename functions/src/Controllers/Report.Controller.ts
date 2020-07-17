@@ -53,7 +53,7 @@ export class ReportController{
                 top: "0in", // default is 0, units: mm, cm, in, px
                 right: "1in",
                 bottom: "2in",
-                left: "2cm"
+                left: "1cm"
             }
         }).toStream((function (err, stream) {
             res.writeHead(200, {
@@ -75,7 +75,7 @@ export class ReportController{
                 top: "0in", // default is 0, units: mm, cm, in, px
                 right: "1in",
                 bottom: "2in",
-                left: "2cm"
+                left: "1cm"
             }
         }).toStream((function (err, stream) {
             res.writeHead(200, {

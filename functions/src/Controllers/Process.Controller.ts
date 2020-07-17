@@ -180,6 +180,10 @@ export class ProcessController {
 
     }
 
+    // async getProcess(req:Request, res: Response){
+
+    // }
+
     // async getProcessActive(req:Request,res:Response){
     //     try{
     //         let process:Process[] = await this.processService.getProcessActive();

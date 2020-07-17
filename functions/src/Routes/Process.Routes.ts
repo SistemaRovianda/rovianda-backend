@@ -17,14 +17,14 @@ export const processRoutes: Array<routeInterface> = [
         url:"/rovianda/process",
         method:"get",
         controller:ProcessController,
-        target:"getProcessActive"
+        target:"getAllProcess"
     },{
-        url:"/rovianda/process/conditioning/:processid",
+        url:"/rovianda/process/conditioning/:processId",
         method:"post",
         controller:ConditioningController,
         target:"createConditioning"
     },{
-        url:"/rovianda/process/conditioning/:processid",
+        url:"/rovianda/process/conditioning/:processId",
         method:"get",
         controller:ConditioningController,
         target:"getConditioning"

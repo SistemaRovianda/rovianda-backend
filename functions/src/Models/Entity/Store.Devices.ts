@@ -6,7 +6,7 @@ import { User } from './User';
 @Entity({ name: "store_devices" })
 export class StoreDevice {
 
-    @PrimaryGeneratedColumn({ name: "maintenance_id" })
+    @PrimaryGeneratedColumn({ name: "store_devices_id" })
     id: number;
 
     @ManyToOne(type=>Store, store=>store.storeDevice, {eager:true, onDelete:"SET NULL"})

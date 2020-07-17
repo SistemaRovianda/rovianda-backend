@@ -41,8 +41,8 @@ export default class PdfHelper{
                 margin-left: 440px
             }
             img{
-                width: 80px;
-                height:100px;
+                width: 60px;
+                height:80px;
                 transform: translateY(78%) translateX(474%);
             }
             #title{
@@ -57,7 +57,7 @@ export default class PdfHelper{
     bodyReportEntranceDrief(user:User,drief:EntranceDrief){
         return `
         <body>
-        <br><br><br><br>
+        <br><br>
         <header>
             <b><p id="title">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
         </header>
@@ -90,7 +90,7 @@ export default class PdfHelper{
             </tr>
         </table>
         <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="630" align="center">
+        <table border="1" WIDTH="150" align="center">
             <tr>
                 <th>Control</th>
                 <th>Estandar</th>
@@ -386,31 +386,32 @@ export default class PdfHelper{
                 }
                 #ini{
                     text-align: left;
-                    margin-left: 275px;
-                    width: 350px;
+                    margin-left: 240px;
+                    width: 250px;
                     height: 100px;
                 }
                 
                 img{
-                    width: 80px;
-                    height:100px;
+                    width: 60px;
+                    height:80px;
                     transform: translateY(78%) translateX(474%);
                 }
                 #title{
                 transform: translateY(507%) translateX(-2%);
                 top: 200px;
+                margin-left:65px;
                 }
                 header{
                     text-align: center;
                     margin-bottom: -70px;
                 }
                 #fo1{
-                    margin-left: 0px;
-                    width: 627px;
                     height: 30px;
+                    margin-left:8px;
+                    width: 483px;
                 }
                 #fo{
-                    margin-left: 430px;
+                    margin-left: 289px;
                     width:200px ;
                 }
             </style>
@@ -426,6 +427,7 @@ export default class PdfHelper{
             <b><p id="title">  BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
         </header>
         <img src="${LOGO.data}" alt="">
+        <br>
         <table id="ini" border="1"  >
             <tr>
                 <th>Realizo, Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
@@ -439,7 +441,7 @@ export default class PdfHelper{
         </table>
         `;
         let content2 = `
-        <table  id="ta" border="1" align="center" width="100%">
+        <table  id="ta" border="1" align="center" width="70">
             <tr>
                 <td class="pro" >Producto</td>
                 <td>Lote</td>

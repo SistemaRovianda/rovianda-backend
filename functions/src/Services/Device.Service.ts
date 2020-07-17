@@ -40,9 +40,10 @@ export class DeviceService{
             saveDevice.model = deviceDTO.model;
             saveDevice.costDevice = deviceDTO.costDevice.toString();
             await this.deviceRepository.saveDevice(saveDevice);
-            let lastDevice = await this.deviceRepository.getLastDevice();
+            let lastDevice:Devices = await this.deviceRepository.getLastDevice();
+            console.log(lastDevice);
             storeDevice.store = store;
-            storeDevice.devices = lastDevice[0];
+            storeDevice.devices = lastDevice;
             await this.storeDeviceRepository.saveStoreDevice(storeDevice);
         }
     }

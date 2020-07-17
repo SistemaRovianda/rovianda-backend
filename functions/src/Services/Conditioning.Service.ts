@@ -73,7 +73,8 @@ export class ConditioningService{
         if(!process)throw new Error("[404], No existe proceso");
         console.log(process);
        
-        let conditioning = await this.processRepository.findConditioningByProcessId(+processId);
+        let conditioning:Process = await this.processRepository.findConditioningByProcessId(+processId);
+        console.log(conditioning)
         if(conditioning.conditioningId ==null) throw new Error("[404], no existe tenderized relacionado a este proceso");
         console.log(conditioning.conditioningId);
         let product = await this.processRepository.findProductByProcessId(+processId);
