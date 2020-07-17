@@ -200,10 +200,12 @@ export class OvenService{
 
     async getProductsByOvenClosed(){
         let ovensClosed = await this.ovenRepository.getProductsByOvenClosed();
+        console.log(ovensClosed);
         let result = ovensClosed.map(ovenClosed=>{
             return {
                 productId: ovenClosed.product.id,
-                name: ovenClosed.product.name
+                name: ovenClosed.product.name,
+                lot: ovenClosed.newLote
             }
         })
         return result;

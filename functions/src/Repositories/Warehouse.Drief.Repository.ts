@@ -89,4 +89,9 @@ export class WarehouseDriefRepository{
         WHERE warehouse_drief.date BETWEEN '${dateInit}' AND '${dateEnd}'
         ORDER BY warehouse_drief.date;`); */
     }
+
+    async getByLoteProveedor(loteProveedor:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({loteProveedor})
+    }
 }

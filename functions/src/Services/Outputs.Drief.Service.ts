@@ -25,6 +25,7 @@ export class OutputsDriefService {
 
         let lote: WarehouseDrief = await this.warehouseDriefRep.getWarehouseDriefByLoteId(outputsDriefDTO.loteId);
         if (!lote) throw new Error("[404], El lote no existe");
+        console.log(lote)
         
         if (lote.status == WarehouseStatus.CLOSED) throw new Error("[409], El lote esta cerrado");
         if (lote.status == WarehouseStatus.PENDING) throw new Error("[409], El lote aún no abierto");
@@ -33,6 +34,7 @@ export class OutputsDriefService {
         outputsDrief.loteProveedor = outputsDriefDTO.loteId;
         outputsDrief.observations = outputsDriefDTO.observations;
         outputsDrief.product = product;
+        outputsDrief.warehouseDrief = lote;
 
         return await this.outputsDriefRepository.createOutputsDrief(outputsDrief);
     }

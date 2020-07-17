@@ -20,7 +20,7 @@ export class EntranceDriefController{
         return res.status(201).send({driefId: id});
     }
 
-    async updateWarehousePacking(req:Request,res:Response){
+    async updateWarehouseDrief(req:Request,res:Response){
         await this.warehouseDriefService.updateWarehouseDrief(req.body,+req.params.warehouseDriefId);
         return res.status(204).send();
     }
