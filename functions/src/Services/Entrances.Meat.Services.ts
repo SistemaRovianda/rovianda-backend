@@ -124,4 +124,8 @@ export class EntranceMeatService {
         return meat;
     }
 
+    async reportEntrancesMeats(dateInit:string,dateEnd:string){
+        let meat:EntranceMeat[]= await this.entrancesMeatRepository.getEntrancesMeats(dateInit,dateEnd);
+        return meat;
+    }
 }

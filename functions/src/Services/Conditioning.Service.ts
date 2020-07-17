@@ -94,4 +94,8 @@ export class ConditioningService{
         });
         return response;
     }
+
+    async getConditioningByProcessId(id:number){
+        return await this.conditioningRepository.getConditioningById(id);
+    }
 }

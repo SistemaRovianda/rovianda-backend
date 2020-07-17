@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 
 export class EntranceMeatRepository{
@@ -24,6 +24,14 @@ export class EntranceMeatRepository{
     async getEntranceMeatById(id:number){
         await this.getConnection();
         return await this.entrancesMeatRepository.findOne({id});
+    }
+
+    async getEntrancesMeats(dateInit:string,dateEnd:string){
+        await this.getConnection();
+        return await this.entrancesMeatRepository.find({
+            order : { createdAt:"ASC" },
+            where:{ createdAt : Between(dateInit, dateEnd)}
+    });
     }
     
 }

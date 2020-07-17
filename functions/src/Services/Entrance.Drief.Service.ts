@@ -81,4 +81,11 @@ export class EntranceDriefService{
         return drief;
     }
 
+    async reportEntrancesDriefs(dateInit:string,dateEnd:string){
+        if(!dateInit) throw new Error(`[400], initDate is required in query`);
+        if(!dateEnd) throw new Error(`[400], finalDate is required in query`);
+        if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], initDate cannot be greater than finalDate`);
+        let driefs:EntranceDrief[]= await this.entranceDriefRepository.getEntrancesDriefs(dateInit,dateEnd);
+        return driefs;
+    }
 }
