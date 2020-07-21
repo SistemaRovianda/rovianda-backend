@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable } from "typeorm";
 import { PropertiesPackaging } from "./Properties.Packaging";
 import { ProductRovianda } from "./Product.Rovianda";
+import { SalesRequest } from "./Sales.Request";
 
 @Entity({ name: "presentation_products" })
 export class PresentationProducts {
@@ -13,6 +14,12 @@ export class PresentationProducts {
     @Column({ name: "type_presentation" })
     presentationType: string;
 
+    @Column({ name: "price_presentation" })
+    presentationPrice: string;
+
+    @Column()
+    status: boolean;
+
     @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentationId)
     propertiesPackaging: PropertiesPackaging[];
 
@@ -23,4 +30,7 @@ export class PresentationProducts {
         inverseJoinColumn: {name: "product_id"}
     })
     productsRovianda: ProductRovianda[];
+
+    @OneToMany(type=> SalesRequest,saleRequest=>saleRequest.presentation,{eager:false})
+    saleRequest: SalesRequest[];
 }

@@ -17,6 +17,21 @@ export class Product {
     @Column()
     description: string;
 
+    @Column()
+    mark: string;
+
+    @Column()
+    variant: string;
+
+    @Column()
+    presentation: string;
+
+    @Column()
+    category: string;
+
+    @Column()
+    state: boolean;
+
     @OneToMany(type => EntrancePacking, entrancePacking => entrancePacking.product)
     entrancePacking: EntrancePacking[];
 

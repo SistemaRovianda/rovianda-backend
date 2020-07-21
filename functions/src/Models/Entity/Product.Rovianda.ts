@@ -15,6 +15,12 @@ export class ProductRovianda {
     @Column()
     name: string;
 
+    @Column()
+    code: string;
+
+    @Column()
+    status: boolean;
+
     @ManyToMany(type => Product, product => product.productRovianda)
     @JoinTable({name:"ingredients"})
     ingredients: Product[];
