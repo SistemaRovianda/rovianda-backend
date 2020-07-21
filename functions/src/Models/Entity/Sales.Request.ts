@@ -30,4 +30,7 @@ export class SalesRequest{
 
     @Column()
     init:number;
+
+    @Column()
+    date: string;
 }
