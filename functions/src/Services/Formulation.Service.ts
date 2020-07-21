@@ -150,4 +150,17 @@ export class FormulationService {
         return formulationIngredients;
     }
 
+    async getFormulartionByDates(initDate: string, finDate: string){
+        if (!Date.parse(initDate)) throw new Error("[400], initDate has not a valid value");
+        if (!Date.parse(finDate)) throw new Error("[400], finDate has not a valid value")
+        let parsedInitDate = new Date(initDate);
+        let parsedFinDate = new Date(finDate);
+        let formulations: Formulation[] = await this.formulationRepository.getFormulationsByDate(parsedInitDate, parsedFinDate);
+        
+        if(!formulations.length)
+            throw new Error("[404], No formulations found, can not generate report");
+            
+        return formulations;
+    }
+
 }

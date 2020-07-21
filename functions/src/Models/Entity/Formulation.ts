@@ -1,8 +1,9 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, ManyToOne } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, ManyToOne, OneToMany } from "typeorm";
 import { ProductRovianda } from "./Product.Rovianda";
 import { Product } from "./Product";
 import { OutputsDrief } from "./Outputs.Drief";
 import { User } from './User';
+import { FormulationIngredients } from "./Formulation.Ingredients";
 
 
 @Entity({ name: "formulation" })
@@ -35,4 +36,7 @@ export class Formulation {
 
     @ManyToOne(type=>User, make=>make.formulationMake, {eager:true, onDelete:"SET NULL"})
     make:User;
+
+    @OneToMany(type => FormulationIngredients, formulationIngredients => formulationIngredients.formulationId)
+    formulationIngredients: FormulationIngredients[];
 }

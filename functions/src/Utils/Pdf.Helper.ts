@@ -1578,6 +1578,136 @@ export default class PdfHelper{
         return content;
     }
 
+     headReportFormulation (){
+        return `<!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Index4</title>
+        
+            <style>
+              .wi {
+                width: 80%;
+                height: 20px;
+
+              }
+        
+              #ta {
+                text-align: center;
+                width: 80%;
+              }
+        
+        
+              #ini {
+                text-align: left;
+                margin-left: 100px;
+                width: 80%;
+              }
+        
+              img {
+                width: 150px;
+                height: 150px;
+                transform: translateY(87%);
+                border-radius: 15px;
+                margin-left: 10px;
+              }
+        
+              header {
+                text-align: center;
+                margin-bottom: -30px;
+              }
+        
+              #fo1 {
+                margin-left: 100px;
+                width: 70%;
+              }
+        
+              #fo {
+                margin-left: 290px;
+                width: 30%;
+              }
+            </style>
+          </head>`;
+    }
+
+    bodyReportFormulationInfo(object: any){
+        const formulationHeaderInfo = `<header>
+        <b><p>BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
+      </header>
+  
+      <img src="${LOGO.data}" alt="" />
+  
+      <table id="ini" border="1">
+        <tr>
+          <th>Realizo, Nombre:  ${object.performer.name}</th>
+        </tr>
+        <tr>
+          <th>Firma:</th>
+        </tr>
+        <th>Puesto:  ${object.performer.position}</th>
+        <tr></tr>
+      </table>`
+
+      let formulationTableInfo = `<table id="ta" border="1" align="center" width="60%">
+      <tr>
+        <td class="pro">Producto</td>
+        <td>Lote</td>
+        <td>Temperatura carne</td>
+        <td>Temperatura agua</td>
+        <td>Ingredientes</td>
+        <td style="width:50px;">Fechas</td>
+      </tr>
+      `;
+      for(let i = 0; i < object.product.length; i++){
+       formulationTableInfo+= `
+        <tr>
+            <td class="wi">${object.product[i].name }</td>
+            <td>${object.product[i].lot}</td>
+            <td>${object.product[i].meatTemp ? object.product[i].meatTemp : ""}</td>
+            <td>${object.product[i].waterTemp ? object.product[i].waterTemp : ""}</td>
+            <td>${object.product[i].ingredients[0].name ? object.product[i].ingredients[0].name : "" }</td>
+            <td>${object.product[i].date ? object.product[i].date: "" }</td>
+        </tr>`;
+            
+            for(let index = 0; index < object.product[i].ingredients.length; index++){
+                
+                formulationTableInfo+= `
+                    <tr>
+                    <td class="wi"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${object.product[i].ingredients[index].name}</td>
+                    <td></td>
+                </tr>`;
+            }
+      }
+     formulationTableInfo +=`</table>`;
+
+        let footerInfoFormularion = `    <table id="fo1" border="1">
+        <tr>
+          <td>Verifico:  ${object.verifier.name}</td>
+          <td>Firma:</td>
+          <td>Puesto:  ${object.verifier.ocupation}</td>
+        </tr>
+      </table>
+  
+      <table id="fo" border="1">
+        <tr>
+          <th>F-CAL-RO-05</th>
+        </tr>
+      </table>
+    </body>
+  </html>
+  `;
+        return formulationHeaderInfo + formulationTableInfo + footerInfoFormularion;
+    }
+
+    generateFormulationReport(data: any){
+        return this.headReportFormulation()+this.bodyReportFormulationInfo(data);
+    }
+ 
 
     headReportProcess(){
         return `
