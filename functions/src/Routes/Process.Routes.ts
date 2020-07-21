@@ -20,19 +20,9 @@ export const processRoutes: Array<routeInterface> = [
         target:"getAllProcess"
     },{
         url:"/rovianda/process/conditioning/:processId",
-        method:"post",
-        controller:ConditioningController,
-        target:"createConditioning"
-    },{
-        url:"/rovianda/process/conditioning/:processId",
         method:"get",
         controller:ConditioningController,
         target:"getConditioning"
-    },{
-        url:"/rovianda/process/injection-tenderized/:processid",
-        method:"post",
-        controller:TenderizedController,
-        target:"createTenderized"
     },{
         url:"/rovianda/process/grinding/:processId",
         method: "get",
@@ -44,11 +34,6 @@ export const processRoutes: Array<routeInterface> = [
         method: "post",
         controller: ConditioningController,
         target: "createConditioningByProcessId"
-    }, {
-        url: "/rovianda/process/conditioning/:processId",
-        method: "get",
-        controller: ConditioningController,
-        target: "getConditioning"
     }, {
         url: "/rovianda/process/injection-tenderized/:processId",
         method: "post",

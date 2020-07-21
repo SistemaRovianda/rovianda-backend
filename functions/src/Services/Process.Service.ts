@@ -149,11 +149,13 @@ export class ProcessService{
         if(!userProcessDTO.nameElaborated) throw new Error("[400], falta el parametro nameElaborated");
         if(!userProcessDTO.nameVerify) throw new Error("[400], falta el parametro nameVerify");
 
-        let userVerify : User = await this.userRepository.getUserByName(userProcessDTO.nameVerify);
-        if(!userVerify) throw new Error(`[400], no existe usuario${userVerify}`);
+        let cadena = userProcessDTO.nameVerify.split(" ");
+        let userVerify = await this.userRepository.getByFullName(cadena[0],cadena[1],cadena[2])
+        if (!userVerify[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameVerify}`);
 
-        let userElaborated : User = await this.userRepository.getUserByName(userProcessDTO.nameElaborated);
-        if(!userElaborated) throw new Error(`[400], no existe usuario${userElaborated}`);
+        let cadena2 = userProcessDTO.nameElaborated.split(" ");
+        let userElaborated = await this.userRepository.getByFullName(cadena2[0],cadena2[1],cadena2[2])
+        if (!userElaborated[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameElaborated}`);
 
         let process: Process = await this.processRepository.findProcessById(+processId);
         if(!process) throw new Error("[400], no existe proceso");

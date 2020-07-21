@@ -65,6 +65,7 @@ export class SausagedService{
         let response:any = {};
         sausaged.forEach( async (i:any) => {
             response = {
+                sausagedId: `${i.id}`,
                 product: {
                     id: `${i.product_id}`,
                     description: `${i.description}`
