@@ -9,7 +9,7 @@ export class SaleSeller{
     id:number;
 
     @ManyToOne(type=>User, user=>user.saleSeller, {eager:true, onDelete:"SET NULL"})
-    @JoinColumn({name:"user_id"})
+    @JoinColumn({name:"user_ids"})
     user:User;
 
     @Column()
@@ -21,6 +21,6 @@ export class SaleSeller{
     @Column()
     urgent: boolean;
 
-    @OneToMany(type=> SalesRequest,saleRequest=>saleRequest.saleSeller,{eager:false})
+    @OneToMany(type=> SalesRequest,saleRequest=>saleRequest.saleSeller)
     saleRequest: SalesRequest[];
 }

@@ -18,4 +18,18 @@ export class SalesRequestRepository{
         });
     }
 
+    async saveSalesProduct(sale:SalesRequest){
+        await this.getConnection();
+        return await this.salesRequestRepository.save(sale);
+    }
+
+    async getLastSales(){
+        await this.getConnection();
+        return await this.salesRequestRepository.findOne({
+            order: {
+                requestId: 'DESC'
+                }
+        });
+    }
+
 }
