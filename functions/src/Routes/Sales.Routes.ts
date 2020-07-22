@@ -8,5 +8,10 @@ export const salesRoutes:Array<routeInterface>=[
         method:"get",
         controller:SalesRequestController,
         target:"getSalesRequest"
+    },{
+        url:"/rovianda/sale/products",
+        method:"post",
+        controller:SalesRequestController,
+        target:"saveSalesProducts"
     }
 ];
