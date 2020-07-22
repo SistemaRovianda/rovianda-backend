@@ -37,5 +37,10 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "get",
         controller: PackagingController,
         target: "getPackagingAssignedBoxes"
+    },{
+        url: "/rovianda//sale/products",
+        method: "get",
+        controller: PackagingController,
+        target: "getPackaging"
     }
 ];
