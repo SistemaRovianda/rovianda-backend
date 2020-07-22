@@ -54,6 +54,21 @@ export class ProductController{
         return res.status(200).send(response)
     }
 
+    async addIngredent(req:Request,res:Response){
+        await this.productService.addIngredent(req.body);
+        return res.status(201).send();
+    }
+
+    async getAllIngredents(req:Request,res:Response){
+        let response = await this.productService.getAllIngredents(req.query.type);
+        return res.status(200).send(response);
+    }
+
+    async deleteIngredent(req:Request,res:Response){
+        await this.productService.deleteIngredent(+req.params.ingredientId);
+        return res.status(204).send();
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;

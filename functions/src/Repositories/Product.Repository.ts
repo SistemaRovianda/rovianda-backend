@@ -59,4 +59,9 @@ export class ProductRepository{
         console.log("consulta")
         return await this.productRepository.query(`SELECT product.description, process.lote_interno FROM product INNER JOIN process on product.id = process.product_id WHERE process.lote_interno = ${lotId}`)
     }
+
+    async getAllIngredents(category:string){
+        await this.getConnection();
+        return await this.productRepository.find({category});
+    }
 }

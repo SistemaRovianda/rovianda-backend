@@ -50,6 +50,24 @@ export const productRoutes:Array<routeInterface>=[
         method: "get",
         controller: ProductController,
         target: "getProductsPresentationByRoviandaId"
+    },
+    {
+        url:"/rovianda/add/ingredient",
+        method: "post",
+        controller: ProductController,
+        target: "addIngredent"
+    },
+    {
+        url:"/rovianda/list/ingredients",
+        method: "get",
+        controller: ProductController,
+        target: "getAllIngredents"
+    },
+    {
+        url:"/rovianda/ingredient/:ingredientId",
+        method: "delete",
+        controller: ProductController,
+        target: "deleteIngredent"
     }
 
 ];
