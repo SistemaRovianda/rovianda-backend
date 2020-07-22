@@ -14,4 +14,10 @@ export class PresentationsProductsRepository{
         await this.getConnection();
         return await this.presentationsProductsRepository.findOne({id});
     }
+
+    async createPresentation(presentation:PresentationProducts){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.save(presentation);
+    }
+    
 }

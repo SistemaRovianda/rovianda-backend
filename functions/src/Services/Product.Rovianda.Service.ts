@@ -4,13 +4,17 @@ import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from "../Models/Entity/Product";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { Request, response } from "express";
+import { PresentationsProductsRepository }  from '../Repositories/Presentation.Products.Repository';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 
 export class ProductRoviandaService{
     private productRoviandaRepository:ProductRoviandaRepository;
     private productRepository:ProductRepository;
+    private presentationsProductsRepository:PresentationsProductsRepository;
     constructor(){
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
+        this.presentationsProductsRepository= new PresentationsProductsRepository();
     }
 
 
@@ -108,5 +112,14 @@ export class ProductRoviandaService{
         if(!productRovianda.status) throw new Error("[404],productRovianda is deleted");
         productRovianda.status = false;
         return await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+    }
+
+    async deletePresentation(presentationId:number){
+        if(!presentationId) throw new Error("[400],presentationId is required");
+        let presentation:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentationId);
+        if(!presentation) throw new Error("[404],Presentation not found");
+        if(!presentation.status) throw new Error("[404],Presentation is deleted");
+        presentation.status = false;
+        return await this.presentationsProductsRepository.createPresentation(presentation);
     }
 }

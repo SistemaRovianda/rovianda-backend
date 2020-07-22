@@ -79,6 +79,11 @@ export class ProductController{
         return res.status(204).send();
     }
 
+    async deletePresentation(req:Request,res:Response){
+        await this.productRoviandaService.deletePresentation(+req.params.presentationId);
+        return res.status(204).send();
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;

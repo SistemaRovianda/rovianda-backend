@@ -81,4 +81,10 @@ export const productRoutes:Array<routeInterface>=[
         controller: ProductController,
         target: "deleteProductRoviandaLogic"
     },
+    {
+        url:"/rovianda/product/:presentationId",
+        method: "delete",
+        controller: ProductController,
+        target: "deletePresentation"
+    }
 ];
