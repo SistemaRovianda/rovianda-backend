@@ -3,7 +3,7 @@ import { ProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from "../Models/Entity/Product";
 import { ProductRepository } from "../Repositories/Product.Repository";
-import { Request } from "express";
+import { Request, response } from "express";
 
 export class ProductRoviandaService{
     private productRoviandaRepository:ProductRoviandaRepository;
@@ -99,5 +99,14 @@ export class ProductRoviandaService{
             }
         });
         return response;
+    }
+
+    async deleteProductRoviandaLogic(roviandaId:number){
+        if(!roviandaId) throw new Error("[400],roviandaId is required");
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(roviandaId);
+        if(!productRovianda) throw new Error("[404],productRovianda not found");
+        if(!productRovianda.status) throw new Error("[404],productRovianda is deleted");
+        productRovianda.status = false;
+        return await this.productRoviandaRepository.saveProductRovianda(productRovianda);
     }
 }

@@ -74,6 +74,11 @@ export class ProductController{
         return res.status(200).send(response);
     }
 
+    async deleteProductRoviandaLogic(req:Request,res:Response){
+        await this.productRoviandaService.deleteProductRoviandaLogic(+req.params.roviandaId);
+        return res.status(204).send();
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;
