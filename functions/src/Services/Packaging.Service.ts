@@ -5,7 +5,7 @@ import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
-import { Request } from 'express';
+import { Request, response } from 'express';
 import { isArguments } from 'lodash';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
@@ -207,4 +207,89 @@ export class PackagingService{
 
         return response;
     }
+
+    async getPackaging(){
+        let packaging:Packaging[] = await this.packagingRepository.getPackaging();
+        let response:any = [];
+        let response1:any=[];
+        for (let i = 0; i< packaging.length; i++) {
+         response = {
+                nameProduct: packaging[i].productId.name,
+                productId: packaging[i].productId.id,
+                presentations:[response1]               
+            }
+            for(let j = 0; j< packaging[i].propertiesPackaging.length ;j++){
+                let properties:PropertiesPackaging[]= await this.propertiesPackagingRepository.findPropiertiesPackaging(+packaging[i].propertiesPackaging[j].id);
+                  response1 = {
+                    presentationId : properties[j].presentationId.id,
+                    presentation : properties[j].presentationId.presentation,
+                    typePresentation : properties[j].presentationId.presentationType,
+                    pricePresentation : properties[j].presentationId.presentationPrice
+                }
+            }
+        }
+        return response
+    }
+
+
+    /*         let packaging:Packaging[] = await this.packagingRepository.getPackaging();
+        let response:any = [];
+        let properties:PropertiesPackaging[];
+        for (let i = 0; i< packaging.length; i++) {
+            let res = []
+            properties.forEach(j =>{
+                res.push({
+                    presentationId : j.presentationId.id,
+                    presentation : j.presentationId.presentation,
+                    typePresentation : j.presentationId.presentationType,
+                    pricePresentation : j.presentationId.presentationPrice
+                })
+            })
+         response = {
+                nameProduct: packaging[i].productId.name,
+                productId: packaging[i].productId.id,
+                presentations: properties
+            }
+        }
+        return response; */
+    /*  async getProductRovianda(req:Request){
+            let productRoviandaId:number = +req.params.productId;
+            let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByIdss(productRoviandaId);
+            if(!productRovianda) throw new Error("[404],el produto no existe");
+            console.log(productRovianda)
+            let response = {};
+            let ingredent = []
+            productRovianda.ingredients.forEach(i =>{
+                ingredent.push({
+                    productId: i.id,
+                    description: i.description
+                })
+            })
+            response = {
+                id: productRovianda.id,
+                name: productRovianda.name,
+                ingredients: ingredent
+            }
+            return response;
+        } */
+/*         async getProductRovianda(req:Request){
+            let productRoviandaId:number = +req.params.productId;
+            let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByIdss(productRoviandaId);
+            if(!productRovianda) throw new Error("[404],el produto no existe");
+            console.log(productRovianda)
+            let response = {};
+            let ingredent = []
+            productRovianda.ingredients.forEach(i =>{
+                ingredent.push({
+                    productId: i.id,
+                    description: i.description
+                })
+            })
+            response = {
+                id: productRovianda.id,
+                name: productRovianda.name,
+                ingredients: ingredent
+            }
+            return response;
+        } */
 }
