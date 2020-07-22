@@ -68,6 +68,12 @@ export const productRoutes:Array<routeInterface>=[
         method: "delete",
         controller: ProductController,
         target: "deleteIngredent"
+    },
+    {
+        url:"/rovianda/product/rovianda",
+        method: "get",
+        controller: ProductController,
+        target: "getAllProductRovianda"
     }
 
 ];

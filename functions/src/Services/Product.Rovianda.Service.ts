@@ -85,4 +85,19 @@ export class ProductRoviandaService{
 
         return response;
     }
+
+    async getAllProductRoviandaState(){
+        let productRovianda:ProductRovianda[] = await this.productRoviandaRepository.getAllProducts();
+        let response:any = []
+        productRovianda.forEach(i=>{
+            if((i.status)){
+                response.push({
+                    id: i.id,
+                    code: i.code,
+                    productName: i.name
+                });
+            }
+        });
+        return response;
+    }
 }

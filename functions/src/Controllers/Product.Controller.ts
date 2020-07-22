@@ -69,6 +69,11 @@ export class ProductController{
         return res.status(204).send();
     }
 
+    async getAllProductRovianda(req:Request,res:Response){
+        let response = await this.productRoviandaService.getAllProductRoviandaState();
+        return res.status(200).send(response);
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;
