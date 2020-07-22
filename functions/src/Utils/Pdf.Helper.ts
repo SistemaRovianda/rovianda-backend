@@ -350,7 +350,7 @@ export default class PdfHelper{
          </tr>
 
          <tr>
-            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: </font></div>  </td>
+            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: <img src="${meat.photo.url}" alt=""  height="60px"></font></div>  </td>
          </tr>
          <tr>
             <th class="fin" ><font size=1>Inspector de calidad</font></th>
