@@ -64,4 +64,10 @@ export class ProductRepository{
         await this.getConnection();
         return await this.productRepository.find({category});
     }
+
+    async saveIngredients(rovianda:number,catalog:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`)
+    }
 }
