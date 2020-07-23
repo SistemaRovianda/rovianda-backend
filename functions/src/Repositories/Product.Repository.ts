@@ -70,4 +70,20 @@ export class ProductRepository{
         console.log("consulta")
         return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`)
     }
+
+    async getIngredientsByProduct(id:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`select 
+        product_catalog.id as ingredentId,
+        product_catalog.description,
+        product_catalog.mark, 
+        product_catalog.variant, 
+        product_catalog.presentation 
+        from product_catalog 
+        inner join ingredients
+        on ingredients.productsRoviandaId = ${id}
+        where ingredients.productCatalogId = product_catalog.id;`)
+    
+    }
 }

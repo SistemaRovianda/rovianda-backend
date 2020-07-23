@@ -184,5 +184,24 @@ export class ProductRoviandaService{
 /* products_rovianda, products_rovianda_presentation, presentation_products, ingredients y product_catalog */    
 }
 
+    async getProductsRoviandaByRoviandaId(req: Request) {
+        let id = req.params.roviandaId;
 
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+        if (!productRovianda)  throw new Error(`[400], Product rovianda with id ${id} was not found`);
+        
+        let response = {};
+
+        let ingredients = await this.productRepository.getIngredientsByProduct(productRovianda.id);
+        let presentations = await this.presentationsProductsRepository.getPresentatiosProductsByProductRovianda(productRovianda.id);
+
+        response = {
+            code: productRovianda.code ? productRovianda.code : null,
+            nameProduct: productRovianda.name ? productRovianda.name : null,
+            status: productRovianda.status ? productRovianda.status : null,
+            ingredents: [ingredients],
+            presentations: [presentations]
+          }
+        return response;
+    }
 }

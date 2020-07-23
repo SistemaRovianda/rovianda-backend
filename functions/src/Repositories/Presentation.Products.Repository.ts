@@ -38,4 +38,19 @@ export class PresentationsProductsRepository{
         await this.getConnection();
         return await this.presentationsProductsRepository.query(`INSERT INTO products_rovianda_presentation (presentation_id ,product_id) VALUES (${presentation},${product})`)
     }
+
+    async getPresentatiosProductsByProductRovianda(product:number){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.query(`select 
+        presentation_products.presentation_id as presentationId,
+        presentation_products.presentation,
+        presentation_products.type_presentation as typePresentation,
+        presentation_products.price_presentation as pricePresentation
+        from presentation_products
+        left join products_rovianda_presentation
+        on products_rovianda_presentation.product_id = ${product}
+        where products_rovianda_presentation.presentation_id = presentation_products.presentation_id;
+        
+        `)
+    }
 }
