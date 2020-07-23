@@ -56,6 +56,40 @@ export const productRoutes:Array<routeInterface>=[
         method: "post",
         controller: ProductController,
         target: "saveProductRovianda"
+    },{
+        url:"/rovianda/add/ingredient",
+        method: "post",
+        controller: ProductController,
+        target: "addIngredent"
+    },
+    {
+        url:"/rovianda/list/ingredients",
+        method: "get",
+        controller: ProductController,
+        target: "getAllIngredents"
+    },
+    {
+        url:"/rovianda/ingredient/:ingredientId",
+        method: "delete",
+        controller: ProductController,
+        target: "deleteIngredent"
+    },
+    {
+        url:"/rovianda/product/rovianda",
+        method: "get",
+        controller: ProductController,
+        target: "getAllProductRovianda"
+    },
+    {
+        url:"/rovianda/product/rovianda/:roviandaId",
+        method: "delete",
+        controller: ProductController,
+        target: "deleteProductRoviandaLogic"
+    },
+    {
+        url:"/rovianda/product/:presentationId",
+        method: "delete",
+        controller: ProductController,
+        target: "deletePresentation"
     }
-
 ];

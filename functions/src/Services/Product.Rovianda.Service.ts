@@ -3,9 +3,9 @@ import { ProductRoviandaDTO, SaveProductRoviandaDTO } from "../Models/DTO/Produc
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from "../Repositories/Product.Repository";
-import { Request } from "express";
+import { Request, response } from "express";
+import { PresentationsProductsRepository }  from '../Repositories/Presentation.Products.Repository';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
-import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 
 export class ProductRoviandaService{
     private productRoviandaRepository:ProductRoviandaRepository;
@@ -133,6 +133,7 @@ export class ProductRoviandaService{
             presentationProduct.presentation = productRoviandaDTO.presentations[i].presentation;
             presentationProduct.presentationPrice = productRoviandaDTO.presentations[i].pricePresentation;
             presentationProduct.presentationType = productRoviandaDTO.presentations[i].typePresentation;
+            presentationProduct.status = true;
             presentationProduct.productsRovianda = productRovianda[0];
 
             await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
@@ -144,8 +145,40 @@ export class ProductRoviandaService{
             await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
             await this.presentationsProductsRepository.savePresentationsProducts(productPresentation.id,productRovianda.id);
-        }        
+        }          
+    }
+  
+    async getAllProductRoviandaState(){
+        let productRovianda:ProductRovianda[] = await this.productRoviandaRepository.getAllProducts();
+        let response:any = []
+        productRovianda.forEach(i=>{
+            if((i.status)){
+                response.push({
+                    id: i.id,
+                    code: i.code,
+                    productName: i.name
+                });
+            }
+        });
+        return response;
+    }
 
-/* products_rovianda, products_rovianda_presentation, presentation_products, ingredients y product_catalog */    }
+    async deleteProductRoviandaLogic(roviandaId:number){
+        if(!roviandaId) throw new Error("[400],roviandaId is required");
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(roviandaId);
+        if(!productRovianda) throw new Error("[404],productRovianda not found");
+        if(!productRovianda.status) throw new Error("[404],productRovianda is deleted");
+        productRovianda.status = false;
+        return await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+    }
+
+    async deletePresentation(presentationId:number){
+        if(!presentationId) throw new Error("[400],presentationId is required");
+        let presentation:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentationId);
+        if(!presentation) throw new Error("[404],Presentation not found");
+        if(!presentation.status) throw new Error("[404],Presentation is deleted");
+        presentation.status = false;
+        return await this.presentationsProductsRepository.createPresentation(presentation);
+    }
 
 }

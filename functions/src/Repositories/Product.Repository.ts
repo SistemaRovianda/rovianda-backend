@@ -53,7 +53,6 @@ export class ProductRepository{
         });
     }
 
- 
     async getProductsByLotId(lotId:number){
         await this.getConnection();
         console.log("consulta")
@@ -63,6 +62,10 @@ export class ProductRepository{
     async saveIngredients(rovianda:number,catalog:number){
         await this.getConnection();
         console.log("consulta")
-        return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`)
+        return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`);
+    }
+    async getAllIngredents(category:string){
+        await this.getConnection();
+        return await this.productRepository.find({category});
     }
 }

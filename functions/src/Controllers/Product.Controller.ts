@@ -59,6 +59,36 @@ export class ProductController{
         return res.status(201).send();
     }
 
+    async addIngredent(req:Request,res:Response){
+        await this.productService.addIngredent(req.body);
+        return res.status(201).send();
+    }
+
+    async getAllIngredents(req:Request,res:Response){
+        let response = await this.productService.getAllIngredents(req.query.type);
+        return res.status(200).send(response);
+    }
+
+    async deleteIngredent(req:Request,res:Response){
+        await this.productService.deleteIngredent(+req.params.ingredientId);
+        return res.status(204).send();
+    }
+
+    async getAllProductRovianda(req:Request,res:Response){
+        let response = await this.productRoviandaService.getAllProductRoviandaState();
+        return res.status(200).send(response);
+    }
+
+    async deleteProductRoviandaLogic(req:Request,res:Response){
+        await this.productRoviandaService.deleteProductRoviandaLogic(+req.params.roviandaId);
+        return res.status(204).send();
+    }
+
+    async deletePresentation(req:Request,res:Response){
+        await this.productRoviandaService.deletePresentation(+req.params.presentationId);
+        return res.status(204).send();
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;
