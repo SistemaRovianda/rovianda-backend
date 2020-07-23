@@ -54,6 +54,11 @@ export class ProductController{
         return res.status(200).send(response)
     }
 
+    async saveProductRovianda(req:Request,res:Response){
+        await this.productRoviandaService.createProductRovianda(req.body);
+        return res.status(201).send();
+    }
+
 }   
 //     async createProduct(req:Request,res:Response){
 //         let {description} = req.body;

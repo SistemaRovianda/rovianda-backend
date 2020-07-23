@@ -57,4 +57,13 @@ export class ProductRoviandaRepository {
         await this.getConnection();
         return await this.repository.find();
     }
+
+    async getLastProductRovianda(){
+        await this.getConnection();
+        return await this.repository.findOne({
+            order: {
+                id: 'DESC'
+                }
+        });
+    }
 }

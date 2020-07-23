@@ -50,6 +50,12 @@ export const productRoutes:Array<routeInterface>=[
         method: "get",
         controller: ProductController,
         target: "getProductsPresentationByRoviandaId"
+    },
+    {
+        url:"/rovianda/product/rovianda",
+        method: "post",
+        controller: ProductController,
+        target: "saveProductRovianda"
     }
 
 ];

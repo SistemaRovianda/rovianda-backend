@@ -14,4 +14,22 @@ export class PresentationsProductsRepository{
         await this.getConnection();
         return await this.presentationsProductsRepository.findOne({id});
     }
+    async savePresentationsProduct(presentation:PresentationProducts){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.save(presentation);
+    }
+
+    async getLastProductPresentation(){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.findOne({
+            order: {
+                id: 'DESC'
+                }
+        });
+    }
+
+    async savePresentationsProducts(presentation:number,product:number){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.query(`INSERT INTO products_rovianda_presentation (presentation_id ,product_id) VALUES (${presentation},${product})`)
+    }
 }
