@@ -29,7 +29,7 @@ export class SalesRequest{
     presentation:PresentationProducts;
 
     @Column()
-    init:number;
+    units:number;
 
     @Column()
     date: string;
