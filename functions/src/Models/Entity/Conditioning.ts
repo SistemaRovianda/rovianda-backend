@@ -1,5 +1,5 @@
 
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
 
 @Entity({name:"conditioning"})
@@ -26,7 +26,9 @@ export class Conditioning{
     @Column()
     date:string;
 
-    @OneToOne(type => Product)
+    //@OneToOne(type => Product)
+    //@JoinColumn({name:"product_id"})
+    @ManyToOne(type=>Product, productId=>productId.conditioning, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"product_id"})
     productId: Product;
 

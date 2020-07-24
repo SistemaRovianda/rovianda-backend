@@ -33,13 +33,13 @@ export class ConditioningService{
         let process: Process = await this.processRepository.findProcessById(+processId);
     if(!process) throw new Error("[400], no existe proceso");
     console.log(process); 
-        let processConditioning :Process = await this.processRepository.findConditioningByProcessId(+processId);
-    if(processConditioning.conditioningId != null ) throw new Error("[400], este proceso ya tiene acondicionamiento asignado");
+    if(process.conditioningId) throw new Error("[400], este proceso ya tiene acondicionamiento asignado");
         
     let product: Product = await this.productRepository.getProductById(conditioningDTO.productId);
     if(!product) throw new Error("[400], no existe producto");
-        let productConditioning = await this.conditioningRepository.getConditioningByProductId(product.id);
-    if(productConditioning) throw new Error("[400], este producto ya tiene acondicionamiento asignado");
+    console.log(product)
+    //let productConditioning = await this.conditioningRepository.getConditioningByProductId(product.id);
+    //if(productConditioning) throw new Error("[400], este producto ya tiene acondicionamiento asignado");
     console.log(product);
 
             let conditioning :Conditioning = new Conditioning();
