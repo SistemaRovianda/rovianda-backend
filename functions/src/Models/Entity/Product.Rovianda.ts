@@ -10,7 +10,7 @@ import { Inspection } from "./Inspection";
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
     @PrimaryGeneratedColumn()
-    id: number;
+    id: number; 
 
     @Column()
     name: string;
