@@ -52,6 +52,11 @@ export const productRoutes:Array<routeInterface>=[
         target: "getProductsPresentationByRoviandaId"
     },
     {
+        url:"/rovianda/product/rovianda",
+        method: "post",
+        controller: ProductController,
+        target: "saveProductRovianda"
+    },{
         url:"/rovianda/add/ingredient",
         method: "post",
         controller: ProductController,

@@ -14,12 +14,7 @@ export class PresentationsProductsRepository{
         await this.getConnection();
         return await this.presentationsProductsRepository.findOne({id});
     }
-
-    async createPresentation(presentation:PresentationProducts){
-        await this.getConnection();
-        return await this.presentationsProductsRepository.save(presentation);
-    }
-    
+  
     async savePresentationsProduct(presentation:PresentationProducts){
         await this.getConnection();
         return await this.presentationsProductsRepository.save(presentation);
@@ -37,6 +32,11 @@ export class PresentationsProductsRepository{
     async savePresentationsProducts(presentation:number,product:number){
         await this.getConnection();
         return await this.presentationsProductsRepository.query(`INSERT INTO products_rovianda_presentation (presentation_id ,product_id) VALUES (${presentation},${product})`)
+    }
+
+    async createPresentation(presentation:PresentationProducts){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.save(presentation);
     }
 
     async getPresentatiosProductsByProductRovianda(product:number){

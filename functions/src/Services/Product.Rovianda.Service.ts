@@ -16,7 +16,6 @@ export class ProductRoviandaService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.presentationsProductsRepository= new PresentationsProductsRepository();
-
     }
 
 
@@ -91,7 +90,7 @@ export class ProductRoviandaService{
 
         return response;
     }
-
+  
     async getAllProductRoviandaState(){
         let productRovianda:ProductRovianda[] = await this.productRoviandaRepository.getAllProducts();
         let response:any = []
@@ -179,9 +178,7 @@ export class ProductRoviandaService{
             await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
             await this.presentationsProductsRepository.savePresentationsProducts(productPresentation.id,productRovianda.id);
-        }        
-
-/* products_rovianda, products_rovianda_presentation, presentation_products, ingredients y product_catalog */    
+        }            
 }
 
     async getProductsRoviandaByRoviandaId(req: Request) {
@@ -204,7 +201,7 @@ export class ProductRoviandaService{
           }
         return response;
     }
-
+  
     async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,req: Request) {
         let id = req.params.roviandaId;
 
@@ -261,4 +258,5 @@ export class ProductRoviandaService{
             product.status = productRoviandaDTO.status;
              await this.productRoviandaRepository.saveProductRovianda(product);
         }   
+
 }
