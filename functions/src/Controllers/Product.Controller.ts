@@ -89,10 +89,6 @@ export class ProductController{
         return res.status(204).send();
     }
 
-    async saveProductRovianda(req:Request,res:Response){
-        await this.productRoviandaService.createProductRovianda(req.body);
-        return res.status(201).send();
-    }
 
     async getProductRoviandaByRoviandaId(req:Request,res:Response){
         let response = await this.productRoviandaService.getProductsRoviandaByRoviandaId(req);
