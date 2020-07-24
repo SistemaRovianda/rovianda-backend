@@ -94,6 +94,23 @@ export class UserService{
         return response;
     }
 
+    async getUserByRol(rol:string){
+        if(!rol) throw new Error("[400], rol is required");
+        let roles:Roles = await this.rolesRepository.getRolByDescription(rol);
+        if(!roles) throw new Error("[404], rol not found");
+        let users:User[] = await this.userRepository.getByRol(roles);
+        let response:any = [];
+        users.forEach(i =>{
+            response.push({
+                userId: `${i.id}`,
+                fullName: `${i.name} ${i.firstSurname} ${i.lastSurname}`,
+                rol: `${i.roles.description}`,
+                job: `${i.job}`
+            })
+        })
+        return response;
+    }
+
     async getUserByUid(uid:string){
         if(!uid) throw new Error("[400], uid is required");
         let user:User = await this.userRepository.getUserById(uid);

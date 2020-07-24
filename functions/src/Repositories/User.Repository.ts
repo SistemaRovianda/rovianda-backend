@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { User } from '../Models/Entity/User';
+import { Roles } from '../Models/Entity/Roles';
 export class UserRepository{
     private userRepository:Repository<User>;
 
@@ -45,5 +46,10 @@ export class UserRepository{
         SELECT * FROM users WHERE name = "${name}" 
         AND first_surname = "${firstSurname}" 
         AND last_surname = "${lastSurname}"`);
+    }
+
+    async getByRol(roles:Roles){
+        await this.getConnection();
+        return await this.userRepository.find({roles});
     }
 }

@@ -19,5 +19,10 @@ export class RolesRepository{
         });
         //return await this.rolesRepository.query(`SELECT * FROM roles WHERE description = "${rol}"`)
     }
+
+    async getRolByDescription(description:string){
+        await this.getConnection();
+        return await this.rolesRepository.findOne({description});
+    }
     
 }

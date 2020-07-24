@@ -63,4 +63,9 @@ export class UserController{
         let token = await this.usersService.createToken(req.query.uid);
         return res.status(200).send({toke:token});
     }
+
+    async getUserByRol(req:Request,res:Response){
+        let users = await this.usersService.getUserByRol(req.params.rol);
+        return res.status(200).send(users);
+    }
 }

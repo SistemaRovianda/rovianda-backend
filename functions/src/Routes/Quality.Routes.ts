@@ -26,5 +26,11 @@ export const qualityRoutes:Array<routeInterface>=[
         method:"get",
         controller:UserController,
         target:"createToken"
+    },
+    {
+        url:"/rovianda/user/rol/:rol",
+        method:"get",
+        controller:UserController,
+        target:"getUserByRol"
     }
 ];
