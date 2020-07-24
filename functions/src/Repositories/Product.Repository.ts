@@ -64,6 +64,7 @@ export class ProductRepository{
         console.log("consulta")
         return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`);
     }
+
     async getAllIngredents(category:string){
         await this.getConnection();
         return await this.productRepository.find({category});
