@@ -94,4 +94,10 @@ export class ProductController{
         let response = await this.productRoviandaService.getProductsRoviandaByRoviandaId(req);
         return res.status(200).send(response);
     }
+
+    async updateProductRovianda(req:Request,res:Response){
+        await this.productRoviandaService.updateProductRovianda(req.body,req);
+        return res.status(201).send();
+    }
+
 }

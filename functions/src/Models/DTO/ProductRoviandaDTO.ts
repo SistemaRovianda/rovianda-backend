@@ -20,3 +20,26 @@ export interface SaveProductRoviandaDTO{
        }
     ]
 }
+
+export interface UpdateProductRoviandaDTO{
+   code: string,
+   nameProduct: string,
+   status: boolean,
+   ingredents: [
+      {
+         ingredentId: number,
+         description: string,
+         mark: string,
+         Variant: string,
+         Presentation: string
+      }
+   ],
+   presentations: [
+      {
+         presentationId: number,
+         presentation: number,
+         typePresentation: string,
+         pricePresentation: string
+      }
+   ]
+}
