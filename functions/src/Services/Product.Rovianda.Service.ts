@@ -1,5 +1,5 @@
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
-import { ProductRoviandaDTO, SaveProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
+import { ProductRoviandaDTO, SaveProductRoviandaDTO, UpdateProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from "../Repositories/Product.Repository";
@@ -204,4 +204,61 @@ export class ProductRoviandaService{
           }
         return response;
     }
+
+    async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,req: Request) {
+        let id = req.params.roviandaId;
+
+        if(!productRoviandaDTO.code) throw new Error("[400],code is required");
+        if(!productRoviandaDTO.nameProduct)  throw new Error("[400],code is required");
+        if(productRoviandaDTO.status == null) throw new Error("[400],status is required");
+        
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+        if(!product) throw new Error(`[404],product_rovianda with id ${id} not found`);
+
+        for (let i = 0; i < productRoviandaDTO.ingredents.length; i++) {
+            if(!productRoviandaDTO.ingredents[i].ingredentId) throw new Error("[400],productId is required");
+            if(!productRoviandaDTO.ingredents[i].Presentation) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredents[i].Variant) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredents[i].description) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredents[i].mark) throw new Error("[400],nameProduct is required");
+
+            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredents[i].ingredentId);
+            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredents[i].ingredentId} not found`);
+
+            let ingredentRovianda = await this.productRepository.belongTo(+id,productRoviandaDTO.ingredents[i].ingredentId);
+            if(ingredentRovianda[0]==null) 
+            throw new Error(`[409],the ingredient with id ${productRoviandaDTO.ingredents[i].ingredentId} does not belong to this rovianda product`);
+
+                productIngredient.presentation = productRoviandaDTO.ingredents[i].Presentation;
+                productIngredient.variant = productRoviandaDTO.ingredents[i].Variant;
+                productIngredient.description = productRoviandaDTO.ingredents[i].description;
+                productIngredient.mark = productRoviandaDTO.ingredents[i].mark;
+                await this.productRepository.createProduct(productIngredient);
+              
+            }
+
+        for (let i = 0; i < productRoviandaDTO.presentations.length; i++) {
+            if(!productRoviandaDTO.presentations[i].presentation) throw new Error("[400],productId is required");
+            if(!productRoviandaDTO.presentations[i].presentationId) throw new Error("[400],productId is required");
+            if(!productRoviandaDTO.presentations[i].pricePresentation) throw new Error("[400],productId is required");
+            if(!productRoviandaDTO.presentations[i].typePresentation) throw new Error("[400],productId is required");
+            
+            let presentationProduct = await this.presentationsProductsRepository.getPresentatiosProductsById(productRoviandaDTO.presentations[i].presentationId);
+
+            let presentationRovianda = await this.presentationsProductsRepository.belongToProduct(+id,productRoviandaDTO.presentations[i].presentationId);
+            if(presentationRovianda[0]==null) 
+            throw new Error(`[409],this presentation product with id ${productRoviandaDTO.presentations[i].presentationId} does not belong to this rovianda product`);
+
+            presentationProduct.presentation = productRoviandaDTO.presentations[i].presentation;
+            presentationProduct.presentationPrice = productRoviandaDTO.presentations[i].pricePresentation;
+            presentationProduct.presentationType = productRoviandaDTO.presentations[i].typePresentation;
+
+            await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
+            }
+
+            product.code = productRoviandaDTO.code;
+            product.name = productRoviandaDTO.nameProduct;
+            product.status = productRoviandaDTO.status;
+             await this.productRoviandaRepository.saveProductRovianda(product);
+        }   
 }

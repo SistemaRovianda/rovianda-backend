@@ -96,5 +96,10 @@ export const productRoutes:Array<routeInterface>=[
         method: "get",
         controller: ProductController,
         target: "getProductRoviandaByRoviandaId"
+    },{
+        url:"/rovianda/product/rovianda/:roviandaId",
+        method: "put",
+        controller: ProductController,
+        target: "updateProductRovianda"
     }
 ];

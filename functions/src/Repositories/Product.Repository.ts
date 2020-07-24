@@ -53,6 +53,13 @@ export class ProductRepository{
         });
     }
 
+    async belongTo(roviandaId:number,catalogId:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`select * from ingredients
+        where ingredients.productsRoviandaId = ${roviandaId} and ingredients.productCatalogId = ${catalogId};`
+            );  
+    }
  
     async getProductsByLotId(lotId:number){
         await this.getConnection();
