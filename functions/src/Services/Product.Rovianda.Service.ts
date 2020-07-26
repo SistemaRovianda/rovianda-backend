@@ -257,6 +257,24 @@ export class ProductRoviandaService{
             product.name = productRoviandaDTO.nameProduct;
             product.status = productRoviandaDTO.status;
              await this.productRoviandaRepository.saveProductRovianda(product);
-        }   
+    }   
 
+    async getProductsRoviandaByCode(req: Request) {
+        let code = req.query.code;
+    
+        let productsRovianda:ProductRovianda[] = await this.productRoviandaRepository.getProductRoviandaByCode(code);
+        if (!productsRovianda)  throw new Error(`[400], Product rovianda with code :${code} was not found`);
+            
+        let response = [];
+
+        for (let i = 0; i < productsRovianda.length; i++) {
+            let presentations = await this.presentationsProductsRepository.getPresentatiosProductsByProductRovianda(productsRovianda[i].id);
+                response.push({
+                    code: productsRovianda[i].code ? productsRovianda[i].code : null,
+                    nameProduct: productsRovianda[i].name ? productsRovianda[i].name : null,
+                    presentations: presentations
+                });
+        }
+            return response;
+    }
 }
