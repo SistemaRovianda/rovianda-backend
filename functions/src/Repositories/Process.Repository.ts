@@ -65,10 +65,14 @@ export class ProcessRepository{
 
     async findProcessById(id:number){
         await this.getConnection();
-        return await this.processRepository.findOne({
-            where: {id},
-            relations:["sausageId","tenderizedId","conditioningId","grindingId","product"]
-        });
+        return await this.processRepository.query(`
+        SELECT process.*, tenderized.*, grinding.*, conditioning.*, sausaged.*
+        FROM process
+        INNER JOIN tenderized ON tenderized.id = process.tenderized_id
+        INNER JOIN grinding ON grinding.id = process.grinding_id
+        INNER JOIN conditioning ON conditioning.id = process.conditioning_id
+        INNER JOIN sausaged ON sausaged.id = process.sausage_id
+        WHERE process.id = ${id};`);
     }
      
     async getProceesByLot(newLote:string,productId:number){

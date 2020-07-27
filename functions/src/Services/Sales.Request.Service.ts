@@ -48,6 +48,7 @@ export class SalesRequestService{
       if(salesProductDTO.urgent == null )throw new Error("[400],urgent is required");
       let user:User = await this.userRepository.getUserById(salesProductDTO.userId);
       if(!user)throw new Error(`[404],user with id ${salesProductDTO.userId} not found`);
+
       let date = `${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}`;
 
       let saleSeller : SaleSeller = new SaleSeller();

@@ -20,5 +20,4 @@ export class SalesRequestController{
         await this.salesRequestService.saveSalesProduct(req.body);
         return res.status(201).send();
     }
-  
-}
+} 

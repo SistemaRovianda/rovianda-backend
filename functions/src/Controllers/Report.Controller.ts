@@ -360,7 +360,7 @@ export class ReportController{
         let report = await this.pdfHelper.reportProcess(userElaborated,userVerify,process,conditioning,sausaged,tenderized);
         pdf.create(report, {
             format: 'Letter',
-            orientation: "landscape",
+            orientation: "landscape", 
             border: {
                 top: "1cm", 
                 right: "1cm",

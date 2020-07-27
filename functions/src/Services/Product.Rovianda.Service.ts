@@ -128,6 +128,8 @@ export class ProductRoviandaService{
 
         if(!productRoviandaDTO.code) throw new Error("[400],code is required");
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
+        if(!productRoviandaDTO.ingredients[0]) throw new Error("[400],ingredients is required");
+        if(!productRoviandaDTO.presentations[0]) throw new Error("[400],presentations is required");
         
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByName(productRoviandaDTO.nameProduct);
         if(product) throw new Error("[409],product with that name already exists ");
@@ -138,11 +140,11 @@ export class ProductRoviandaService{
         productRovianda.status = true;
          await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
-        for (let i = 0; i < productRoviandaDTO.ingredents.length; i++) {
-            if(!productRoviandaDTO.ingredents[i].productId) throw new Error("[400],productId is required");
-            if(!productRoviandaDTO.ingredents[i].nameProduct) throw new Error("[400],nameProduct is required");
-            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredents[i].productId);
-            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredents[i].productId} not found`);
+        for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
+            if(!productRoviandaDTO.ingredients[i].productId) throw new Error("[400],productId is required");
+            if(!productRoviandaDTO.ingredients[i].nameProduct) throw new Error("[400],nameProduct is required");
+            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].productId);
+            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].productId} not found`);
               
                 let productRovianda = await this.productRoviandaRepository.getLastProductRovianda();
                 
@@ -206,30 +208,32 @@ export class ProductRoviandaService{
         let id = req.params.roviandaId;
 
         if(!productRoviandaDTO.code) throw new Error("[400],code is required");
-        if(!productRoviandaDTO.nameProduct)  throw new Error("[400],code is required");
+        if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
         if(productRoviandaDTO.status == null) throw new Error("[400],status is required");
-        
+        if(!productRoviandaDTO.ingredients[0]) throw new Error("[400],ingredents is required");
+        if(!productRoviandaDTO.presentations[0]) throw new Error("[400],presentations is required");
+
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
         if(!product) throw new Error(`[404],product_rovianda with id ${id} not found`);
 
-        for (let i = 0; i < productRoviandaDTO.ingredents.length; i++) {
-            if(!productRoviandaDTO.ingredents[i].ingredentId) throw new Error("[400],productId is required");
-            if(!productRoviandaDTO.ingredents[i].Presentation) throw new Error("[400],nameProduct is required");
-            if(!productRoviandaDTO.ingredents[i].Variant) throw new Error("[400],nameProduct is required");
-            if(!productRoviandaDTO.ingredents[i].description) throw new Error("[400],nameProduct is required");
-            if(!productRoviandaDTO.ingredents[i].mark) throw new Error("[400],nameProduct is required");
+        for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
+            if(!productRoviandaDTO.ingredients[i].ingredientId) throw new Error("[400],ingredientId is required");
+            if(!productRoviandaDTO.ingredients[i].Presentation) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredients[i].Variant) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredients[i].description) throw new Error("[400],nameProduct is required");
+            if(!productRoviandaDTO.ingredients[i].mark) throw new Error("[400],nameProduct is required");
 
-            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredents[i].ingredentId);
-            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredents[i].ingredentId} not found`);
+            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].ingredientId);
+            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].ingredientId} not found`);
 
-            let ingredentRovianda = await this.productRepository.belongTo(+id,productRoviandaDTO.ingredents[i].ingredentId);
+            let ingredentRovianda = await this.productRepository.belongTo(+id,productRoviandaDTO.ingredients[i].ingredientId);
             if(ingredentRovianda[0]==null) 
-            throw new Error(`[409],the ingredient with id ${productRoviandaDTO.ingredents[i].ingredentId} does not belong to this rovianda product`);
+            throw new Error(`[409],the ingredient with id ${productRoviandaDTO.ingredients[i].ingredientId} does not belong to this rovianda product`);
 
-                productIngredient.presentation = productRoviandaDTO.ingredents[i].Presentation;
-                productIngredient.variant = productRoviandaDTO.ingredents[i].Variant;
-                productIngredient.description = productRoviandaDTO.ingredents[i].description;
-                productIngredient.mark = productRoviandaDTO.ingredents[i].mark;
+                productIngredient.presentation = productRoviandaDTO.ingredients[i].Presentation;
+                productIngredient.variant = productRoviandaDTO.ingredients[i].Variant;
+                productIngredient.description = productRoviandaDTO.ingredients[i].description;
+                productIngredient.mark = productRoviandaDTO.ingredients[i].mark;
                 await this.productRepository.createProduct(productIngredient);
               
             }
