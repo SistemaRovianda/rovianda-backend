@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Repository, Like } from "typeorm";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { connect } from "../Config/Db";
 
@@ -67,4 +67,10 @@ export class ProductRoviandaRepository {
         });
     }
   
+    async getProductRoviandaByCode(code:string) {
+        await this.getConnection();
+        return await this.repository.find({
+            code: Like(`%${code}%`)
+        });
+    }
 }

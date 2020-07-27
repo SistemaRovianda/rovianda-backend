@@ -100,4 +100,8 @@ export class ProductController{
         return res.status(201).send();
     }
 
+    async getProductRoviandaByCode(req:Request,res:Response){
+        let response = await this.productRoviandaService.getProductsRoviandaByCode(req);
+        return res.status(200).send(response);
+    }
 }
