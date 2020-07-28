@@ -58,7 +58,7 @@ export class ProductService{
         if(!ingredent.variant) throw new Error("[400],variant is required");
         if(!ingredent.presentation) throw new Error("[400],presentation is required");
         if(!ingredent.category) throw new Error("[400],category is required");
-        if(ingredent.category == IngredentStatus.DRIEF || ingredent.category == IngredentStatus.PACKGING){
+        if(ingredent.category == IngredentStatus.DRIEF || ingredent.category == IngredentStatus.PACKING){
             let saveIngredent:Product = new Product();
             saveIngredent.description = ingredent.nameProduct;
             saveIngredent.mark = ingredent.mark;
@@ -75,7 +75,7 @@ export class ProductService{
     async getAllIngredents(type:string){
         if(!type) throw new Error("[400],type is required");
         let response:any = [];
-        if(type == IngredentStatus.DRIEF || type == IngredentStatus.PACKGING){
+        if(type == IngredentStatus.DRIEF || type == IngredentStatus.PACKING){
             let ingredents:Product[] = await this.productRepository.getAllIngredents(type);
             ingredents.forEach( i=> {
                 if(i.state){

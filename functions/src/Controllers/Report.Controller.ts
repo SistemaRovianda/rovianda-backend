@@ -108,13 +108,13 @@ export class ReportController{
         let meat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(+req.params.meatId);
         let report = await this.pdfHelper.reportEntranceMeat(user,meat);
         pdf.create(report, {
-            format: 'Letter',
-            border: {
-                top: "2cm", 
-                right: "2cm",
-                bottom: "2cm",
-                left: "2cm"
-            }
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',

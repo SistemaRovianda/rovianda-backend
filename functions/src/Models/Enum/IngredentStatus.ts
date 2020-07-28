@@ -1,4 +1,4 @@
 export enum IngredentStatus{
     DRIEF  = "DRIEF",
-    PACKGING = "PACKGING"
+    PACKING = "PACKING"
 }

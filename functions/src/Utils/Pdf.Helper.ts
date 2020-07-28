@@ -350,7 +350,7 @@ export default class PdfHelper{
          </tr>
 
          <tr>
-            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: <img src="${meat.photo.url}" alt=""  height="60px"></font></div>  </td>
+            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: <img src="${meat.photo.url}" height="150"  width="150"> </font></div>  </td>
          </tr>
          <tr>
             <th class="fin" ><font size=1>Inspector de calidad</font></th>
@@ -364,6 +364,7 @@ export default class PdfHelper{
 
 
     async reportEntranceMeat(user:User,meat:EntranceMeat){
+        console.log(meat.photo.url);
         let content = this.headReportEntranceMeat()+this.bodyReportEntranceMeat(user,meat);
         return content;
     }

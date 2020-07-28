@@ -27,7 +27,7 @@ export class EntrancePackingService{
         let userId=req.headers.authorization;
         if(!userId) throw new Error("[403],Credenciales invalidas");
         if(!entrancePackingDTO.date) throw new Error("[400],el parametro date es requirido");
-        if(!entrancePackingDTO.isPz) throw new Error("[400],el parametro isPz es requerido");
+        if(entrancePackingDTO.isPz == null) throw new Error("[400],el parametro isPz es requerido");
         if(!entrancePackingDTO.lotProveedor) throw new Error("[400],el parametro lotProveedor es requerido");
         if(!entrancePackingDTO.productId) throw new Error("[400],el parametro productId es requerido");
         if(!entrancePackingDTO.proveedor) throw new Error("[400],el parametro proveedor es requerido");

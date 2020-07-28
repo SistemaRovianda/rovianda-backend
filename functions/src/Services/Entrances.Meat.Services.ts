@@ -60,7 +60,7 @@ export class EntranceMeatService {
 
 
         let photo = Buffer.from(entranceMeatDTO.photo, 'base64');
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`/${entranceMeatDTO.createdAt.replace(/\//g, "")}/${entranceMeatDTO.lotInternal}/`, photo);
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${entranceMeatDTO.createdAt.replace(/\//g, "")}/${entranceMeatDTO.lotInternal}/`, photo);
         let file: File = {
             fileId: 0,
             url: urlOfImage
