@@ -6,7 +6,7 @@ export interface ProductRoviandaDTO{
 export interface SaveProductRoviandaDTO{
     code: string,
     nameProduct: string,
-    ingredents: [
+    ingredients: [
        {
           productId: number,
           nameProduct: string
@@ -25,9 +25,9 @@ export interface UpdateProductRoviandaDTO{
    code: string,
    nameProduct: string,
    status: boolean,
-   ingredents: [
+   ingredients: [
       {
-         ingredentId: number,
+         ingredientId: number,
          description: string,
          mark: string,
          Variant: string,
