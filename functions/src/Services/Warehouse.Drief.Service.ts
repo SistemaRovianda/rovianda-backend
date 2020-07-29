@@ -4,15 +4,18 @@ import { WarehouseDTO } from "../Models/DTO/WarehouseDTO";
 import { Product } from "../Models/Entity/Product";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
+import { EntranceDriefRepository } from "../Repositories/Entrance.Drief.Repository";
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { Request } from "express";
 
 export class WarehouseDriefService{
     private warehouseDriefRepository:WarehouseDriefRepository;
     private productRepository:ProductRepository;
+    private entranceDriefRepository:EntranceDriefRepository;
     constructor(){
         this.warehouseDriefRepository = new WarehouseDriefRepository();
         this.productRepository = new ProductRepository();
+        this.entranceDriefRepository = new EntranceDriefRepository();
     }
 
     async updateWarehouseDrief(warehouseDTO:WarehouseDTO,warehouseDriefId:number){
@@ -63,12 +66,19 @@ export class WarehouseDriefService{
             let warehouseDriefLote = await this.warehouseDriefRepository.getWarehouseDriefByLoteProveedor(warehouseDriefStatus[i].lote_proveedor,status);
             let response1:any = [];
             for(let n = 0; n<warehouseDriefLote.length; n++){
-                response1.push({
-                    id: `${warehouseDriefLote[n].productId}`,
-                    warehouseDriefId: `${warehouseDriefLote[n].id}`,
-                    quantity: `${warehouseDriefLote[n].quantity}`,
-                    description: `${warehouseDriefLote[n].description}`
-                });
+                let entranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProduct(warehouseDriefLote[n].lote_proveedor,warehouseDriefLote[n].productId);
+                if(entranceDrief[0].quality && entranceDrief[0].expiration && 
+                    entranceDrief[0].transport && entranceDrief[0].strange_material &&
+                    entranceDrief[0].paking && entranceDrief[0].color &&
+                    entranceDrief[0].texture && entranceDrief[0].weight &&
+                    entranceDrief[0].odor){
+                        response1.push({
+                            id: `${warehouseDriefLote[n].productId}`,
+                            warehouseDriefId: `${warehouseDriefLote[n].id}`,
+                            quantity: `${warehouseDriefLote[n].quantity}`,
+                            description: `${warehouseDriefLote[n].description}`
+                        });
+                    }
             }
             response.push({ 
                 loteId: `${warehouseDriefStatus[i].lote_proveedor}`,

@@ -41,7 +41,8 @@ export class WarehousePackingRepository{
     async getWarehousePackingByLoteProveedor(loteProveedor:string, status:string){
         await this.getConnection();
         return await this.warehousePackingRepository.query(`
-        SELECT warehouse_packing.lote_proveedor, warehouse_packing.productId, product_catalog.description 
+        SELECT warehouse_packing.lote_proveedor, warehouse_packing.productId, product_catalog.description, 
+        warehouse_packing.id, warehouse_packing.quantity
         FROM warehouse_packing 
         INNER JOIN product_catalog  ON product_catalog.id = warehouse_packing.productId 
         WHERE lote_proveedor = "${loteProveedor}" 

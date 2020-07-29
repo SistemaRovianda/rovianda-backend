@@ -56,6 +56,7 @@ export class EntranceDriefService{
         entranceDrief.color = entranceDriefDTO.color;
         entranceDrief.isPz = entranceDriefDTO.isPz;
         entranceDrief.observations = entranceDriefDTO.observations;
+        entranceDrief.odor = entranceDriefDTO.odor;
 
         let warehouseDrief:WarehouseDrief = new WarehouseDrief();
         

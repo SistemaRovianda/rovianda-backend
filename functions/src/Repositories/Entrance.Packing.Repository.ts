@@ -47,4 +47,11 @@ export class EntrancePackingRepository{
             relations: ["product","verifit"]
     });
     }
+
+    async getEntrnacePackingByLotProduct(loteProveedor:string, productId:number){
+        await this.getConnection();
+        return await this.repository.query(`
+        SELECT * FROM entrances_packing WHERE lote_proveedor = "${loteProveedor}" AND productId = ${productId}
+        `);
+    }
 }

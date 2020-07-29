@@ -44,4 +44,11 @@ export class EntranceDriefRepository{
         });
     }
 
+    async getEntrnaceDriefByLotProduct(loteProveedor:string, productId:number){
+        await this.getConnection();
+        return await this.repository.query(`
+        SELECT * FROM entrances_drief WHERE lote_proveedor = "${loteProveedor}" AND productId = ${productId}
+        `);
+    }
+
 }

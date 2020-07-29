@@ -5,13 +5,16 @@ import { ProductRepository } from "../Repositories/Product.Repository";
 import { Product } from "../Models/Entity/Product";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { Request } from "express";
+import { EntrancePackingRepository } from "../Repositories/Entrance.Packing.Repository";
 
 export class WarehousePackingService{
     private warehousePackingRepository:WarehousePackingRepository;
     private productRepository:ProductRepository;
+    private entrancePackingRepository:EntrancePackingRepository;
     constructor(){
         this.warehousePackingRepository = new WarehousePackingRepository();
         this.productRepository = new ProductRepository();
+        this.entrancePackingRepository = new EntrancePackingRepository();
     }
     
     async updateWarehouseStatus(warehousePackinDTO:WarehouseDTO){
@@ -51,10 +54,16 @@ export class WarehousePackingService{
             let warehousePackingLote = await this.warehousePackingRepository.getWarehousePackingByLoteProveedor(warehousePackingStatus[i].lote_proveedor,status);
             let response1:any = [];
             for(let n = 0; n<warehousePackingLote.length; n++){
-                response1.push({
-                    id: `${warehousePackingLote[n].productId}`,
-                    description: `${warehousePackingLote[n].description}`
-                });
+                let entrancePaking = await this.entrancePackingRepository.getEntrnacePackingByLotProduct(warehousePackingLote[n].lote_proveedor,warehousePackingLote[n].productId)
+                if(entrancePaking[0].quality && entrancePaking[0].strange_material && 
+                    entrancePaking[0].transport && entrancePaking[0].paking){
+                        response1.push({
+                            id: `${warehousePackingLote[n].productId}`,
+                            description: `${warehousePackingLote[n].description}`,
+                            warehousePackingId: `${warehousePackingLote[n].id}`,
+                            quantity: `${warehousePackingLote[n].quantity}`
+                        });
+                    }
             }
             response.push({
                 loteId: `${warehousePackingStatus[i].lote_proveedor}`,
