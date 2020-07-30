@@ -93,6 +93,11 @@ export class MaintenanceController{
         let maintenance = await this.maintenanceService.getMaintenanceByWeek(week);
         return res.status(200).send(maintenance);
     }
+
+    async getStores(req:Request,res:Response){
+        let response = await this.storeService.getStores();
+        return res.status(200).send(response);
+    }
 }
 
 

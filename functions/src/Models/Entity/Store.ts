@@ -12,7 +12,10 @@ export class Store {
     name: string;
 
     @Column()
-    address: string;
+    location: string;
+
+    @Column()
+    reference: string;
 
     @OneToMany(type=> Maintenance,maintenance=>maintenance.store,{eager:false})
     maintenance: Maintenance[];

@@ -259,7 +259,7 @@ export default class PdfHelper{
             <td align="center" height="2px"><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
             <td><font size=1>${meat.transport.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.transport.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.transport.observations ? meat.transport.observations : ""}</font></td>
          </tr>
          
          <tr>
@@ -267,7 +267,7 @@ export default class PdfHelper{
             <td><font size=1>Sin daños y limpio</font> </td>
             <td><font size=1>${meat.packing.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.packing.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.packing.observations ? meat.packing.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -275,7 +275,7 @@ export default class PdfHelper{
             <td><font size=1>Vigente:</font></td>
             <td><font size=1>${meat.expiration.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.expiration.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.expiration.observations ? meat.expiration.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -283,7 +283,7 @@ export default class PdfHelper{
             <td><font size=1>Según el empaque</font></td>
             <td><font size=1>${meat.weight.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.weight.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.weight.observations ? meat.weight.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -291,7 +291,7 @@ export default class PdfHelper{
             <td><font size=1>Ausente</font></td>
             <td><font size=1>${meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.strangeMaterial.observations ? meat.strangeMaterial.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -299,14 +299,14 @@ export default class PdfHelper{
             <td><font size=1>Fresco: Max. 4°C</font></td> 
             <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.temperature.descriptions ? meat.temperature.descriptions : ""}</font></td>
          </tr>  
 
          <tr>
             <td><font size=1>Congelado: Max. -18°C</font></td>
-            <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
-            <td></td>   
+            <td><font size=1>${meat.fridge.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.fridge.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.fridge.observations ? meat.fridge.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -314,7 +314,7 @@ export default class PdfHelper{
             <td><font size=1>Característico</font></td>
             <td><font size=1>${meat.odor.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.odor.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.odor.observations ? meat.odor.observations : ""}</font></td>
          </tr>
         
          <tr>
@@ -322,7 +322,7 @@ export default class PdfHelper{
             <td><font size=1>Característico</font></td>
             <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -330,7 +330,7 @@ export default class PdfHelper{
             <td><font size=1>Firme, Característico</font></td>
             <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
             <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
          </tr>
 
          <tr>

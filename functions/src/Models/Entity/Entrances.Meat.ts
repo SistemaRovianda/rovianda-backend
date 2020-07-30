@@ -28,7 +28,7 @@ export class EntranceMeat{
     @Column("simple-json")
     weight:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
 
@@ -42,56 +42,56 @@ export class EntranceMeat{
     @Column("simple-json",{name:"strangeMaterial"})
     strangeMaterial:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
 
     @Column("simple-json")
     expiration:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     packing:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
 
     @Column("simple-json")
     odor:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     transport:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     texture:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
 
     @Column("simple-json")
     fridge:{
         fridgeId: number,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
     
     @Column("simple-json",{name:"slaughter_date"})
     slaughterDate:{
         value: string,
-        descriptions: string,
+        observations: string,
         accepted: boolean
         }
         
