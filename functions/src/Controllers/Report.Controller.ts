@@ -64,13 +64,13 @@ export class ReportController{
         let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
         let report = await this.pdfHelper.reportEntranceDrief(user,drief);
         pdf.create(report, {
-            format: 'Letter',
-            border: {
-                top: "0in", // default is 0, units: mm, cm, in, px
-                right: "1in",
-                bottom: "2in",
-                left: "1cm"
-            }
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',

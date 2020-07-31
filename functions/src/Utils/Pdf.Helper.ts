@@ -42,7 +42,7 @@ export default class PdfHelper{
             }
             #mueve{
                 width: 185px;
-                margin-left: 440px
+                margin-left: 340px
             }
             img{
                 width: 60px;
@@ -81,7 +81,7 @@ export default class PdfHelper{
             
         </table>
         <!--------------------------------------------------------------------------->
-        <table border="1" align="center">
+        <table border="1" WIDTH="450" align="center">
             <tr>
                 <th class="ma">Materia prima: ${drief.product.description}</th>
                 <th  rowspan="2" >Lote proveedor: ${drief.loteProveedor}</th>
@@ -364,7 +364,6 @@ export default class PdfHelper{
 
 
     async reportEntranceMeat(user:User,meat:EntranceMeat){
-        console.log(meat.photo.url);
         let content = this.headReportEntranceMeat()+this.bodyReportEntranceMeat(user,meat);
         return content;
     }

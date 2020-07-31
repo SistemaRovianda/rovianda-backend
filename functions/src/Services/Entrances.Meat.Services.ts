@@ -121,11 +121,6 @@ export class EntranceMeatService {
         if(!meatId) throw new Error("[400], meatId is required");
         let meat:EntranceMeat = await this.entrancesMeatRepository.getEntranceMeatById(meatId);
         if(!meat) throw new Error(`[404], meat whit id ${meatId} not found`);
-        console.log(meat)
-        console.log("imprimir")
-        console.log(meat.packing.observations)
-        console.log(meat.packing)
-        console.log(meat.packing.value)
         return meat;
     }
 
