@@ -88,8 +88,14 @@ export class EntrancePackingService{
     async getReportEntrysPacking(dateInit:string,dateEnd:string){
         if(!dateInit) throw new Error(`[400], initDate is required in query`);
         if(!dateEnd) throw new Error(`[400], finalDate is required in query`);
+        if (!Date.parse(dateInit)) throw new Error("[400], initDate has not a valid value");
+        if (!Date.parse(dateEnd)) throw new Error("[400], finDate has not a valid value")
         if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], iniDate cannot be greater than finDate`);
         let packing:EntrancePacking[]= await this.entrancePackingRepository.getEntrysPacking(dateInit,dateEnd);
+
+        if(!packing.length)
+        throw new Error("[404], No Entrances packing found, can not generate report");
+
         return packing;
     }
 
