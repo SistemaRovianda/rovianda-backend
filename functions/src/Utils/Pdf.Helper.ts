@@ -1383,7 +1383,7 @@ export default class PdfHelper{
                       <th><font size=1>Entrega de Certificado</font></th>
                       <th>${data[i].quality ? "xxx" : ""}</th>
                       <th>${!data[i].quality ? "xxx" : ""}</th>
-                      <th><font size=1>${data[i].observations}</font></th>
+                      <th><font size=1>${data[i].observations ? data[i].observations :""}</font></th>
                 </tr>
                 <tr>
                     <th><font size=1>Materia extraña</font></th>
@@ -1416,9 +1416,9 @@ export default class PdfHelper{
     return `
     <table border="1px"  align="center" width="90%">
         <tr>
-            <td class="te"><b>Verifico: ${entrancePacking.verifit.name} ${entrancePacking.verifit.firstSurname} ${entrancePacking.verifit.lastSurname}</b> </td> 
+            <td class="te"><b>Verifico: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.name} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.firstSurname} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.lastSurname}</b> </td> 
         <b> <td class="te"> <b> Firma: </b></td>  
-        <b> <td class="te"> <b> Puesto: ${entrancePacking.verifit.job}</b> </td>
+        <b> <td class="te"> <b> Puesto: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.job}</b> </td>
         </tr> 
     </table>
     <table align="right" width="25%" border="1px">
