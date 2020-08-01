@@ -27,6 +27,7 @@ import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { SausagedService } from '../Services/Sausaged.Service';
 import { TenderizedService } from '../Services/Tenderized.Service';
+import { IsNull } from 'typeorm';
 
 export class ReportController{
 
@@ -351,11 +352,38 @@ export class ReportController{
 
     async reportProcess(req:Request, res:Response){
         let process:Process = await this.processService.getProcessById(+req.params.processId);
-        let conditioning:Conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
-        let sausaged:Sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
-        let tenderized:Tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        let userElaborated:User= await this.userService.getUserByName(process.nameElaborated);
-        let userVerify:User= await this.userService.getUserByName(process.nameVerify);
+
+        let conditioning:Conditioning = new Conditioning();
+        let sausaged:Sausaged = new Sausaged();
+        let tenderized:Tenderized= new Tenderized();
+        let userElaborated:User = new User();
+        let userVerify:User = new User();
+        
+        if(process.conditioningId == null){
+            conditioning;
+        }else{
+            conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
+        }      
+        if(process.sausageId == null){
+            sausaged;
+        }else{
+            sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
+        }    
+        if(process.tenderizedId == null){
+            tenderized;
+        }else{
+            tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
+        }
+        if(process.nameElaborated == null){
+            userElaborated;
+        }else{
+            userElaborated = await this.userService.getUserByName(process.nameElaborated);
+        }    
+        if(process.nameVerify == null){
+            userVerify;
+        }else{
+            userVerify = await this.userService.getUserByName(process.nameVerify);
+        }                                                                          
         let report = await this.pdfHelper.reportProcess(userElaborated,userVerify,process,conditioning,sausaged,tenderized);
         pdf.create(report, {
             format: 'Letter',
