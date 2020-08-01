@@ -87,13 +87,13 @@ export class ReportController{
         let formulationIngredents:FormulationIngredients[] = await this.formulationService.reportFormulationIngredents(+req.params.formulationId)
         let report = await this.pdfHelper.reportFormulation(formulation,formulationIngredents);
         pdf.create(report, {
-            format: 'Letter',
-            border: {
-                top: "0in", // default is 0, units: mm, cm, in, px
-                right: "1in",
-                bottom: "2in",
-                left: "1cm"
-            }
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
@@ -130,13 +130,13 @@ export class ReportController{
         let packin:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
         let report = await this.pdfHelper.reportEntrancePacking(packin);
         pdf.create(report, {
-            format: 'Letter',
-            border: {
-                top: "0in",
-                right: "1in",
-                bottom: "2in",
-                left: "2cm"
-            }
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',

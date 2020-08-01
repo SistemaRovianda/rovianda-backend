@@ -411,11 +411,11 @@ export default class PdfHelper{
                 }
                 #fo1{
                     height: 30px;
-                    margin-left:8px;
-                    width: 483px;
+                    margin-left:23px;
+                    width: 550px;
                 }
                 #fo{
-                    margin-left: 289px;
+                    margin-left: 375px;
                     width:200px ;
                 }
             </style>
@@ -445,7 +445,7 @@ export default class PdfHelper{
         </table>
         `;
         let content2 = `
-        <table  id="ta" border="1" align="center" width="70">
+        <table  id="ta" border="1" align="center" width="550">
             <tr>
                 <td class="pro" >Producto</td>
                 <td>Lote</td>
@@ -649,7 +649,7 @@ export default class PdfHelper{
             }
             #mueve{
                 width: 185px;
-                margin-left: 445px
+                margin-left: 390px
             }
             #go{
                 width: 185px;
@@ -691,7 +691,7 @@ export default class PdfHelper{
         </table>
     
     <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="630" align="center">
+        <table border="1" WIDTH="550" align="center">
             <tr>
                 <th class="ma">Materia prima: ${packing.product.description}</th>
                 <th  rowspan="2" >Lote proveedor: ${packing.loteProveedor}</th>
@@ -703,7 +703,7 @@ export default class PdfHelper{
         </table>
     
     <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="630" align="center">
+        <table border="1" WIDTH="550" align="center">
             <tr>
                 <th>Control</th>
                 <th>Estandar</th>
@@ -741,7 +741,7 @@ export default class PdfHelper{
             </tr>
         </table>
     
-        <table border="1px" WIDTH="630" align="center">
+        <table border="1px" WIDTH="550" align="center">
                 <tr>
                     <td class="te"><b>Verifico: ${packing.verifit ? packing.verifit.name+" "+packing.verifit.firstSurname+" "+packing.verifit.lastSurname : "" }</b> </td> 
                 <b> <td class="te"> <b> Firma: </b></td>  
