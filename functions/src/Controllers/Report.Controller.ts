@@ -297,7 +297,6 @@ export class ReportController{
         }));
     }
 
-
     async reportEntryPackingByDates(req:Request, res:Response){
         let dateInit = req.params.iniDate;
         let dateEnd = req.params.finDate;
@@ -322,7 +321,6 @@ export class ReportController{
         }));
 
     }
-
 
     async reportOvenByDates(req:Request, res:Response){
         let dateInit = req.params.iniDate;
@@ -349,7 +347,6 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
-
 
     async reportProcess(req:Request, res:Response){
         let process:Process = await this.processService.getProcessById(+req.params.processId);
