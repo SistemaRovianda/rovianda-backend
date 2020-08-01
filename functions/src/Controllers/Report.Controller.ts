@@ -153,14 +153,13 @@ export class ReportController{
         let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
         let report = await this.pdfHelper.reportWarehouseDrief(data);
         pdf.create(report, {
-            format: 'Letter',
-            orientation: "landscape",
-            border: {
-                top: "2cm", 
-                right: "2cm",
-                bottom: "2cm",
-                left: "2cm"
-            }
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
