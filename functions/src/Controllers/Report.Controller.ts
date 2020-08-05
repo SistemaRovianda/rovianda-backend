@@ -27,8 +27,10 @@ import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { SausagedService } from '../Services/Sausaged.Service';
 import { TenderizedService } from '../Services/Tenderized.Service';
-import { IsNull } from 'typeorm';
-import * as excel from 'excel4node'
+import Excel4Node from "../Utils/Excel.Helper" 
+import * as os from "os";
+import * as fs from "fs";
+import _ = require('lodash');
 
 export class ReportController{
 
@@ -45,6 +47,7 @@ export class ReportController{
     private sausagedService:SausagedService;
     private tenderizedService:TenderizedService
     private pdfHelper: PdfHelper;
+    private excel: Excel4Node;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
@@ -59,6 +62,7 @@ export class ReportController{
         this.sausagedService = new SausagedService();
         this.tenderizedService = new TenderizedService();
         this.pdfHelper = new PdfHelper();
+        this.excel = new Excel4Node();
     }
 
     async reportEntranceDrief(req:Request, res:Response){ 
@@ -231,47 +235,6 @@ export class ReportController{
             }
         };
 
-        var workbook = new excel.Workbook();
-
-        let worksheet = workbook.addWorksheet('Formulation');
-
-        let style = workbook.createStyle({
-            font: {
-              color: '#000000',
-              size: 12,
-            }
-        });
-          
-        
-        worksheet.cell(1, 1).string("Producto").style(style);
-        worksheet.cell(1, 2).string("Lote").style(style);
-        worksheet.cell(1, 3).string("Temperatura carne").style(style);
-        worksheet.cell(1, 4).string("Temperatura agua").style(style);
-        worksheet.cell(1, 5).string("Ingredientes").style(style);
-        worksheet.cell(1, 6).string("Fechas").style(style);
-     
-        
-        let row = 2;
-        let col = 1;
-
-        productData.forEach((product) => {
-            worksheet.cell(row, col).string(`${product.name}`).style(style);
-            worksheet.cell(row, ++col).string(`${product.lot}`).style(style);
-            worksheet.cell(row, ++col).string(`${product.meatTemp}`).style(style);
-            worksheet.cell(row, ++col).string(`${product.waterTemp}`).style(style);
-            worksheet.cell(row, ++col).string(`${product.ingredients[0].name}`).style(style);
-            worksheet.cell(row, ++col).string(`${product.date}`).style(style);
-            for (let i = 1; i < product.ingredients.length; i++) {
-                col = 4;
-                row++;
-                worksheet.cell(row, ++col).string(`${product.ingredients[0].name}`).style(style);
-            }
-            col = 1;
-            row ++; 
-        });
-
-        workbook.write('formulation-poc.xlsx');
-
         let html = this.pdfHelper.generateFormulationReport(formulationData);
         pdf.create(html, {
             format: 'Letter',
@@ -429,5 +392,60 @@ export class ReportController{
             });
             stream.pipe(res);
         }));
+    }
+
+    async documentReportFormulationByDates(req: Request, res: Response){
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let {iniDate, finDate} = req.params;
+        let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
+
+        let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
+        
+        let productData = formulations.map(formulation=>{
+            return {
+                name: formulation.productRovianda.name,
+                lot: formulation.loteInterno,
+                meatTemp: formulation.temp,
+                waterTemp: formulation.waterTemp,
+                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
+                    return {
+                     name:formulationIngredient.productId.description 
+                    }
+                }),
+                date: formulation.date
+            }
+        });
+
+        let formulationData = {
+            performer: {
+                name: user.name,
+                position: user.job
+            },
+            product: productData,
+            verifier: {
+                name: user.name,
+                ocupation: user.job
+            }
+        };
+
+        let workbook = this.excel.generateFormulationDocumentByDates(formulationData); // se llama a la utileria con los mismos datos que se envian al reporte html
+
+        workbook.write(`${tmp}/formulation-report.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",//se pone un tipo de cabecera
+                'inline; filename="formulation-report.xlsx"'//para indicar a front el nombre del archivo
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");// se añade cabecera para permitir excel
+              res.status(200); 
+            console.log(stats);//stats solo trae informacion de la creacion del archivo
+            return res.download(`${tmp}/formulation-report.xlsx`,(er) =>{ //response.download manda un documento para ser descargado en el response
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/formulation-report.xlsx"}`);//aunque en la carpeta tmp no sea necesario eliminar archivos es mejor hacerlo para no aumentar el peso de las cloud functions    
+                fs.unlinkSync(`${tmp}/imageTmp.png`);//borrar aqui la imagen temporal si no, dara error al generar el documento y no encontrar la imagen
+            })
+        })
     }
 }
