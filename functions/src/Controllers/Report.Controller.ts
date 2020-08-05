@@ -353,8 +353,6 @@ export class ReportController{
         let conditioning:Conditioning = new Conditioning();
         let sausaged:Sausaged = new Sausaged();
         let tenderized:Tenderized= new Tenderized();
-        let userElaborated:User = new User();
-        let userVerify:User = new User();
         
         if(process.conditioningId == null){
             conditioning;
@@ -370,27 +368,16 @@ export class ReportController{
             tenderized;
         }else{
             tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        }
-        if(process.nameElaborated == null){
-            userElaborated;
-        }else{
-            userElaborated = await this.userService.getUserByName(process.nameElaborated);
-        }    
-        if(process.nameVerify == null){
-            userVerify;
-        }else{
-            userVerify = await this.userService.getUserByName(process.nameVerify);
-        }                                                                          
-        let report = await this.pdfHelper.reportProcess(userElaborated,userVerify,process,conditioning,sausaged,tenderized);
+        }                                                                    
+        let report = await this.pdfHelper.reportProcess(process,conditioning,sausaged,tenderized);
         pdf.create(report, {
-            format: 'Letter',
-            orientation: "landscape", 
-            border: {
-                top: "1cm", 
-                right: "1cm",
-                bottom: "1cm",
-                left: "1cm"
-            }
+            format: 'A3',
+            header: {
+                height: "0px"
+            },
+            footer: {
+                height: "0mm"
+          },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',

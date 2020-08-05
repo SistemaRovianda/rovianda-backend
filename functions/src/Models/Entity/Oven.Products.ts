@@ -43,6 +43,12 @@ export class OvenProducts {
     @Column({ name: "job_verify" })
     jobVerify: string;
 
+    @Column({ name: "name_check" })
+    nameCheck: string;
+
+    @Column({ name: "job_check" })
+    jobCheck: string;
+
     @OneToMany(type=>RevisionsOvenProducts,ovenProducts=>ovenProducts.ovenProducts)
     revisions:RevisionsOvenProducts[];
 

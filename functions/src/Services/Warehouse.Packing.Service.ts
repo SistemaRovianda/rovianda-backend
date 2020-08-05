@@ -55,15 +55,17 @@ export class WarehousePackingService{
             let response1:any = [];
             for(let n = 0; n<warehousePackingLote.length; n++){
                 let entrancePaking = await this.entrancePackingRepository.getEntrnacePackingByLotProduct(warehousePackingLote[n].lote_proveedor,warehousePackingLote[n].productId)
-                if(entrancePaking[0].quality && entrancePaking[0].strange_material && 
-                    entrancePaking[0].transport && entrancePaking[0].paking){
-                        response1.push({
-                            id: `${warehousePackingLote[n].productId}`,
-                            description: `${warehousePackingLote[n].description}`,
-                            warehousePackingId: `${warehousePackingLote[n].id}`,
-                            quantity: `${warehousePackingLote[n].quantity}`
-                        });
-                    }
+                if(entrancePaking.length){
+                    if(entrancePaking[0].quality == true && entrancePaking[0].strange_material == true && 
+                        entrancePaking[0].transport == true && entrancePaking[0].paking == true){
+                            response1.push({
+                                id: `${warehousePackingLote[n].productId}`,
+                                description: `${warehousePackingLote[n].description}`,
+                                warehousePackingId: `${warehousePackingLote[n].id}`,
+                                quantity: `${warehousePackingLote[n].quantity}`
+                            });
+                        }
+                }
             }
             response.push({
                 loteId: `${warehousePackingStatus[i].lote_proveedor}`,

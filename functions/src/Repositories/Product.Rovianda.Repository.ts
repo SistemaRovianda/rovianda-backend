@@ -58,6 +58,13 @@ export class ProductRoviandaRepository {
         return await this.repository.find();
     }
 
+    async getAllProductsT() {
+        await this.getConnection();
+        return await this.repository.find({
+            where:{status:true}
+        });
+    }
+
     async getLastProductRovianda(){
         await this.getConnection();
         return await this.repository.findOne({

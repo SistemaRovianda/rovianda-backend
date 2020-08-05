@@ -40,12 +40,22 @@ export class UserRepository{
         return await this.userRepository.find();
     }
 
+    //87.- Servicio [GET] /report/formulation/{iniDate}/{finDate}
     async getByFullName(name:string,firstSurname:string,lastSurname:string){
         await this.getConnection();
         return await this.userRepository.query(`
         SELECT * FROM users WHERE name = "${name}" 
         AND first_surname = "${firstSurname}" 
         AND last_surname = "${lastSurname}"`);
+    }
+
+    async getByFullNameJob(name:string,firstSurname:string,lastSurname:string,job:string){
+        await this.getConnection();
+        return await this.userRepository.query(`
+        SELECT * FROM users WHERE name = "${name}" 
+        AND first_surname = "${firstSurname}" 
+        AND last_surname = "${lastSurname}" 
+        AND job = "${job}"`);
     }
 
     async getByRol(roles:Roles){

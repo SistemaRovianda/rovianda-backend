@@ -111,26 +111,35 @@ export class OvenService{
         if(!ovenUserDTO.jobVerify) throw new Error("[400], jobVerify is required");
         if(!ovenUserDTO.nameElaborated) throw new Error("[400], nameElaborated is required");
         if(!ovenUserDTO.jobElaborated) throw new Error("[400], jobElaborated is required");
+        if(!ovenUserDTO.nameCheck) throw new Error("[400], nameCheck is required");
+        if(!ovenUserDTO.jobCheck) throw new Error("[400], jobCheck is required");
         
         let ovenProducts:OvenProducts = await this.ovenRepository.getOvenProductById(processId);
-        console.log(ovenProducts);
         if(!ovenProducts) throw new Error("[400], process not found");
         let productId = ovenProducts.product.id;
-        console.log(productId);
-        console.log("inicio")
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
-        console.log("Consulta")
         if(!product) throw new Error("[400], product not found");
-        console.log("Consulta")
-        let user:User = await this.userRepository.getUserByName(ovenUserDTO.nameElaborated);
-        if(!user) throw new Error("[400], user not found");
 
-        
-        console.log(ovenProducts)
+        let fullVerifit = ovenUserDTO.nameVerify.split(" ");
+        let userVerifit = await this.userRepository.getByFullNameJob(fullVerifit[0],fullVerifit[1],fullVerifit[2],ovenUserDTO.jobVerify);
+        if (!userVerifit[0])  throw new Error("[404],User Verifit not found");
+
+        let fullElaborated = ovenUserDTO.nameElaborated.split(" ");
+        let userElaborated = await this.userRepository.getByFullNameJob(fullElaborated[0],fullElaborated[1],fullElaborated[2],ovenUserDTO.jobElaborated);
+        if (!userElaborated[0])  throw new Error("[404],User Elaborated not found");
+
+        let fullCheck = ovenUserDTO.nameCheck.split(" ");
+        let userCheck = await this.userRepository.getByFullNameJob(fullCheck[0],fullCheck[1],fullCheck[2],ovenUserDTO.jobCheck);
+        if (!userCheck[0])  throw new Error("[404],User Check not found");
+
         ovenProducts.nameElaborated = ovenUserDTO.nameElaborated;
         ovenProducts.nameVerify = ovenUserDTO.nameVerify;
         ovenProducts.jobElaborated = ovenUserDTO.jobElaborated;
         ovenProducts.jobVerify = ovenUserDTO.jobVerify;
+        ovenProducts.jobElaborated = ovenUserDTO.jobElaborated;
+        ovenProducts.jobVerify = ovenUserDTO.jobVerify;
+        ovenProducts.nameCheck = ovenUserDTO.nameCheck;
+        ovenProducts.jobCheck = ovenUserDTO.jobCheck;
 
         console.log("hecho")
         return await this.ovenRepository.saveOvenUser(ovenProducts);

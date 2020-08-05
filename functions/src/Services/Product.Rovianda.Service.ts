@@ -65,7 +65,7 @@ export class ProductRoviandaService{
     }
 
     async getAllProductsRovianda(){
-        return await this.productRoviandaRepository.getAllProducts();
+        return await this.productRoviandaRepository.getAllProductsT();
     }
 
     async getProductoRoviandaById(productId:number){
@@ -198,8 +198,8 @@ export class ProductRoviandaService{
             code: productRovianda.code ? productRovianda.code : null,
             nameProduct: productRovianda.name ? productRovianda.name : null,
             status: productRovianda.status ? productRovianda.status : null,
-            ingredents: [ingredients],
-            presentations: [presentations]
+            ingredents: ingredients,
+            presentations: presentations
           }
         return response;
     }

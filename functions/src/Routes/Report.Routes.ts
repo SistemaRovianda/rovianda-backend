@@ -4,7 +4,7 @@ import { ReportController } from '../Controllers/Report.Controller';
 export const reportRoutes:Array<routeInterface>=[
 
     {
-        url:"/rovianda/report/enty/drief/:driefId",
+        url:"/rovianda/report/entry/drief/:driefId",
         method:"get",
         controller:ReportController,
         target:"reportEntranceDrief"

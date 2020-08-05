@@ -67,18 +67,22 @@ export class WarehouseDriefService{
             let response1:any = [];
             for(let n = 0; n<warehouseDriefLote.length; n++){
                 let entranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProduct(warehouseDriefLote[n].lote_proveedor,warehouseDriefLote[n].productId);
-                if(entranceDrief[0].quality && entranceDrief[0].expiration && 
-                    entranceDrief[0].transport && entranceDrief[0].strange_material &&
-                    entranceDrief[0].paking && entranceDrief[0].color &&
-                    entranceDrief[0].texture && entranceDrief[0].weight &&
-                    entranceDrief[0].odor){
-                        response1.push({
-                            id: `${warehouseDriefLote[n].productId}`,
-                            warehouseDriefId: `${warehouseDriefLote[n].id}`,
-                            quantity: `${warehouseDriefLote[n].quantity}`,
-                            description: `${warehouseDriefLote[n].description}`
-                        });
-                    }
+                console.log("entranceDrief[0]")
+                console.log(entranceDrief[0])
+                if(entranceDrief.length){
+                    if(entranceDrief[0].quality == true && entranceDrief[0].expiration == true && 
+                        entranceDrief[0].transport == true && entranceDrief[0].strange_material == true &&
+                        entranceDrief[0].paking == true && entranceDrief[0].color == true &&
+                        entranceDrief[0].texture == true && entranceDrief[0].weight == true &&
+                        entranceDrief[0].odor == true){
+                            response1.push({
+                                id: `${warehouseDriefLote[n].productId}`,
+                                warehouseDriefId: `${warehouseDriefLote[n].id}`,
+                                quantity: `${warehouseDriefLote[n].quantity}`,
+                                description: `${warehouseDriefLote[n].description}`
+                            });
+                        }
+                }
             }
             response.push({ 
                 loteId: `${warehouseDriefStatus[i].lote_proveedor}`,

@@ -392,7 +392,7 @@ export default class PdfHelper{
                     text-align: left;
                     margin-left: 240px;
                     width: 250px;
-                    height: 100px;
+                    height: 150px;
                 }
                 
                 img{
@@ -410,7 +410,7 @@ export default class PdfHelper{
                     margin-bottom: -70px;
                 }
                 #fo1{
-                    height: 30px;
+                    height: 60px;
                     margin-left:23px;
                     width: 550px;
                 }
@@ -485,7 +485,7 @@ export default class PdfHelper{
             <table id="fo1" border="1" >
                 <tr>
                     <td>Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
-                    <td>Firma: </td>
+                    <td>Firma:                                    </td>
                     <td>Puesto: ${formulation.verifit.job}</td>
                 </tr>
             </table>
@@ -1729,7 +1729,7 @@ export default class PdfHelper{
         `;
     }
 
-    bodyReportProcess(userElaborated:User, userVerify:User,data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
+    bodyReportProcess(data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
         let content =` 
         <body bgcolor="">
     <header align="center">
@@ -1919,17 +1919,17 @@ export default class PdfHelper{
             </tr>
         </table>
 
-        <table align="center" width="100%" border="1">
+        <table align="center" height="60px" width="100%" border="1">
         <tr>
-            <th>Elaboro: ${userElaborated == null ? "" : userElaborated.name} ${userElaborated == null ? "" :userElaborated.firstSurname} ${userElaborated == null ? "" :userElaborated.lastSurname} </th>
+            <th>Elaboro: ${data.nameElaborated ? data.nameElaborated : ""}  </th>
             <th>Firma: </th>
             <th>Puesto: ${data.jobElaborated? data.jobElaborated:""}</th>
         </tr>
     </table>
-    <table align="center" width="100%" border="1">
+    <table align="center" height="60px" width="100%" border="1">
         <tr>
             <div id="text">
-            <th>Verifico: ${userVerify == null ? "" : userVerify.name} ${userVerify == null ? "" : userVerify.firstSurname} ${userVerify == null ? "" : userVerify.lastSurname}</th>
+            <th>Verifico: ${data.nameVerify? data.nameVerify : ""} </th>
             <th>Firma: </th>
             <th>Puesto: ${data.jobVerify?data.jobVerify:""}</th>
         </div>
@@ -1940,8 +1940,8 @@ export default class PdfHelper{
          return content;
      }
     
-     async reportProcess(userElaborated:User,userVerify:User,data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
-        let content = this.headReportProcess()+this.bodyReportProcess(userElaborated,userVerify,data,conditioning,sausaged,tenderized);
+     async reportProcess(data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
+        let content = this.headReportProcess()+this.bodyReportProcess(data,conditioning,sausaged,tenderized);
         return content;
     }
 }
