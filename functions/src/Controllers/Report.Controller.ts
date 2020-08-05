@@ -28,6 +28,7 @@ import { Tenderized } from '../Models/Entity/Tenderized';
 import { SausagedService } from '../Services/Sausaged.Service';
 import { TenderizedService } from '../Services/Tenderized.Service';
 import { IsNull } from 'typeorm';
+import * as excel from 'excel4node'
 
 export class ReportController{
 
@@ -208,6 +209,7 @@ export class ReportController{
                 name: formulation.productRovianda.name,
                 lot: formulation.loteInterno,
                 meatTemp: formulation.temp,
+                waterTemp: formulation.waterTemp,
                 ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
                     return {
                      name:formulationIngredient.productId.description 
@@ -228,6 +230,47 @@ export class ReportController{
                 ocupation: user.job
             }
         };
+
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Formulation');
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12,
+            }
+        });
+          
+        
+        worksheet.cell(1, 1).string("Producto").style(style);
+        worksheet.cell(1, 2).string("Lote").style(style);
+        worksheet.cell(1, 3).string("Temperatura carne").style(style);
+        worksheet.cell(1, 4).string("Temperatura agua").style(style);
+        worksheet.cell(1, 5).string("Ingredientes").style(style);
+        worksheet.cell(1, 6).string("Fechas").style(style);
+     
+        
+        let row = 2;
+        let col = 1;
+
+        productData.forEach((product) => {
+            worksheet.cell(row, col).string(`${product.name}`).style(style);
+            worksheet.cell(row, ++col).string(`${product.lot}`).style(style);
+            worksheet.cell(row, ++col).string(`${product.meatTemp}`).style(style);
+            worksheet.cell(row, ++col).string(`${product.waterTemp}`).style(style);
+            worksheet.cell(row, ++col).string(`${product.ingredients[0].name}`).style(style);
+            worksheet.cell(row, ++col).string(`${product.date}`).style(style);
+            for (let i = 1; i < product.ingredients.length; i++) {
+                col = 4;
+                row++;
+                worksheet.cell(row, ++col).string(`${product.ingredients[0].name}`).style(style);
+            }
+            col = 1;
+            row ++; 
+        });
+
+        workbook.write('formulation-poc.xlsx');
 
         let html = this.pdfHelper.generateFormulationReport(formulationData);
         pdf.create(html, {

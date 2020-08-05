@@ -1670,7 +1670,7 @@ export default class PdfHelper{
             <td>${object.product[i].date ? object.product[i].date: "" }</td>
         </tr>`;
             
-            for(let index = 0; index < object.product[i].ingredients.length; index++){
+            for(let index = 1; index < object.product[i].ingredients.length; index++){
                 
                 formulationTableInfo+= `
                     <tr>
