@@ -113,6 +113,8 @@ export class PackagingService{
         reprocessing.date = reprocessingDTO.date;
         reprocessing.lotRepro = lot.newLote;
         reprocessing.productId = product.id;
+        //servicio que retorne todos los reprosesos pero aquellos que no tengan
+        //lot repro
     
         console.log("hecho")
         return await this.reprocessingRepository.saveRepocessing(reprocessing);

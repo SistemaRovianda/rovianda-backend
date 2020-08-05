@@ -36,6 +36,11 @@ export class ProcessService{
         if(!process.lote.loteId) throw new Error("[400], falta el parametro loteId");
         if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
+        //productId product catalog
+        //molienda y condicionamiento
+        //Tenderizado y embutido
+        //
+        //
         let productCatalog = await this.productRoviandaRepository.getProductRoviandaByIds(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
         let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
