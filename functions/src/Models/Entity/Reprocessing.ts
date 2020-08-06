@@ -26,5 +26,6 @@ export class Reprocessing{
 
     @Column()
     area:string;
+    //
 
 }

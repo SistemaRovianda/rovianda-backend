@@ -28,9 +28,9 @@ export class PropertiesPackaging {
     @Column({ name: "observations" , nullable: true})
     observations: string;
 
-    @Column({ name: "packs" })
-    packs: number;
+    @Column()
+    units: number;
 
-    @Column({ name: "pieces" })
-    pieces: number
+    @Column()
+    active: boolean
 }

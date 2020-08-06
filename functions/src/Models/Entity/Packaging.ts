@@ -1,6 +1,7 @@
 import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ProductRovianda } from './Product.Rovianda';
 import { PropertiesPackaging } from './Properties.Packaging';
+import { User } from './User';
 
 @Entity({name:"packaging"})
 export class Packaging{
@@ -24,17 +25,11 @@ export class Packaging{
     @Column()
     expiration:string;
 
-    @Column({name: "name_elabored", nullable: true})
-    nameElabored: string;
+    @ManyToOne(type=>User, userId=>userId.packaging, {eager:true, onDelete:"SET NULL"})
+    userId:User;
 
-    @Column({name: "job_elabored", nullable: true})
-    jobElabored: string;
-
-    @Column({name: "name_verify", nullable: true})
-    nameVerify: string;
-
-    @Column({name: "job_verify", nullable: true})
-    jobVerify: string;
+    @Column()
+    active:boolean;
 
 }
 

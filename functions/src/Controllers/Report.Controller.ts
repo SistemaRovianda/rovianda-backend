@@ -253,7 +253,9 @@ export class ReportController{
             stream.pipe(res);
         }));
     }
+//crear proceso tomar lote interno
 
+//regresar por tipo de area
     async reportEntryDriefByDates(req:Request, res:Response){
         let dateInit = req.params.iniDate;
         let dateEnd = req.params.finDate;

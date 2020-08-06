@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -57,9 +57,8 @@ export class PackagingService{
         if(!product) throw new Error("[400], product not found");
         for(let i = 0; i<packagingDTO.products.length; i++){
             if (!packagingDTO.products[i].presentationId) throw new Error("[400],presentationId is required");
-            if (!packagingDTO.products[i].pieces) throw new Error("[400],presentationId is required");
-            if (!packagingDTO.products[i].packs) throw new Error("[400],presentationId is required");
-            if (!packagingDTO.products[i].weight) throw new Error("[400],presentationId is required");
+            if (!packagingDTO.products[i].units) throw new Error("[400],units is required");
+            if (!packagingDTO.products[i].weight) throw new Error("[400],weight is required");
         }
         let lot:OvenProducts = await this.ovenRepository.getOvenProductByIds(packagingDTO.lotId);
         if(!lot) throw new Error("[400], lot not found");
@@ -68,6 +67,7 @@ export class PackagingService{
         packaging.productId = product;
         packaging.lotId = packagingDTO.lotId;
         packaging.expiration = packagingDTO.expiration;
+        packaging.active = true;
         await this.packagingRepository.savePackaging(packaging);
         let packing = await this.packagingRepository.getLastPackaging();
         for(let e = 0; e<packagingDTO.products.length; e++){
@@ -75,8 +75,7 @@ export class PackagingService{
             let presentation:PresentationProducts = await this.presentationProductRepository.getPresentatiosProductsById(packagingDTO.products[e].presentationId)
             propertiesPackaging.weight = packagingDTO.products[e].weight;
             propertiesPackaging.observations = packagingDTO.products[e].observations;
-            propertiesPackaging.packs = packagingDTO.products[e].packs;
-            propertiesPackaging.pieces = packagingDTO.products[e].pieces;
+            propertiesPackaging.units = packagingDTO.products[e].units;
             propertiesPackaging.packagingId = packing[0];
             propertiesPackaging.presentationId = presentation;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
@@ -114,34 +113,25 @@ export class PackagingService{
         reprocessing.lotRepro = lot.newLote;
         reprocessing.productId = product.id;
         //servicio que retorne todos los reprosesos pero aquellos que no tengan
-        //lot repro
+        //lot repro filtrado por area
     
         console.log("hecho")
         return await this.reprocessingRepository.saveRepocessing(reprocessing);
     }
   
-    async saveUsersPackaging(userPackagingDTO:UserPackagingDTO, packagingId:string){
+    async saveUsersPackaging(userPackagingDTO:UserPackaginggDTO, packagingId:string){
 
-            if(!userPackagingDTO.jobElaborated) throw new Error("[400], falta el parametro jobElaborated");
-            if(!userPackagingDTO.jobVerify) throw new Error("[400], falta el parametro jobVerify");
-            if(!userPackagingDTO.nameElaborated) throw new Error("[400], falta el parametro nameElaborated");
-            if(!userPackagingDTO.nameVerify) throw new Error("[400], falta el parametro nameVerify");
-    
-            let userVerify : User = await this.userRepository.getUserByName(userPackagingDTO.nameVerify);
-            if(!userVerify) throw new Error(`[400], no existe usuario ${userVerify}`);
-    
-            let userElaborated : User = await this.userRepository.getUserByName(userPackagingDTO.nameElaborated);
-            if(!userElaborated) throw new Error(`[400], no existe usuario ${userElaborated}`);
-    
-            let packaging: Packaging = await this.packagingRepository.findPackagingById(+packagingId);
-            if(!packaging) throw new Error("[400], packaging not found");
+        if(!userPackagingDTO.userId) throw new Error("[400], falta el parametro userId");
 
-            packaging.jobElabored = userPackagingDTO.jobElaborated;
-            packaging.nameElabored = userPackagingDTO.nameElaborated;
-            packaging.nameVerify = userPackagingDTO.nameVerify;
-            packaging.jobVerify = userPackagingDTO.jobVerify;
-    
-            return await this.packagingRepository.savePackaging(packaging);
+        let userVerify : User = await this.userRepository.getUserById(userPackagingDTO.userId);
+        if(!userVerify) throw new Error(`[400], no existe usuario ${userVerify}`);
+
+        let packaging: Packaging = await this.packagingRepository.findPackagingById(+packagingId);
+        if(!packaging) throw new Error("[400], packaging not found");
+
+        packaging.userId = userVerify;
+
+        return await this.packagingRepository.savePackaging(packaging);
     }
 
     async getPackagingColaboratedById(packagingId:number){
@@ -150,10 +140,7 @@ export class PackagingService{
         if(!packaging) throw new Error("[404], packaging not found");
         let response = {};
         response = {
-            nameElaborated: `${packaging.nameElabored}`,
-            jobElaborated: `${packaging.jobElabored}`,
-            nameVerify: `${packaging.nameElabored}`,
-            jobVerify: `${packaging.jobVerify}`
+            user: packaging.userId
         }
         return response;
     }

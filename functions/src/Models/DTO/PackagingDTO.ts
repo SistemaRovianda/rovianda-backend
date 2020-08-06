@@ -6,8 +6,7 @@ export interface PackagingDTO{
     products: [
         {
             presentationId: number;
-            pieces: number;
-            packs: number;
+            units:number
             weight: number;
             observations: string;
         }
@@ -19,6 +18,10 @@ export interface UserPackagingDTO{
     jobElaborated: string;
     nameVerify: string;
     jobVerify: string;
+}
+
+export interface UserPackaginggDTO{
+    userId: string;
 }
 
 export interface PackagingAssignedDTO{

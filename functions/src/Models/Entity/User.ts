@@ -5,6 +5,7 @@ import { Maintenance } from "./Maintenance";
 import { Formulation } from "./Formulation";
 import { EntrancePacking } from "./Entrances.Packing";
 import { SaleSeller } from "./Sale.Seller";
+import { Packaging } from "./Packaging";
 
 @Entity({name:"users"})
 export class User{
@@ -51,4 +52,7 @@ export class User{
 
     @OneToMany(type=> SaleSeller,saleSeller=>saleSeller.user,{eager:false})
     saleSeller: SaleSeller[];
+
+    @OneToMany(type=> Packaging,packaging=>packaging.userId)
+    packaging:Packaging[];
 }
