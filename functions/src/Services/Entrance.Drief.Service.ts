@@ -85,8 +85,14 @@ export class EntranceDriefService{
     async reportEntrancesDriefs(dateInit:string,dateEnd:string){
         if(!dateInit) throw new Error(`[400], initDate is required in query`);
         if(!dateEnd) throw new Error(`[400], finalDate is required in query`);
+        if (!Date.parse(dateInit)) throw new Error("[400], initDate has not a valid value");
+        if (!Date.parse(dateEnd)) throw new Error("[400], finDate has not a valid value");
         if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], initDate cannot be greater than finalDate`);
         let driefs:EntranceDrief[]= await this.entranceDriefRepository.getEntrancesDriefs(dateInit,dateEnd);
+
+        if(!driefs.length)
+        throw new Error("[404], No Entrances driefs found, can not generate report");
+
         return driefs;
     }
 }
