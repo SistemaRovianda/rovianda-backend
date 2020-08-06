@@ -125,7 +125,17 @@ export class EntranceMeatService {
     }
 
     async reportEntrancesMeats(dateInit:string,dateEnd:string){
+        if(!dateInit) throw new Error(`[400], initDate is required in query`);
+        if(!dateEnd) throw new Error(`[400], finalDate is required in query`);
+        if (!Date.parse(dateInit)) throw new Error("[400], initDate has not a valid value");
+        if (!Date.parse(dateEnd)) throw new Error("[400], finDate has not a valid value");
+
+        if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], iniDate cannot be greater than finDate`);
         let meat:EntranceMeat[]= await this.entrancesMeatRepository.getEntrancesMeats(dateInit,dateEnd);
+
+        if(!meat.length)
+        throw new Error("[404], No Entrances meats found, can not generate report");
+
         return meat;
     }
 }
