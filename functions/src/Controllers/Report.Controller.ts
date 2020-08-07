@@ -355,6 +355,38 @@ export class ReportController{
         }));
     }
 
+    async documentReportOvenByDates(req:Request, res:Response){
+        let tmp = os.tmpdir();
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
+        let userElaborated:User= await this.userService.getUserByName(oven[0].nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(oven[0].nameVerify);
+
+        let workbook = this.excel.generateOvenProductsDocumentsByDate(userElaborated, userVerify,oven); 
+
+        workbook.write(`${tmp}/oven-products-report.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="oven-products-report.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/oven-products-report.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/oven-products-report.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+
+        
+    }
+
     async reportProcess(req:Request, res:Response){
         let process:Process = await this.processService.getProcessById(+req.params.processId);
 
