@@ -304,6 +304,33 @@ export class ReportController{
         }));
     }
 
+    async reportDocumentEntryMeatByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let tmp = os.tmpdir();
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysMeats:EntranceMeat[] = await this.entranceMeatService.reportEntrancesMeats(dateInit,dateEnd);
+        let workbook =  this.excel.generateEntryMeatsDocumentByDate(user,entrysMeats);
+
+        workbook.write(`${tmp}/entry-meat-report.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="entry-meat-report.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/entry-meat-report.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/entry-meat-report.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            });
+        });
+    }
+
     async reportEntryPackingByDates(req:Request, res:Response){
         let dateInit = req.params.iniDate;
         let dateEnd = req.params.finDate;
