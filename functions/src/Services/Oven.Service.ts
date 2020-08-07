@@ -221,6 +221,7 @@ export class OvenService{
     }
 
     async getDataReport(id:string){
+        if(!id) throw new Error(`[400], Id is required in query`);
         let ovenProduct:OvenProducts =await this.ovenRepository.getOvenProductById(+id);
         if (!ovenProduct)throw new Error(`[404], OvenProduct with id :${id} was not found`)
         return ovenProduct

@@ -35,7 +35,7 @@ export class EntrancePackingRepository{
         await this.getConnection();
         return await this.repository.findOne(
             {id},
-            {relations: ["product"]}
+            {relations: ["product","make"]}
         );
     }
 
@@ -44,7 +44,7 @@ export class EntrancePackingRepository{
         return await this.repository.find({
             order : { date:"ASC" },
             where:{ date : Between(dateInit, dateEnd)},
-            relations: ["product","verifit"]
+            relations: ["product","verifit","make"]
     });
     }
 
