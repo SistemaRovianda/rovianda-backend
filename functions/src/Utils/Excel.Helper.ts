@@ -4,7 +4,9 @@ import * as fs from "fs";
 import * as os from "os";
 import { User } from "../Models/Entity/User";
 import { EntranceMeat } from "../Models/Entity/Entrances.Meat";
+import { OvenProducts } from "../Models/Entity/Oven.Products";
 export default class Excel4Node{
+    
     generateFormulationDocumentByDates(formulationData: any){
         let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
         var workbook = new excel.Workbook(); // se inicializa un workbook (archivo de excel)
@@ -426,7 +428,147 @@ export default class Excel4Node{
             worksheet.cell(++row, 4, row, 9, true).string(`Realizó:`).style(styleUser);
             worksheet.cell(row, 10, row, 12, true).string(`Firma:`).style(styleUser);
         });
+        return workbook;
+    }
         
+    generateOvenProductsDocumentsByDate(userElaborated:User, userVerify: User, data: OvenProducts[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook(); 
+
+        let worksheet = workbook.addWorksheet('OvenProducts'); 
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ 
+            path: `${tmp}/imageTmp.png`,
+            name: 'logo', 
+            type: 'picture', 
+            position: { 
+                type: 'twoCellAnchor', 
+                
+                from: { 
+                  col: 1,
+                  colOff: '1in', 
+                  row: 1, 
+                  rowOff: '0.1in', 
+                },
+                to: {
+                    col: 3, 
+                    colOff: '1in',
+                    row: 8, 
+                    rowOff: '0.1in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({ 
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                    
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+        worksheet.cell(1, 6, 1, 12, true).string("EMPACADORA ROVIANDA S.A.P.I. DE C.V").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        worksheet.cell(3, 6, 3, 12, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        let row = 5;
+
+        data.forEach(ovenProduct => {
+            worksheet.cell(row, 11, row, 13, true).string(`Tiempo estimado: ${ovenProduct.stimatedTime}`).style(styleUser);
+            worksheet.cell(++row, 4, row, 6, true).string(`Producto: ${ovenProduct.product.name}`).style(styleUser);
+            worksheet.cell(row, 7, row, 8, true).string(`PCC: ${ovenProduct.pcc}`).style(styleUser);
+            worksheet.cell(row, 9, row, 11, true).string(`Fecha: ${ovenProduct.date}`).style(styleUser);
+            worksheet.cell(row, 12, row, 13, true).string(`PCC = 70°`).style(styleUser);
+
+            worksheet.cell(++row, 4).string(`Hora`).style(styleUser);
+            worksheet.cell(row, 5, row, 6, true).string(`Temperatura interna del producto`).style(styleUser);
+            worksheet.cell(row, 7, row, 8, true).string(`Temperatura del horno`).style(styleUser);
+            worksheet.cell(row, 9).string(`Humedad`).style(styleUser);
+            worksheet.cell(row, 10, row, 13, true).string(`Observaciones`).style(styleUser);
+
+            for(let i = 0 ; i < ovenProduct.revisions.length ; i++){
+                worksheet.cell(++row, 4).string(`${ovenProduct.revisions[i].hour}`).style(style);
+                worksheet.cell(row, 5, row, 6, true).string(`${ovenProduct.revisions[i].interTemp}`).style(style);
+                worksheet.cell(row, 7, row, 8, true).string(`${ovenProduct.revisions[i].ovenTemp}`).style(style);
+                worksheet.cell(row, 9).string(`${ovenProduct.revisions[i].humidity}`).style(style);
+                worksheet.cell(row, 10, row, 13, true).string(`${ovenProduct.revisions[i].observations}`).style(style);
+            }
+            row+=2;
+            
+        });
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].jobElaborated}`).style(style);
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Revisó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].jobVerify}`).style(style); 
+        
+        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].nameVerify}`).style(style); 
+
         return workbook;
     }
 }
