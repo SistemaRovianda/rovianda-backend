@@ -5,8 +5,9 @@ import * as fs from "fs";
 import * as os from "os";
 import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 import { User } from "../Models/Entity/User";
-import { OvenProducts } from "../Models/Entity/Oven.Products";
+import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
+import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 export default class Excel4Node{
 
     generateFormulationDocumentByDates(formulationData: any){
@@ -439,14 +440,11 @@ export default class Excel4Node{
     }
 
     generateEntrysDriefsDocumentByDates(user:User,data:EntranceDrief[]){
-        let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
-        var workbook = new excel.Workbook(); // se inicializa un workbook (archivo de excel)
-
-        let worksheet = workbook.addWorksheet('Entrances-Driefs'); //Se añade una hoja de calculo y se pasa el nombre por parametro
-
-        let buff = new Buffer(Logo.data.split(',')[1], 'base64');// Se convierte a buffer el base64 (solo el base64 no la informacion de tipo de archivo)
-
-        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);//Se crea el archivo imagen en la carpeta temporal
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('Entrances-Driefs');
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
 
         worksheet.addImage({ //comando para añadir una imagen
             path: `${tmp}/imageTmp.png`,//path de la imagen
@@ -603,5 +601,147 @@ export default class Excel4Node{
         worksheet.cell(++row, 9, row, 10,true).string("F-CAL-RO-02").style(style);
         return workbook;//se retorna el workbook
     }
+
+
+    generateOvenProductsDocumentsById(userElaborated:User, userVerify: User, ovenProduct:OvenProducts,revisionOven:RevisionsOvenProducts[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook(); 
+
+        let worksheet = workbook.addWorksheet('OvenProductsById'); 
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ 
+            path: `${tmp}/imageTmp.png`,
+            name: 'logo', 
+            type: 'picture', 
+            position: { 
+                type: 'twoCellAnchor', 
+
+                from: { 
+                  col: 1,
+                  colOff: '1in', 
+                  row: 1, 
+                  rowOff: '0.1in', 
+                },
+                to: {
+                    col: 3, 
+                    colOff: '1in',
+                    row: 8, 
+                    rowOff: '0.1in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({ 
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+        worksheet.cell(1, 6, 1, 12, true).string("EMPACADORA ROVIANDA S.A.P.I. DE C.V").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        worksheet.cell(3, 6, 3, 12, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        let row = 5;
+
+
+            worksheet.cell(row, 11, row, 13, true).string(`Tiempo estimado: ${ovenProduct.stimatedTime}`).style(styleUser);
+            worksheet.cell(++row, 4, row, 6, true).string(`Producto: ${ovenProduct.stimatedTime}`).style(styleUser);
+            worksheet.cell(row, 7, row, 8, true).string(`PCC: ${ovenProduct.pcc}`).style(styleUser);
+            worksheet.cell(row, 9, row, 11, true).string(`Fecha: ${ovenProduct.date}`).style(styleUser);
+            worksheet.cell(row, 12, row, 13, true).string(`PCC = 70°`).style(styleUser);
+
+            worksheet.cell(++row, 4).string(`Hora`).style(styleUser);
+            worksheet.cell(row, 5, row, 6, true).string(`Temperatura interna del producto`).style(styleUser);
+            worksheet.cell(row, 7, row, 8, true).string(`Temperatura del horno`).style(styleUser);
+            worksheet.cell(row, 9).string(`Humedad`).style(styleUser);
+            worksheet.cell(row, 10, row, 13, true).string(`Observaciones`).style(styleUser);
+
+            for(let i = 0 ; i < revisionOven.length ; i++){
+                worksheet.cell(++row, 4).string(`${revisionOven[i].hour}`).style(style);
+                worksheet.cell(row, 5, row, 6, true).string(`${revisionOven[i].interTemp}`).style(style);
+                worksheet.cell(row, 7, row, 8, true).string(`${revisionOven[i].ovenTemp}`).style(style);
+                worksheet.cell(row, 9).string(`${revisionOven[i].humidity}`).style(style);
+                worksheet.cell(row, 10, row, 13, true).string(`${revisionOven[i].observations}`).style(style);
+            }
+            row+=2;
+       
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobElaborated}`).style(style);
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Revisó: ${ovenProduct.nameCheck ? ovenProduct.nameCheck:" " } `).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobCheck ? ovenProduct.jobCheck : " " }`).style(style); 
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.nameVerify}`).style(style); 
+
+        return workbook;
+    }
+    
 
 }
