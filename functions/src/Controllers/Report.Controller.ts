@@ -573,29 +573,54 @@ export class ReportController{
  async documentReportEntryDriefsByDates(req: Request, res: Response){
     let user:User = await this.userService.getUserByUid(req.query.uid);
     let {iniDate, finDate} = req.params;
-    let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
+    let tmp = os.tmpdir();
 
     let entrysDriefs:EntranceDrief[] = await this.entranceDriefService.reportEntrancesDriefs(iniDate,finDate);
     
-    let workbook = this.excel.generateEntrysDriefsDocumentByDates(user,entrysDriefs); // se llama a la utileria con los mismos datos que se envian al reporte html
-
-    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{//workbook escribe y permite un callback 
+    let workbook = this.excel.generateEntrysDriefsDocumentByDates(user,entrysDriefs); 
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
         if(err){
             console.log(err);
         }
         res.setHeader(
-            "Content-disposition",//se pone un tipo de cabecera
-            'inline; filename="Reporte-Entrada-Secos.xlsx"'//para indicar a front el nombre del archivo
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'
           );
-          res.setHeader("Content-Type", "application/vnd.ms-excel");// se añade cabecera para permitir excel
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
           res.status(200); 
-        console.log(stats);//stats solo trae informacion de la creacion del archivo
-        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ //response.download manda un documento para ser descargado en el response
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ 
             if (er) console.log(er);
-            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);//aunque en la carpeta tmp no sea necesario eliminar archivos es mejor hacerlo para no aumentar el peso de las cloud functions    
-            fs.unlinkSync(`${tmp}/imageTmp.png`);//borrar aqui la imagen temporal si no, dara error al generar el documento y no encontrar la imagen
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
         })
-    })
-}
+    });
+  }
+
+  async documentReportEntryMeatById(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let entrysMeat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(+req.params.meatId);
+    
+    let workbook = this.excel.generateEntryMeatDocumentById(user,entrysMeat); 
+    workbook.write(`${tmp}/Reporte-Entrada-Carnicos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Carnicos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Carnicos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Carnicos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
 
 }

@@ -8,6 +8,7 @@ import { User } from "../Models/Entity/User";
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
+import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 export default class Excel4Node{
 
     generateFormulationDocumentByDates(formulationData: any){
@@ -741,7 +742,7 @@ export default class Excel4Node{
         return workbook;
     }
  
-    generatePackingDocumentById(user:User,data:EntrancePacking){
+   generatePackingDocumentById(user:User,data:EntrancePacking){
         let tmp = os.tmpdir(); 
         var workbook = new excel.Workbook();
 
@@ -873,6 +874,182 @@ export default class Excel4Node{
            worksheet.cell(row+8, 6, row+8, 7, true).string("Firma:  ").style(styleUser);
            worksheet.cell(row+8, 8, row+8, 10, true).string(`Puesto:  ${data.verifit == null ? "": data.verifit.job}`).style(styleUser);
            worksheet.cell(row+9, 9, row+9, 10, true).string("F-CAL-RO-03").style(styleUser);
+        return workbook;
+    }
+
+    generateEntryMeatDocumentById(user:User,data:EntranceMeat){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Entry-Meat');
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ //comando para añadir una imagen
+            path: `${tmp}/imageTmp.png`,//path de la imagen
+            name: 'logo', // nombre no es obligatorio
+            type: 'picture', // el tipo de archivo
+            position: { // existen diferentes posiciones
+                type: 'twoCellAnchor', //oneCellAnchor para respetar tamaño de imagen y solo se manda from
+                //twoCellAnchor para modificar el tamaño de imagen y se manda from y to
+                from: { //
+                  col: 3,//columna donde empieza la esquina superior izquierda
+                  colOff: '0in', //margen
+                  row: 2, // fila donde empieza la esquina superior izquierda
+                  rowOff: '0in', // margen 
+                },
+                to: {
+                    col: 4, // columna donde termina la esquina inferior derecha
+                    colOff: '0in',
+                    row: 6, // fila donde termina la esquina inferior derecha
+                    rowOff: '0in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+    
+        worksheet.cell(4, 5, 4, 7, true).string("ROVIANDA S.A.P.I DE C.V").style(styleUser);
+        worksheet.cell(4, 8, 4, 9, true).string("F-CAL-RO-04").style(styleUser);
+        worksheet.cell(5, 5, 6, 7, true).string("RECEPCIÓN DE MATERIA PRIMA CÁRNICOS").style(styleUser);
+        worksheet.cell(5, 8, 6, 8, true).string(`Lote interno: ${data.loteInterno}`).style(styleUser);
+        worksheet.cell(5, 9, 6, 9, true).string("Pág.: 1 de 1").style(styleUser);
+  
+        let row = 9;
+        let col = 3;
+
+        worksheet.cell(8, 3, 8, 4, true).string(" Fecha ").style(styleUser);
+        worksheet.cell(8, 5, 8, 6, true).string(" Proveedor ").style(styleUser);
+        worksheet.cell(8, 7, 8, 8, true).string(" Materia Prima ").style(styleUser);
+        worksheet.cell(8, 9, 8, 10, true).string(" Lote proveedor ").style(styleUser);
+
+        worksheet.cell(9, 3, 9, 4, true).string(`${data.createdAt}`).style(style);
+        worksheet.cell(9, 5, 9, 6, true).string(`${data.proveedor}`).style(style);
+        worksheet.cell(9, 7, 9, 8, true).string(`${data.rawMaterial}`).style(style);
+        worksheet.cell(9, 9, 9, 10, true).string(`${data.loteProveedor}`).style(style);
+
+        worksheet.cell(10, 3, 10, 4, true).string(" Control ").style(styleUser);
+        worksheet.cell(10, 5, 10, 6, true).string(" Estandar ").style(styleUser);
+        worksheet.cell(10, 7, 10, 7, true).string(" Aceptado ").style(styleUser);
+        worksheet.cell(10, 8, 10, 8, true).string(" Recahzado").style(styleUser);
+        worksheet.cell(10, 9, 10, 10, true).string(" Observaciones ").style(styleUser);
+
+        worksheet.cell(11, 3, 12, 4, true).string("Transporte").style(style);
+        worksheet.cell(11, 5, 12, 6, true).string("Limpio, sin olores, sin material ajeno, sin plagas").style(style);
+        worksheet.cell(11, 7, 12, 7, true).string(` ${data.transport.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(11, 8, 12, 8, true).string(` ${!data.transport.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(11, 9, 12, 10, true).string(` ${data.transport.observations} `).style(style);
+
+        worksheet.cell(13, 3, 13, 4, true).string("Empaque").style(style);
+        worksheet.cell(13, 5, 13, 6, true).string("Sin daños y limpio").style(style);
+        worksheet.cell(13, 7, 13, 7, true).string(` ${data.packing.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(13, 8, 13, 8, true).string(` ${!data.packing.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(13, 9, 13, 10, true).string(` ${data.packing.observations} `).style(style);
+            
+        worksheet.cell(14, 3, 14, 4, true).string("Caducidad").style(style);
+        worksheet.cell(14, 5, 14, 6, true).string("Vigente").style(style);
+        worksheet.cell(14, 7, 14, 7, true).string(` ${data.expiration.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(14, 8, 14, 8, true).string(` ${!data.expiration.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(14, 9, 14, 10, true).string(` ${data.expiration.observations} `).style(style);
+
+        worksheet.cell(15, 3, 15, 4, true).string("Peso").style(style);
+        worksheet.cell(15, 5, 15, 6, true).string("Segun el empaque").style(style);
+        worksheet.cell(15, 7, 15, 7, true).string(` ${data.weight.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(15, 8, 15, 8, true).string(` ${!data.weight.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(15, 9, 15, 10,true).string(` ${data.weight.observations} `).style(style);
+
+        worksheet.cell(16, 3, 16, 4, true).string("Materia extraña").style(style);
+        worksheet.cell(16, 5, 16, 6, true).string("Ausente").style(style);
+        worksheet.cell(16, 7, 16, 7, true).string(` ${data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(16, 8, 16, 8, true).string(` ${!data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(16, 9, 16, 10,true).string(` ${data.strangeMaterial.observations} `).style(style);
+
+        worksheet.cell(17, 3, 18, 4, true).string("Temperatura").style(style);
+        worksheet.cell(17, 5, 17, 6, true).string("Fresco: Max. 4C°").style(style);
+        worksheet.cell(17, 7, 17, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(17, 8, 17, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(18, 5, 18, 6, true).string("Congelado: Max -18C°").style(style);
+        worksheet.cell(18, 7, 18, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(18, 8, 18, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(17, 9, 18, 10,true).string(` ${data.temperature.value} `).style(style);
+
+        worksheet.cell(19, 3, 19, 4, true).string("Olor").style(style);
+        worksheet.cell(19, 5, 19, 6, true).string("Característico").style(style);
+        worksheet.cell(19, 7, 19, 7, true).string(` ${data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(19, 8, 19, 8, true).string(` ${!data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(19, 9, 19, 10,true).string(` ${data.odor.observations} `).style(style);
+
+        worksheet.cell(20, 3, 20, 4, true).string("Color").style(style);
+        worksheet.cell(20, 5, 20, 6, true).string("Característico").style(style);
+        worksheet.cell(20, 7, 20, 7, true).string(` ${data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(20, 8, 20, 8, true).string(` ${!data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(20, 9, 20, 10,true).string(` `).style(style);
+
+        worksheet.cell(21, 3, 21, 4, true).string("Textura").style(style);
+        worksheet.cell(21, 5, 21, 6, true).string("Firme Característico").style(style);
+        worksheet.cell(21, 7, 21, 7, true).string(` ${data.texture.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(21, 8, 21, 8, true).string(` ${!data.texture.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(21, 9, 21, 10,true).string(` ${data.texture.observations} `).style(style);
+
+        worksheet.cell(22, 3, 22, 10,true).string("Desviación").style(style);
+        worksheet.cell(23, 3, 23, 10,true).string("").style(style);
+
+        worksheet.cell(24, 3, 24, 10, true).string("Acción correctiva").style(style);
+        worksheet.cell(25, 3, 25, 10, true).string("").style(style);
+        
+        worksheet.cell(26, 3, 26, 10, true).string("Etiqueta").style(style);
+        worksheet.cell(27, 3, 37, 10, true).string("").style(style);
+
+        worksheet.cell(38, 3, 38, 7, true).string(`Realizó:  ${user.name} ${user.firstSurname} ${user.lastSurname}`).style(styleUser);
+        worksheet.cell(38, 8, 38, 10, true).string("Firma:  ").style(styleUser);
+           
         return workbook;
     }
 
