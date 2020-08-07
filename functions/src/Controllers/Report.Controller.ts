@@ -153,6 +153,33 @@ export class ReportController{
         }))
     }
   
+    async documentReportEntrancePackingById(req: Request, res: Response){
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let tmp = os.tmpdir(); 
+        
+        let packing:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
+    
+        let workbook = this.excel.generatePackingDocumentById(user,packing); 
+    
+        workbook.write(`${tmp}/Reporte-Entrada-Paquetes.xlsx`,(err, stats)=>{ 
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="Reporte-Entrada-Paquetes.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/Reporte-Entrada-Paquetes.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/Reporte-Entrada-Paquetes.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+    }
+
     async reportWarehouseDrief(req:Request, res:Response){
         let dateInit = req.query.initDate;
         let dateEnd = req.query.finalDate;
@@ -232,7 +259,6 @@ export class ReportController{
         })
     }
     
-
     async reportFormularionByDate(req: Request, res:Response){
         let user:User = await this.userService.getUserByUid(req.query.uid);
         let {iniDate, finDate} = req.params;

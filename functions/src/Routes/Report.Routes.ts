@@ -98,5 +98,11 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "documentReportOvenById"
+    },
+    {
+        url: "/rovianda/report/document/entry/packing/:pakingId",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportEntrancePackingById"
     }
 ];

@@ -152,9 +152,9 @@ export default class Excel4Node{
         return workbook;//se retorna el workbook
     }
   
-      generatePackingDocumentByDates(user:User,data:EntrancePacking[]){
+    generatePackingDocumentByDates(user:User,data:EntrancePacking[]){
         let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
-        var workbook = new excel.Workbook(); // se inicializa un workbook (archivo de excel)
+        var workbook = new excel.Workbook(); 
 
         let worksheet = workbook.addWorksheet('Packaging'); //Se añade una hoja de calculo y se pasa el nombre por parametro
 
@@ -244,10 +244,10 @@ export default class Excel4Node{
                 horizontal: 'center',//alineamiento del texto
             }
         });
-        worksheet.cell(4, 5, 4, 8, true).string(`Nombre:  ${user.name} ${user.firstSurname} ${user.lastSurname}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data[0].make ? data[0].make.name+" "+data[0].make.firstSurname+" "+data[0].make.lastSurname : "" }`).style(styleUser);
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
-        worksheet.cell(6, 5, 6, 8, true).string(`Puesto:  ${user.job}`).style(styleUser);
-  
+        worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${data[0].make ? data[0].make.job : "" }`).style(styleUser);
+
         let row = 9;
         let col = 4;
 
@@ -268,7 +268,7 @@ export default class Excel4Node{
             worksheet.cell(row+3, col+1, row+3, col+1, true).string("Entrega de Certificado").style(style);
             worksheet.cell(row+3, col+2, row+3, col+2, true).string(` ${data[i].quality ? "xxx" : ""} `).style(style);
             worksheet.cell(row+3, col+3, row+3, col+3, true).string(` ${!data[i].quality ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+3, col+4, row+3, col+4, true).string(` ${data[i].observations ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+3, col+4, row+3, col+4, true).string(` ${data[i].observations} `).style(style);
             
             worksheet.cell(row+4, col,   row+4, col,   true).string("Materia extraña").style(style);
             worksheet.cell(row+4, col+1, row+4, col+1, true).string("Ausente").style(style);
@@ -704,8 +704,6 @@ export default class Excel4Node{
         });
 
         let row = 5;
-
-
             worksheet.cell(row, 11, row, 13, true).string(`Tiempo estimado: ${ovenProduct.stimatedTime}`).style(styleUser);
             worksheet.cell(++row, 4, row, 6, true).string(`Producto: ${ovenProduct.stimatedTime}`).style(styleUser);
             worksheet.cell(row, 7, row, 8, true).string(`PCC: ${ovenProduct.pcc}`).style(styleUser);
@@ -742,6 +740,140 @@ export default class Excel4Node{
 
         return workbook;
     }
-    
+ 
+    generatePackingDocumentById(user:User,data:EntrancePacking){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Packaging');
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ 
+            path: `${tmp}/imageTmp.png`,
+            name: 'logo', 
+            type: 'picture', 
+            position: { 
+                type: 'twoCellAnchor',
+                from: { 
+                  col: 1,
+                  colOff: '1in', 
+                  row: 1, 
+                  rowOff: '0.1in', 
+                },
+                to: {
+                    col: 3, 
+                    colOff: '1in',
+                    row: 8, 
+                    rowOff: '0.1in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+        worksheet.cell(2, 5, 2, 11, true).string("BITACORA DE CONTROL DE CALIDAD ALMACEN EMPAQUES").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center',
+            }
+        });
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data.make ? data.make.name+" "+data.make.firstSurname+" "+data.make.lastSurname : "" }`).style(styleUser);
+        worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
+        worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${data.make ? data.make.job : "" }`).style(styleUser);
+  
+        let row = 9;
+        let col = 3;
+
+            worksheet.cell(row,   col,   row,   col+3, true).string(`Materia prima: ${data.product.description} `).style(style);
+            worksheet.cell(row+1, col,   row+1, col+3, true).string(`Proveedor: ${data.proveedor}`).style(style);
+            worksheet.cell(row,   col+4, row+1, col+5, true).string(`Lote proveedor: ${data.loteProveedor}`).style(style);
+            worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${data.date}`).style(style);
+           
+            worksheet.cell(row+2, col,   row+2, col+1, true).string("Control").style(style);
+            worksheet.cell(row+2, col+2, row+2, col+3, true).string("Estándar").style(style);
+            worksheet.cell(row+2, col+4, row+2, col+4, true).string("Aceptado").style(style);
+            worksheet.cell(row+2, col+5, row+2, col+5, true).string("Rechazado").style(style);
+            worksheet.cell(row+2, col+6, row+2, col+7, true).string("Observaciones").style(style);
+            
+            worksheet.cell(row+3, col,   row+3, col+1, true).string("Certificado de calidad").style(style);
+            worksheet.cell(row+3, col+2, row+3, col+3, true).string("Entrega de Certificado").style(style);
+            worksheet.cell(row+3, col+4, row+3, col+4, true).string(` ${data.quality ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+3, col+5, row+3, col+5, true).string(` ${!data.quality ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+3, col+6, row+3, col+7, true).string(` ${data.observations} `).style(style);
+            
+            worksheet.cell(row+4, col,   row+4, col+1, true).string("Materia extraña").style(style);
+            worksheet.cell(row+4, col+2, row+4, col+3, true).string("Ausente").style(style);
+            worksheet.cell(row+4, col+4, row+4, col+4, true).string(` ${data.strangeMaterial ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+4, col+5, row+4, col+5, true).string(` ${!data.strangeMaterial ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+4, col+6, row+4, col+7, true).string(`  `).style(style);
+           
+            worksheet.cell(row+5, col,   row+5, col+1, true).string("Transporte").style(style);
+            worksheet.cell(row+5, col+2, row+5, col+3, true).string("Limpio").style(style);
+            worksheet.cell(row+5, col+4, row+5, col+4, true).string(` ${data.transport ? "xxx" : ""}`).style(style);
+            worksheet.cell(row+5, col+5, row+5, col+5, true).string(` ${!data.transport ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+5, col+6, row+5, col+7, true).string(`  `).style(style);
+
+            worksheet.cell(row+6, col,   row+6, col+1, true).string("Empaque").style(style);
+            worksheet.cell(row+6, col+2, row+6, col+3, true).string("Sin daños y limpio").style(style);
+            worksheet.cell(row+6, col+4, row+6, col+4, true).string(` ${data.paking ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+6, col+5, row+6, col+5, true).string(` ${!data.paking ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+6, col+6, row+6, col+7, true).string(`  `).style(style);
+
+           worksheet.cell(row+8, 3, row+8, 5, true).string(`Verifico:  ${data.verifit == null ? "": data.verifit.name} ${data.verifit == null ? "": data.verifit.firstSurname} ${data.verifit == null ? "": data.verifit.lastSurname}`).style(styleUser);
+           worksheet.cell(row+8, 6, row+8, 7, true).string("Firma:  ").style(styleUser);
+           worksheet.cell(row+8, 8, row+8, 10, true).string(`Puesto:  ${data.verifit == null ? "": data.verifit.job}`).style(styleUser);
+           worksheet.cell(row+9, 9, row+9, 10, true).string("F-CAL-RO-03").style(styleUser);
+        return workbook;
+    }
 
 }
