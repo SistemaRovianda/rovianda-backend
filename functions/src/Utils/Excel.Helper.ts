@@ -9,6 +9,8 @@ import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
+import { OvenProducts } from "../Models/Entity/Oven.Products";
+
 export default class Excel4Node{
 
     generateFormulationDocumentByDates(formulationData: any){
@@ -210,6 +212,7 @@ export default class Excel4Node{
             }
         });
 
+        
         let styleUser = workbook.createStyle({//se puede crear mas de un estilo
             font: {
                 bold: true,
@@ -298,6 +301,288 @@ export default class Excel4Node{
         return workbook;//se retorna el workbook
     }
   
+
+    generateEntryMeatsDocumentByDate(user:User, meat: EntranceMeat[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook(); 
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        meat.forEach((m , index)=>{
+            let worksheet = workbook.addWorksheet('Pagina '+(index+1)); 
+
+            
+
+            worksheet.addImage({ 
+                path: `${tmp}/imageTmp.png`,
+                name: 'logo', 
+                type: 'picture', 
+                position: { 
+                    type: 'twoCellAnchor', 
+                    
+                    from: { 
+                    col: 1,
+                    colOff: '1in', 
+                    row: 1, 
+                    rowOff: '0.1in', 
+                    },
+                    to: {
+                        col: 3, 
+                        colOff: '1in',
+                        row: 8, 
+                        rowOff: '0.1in',
+                    }
+                }
+            });
+
+            let style = workbook.createStyle({ 
+                font: {
+                color: '#000000',
+                size: 12, 
+                },
+                border: { 
+                    top: {
+                        style:'double' 
+                        
+                    },
+                    bottom: {
+                        style:'double'
+                    },
+                    left: {
+                        style:'double'
+                    },
+                    right: {
+                        style:'double'
+                    }
+                },
+                alignment: { 
+                    wrapText: true 
+                }
+            });
+
+            let styleUser = workbook.createStyle({
+                font: {
+                    bold: true,
+                    size: 12
+                },
+                border: {
+                    top: {
+                        style:'double'
+                    },
+                    bottom: {
+                        style:'double'
+                    },
+                    left: {
+                        style:'double'
+                    },
+                    right: {
+                        style:'double'
+                    }
+                },
+                alignment: {
+                    wrapText: true
+                }
+            })
+            worksheet.cell(1, 4, 2, 8, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(1, 10, 2, 12, true).string("F-CAL-RO-04").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(3, 4, 4, 9, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(3, 10, 4, 11, true).string("LOTE INTERNO: "+m.loteInterno).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(3, 12).string(`Pag: ${(index+1)} de ${meat.length}`).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            let row = 5;
+
+            worksheet.cell(row, 4).string(`Fecha`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 5, row, 9, true).string(`Proveedor`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 10, row, 11, true).string(`Materia prima`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(row, 12).string(`Lote proveedor`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(++row, 4).string(`${new Date(m.createdAt).toLocaleDateString()}`).style(style).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(row, 5, row, 9, true).string(`${m.proveedor}`).style(style).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 10, row, 11, true).string(`${m.rawMaterial}`).style(style).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(row, 12).string(`${m.loteProveedor}`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(++row, 4).string(`Control`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 5, row, 9, true).string(`Estándar`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 10).string(`Aceptado`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 11).string(`Rechazado`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+            worksheet.cell(row, 12).string(`Observaciones`).style(styleUser).style({
+                aligment:{
+                    horizontal: 'center'
+                }
+            });
+
+            worksheet.cell(++row, 4).string(`Transporte`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Limpio, sin olores,sin material ajeno, sin plagas	`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.transport.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.transport.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+            
+            worksheet.cell(++row, 4).string(`Empaque`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Sin daños y limpio`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.packing.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.packing.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            
+            worksheet.cell(++row, 4).string(`Caducidad`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Vigente:`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.expiration.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.expiration.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            
+            worksheet.cell(++row, 4).string(`Peso`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Segun el empaque`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.weight.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.weight.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            
+            worksheet.cell(++row, 4, ++row, 4, true).string(`Temperatura`).style(styleUser);
+            worksheet.cell(row-1, 5, row-1, 9, true).string(`Fresco: Max. 4°C`).style(styleUser);
+            worksheet.cell(row-1, 10).string(`${m.temperature.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row-1, 11).string(`${!m.temperature.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row-1, 12).string(``).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Fresco: Max. -18°C`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.temperature.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.temperature.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            
+            worksheet.cell(++row, 4).string(`Olor`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Caracteristico`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.odor.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.odor.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+            
+            worksheet.cell(++row, 4).string(`Color`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Caracteristico`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.texture.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.texture.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            
+            worksheet.cell(++row, 4).string(`Texture`).style(styleUser);
+            worksheet.cell(row, 5, row, 9, true).string(`Firme, Característico`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.texture.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.texture.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 12).string(``).style(styleUser);
+
+            worksheet.cell(++row, 4, row, 12, true).string(`Desviación:`).style(styleUser);
+            worksheet.cell(++row, 4, row, 12, true).string(``).style(style);
+            
+            worksheet.cell(++row, 4, row, 12, true).string(`Accion correctiva:`).style(styleUser);
+            worksheet.cell(++row, 4, row, 12, true).string(``).style(style);
+
+            
+            worksheet.cell(++row, 4, row+10, 12, true).string(`Etiqueta:`).style(styleUser);
+            row+=10;
+            worksheet.cell(++row, 4, row, 9, true).string(`Realizó:`).style(styleUser);
+            worksheet.cell(row, 10, row, 12, true).string(`Firma:`).style(styleUser);
+        });
+        return workbook;
+    }
   
     generateOvenProductsDocumentsByDate(userElaborated:User, userVerify: User, data: OvenProducts[]){
         let tmp = os.tmpdir(); 
