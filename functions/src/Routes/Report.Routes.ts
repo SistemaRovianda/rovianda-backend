@@ -70,12 +70,6 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportOvenByDates"
     },
     {
-        url:"/rovianda/report/document/oven/:iniDate/:finDate",
-        method:"get",
-        controller:ReportController,
-        target:"documentReportOvenByDates"
-    },
-    {
         url:"/rovianda/report/process/:processId",
         method:"get",
         controller:ReportController,
@@ -92,5 +86,11 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "documentReportPackingByDates"
+    },
+    {
+        url: "/rovianda/report/entry/drief/document/:iniDate/:finDate",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportEntryDriefsByDates"
     }
 ];

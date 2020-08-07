@@ -511,4 +511,33 @@ export class ReportController{
             })
         })
     }
+
+
+ async documentReportEntryDriefsByDates(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let {iniDate, finDate} = req.params;
+    let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
+
+    let entrysDriefs:EntranceDrief[] = await this.entranceDriefService.reportEntrancesDriefs(iniDate,finDate);
+    
+    let workbook = this.excel.generateEntrysDriefsDocumentByDates(user,entrysDriefs); // se llama a la utileria con los mismos datos que se envian al reporte html
+
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{//workbook escribe y permite un callback 
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",//se pone un tipo de cabecera
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'//para indicar a front el nombre del archivo
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");// se añade cabecera para permitir excel
+          res.status(200); 
+        console.log(stats);//stats solo trae informacion de la creacion del archivo
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ //response.download manda un documento para ser descargado en el response
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);//aunque en la carpeta tmp no sea necesario eliminar archivos es mejor hacerlo para no aumentar el peso de las cloud functions    
+            fs.unlinkSync(`${tmp}/imageTmp.png`);//borrar aqui la imagen temporal si no, dara error al generar el documento y no encontrar la imagen
+        })
+    })
+}
 }
