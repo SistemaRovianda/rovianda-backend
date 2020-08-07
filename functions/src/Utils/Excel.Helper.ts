@@ -6,6 +6,8 @@ import * as os from "os";
 import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 import { User } from "../Models/Entity/User";
 import { OvenProducts } from "../Models/Entity/Oven.Products";
+import { Formulation } from "../Models/Entity/Formulation";
+import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 export default class Excel4Node{
 
     generateFormulationDocumentByDates(formulationData: any){
@@ -434,6 +436,147 @@ export default class Excel4Node{
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].nameVerify}`).style(style); 
 
+        return workbook;
+    }
+
+    generateFormulationDocumentById(formulation: Formulation, formulationIngredients: FormulationIngredients[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook(); 
+
+        let worksheet = workbook.addWorksheet('OvenProducts'); 
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ 
+            path: `${tmp}/imageTmp.png`,
+            name: 'logo', 
+            type: 'picture', 
+            position: { 
+                type: 'twoCellAnchor', 
+
+                from: { 
+                  col: 1,
+                  colOff: '1in', 
+                  row: 1, 
+                  rowOff: '0.1in', 
+                },
+                to: {
+                    col: 3, 
+                    colOff: '1in',
+                    row: 8, 
+                    rowOff: '0.1in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({ 
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+
+        worksheet.cell(1, 6, 1, 12, true).string("BITACORA DE CONTROL DE CALIDAD FORMULACION").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        worksheet.cell(4, 5, 4, 8, true).string(`Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname} `).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+
+        worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
+
+        worksheet.cell(6, 5, 6, 8, true).string(`Puesto:  ${formulation.make.job}`).style(styleUser);
+           
+        worksheet.cell(9, 4, 9, 5, true).string("Producto").style(style);
+        worksheet.cell(9, 6, 9, 7, true).string("Lote").style(style);
+        worksheet.cell(9, 8, 9, 9, true).string("Temperatura carne").style(style);
+        worksheet.cell(9, 10, 9, 11, true).string("Temperatura agua").style(style);
+        worksheet.cell(9, 12, 9, 13, true).string("Ingredientes").style(style);
+        worksheet.cell(9, 14, 9, 15, true).string("Fechas").style(style);
+        
+        let row = 10;
+        let col = 4;
+
+        //ya que las hojas de calculo son entre comillas "matrices", los datos se deben manejar como tal
+
+        formulationIngredients.forEach((product) => {
+            worksheet.cell(row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.loteInterno}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[0].productId.description}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
+            for (let i = 1; i < formulationIngredients.length; i++) {
+                col = 4;
+                row++;
+                worksheet.cell(row, col, row, ++col, true).string("").style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[i].productId.description}`).style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
+            }
+            col = 4;
+            row ++; 
+        });
+
+        worksheet.cell(++row, 4, row, 7,true).string(`Realizo, Nombre:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname} `).style(styleUser);
+
+        worksheet.cell(row, 8, row, 9, true).string("Firma:  ").style(styleUser);
+
+        worksheet.cell(row, 10, row, 11, true).string(`Puesto:  ${formulation.verifit.job}`).style(styleUser);
+
+
+       
         return workbook;
     }
 
