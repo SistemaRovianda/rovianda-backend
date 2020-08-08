@@ -52,7 +52,7 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.find({
             where: {date: Between(initDate,finDate)},
-            relations: ["formulationIngredients","formulationIngredients.productId"]
+            relations: ["formulationIngredients","formulationIngredients.productId","verifit","make"]
         });
     }
 }
