@@ -78,6 +78,9 @@ export class Process{
     @JoinColumn({name:"user_id"})
     userId:User;
 
+    @Column({name:"create_at"})
+    createAt:string
+
     // @OneToOne(type => Grinding)
     // @JoinColumn({ name: "molienda_id" })
     // moliendaId: Grinding;

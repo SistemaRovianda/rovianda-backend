@@ -134,9 +134,11 @@ export class ProcessController {
         this.grindingService = new GrindingService();
     }
 
-    async saveProcess(req: Request, res: Response) {
-        await this.processService.createProcess(req.body);
+    async createProcessInter(req: Request, res: Response) {
+        let id = await this.processService.createProcessInter();
+        return res.status(201).send({processId: id});
     }
+
     async createProcess(req: Request, res: Response) {
         await this.processService.createProcess(req.body);
         return res.status(201).send();

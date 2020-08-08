@@ -88,5 +88,11 @@ export const processRoutes: Array<routeInterface> = [
         method: "patch",
         controller: SausagedController,
         target: "updateSausaged"
-    }
+    },
+    {
+        url:"/rovianda/process/intern",
+        method:"post",
+        controller:ProcessController,
+        target:"createProcessInter"
+    },
 ];

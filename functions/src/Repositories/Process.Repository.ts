@@ -116,6 +116,11 @@ export class ProcessRepository{
             relations:["tenderizedId"]
         });
     }
+
+    async getLastProcess(){
+        await this.getConnection();
+        return await this.processRepository.query(`SELECT * FROM process ORDER BY id DESC LIMIT 1`)
+    }
 }
 
 

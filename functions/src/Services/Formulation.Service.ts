@@ -14,6 +14,8 @@ import { OutputsCoolingService } from "./Outputs.Cooling.Service";
 import { OutputsCooling } from "../Models/Entity/outputs.cooling";
 import { User } from "../Models/Entity/User";
 import { UserRepository } from "../Repositories/User.Repository";
+import { OutputsCoolingStatus } from "../Models/Enum/OutputsCoolingStatus";
+import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 
 export class FormulationService {
     private formulationRepository: FormulationRepository;
@@ -23,6 +25,7 @@ export class FormulationService {
     private formulationIngredientsRepository: FormulatioIngredientsRepository;
     private outputsCooling:OutputsCoolingService;
     private userRepository:UserRepository;
+    private outputsCoolingRepository:OutputsCoolingRepository;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -31,6 +34,7 @@ export class FormulationService {
         this.formulationIngredientsRepository = new FormulatioIngredientsRepository();
         this.outputsCooling = new OutputsCoolingService();
         this.userRepository = new UserRepository();
+        this.outputsCoolingRepository = new OutputsCoolingRepository();
     }
 
     async createFormulation(req: Request) {
@@ -161,6 +165,46 @@ export class FormulationService {
             throw new Error("[404], No formulations found, can not generate report");
             
         return formulations;
+    }
+
+    async getAllFormulationLoteMeat(){
+        let formulation:Formulation[] = await this.formulationRepository.getAllFormulationLoteMeat();
+        let response:any = [];
+        formulation.forEach( i=> {
+            response.push({
+                loteMeat: i.loteInterno,
+                productId: i.productRovianda.id
+            })
+        });
+        return response;
+    }
+
+    async getAllLotMeatByProductId(productId:number,status:string){
+        if (!productId) throw new Error("[400],ProductId is required"); 
+        if(!status) throw new Error("[400], status is required");
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getById(productId);
+        if (!productRovianda) throw new Error("[404],Product Rovianda not found");
+        let formulation = await this.formulationRepository.getByproductRovianda(productId);
+        let response:any = [];
+        let response2= [];
+        if(status == OutputsCoolingStatus.NOTUSED || status == OutputsCoolingStatus.USED){
+            for(let i = 0; i < formulation.length; i++){
+                let outputsCooling = await this.outputsCoolingRepository.getByStatusAndLoteInterno(formulation[i].lote_interno,status);
+                console.log(outputsCooling)
+                for(let e = 0; e < outputsCooling.length; e++){
+                    response.push({
+                        lotId:`${outputsCooling[e].lote_interno}`,
+                        quantity: `${outputsCooling[e].quantity}`,
+                        outputId: `${outputsCooling[e].id}`
+                    })
+                }
+            }
+            return response;
+        }else{
+            throw new Error("[409], status incorrect");
+        }
+        
+
     }
 
 }

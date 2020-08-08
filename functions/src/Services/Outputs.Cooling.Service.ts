@@ -70,7 +70,8 @@ export class OutputsCoolingService{
                     response.push({
                         lotId:`${i.loteInterno}`,
                         quantity: `${i.quantity}`,
-                        outputId: `${i.id}`
+                        outputId: `${i.id}`,
+                        name: `${i.rawMaterial.rawMaterial}`
                     });
                 }
             });

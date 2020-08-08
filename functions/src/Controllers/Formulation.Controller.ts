@@ -19,4 +19,14 @@ export class FormulationController {
         let products = await this.formulationService.getFormulation();   
         return res.status(200).send(products);
     }
+
+    async getAllFormulationLoteMeat(req:Request,res:Response){
+        let loteMeat = await this.formulationService.getAllFormulationLoteMeat();
+        return res.status(200).send(loteMeat);
+    }
+
+    async getAllLotMeatByProductId(req:Request,res:Response){
+        let response = await this.formulationService.getAllLotMeatByProductId(+req.query.rawMaterialId,req.query.status)
+        return res.status(200).send(response);
+    }
 }

@@ -80,4 +80,9 @@ export class ProductRoviandaRepository {
             code: Like(`%${code}%`)
         });
     }
+
+    async getById(id:number){
+        await this.getConnection();
+        return await this.repository.findOne({id});
+    }
 }

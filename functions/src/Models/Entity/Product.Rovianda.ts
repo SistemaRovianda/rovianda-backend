@@ -6,6 +6,7 @@ import { Formulation } from "./Formulation";
 import { OvenProducts } from "./Oven.Products";
 import { PresentationProducts } from "./Presentation.Products";
 import { Inspection } from "./Inspection";
+import { Grinding } from "./Grinding";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -33,6 +34,9 @@ export class ProductRovianda {
 
     @OneToMany(type=>Process, process=>process.product)
     process:Process[];
+
+    @OneToMany(type=>Grinding, grinding=>grinding.product)
+    grinding:Grinding[];
 
     @OneToMany(type=> Formulation,formulation=>formulation.productRovianda,{eager:false})
     formulation: Formulation[];

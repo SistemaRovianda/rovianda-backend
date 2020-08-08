@@ -281,4 +281,9 @@ export class ProductRoviandaService{
         }
             return response;
     }
+
+    async getById(productId:number){
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(productId);
+        return product;
+    }
 }

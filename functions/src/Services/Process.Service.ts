@@ -32,6 +32,22 @@ export class ProcessService{
         this.outputsCoolingRepository = new OutputsCoolingRepository();
     }
 
+    async createProcessInter(){
+        let process:Process = new Process();
+        let today = new Date();
+        let dd:any = today.getDate();
+        let mm:any = today.getMonth()+1; 
+        let yyyy:any = today.getFullYear();
+        if(dd<10) { dd='0'+dd; } 
+        if(mm<10) { mm='0'+mm; }
+        let date = `${yyyy}-${mm}-${dd}`;
+        process.status = ProcessStatus.ACTIVE;
+        process.createAt = date;
+        await this.processRepository.saveProcess(process);
+        let id:any = await this.processRepository.getLastProcess();
+        return id[0].id;
+    }
+
     async createProcess(process:ProcessDTO){
         if(!process.lote.loteId) throw new Error("[400], falta el parametro loteId");
         if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
@@ -79,7 +95,7 @@ export class ProcessService{
         process.forEach(i => {
             response.push({
                 processId:`${i.id}`,
-                productName: i.product.name,
+                productName: `${i.product ? i.product.name : ""}`,
                 lotId: `${i.loteInterno}`,
                 date: `${i.startDate}`,
                 currentProccess: `${i.currentProcess}`,
@@ -88,7 +104,8 @@ export class ProcessService{
                 start_date: `${i.startDate}`,
                 end_date: `${i.endDate}`,
                 entrance_hour: `${i.entranceHour}`,
-                output_hour: `${i.outputHour}`
+                output_hour: `${i.outputHour}`,
+                createAt: `${i.createAt}`
             });
         });
         return response;

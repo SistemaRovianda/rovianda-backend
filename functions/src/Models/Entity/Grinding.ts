@@ -1,5 +1,6 @@
 
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, ManyToOne, Raw, JoinColumn} from "typeorm";
+import { ProductRovianda } from "./Product.Rovianda";
 
 @Entity({name:"grinding"})
 export class Grinding{
@@ -18,6 +19,10 @@ export class Grinding{
     
     @Column()
     date:string;
+
+    @ManyToOne(type => ProductRovianda,productR=>productR.grinding)
+    @JoinColumn({name:"product_rovianda_id"})
+    product:ProductRovianda;
 }
 
 

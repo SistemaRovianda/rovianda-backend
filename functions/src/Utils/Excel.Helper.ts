@@ -9,7 +9,6 @@ import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
-import { OvenProducts } from "../Models/Entity/Oven.Products";
 
 export default class Excel4Node{
 

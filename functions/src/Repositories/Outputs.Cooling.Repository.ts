@@ -41,4 +41,12 @@ export class OutputsCoolingRepository{
         await this.getConnection();
         return await this.outputsCoolingRepository.find({rawMaterial});
     }
+
+    async getByStatusAndLoteInterno(lote:string,status:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.query(`
+        SELECT * FROM outputs_cooling 
+        WHERE lote_interno = "${lote}" 
+        AND status = "${status}"`);
+    }
 }

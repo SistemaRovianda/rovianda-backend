@@ -12,5 +12,15 @@ export const formulationRoutes: Array<routeInterface>=[
         method: "get",
         controller: FormulationController,
         target: "getFormulation"
+    },{
+        url: "/rovianda/process/lote/meat",
+        method: "get",
+        controller: FormulationController,
+        target: "getAllFormulationLoteMeat"
+    },{
+        url: "/rovianda/lote/meat/process",
+        method: "get",
+        controller: FormulationController,
+        target: "getAllLotMeatByProductId"
     }
 ]

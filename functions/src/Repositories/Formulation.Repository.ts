@@ -2,6 +2,7 @@ import { Formulation } from "../Models/Entity/Formulation";
 import { Repository, Between } from "typeorm";
 import { connect } from "../Config/Db";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { groupBy } from "lodash";
 
 export class FormulationRepository{
     private formulatioRepository: Repository<Formulation>;
@@ -54,5 +55,17 @@ export class FormulationRepository{
             where: {date: Between(initDate,finDate)},
             relations: ["formulationIngredients","formulationIngredients.productId"]
         });
+    }
+
+    async getAllFormulationLoteMeat(){
+        await this.getConnection();
+        return await this.formulatioRepository.find();
+    }
+
+    async getByproductRovianda(productId:number){
+        await this.getConnection();
+        return await this.formulatioRepository.query(`
+        SELECT * FROM formulation WHERE product_rovianda_id = ${productId} 
+        GROUP BY lote_interno`);
     }
 }
