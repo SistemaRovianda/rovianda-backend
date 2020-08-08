@@ -229,6 +229,33 @@ export class ReportController{
         }));
     }
 
+    async reportDocumentWarehouseDrief(req:Request, res:Response){
+        let dateInit = req.query.initDate;
+        let dateEnd = req.query.finalDate;
+        let tmp = os.tmpdir();
+        let data:WarehouseDrief[] = await this.warehouseDriefService.getDataReport(dateInit,dateEnd);
+        
+        let workbook = this.excel.generateReportWarehouseDrief(data); 
+
+        workbook.write(`${tmp}/reporte-almacen-secos.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="reporte-almacen-secos.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/reporte-almacen-secos.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/reporte-almacen-secos.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+    }
+
     async reportOven(req:Request, res:Response){
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
         let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
