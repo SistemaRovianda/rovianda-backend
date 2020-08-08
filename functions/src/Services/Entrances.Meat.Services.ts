@@ -134,7 +134,7 @@ export class EntranceMeatService {
         let meat:EntranceMeat[]= await this.entrancesMeatRepository.getEntrancesMeats(dateInit,dateEnd);
 
         if(!meat.length)
-        throw new Error("[404], No Entrances meats found, can not generate report");
+            throw new Error("[404], No Entrances meats found, can not generate report");
 
         return meat;
     }
