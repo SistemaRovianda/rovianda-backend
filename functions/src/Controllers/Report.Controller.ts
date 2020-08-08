@@ -179,6 +179,33 @@ export class ReportController{
         }))
     }
   
+    async documentReportEntrancePackingById(req: Request, res: Response){
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let tmp = os.tmpdir(); 
+        
+        let packing:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
+    
+        let workbook = this.excel.generatePackingDocumentById(user,packing); 
+    
+        workbook.write(`${tmp}/Reporte-Entrada-Paquetes.xlsx`,(err, stats)=>{ 
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="Reporte-Entrada-Paquetes.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/Reporte-Entrada-Paquetes.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/Reporte-Entrada-Paquetes.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+    }
+
     async reportWarehouseDrief(req:Request, res:Response){
         let dateInit = req.query.initDate;
         let dateEnd = req.query.finalDate;
@@ -228,42 +255,46 @@ export class ReportController{
         }));
     }
 
+    async documentReportOvenById(req: Request, res: Response){
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let tmp = os.tmpdir(); 
+        
+        let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
+        let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
+        let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
+    
+        let workbook = this.excel.generateOvenProductsDocumentsById(userElaborated,userVerify,revisionOven,dataRevision); 
+    
+        workbook.write(`${tmp}/Reporte-Horno.xlsx`,(err, stats)=>{ 
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="Reporte-Horno.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/Reporte-Horno.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/Reporte-Horno.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+    }
+    
     async reportFormularionByDate(req: Request, res:Response){
         let user:User = await this.userService.getUserByUid(req.query.uid);
         let {iniDate, finDate} = req.params;
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
         
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let html = this.pdfHelper.generateFormulationReport(formulationData);
+        let html = this.pdfHelper.generateFormulationReport(formulations);
         pdf.create(html, {
-            format: 'Letter',
+            format: 'Legal',
             border: {
                 top: "1cm", 
                 right: "2cm",
@@ -328,6 +359,33 @@ export class ReportController{
             });
             stream.pipe(res);
         }));
+    }
+
+    async reportDocumentEntryMeatByDates(req:Request, res:Response){
+        let dateInit = req.params.iniDate;
+        let dateEnd = req.params.finDate;
+        let tmp = os.tmpdir();
+        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entrysMeats:EntranceMeat[] = await this.entranceMeatService.reportEntrancesMeats(dateInit,dateEnd);
+        let workbook =  this.excel.generateEntryMeatsDocumentByDate(user,entrysMeats);
+
+        workbook.write(`${tmp}/entry-meat-report.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="entry-meat-report.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/entry-meat-report.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/entry-meat-report.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            });
+        });
     }
 
     async reportEntryPackingByDates(req:Request, res:Response){
@@ -460,35 +518,8 @@ export class ReportController{
         let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
-        
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let workbook = this.excel.generateFormulationDocumentByDates(formulationData); // se llama a la utileria con los mismos datos que se envian al reporte html
+        let workbook = this.excel.generateFormulationDocumentByDates(formulations); // se llama a la utileria con los mismos datos que se envian al reporte html
 
         workbook.write(`${tmp}/formulation-report.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
             if(err){
@@ -537,4 +568,85 @@ export class ReportController{
             })
         })
     }
+
+
+ async documentReportEntryDriefsByDates(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let {iniDate, finDate} = req.params;
+    let tmp = os.tmpdir();
+
+    let entrysDriefs:EntranceDrief[] = await this.entranceDriefService.reportEntrancesDriefs(iniDate,finDate);
+    
+    let workbook = this.excel.generateEntrysDriefsDocumentByDates(user,entrysDriefs); 
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
+
+  async documentReportEntryMeatById(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let entrysMeat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(+req.params.meatId);
+    
+    let workbook = this.excel.generateEntryMeatDocumentById(user,entrysMeat); 
+    workbook.write(`${tmp}/Reporte-Entrada-Carnicos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Carnicos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Carnicos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Carnicos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
+
+  async documentReportEntryDriefById(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
+    
+    let workbook = this.excel.generateEntryDriefDocumentById(user,drief); 
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
+
 }

@@ -13,6 +13,8 @@ import { Process } from '../Models/Entity/Process';
 import { Conditioning } from '../Models/Entity/Conditioning';
 import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
+import { productRoutes } from '../Routes/Product.Routes';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 
 export default class PdfHelper{
 
@@ -1631,25 +1633,28 @@ export default class PdfHelper{
           </head>`;
     }
 
-    bodyReportFormulationInfo(object: any){
+    bodyReportFormulationInfo(formulations: Formulation[]){
         const formulationHeaderInfo = `<header>
         <b><p>BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
       </header>
   
       <img src="${LOGO.data}" alt="" />
-  
+    `;
+    let formulationTableInfo = "";
+    formulations.forEach( formulation => {
+     formulationTableInfo += `
       <table id="ini" border="1">
         <tr>
-          <th>Realizo, Nombre:  ${object.performer.name}</th>
+          <th>Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
         </tr>
         <tr>
           <th>Firma:</th>
         </tr>
-        <th>Puesto:  ${object.performer.position}</th>
+        <th>Puesto:  ${formulation.make.job}</th>
         <tr></tr>
-      </table>`
+      </table>
 
-      let formulationTableInfo = `<table id="ta" border="1" align="center" width="60%">
+      <table id="ta" border="1" align="center" width="60%">
       <tr>
         <td class="pro">Producto</td>
         <td>Lote</td>
@@ -1658,19 +1663,16 @@ export default class PdfHelper{
         <td>Ingredientes</td>
         <td style="width:50px;">Fechas</td>
       </tr>
-      `;
-      for(let i = 0; i < object.product.length; i++){
-       formulationTableInfo+= `
         <tr>
-            <td class="wi">${object.product[i].name }</td>
-            <td>${object.product[i].lot}</td>
-            <td>${object.product[i].meatTemp ? object.product[i].meatTemp : ""}</td>
-            <td>${object.product[i].waterTemp ? object.product[i].waterTemp : ""}</td>
-            <td>${object.product[i].ingredients[0].name ? object.product[i].ingredients[0].name : "" }</td>
-            <td>${object.product[i].date ? object.product[i].date: "" }</td>
+            <td class="wi">${formulation.productRovianda.name}</td>
+            <td>${formulation.loteInterno}</td>
+            <td>${formulation.temp ? formulation.temp : ""}</td>
+            <td>${formulation.waterTemp ? formulation.waterTemp : ""}</td>
+            <td>${formulation.formulationIngredients[0].productId.description ? formulation.formulationIngredients[0].productId.description : "" }</td>
+            <td>${formulation.date ? new Date(formulation.date).toLocaleDateString() : "" }</td>
         </tr>`;
             
-            for(let index = 1; index < object.product[i].ingredients.length; index++){
+            for(let index = 1; index < formulation.formulationIngredients.length; index++){
                 
                 formulationTableInfo+= `
                     <tr>
@@ -1678,20 +1680,24 @@ export default class PdfHelper{
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>${object.product[i].ingredients[index].name}</td>
+                    <td>${formulation.formulationIngredients[index].productId.description}</td>
                     <td></td>
                 </tr>`;
             }
-      }
-     formulationTableInfo +=`</table>`;
-
-        let footerInfoFormularion = `    <table id="fo1" border="1">
+      
+     formulationTableInfo +=`</table>   <table id="fo1" border="1">
         <tr>
-          <td>Verifico:  ${object.verifier.name}</td>
+          <td>Verifico:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
           <td>Firma:</td>
-          <td>Puesto:  ${object.verifier.ocupation}</td>
+          <td>Puesto:  ${formulation.verifit.job}</td>
         </tr>
       </table>
+      <br>
+      `
+      
+
+    });
+      formulationTableInfo+=`
   
       <table id="fo" border="1">
         <tr>
@@ -1701,11 +1707,11 @@ export default class PdfHelper{
     </body>
   </html>
   `;
-        return formulationHeaderInfo + formulationTableInfo + footerInfoFormularion;
+        return formulationHeaderInfo + formulationTableInfo;
     }
 
-    generateFormulationReport(data: any){
-        return this.headReportFormulation()+this.bodyReportFormulationInfo(data);
+    generateFormulationReport(formulation: Formulation[]){
+        return this.headReportFormulation()+this.bodyReportFormulationInfo(formulation);
     }
  
 

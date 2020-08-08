@@ -40,6 +40,7 @@ export class EntranceDriefRepository{
         await this.getConnection();
         return await this.repository.find({
             where:{ date : Between(dateInit, dateEnd)},
+            order:{ date: "ASC"},
             relations:["product"]
         });
     }
