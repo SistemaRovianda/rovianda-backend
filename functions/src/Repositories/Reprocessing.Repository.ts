@@ -16,5 +16,10 @@ export class ReprocessingRepository{
         return await this.reprocessingRepository.save(reprocessing);
     }
 
+    async getByArea(area:string){
+        await this.getConnection();
+        return await this.reprocessingRepository.find({area});
+    }
+
 
 }

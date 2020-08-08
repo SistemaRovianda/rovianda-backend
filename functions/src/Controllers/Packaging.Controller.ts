@@ -30,6 +30,11 @@ export class PackagingController{
         await this.packagingService.saveReprocessing(req.body);
         return res.status(201).send();
     }
+
+    async getReprocessingByArea(req:Request,res:Response){
+        let response = await this.packagingService.getReprocessingByArea(req.params.area);
+        return res.status(200).send(response);
+    }
   
     async saveUsersPackaging(req:Request,res:Response){
         await this.packagingService.saveUsersPackaging(req.body, req.params.packagingId);

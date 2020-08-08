@@ -42,5 +42,10 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "get",
         controller: PackagingController,
         target: "getPackaging"
+    },{
+        url:"/rovianda/packaging/reprocessing/:area",
+        method:"get",
+        controller:PackagingController,
+        target:"getReprocessingByArea" 
     }
 ];

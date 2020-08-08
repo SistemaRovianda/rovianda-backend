@@ -93,6 +93,34 @@ export class PackagingService{
     async getHistoryPackaging(lotId: string) {
 
     }
+
+    async getReprocessingByArea(area:string){
+        if(!area) throw new Error("[400], area is required");
+        if(area == REPROCESSING.ACONDICIONAMIENTO ||
+            area == REPROCESSING.DESCONGELAMIENTO ||
+           area == REPROCESSING.EMBUTIDO ||
+            area == REPROCESSING.INJECCIONTENDERIZADO ||
+           area == REPROCESSING.MOLIENDA){
+               let reprocessing:Reprocessing[] = await this.reprocessingRepository.getByArea(area);
+               let response:any = [];
+               reprocessing.forEach( i=> {
+                   if(!i.lotProcess){
+                       response.push({
+                           reprocessingId: `${i.id}`,
+                           date: `${i.date}`,
+                           productId: `${i.productId}`,
+                           loteProcess: `${i.lotProcess}`,
+                           loteReprocessing: `${i.lotRepro}`,
+                           allergens: `${i.allergens}`,
+                           area: `${i.area}`
+                       })
+                   }
+               })
+               return response;
+        }else{
+            throw new Error("[404], Area incorret");
+        }
+    }
         
     async saveReprocessing(reprocessingDTO:ReprocessingDTO){
 
