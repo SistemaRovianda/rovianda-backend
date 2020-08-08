@@ -108,6 +108,32 @@ export class ReportController{
             stream.pipe(res);
         }))
     }
+
+    async reportDocumentFormulation(req:Request, res:Response){
+        let tmp = os.tmpdir();
+        let formulation:Formulation = await this.formulationService.reportFormulation(+req.params.formulationId);
+        let formulationIngredents:FormulationIngredients[] = await this.formulationService.reportFormulationIngredents(+req.params.formulationId)
+        
+        let workbook = this.excel.generateFormulationDocumentById(formulation, formulationIngredents);
+        
+        workbook.write(`${tmp}/formulation-report.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="formulation-report.xlsx"'
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");
+              res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/formulation-report.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/formulation-report.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        })
+    }
   
   async reportEntranceMeat(req:Request, res:Response){ 
         let user:User = await this.userService.getUserByUid(req.query.uid);

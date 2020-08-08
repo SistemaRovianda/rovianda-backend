@@ -28,6 +28,12 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportFormulation"
     },
     {
+        url:"/rovianda/report/document/formulation/:formulationId",
+        method:"get",
+        controller:ReportController,
+        target:"reportDocumentFormulation"
+    },
+    {
         url:"/rovianda/report/entry/packing/:pakingId",
         method:"get",
         controller:ReportController,
