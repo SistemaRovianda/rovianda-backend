@@ -265,36 +265,10 @@ export class ReportController{
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
         
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let html = this.pdfHelper.generateFormulationReport(formulationData);
+        let html = this.pdfHelper.generateFormulationReport(formulations);
         pdf.create(html, {
-            format: 'Letter',
+            format: 'Legal',
             border: {
                 top: "1cm", 
                 right: "2cm",
@@ -518,35 +492,8 @@ export class ReportController{
         let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
-        
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let workbook = this.excel.generateFormulationDocumentByDates(formulationData); // se llama a la utileria con los mismos datos que se envian al reporte html
+        let workbook = this.excel.generateFormulationDocumentByDates(formulations); // se llama a la utileria con los mismos datos que se envian al reporte html
 
         workbook.write(`${tmp}/formulation-report.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
             if(err){
@@ -645,6 +592,32 @@ export class ReportController{
         return res.download(`${tmp}/Reporte-Entrada-Carnicos.xlsx`,(er) =>{ 
             if (er) console.log(er);
             fs.unlinkSync(`${tmp+"/Reporte-Entrada-Carnicos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
+
+  async documentReportEntryDriefById(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
+    
+    let workbook = this.excel.generateEntryDriefDocumentById(user,drief); 
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);
             fs.unlinkSync(`${tmp}/imageTmp.png`);
         })
     });

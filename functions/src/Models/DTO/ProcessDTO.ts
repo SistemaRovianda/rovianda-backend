@@ -15,6 +15,7 @@ export interface ProcessDTO{
     temperature: string;
     hourEntrance: string;
     dateIni: string;
+    processId: number
 }
 
 export interface UserProcessDTO{

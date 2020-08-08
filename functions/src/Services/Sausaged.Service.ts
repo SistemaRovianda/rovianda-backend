@@ -37,6 +37,7 @@ export class SausagedService{
                 await this.sausagedRepository.saveSausaged(sausaged);
                 let objSausaged:Sausaged = await this.sausagedRepository.getLastSausaged();
                 processObj.sausageId = objSausaged[0];
+                processObj.currentProcess = "Embutido";
                 await this.processRepository.saveProcess(processObj);
             }else{
                 throw new Error("[404], Product not found");

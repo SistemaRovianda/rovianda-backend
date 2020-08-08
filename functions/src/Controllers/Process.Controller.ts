@@ -138,7 +138,6 @@ export class ProcessController {
         let id = await this.processService.createProcessInter();
         return res.status(201).send({processId: id});
     }
-
     async createProcess(req: Request, res: Response) {
         await this.processService.createProcess(req.body);
         return res.status(201).send();
@@ -147,6 +146,11 @@ export class ProcessController {
     async updateProcessHourAndDate(req: Request, res: Response) {
         await this.processService.updateProcess(req);
         return res.status(204).send();
+    }
+
+    async getDefrost(req:Request,res:Response){
+        let responde = await this.processService.getDefrost(+req.params.processId);
+        return res.status(200).send(responde);
     }
 
     async updateStatusProcess(req: Request, res: Response) {

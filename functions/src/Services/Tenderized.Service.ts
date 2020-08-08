@@ -44,6 +44,7 @@ export class TenderizedService{
         
         let lastTenderized:Tenderized = await this.tenderizedRepository.getLastTenderized();
         process.tenderizedId = lastTenderized;
+        process.currentProcess = "Inyecion-Tenderizado";
         return await this.processRepository.saveProcess(process);
     }
     

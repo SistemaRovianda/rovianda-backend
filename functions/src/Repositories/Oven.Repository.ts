@@ -51,7 +51,7 @@ export class OvenRepository{
         return await this.ovenRepository.findOne({product})
     }
 
-    async getOvenProductByLot(newLote:number){
+    async getOvenProductByLot(newLote:string){
         await this.getConnection();
         console.log("consulta")
         return await this.ovenRepository.findOne({

@@ -9,6 +9,11 @@ import { ProcessController } from "../Controllers/Process.Controller";
 export const processRoutes: Array<routeInterface> = [
 
     {
+        url:"/rovianda/process/:processId",
+        method:"get",
+        controller:ProcessController,
+        target:"getDefrost"
+    },{
         url:"/rovianda/process",
         method:"post",
         controller:ProcessController,

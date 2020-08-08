@@ -70,6 +70,11 @@ export class ProcessRepository{
             relations:["sausageId","tenderizedId","conditioningId","grindingId","product"]
         });
     }
+
+    async findProcessByProcessId(id:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({id})
+    }
      
     async getProceesByLot(newLote:string,productId:number){
         await this.getConnection();
@@ -121,6 +126,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.query(`SELECT * FROM process ORDER BY id DESC LIMIT 1`)
     }
+
 }
 
 

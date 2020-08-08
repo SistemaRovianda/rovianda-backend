@@ -18,6 +18,8 @@ import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 import { BoxPackaging } from '../Models/Entity/Box.Packaging';
 import { BoxPackagingRepository } from '../Repositories/Box.Packaging.Repository';
+import { REPROCESSING } from '../Models/Enum/Reprocessing.Area';
+import { ProcessRepository } from '../Repositories/Process.Repository';
 
 
 export class PackagingService{
@@ -31,6 +33,7 @@ export class PackagingService{
     private propertiesPackagingRepository:PropertiesPackagingRepository;
     private presentationsProductsRepository:PresentationsProductsRepository;
     private boxPackagingRepository:BoxPackagingRepository;
+    private processRepository:ProcessRepository;
 
 
     constructor() {
@@ -44,6 +47,7 @@ export class PackagingService{
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.presentationsProductsRepository = new PresentationsProductsRepository();
         this.boxPackagingRepository= new BoxPackagingRepository();
+        this.processRepository = new ProcessRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO) {
@@ -105,18 +109,33 @@ export class PackagingService{
         console.log("Consulta")
         let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(reprocessingDTO.lotId);
         if(!lot) throw new Error("[404], lot not found");
+        console.log(lot)
+        let process:any = await this.processRepository.getProceesByLot(lot.newLote,reprocessingDTO.productId);
 
-        let reprocessing:Reprocessing = new Reprocessing();
-        reprocessing.allergens = reprocessingDTO.allergen;
-        reprocessing.area = reprocessingDTO.area;
-        reprocessing.date = reprocessingDTO.date;
-        reprocessing.lotRepro = lot.newLote;
-        reprocessing.productId = product.id;
+        if(reprocessingDTO.area == REPROCESSING.ACONDICIONAMIENTO ||
+            reprocessingDTO.area == REPROCESSING.DESCONGELAMIENTO ||
+            reprocessingDTO.area == REPROCESSING.EMBUTIDO ||
+            reprocessingDTO.area == REPROCESSING.INJECCIONTENDERIZADO ||
+            reprocessingDTO.area == REPROCESSING.MOLIENDA){
+                let reprocessing:Reprocessing = new Reprocessing();
+                reprocessing.allergens = reprocessingDTO.allergen;
+                reprocessing.area = reprocessingDTO.area;
+                reprocessing.date = reprocessingDTO.date;
+                reprocessing.lotRepro = lot.newLote;
+                reprocessing.productId = product.id;
+                reprocessing.lotProcess = process[0].lote_interno;
+                return await this.reprocessingRepository.saveRepocessing(reprocessing);
+        
+        }else{
+            throw new Error("[404], Status incorret");
+        }
+
+        
         //servicio que retorne todos los reprosesos pero aquellos que no tengan
         //lot repro filtrado por area
     
-        console.log("hecho")
-        return await this.reprocessingRepository.saveRepocessing(reprocessing);
+        // console.log("hecho")
+        
     }
   
     async saveUsersPackaging(userPackagingDTO:UserPackaginggDTO, packagingId:string){

@@ -57,7 +57,7 @@ export class Product {
     @OneToMany(type=> Sausaged,sausaged=>sausaged.productId)
     sausaged: Sausaged[];
 
-    @OneToMany(type=> Conditioning,conditioning=>conditioning.productId)
-    conditioning: Conditioning[];
+    // @OneToMany(type=> Conditioning,conditioning=>conditioning.productId)
+    // conditioning: Conditioning[];
 
 }

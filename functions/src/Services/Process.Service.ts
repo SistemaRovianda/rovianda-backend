@@ -43,6 +43,7 @@ export class ProcessService{
         let date = `${yyyy}-${mm}-${dd}`;
         process.status = ProcessStatus.ACTIVE;
         process.createAt = date;
+        process.status=ProcessStatus.ACTIVE;
         await this.processRepository.saveProcess(process);
         let id:any = await this.processRepository.getLastProcess();
         return id[0].id;
@@ -52,11 +53,7 @@ export class ProcessService{
         if(!process.lote.loteId) throw new Error("[400], falta el parametro loteId");
         if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
-        //productId product catalog
-        //molienda y condicionamiento
-        //Tenderizado y embutido
-        //
-        //
+        if(!process.processId) throw new Error("[400], falta el parametro processId");
         let productCatalog = await this.productRoviandaRepository.getProductRoviandaByIds(process.productId);
         if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
         let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
@@ -71,7 +68,10 @@ export class ProcessService{
         let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
         if(!updateoutputCooling) throw new Error("[404], no existe outputId");
         updateoutputCooling.status = OutputsCoolingStatus.USED;
-        let processEntity:Process = new Process();
+
+        let processEntity:Process = await this.processRepository.findProcessById(process.processId);
+
+        //let processEntity:Process = new Process();
         processEntity.product = productCatalog;
         processEntity.entranceHour= process.hourEntrance;
         processEntity.weigth=+process.weight;
@@ -80,6 +80,7 @@ export class ProcessService{
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
         processEntity.newLote = formulation.newLote;
+        processEntity.currentProcess = "Descongelamiento";
         await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
         return await this.processRepository.createProcess(processEntity);
     }
@@ -194,5 +195,11 @@ export class ProcessService{
         process.jobVerify = userProcessDTO.jobVerify;
 
         return await this.processRepository.createProcess(process);
+    }
+
+    async getDefrost(processId:number){
+        let process:Process = await this.processRepository.findProcessByProcessId(processId);
+        if(!process) throw new Error("[400], no existe proceso");
+        return process;
     }
 }

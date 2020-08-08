@@ -5,16 +5,21 @@ import { Process } from '../Models/Entity/Process';
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from '../Repositories/Product.Repository';
+import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 
 
 export class ConditioningService{
     private conditioningRepository:ConditioningRepository;
     private processRepository:ProcessRepository;
     private productRepository:ProductRepository;
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor(){
         this.conditioningRepository = new ConditioningRepository();
         this.processRepository = new ProcessRepository();
         this.productRepository = new ProductRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
+        
     }
     
     async createConditioningByProcessId(conditioningDTO:ConditioningDTO, processId:string){
@@ -35,8 +40,8 @@ export class ConditioningService{
     console.log(process); 
     if(process.conditioningId) throw new Error("[400], este proceso ya tiene acondicionamiento asignado");
         
-    let product: Product = await this.productRepository.getProductById(conditioningDTO.productId);
-    if(!product) throw new Error("[400], no existe producto");
+    let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(conditioningDTO.productId);
+    if(!product) throw new Error("[400], no existe producto Rovianda");
     console.log(product)
     //let productConditioning = await this.conditioningRepository.getConditioningByProductId(product.id);
     //if(productConditioning) throw new Error("[400], este producto ya tiene acondicionamiento asignado");
@@ -56,6 +61,7 @@ export class ConditioningService{
     
             let lastConditioning :Conditioning = await this.conditioningRepository.getLastConditioning();
             console.log(lastConditioning);
+            process.currentProcess = "Acondicionamiento ";
             process.conditioningId = lastConditioning;
     
             return await this.processRepository.createProcess(process);    
