@@ -29,7 +29,7 @@ export class OvenRepository{
         console.log("consulta")
         return await this.ovenRepository.findOne({
             where:{ id:`${ovenProduct_id}`},
-            relations:["product"]
+            relations:["product","revisions"]
          });
     }
 
@@ -74,16 +74,13 @@ export class OvenRepository{
 
     async getOvenProductsById(id:number){
         await this.getConnection();
-        return await this.ovenRepository.query(`SELECT 
-        oven_products.id, oven_products.pcc, oven_products.oven, oven_products.new_lote, oven_products.date, 
-        oven_products.product_id, products_rovianda.name, revisions_oven_products.hour, 
-        revisions_oven_products.inter_temp, revisions_oven_products.oven_temp, 
-        revisions_oven_products.humidity, 
-        revisions_oven_products.observations 
+        return await this.ovenRepository.query(`
+        SELECT * 
         FROM oven_products 
         INNER JOIN revisions_oven_products ON revisions_oven_products.ovenProductsId = oven_products.id 
         INNER JOIN products_rovianda ON products_rovianda.id = oven_products.product_id 
-        WHERE oven_products.id = ${id}`);
+        WHERE oven_products.id = ${id};`
+        );
     }
 
     async ById(id:number){

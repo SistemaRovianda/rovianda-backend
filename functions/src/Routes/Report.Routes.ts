@@ -58,6 +58,13 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportEntryMeatByDates"
     },
     {
+        url:"/rovianda/report/document/entry/meat/:iniDate/:finDate",
+        method:"get",
+        controller:ReportController,
+        target:"reportDocumentEntryMeatByDates"
+    },
+    
+    {
         url:"/rovianda/report/entry/packing/:iniDate/:finDate",
         method:"get",
         controller:ReportController,
@@ -68,12 +75,6 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportOvenByDates"
-    },
-    {
-        url:"/rovianda/report/document/oven/:iniDate/:finDate",
-        method:"get",
-        controller:ReportController,
-        target:"documentReportOvenByDates"
     },
     {
         url:"/rovianda/report/process/:processId",
@@ -92,5 +93,29 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "documentReportPackingByDates"
+    },
+    {
+        url: "/rovianda/report/entry/drief/document/:iniDate/:finDate",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportEntryDriefsByDates"
+    },
+    {
+        url: "/rovianda/report/document/oven/:ovenId",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportOvenById"
+    },
+    {
+        url: "/rovianda/report/document/entry/packing/:pakingId",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportEntrancePackingById"
+    },
+    {
+        url: "/rovianda/report/document/entry/meat/:meatId",
+        method: "get",
+        controller: ReportController,
+        target: "documentReportEntryMeatById"
     }
 ];
