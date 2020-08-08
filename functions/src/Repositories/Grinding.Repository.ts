@@ -13,7 +13,8 @@ export class GrindingRepository{
     async getGrindingById(id:number){
         await this.getConnection();
         return await this.grindingRepository.findOne({
-            where: {id}
+            where: {id},
+            relations:["product"]
         });
     }
     async saveGrinding(grinding:Grinding){

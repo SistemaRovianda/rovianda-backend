@@ -1883,7 +1883,7 @@ export default class PdfHelper{
               </tr>
 
               <tr>
-                <th class="formacion">${tenderized.productId == null ? "" : tenderized.productId.description}</th>
+                <th class="formacion">${tenderized.productId == null ? "" : tenderized.productId.name}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.date}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.weight}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.temperature}</th>

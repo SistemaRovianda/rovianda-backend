@@ -5,16 +5,20 @@ import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from '../Repositories/Product.Repository';
 import { Process } from '../Models/Entity/Process';
 import { ProcessRepository } from '../Repositories/Process.Repository';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 
 
 export class TenderizedService{
     private tenderizedRepository : TenderizedRepository;
     private productRepository : ProductRepository;
     private processRepository :ProcessRepository;
+    private productRoviandaRepository: ProductRoviandaRepository;
     constructor(){
         this.tenderizedRepository = new TenderizedRepository();
         this.productRepository = new ProductRepository();
         this.processRepository = new ProcessRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
  
     async createTenderized(tenderizedDTO:TenderizedDTO, processId:string){
@@ -29,7 +33,7 @@ export class TenderizedService{
         if(!tenderizedDTO.temperature) throw new Error("[400], falta el parametro temperature");
         if(!tenderizedDTO.weight) throw new Error("[400], falta el parametro weight");
         if(!tenderizedDTO.weightSalmuera) throw new Error("[400], falta el parametro weightSalmuera");
-        let product :Product = await this.productRepository.getProductById(tenderizedDTO.productId);
+        let product :ProductRovianda = await this.productRoviandaRepository.getById(tenderizedDTO.productId);
         if(!product) throw new Error("[400],No existe producto");
         if(process.tenderizedId!=null) throw new Error("[409],el proceso ya tiene tenderizado registrado");
      

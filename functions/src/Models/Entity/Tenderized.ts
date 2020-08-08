@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
 import { Product } from "./Product";
+import { ProductRovianda } from "./Product.Rovianda";
 
 @Entity({name:"tenderized"})
 export class Tenderized{
@@ -22,9 +23,13 @@ export class Tenderized{
     @Column({name:"percent_inject"})
     percentInject:number;
 
-    @ManyToOne(type=> Product, productId=>productId.tenderized)
+    // @ManyToOne(type=> Product, productId=>productId.tenderized)
+    // @JoinColumn({name:"product_id"})
+    // productId:Product;
+
+    @ManyToOne(type => ProductRovianda,productId=>productId.tenderized)
     @JoinColumn({name:"product_id"})
-    productId:Product;
+    productId:ProductRovianda;
 
 
 }
