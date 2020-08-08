@@ -597,4 +597,30 @@ export class ReportController{
     });
   }
 
+  async documentReportEntryDriefById(req: Request, res: Response){
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
+    
+    let workbook = this.excel.generateEntryDriefDocumentById(user,drief); 
+    workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Entrada-Secos.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Entrada-Secos.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Entrada-Secos.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+  }
+
 }
