@@ -265,36 +265,10 @@ export class ReportController{
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
         
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let html = this.pdfHelper.generateFormulationReport(formulationData);
+        let html = this.pdfHelper.generateFormulationReport(formulations);
         pdf.create(html, {
-            format: 'Letter',
+            format: 'Legal',
             border: {
                 top: "1cm", 
                 right: "2cm",
@@ -518,35 +492,8 @@ export class ReportController{
         let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
 
         let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
-        
-        let productData = formulations.map(formulation=>{
-            return {
-                name: formulation.productRovianda.name,
-                lot: formulation.loteInterno,
-                meatTemp: formulation.temp,
-                waterTemp: formulation.waterTemp,
-                ingredients: formulation.formulationIngredients.map(formulationIngredient =>{
-                    return {
-                     name:formulationIngredient.productId.description 
-                    }
-                }),
-                date: formulation.date
-            }
-        });
 
-        let formulationData = {
-            performer: {
-                name: user.name,
-                position: user.job
-            },
-            product: productData,
-            verifier: {
-                name: user.name,
-                ocupation: user.job
-            }
-        };
-
-        let workbook = this.excel.generateFormulationDocumentByDates(formulationData); // se llama a la utileria con los mismos datos que se envian al reporte html
+        let workbook = this.excel.generateFormulationDocumentByDates(formulations); // se llama a la utileria con los mismos datos que se envian al reporte html
 
         workbook.write(`${tmp}/formulation-report.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
             if(err){
