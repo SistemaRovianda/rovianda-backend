@@ -986,7 +986,7 @@ export default class Excel4Node{
             }
         });
 
-        worksheet.cell(3, 6, 3, 12, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+        worksheet.cell(3, 6, 3, 12, true).string("CONTROL DE TEMPERATURA DEL COCIMENTO DEL PRODUCTO").style({
             font: {
                 bold: true
             },

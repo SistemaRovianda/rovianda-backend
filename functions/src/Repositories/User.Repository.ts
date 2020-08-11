@@ -62,4 +62,11 @@ export class UserRepository{
         await this.getConnection();
         return await this.userRepository.find({roles});
     }
+
+    async getUserByFullName(name:string,firstSurname:string,lastSurname:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({
+            where: {name: `${name}`, firstSurname:`${firstSurname}`, lastSurname:`${lastSurname}`},
+        });
+    }
 }

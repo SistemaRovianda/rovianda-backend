@@ -259,8 +259,8 @@ export class ReportController{
     async reportOven(req:Request, res:Response){
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
         let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
-        let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
-        let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
+        let userElaborated:User= await this.userService.getUserByFullName(revisionOven.nameElaborated);
+        let userVerify:User= await this.userService.getUserByFullName(revisionOven.nameVerify); 
         let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
         pdf.create(report, {
             format: 'Letter',
@@ -288,8 +288,8 @@ export class ReportController{
         
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
         let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
-        let userElaborated:User= await this.userService.getUserByName(revisionOven.nameElaborated);
-        let userVerify:User= await this.userService.getUserByName(revisionOven.nameVerify);
+        let userElaborated:User= await this.userService.getUserByFullName(revisionOven.nameElaborated);
+        let userVerify:User= await this.userService.getUserByFullName(revisionOven.nameVerify); 
     
         let workbook = this.excel.generateOvenProductsDocumentsById(userElaborated,userVerify,revisionOven,dataRevision); 
     
