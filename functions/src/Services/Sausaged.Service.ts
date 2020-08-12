@@ -6,32 +6,38 @@ import { Process } from "../Models/Entity/Process";
 import { Product } from "../Models/Entity/Product";
 import { Request } from "express";
 import { SausagedDTO,SausagedUpdateDTO } from "../Models/DTO/SausagedDTO";
+import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
 export class SausagedService{
     private sausagedRepository:SausagedRepository;
     private processRepository:ProcessRepository;
     private productRepository:ProductRepository;
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor(){
         this.sausagedRepository = new SausagedRepository();
         this.processRepository = new ProcessRepository();
         this.productRepository = new ProductRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
     async saveSausaged(sausagedDTO:SausagedDTO,processId:string){
         if(!sausagedDTO.productId) throw new Error("[400], productId is required");
         if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
         if(!sausagedDTO.date) throw new Error("[400], date is required");
+        if(!sausagedDTO.loteMeat) throw new Error("[400], loteMeat is required");
         if(!sausagedDTO.time.hour) throw new Error("[400], hour1 is required");
         if(!sausagedDTO.time.weight) throw new Error("[400], weightInitial is required");
         let sausaged = new Sausaged();
         let processObj:Process = await this.processRepository.getProcessWithSausagedById(+processId);
         if(processObj){
-            let product:Product = await this.productRepository.getProductById(sausagedDTO.productId);
+            let product:ProductRovianda = await this.productRoviandaRepository.getById(sausagedDTO.productId);
             if(processObj.sausageId) throw new Error("[409],el proceso ya tiene embutido registrado");
             if(product){
                 sausaged.date = sausagedDTO.date;
                 sausaged.hour1 = sausagedDTO.time.hour;
                 sausaged.temperature = sausagedDTO.temperature;
+                sausaged.loteMeat = sausagedDTO.loteMeat
                 sausaged.weightIni = sausagedDTO.time.weight.toString();
                 sausaged.productId = product;
                 await this.sausagedRepository.saveSausaged(sausaged);
@@ -62,27 +68,28 @@ export class SausagedService{
         if(!req.params.processId) throw new Error("[400], processId is required");
         let process:Process = await this.processRepository.getProcessWithSausagedById(+req.params.processId);
         if(!process) throw new Error("[404], process not found");
-        let sausaged:Sausaged[] = await this.sausagedRepository.getSausagedByProcess(+req.params.processId);
+        console.log(process)
+        let sausaged = await this.sausagedRepository.getSausagedByProcess(+req.params.processId);
+        console.log(sausaged[0])
         let response:any = {};
-        sausaged.forEach( async (i:any) => {
             response = {
-                sausagedId: `${i.id}`,
+                sausagedId: `${sausaged[0].id}`,
                 product: {
-                    id: `${i.product_id}`,
-                    description: `${i.description}`
+                    id: `${sausaged[0].product_id}`,
+                    description: `${sausaged[0].name}`
                 },
-                temperature: `${i.temperature}`,
-                date: `${i.date}`,
+                temperature: `${sausaged[0].temperature}`,
+                date: `${sausaged[0].date}`,
                 time: {
-                    hour1: `${i.hour1}`,
-                    weightInitial: `${i.weight_ini}`,
-                    hour2: `${i.hour2}`,
-                    weightMedium: `${i.weight_medium}`,
-                    hour3: `${i.hour3}`,
-                    weightFinal: `${i.weight_exit}`
-                }
+                    hour1: `${sausaged[0].hour1}`,
+                    weightInitial: `${sausaged[0].weight_ini}`,
+                    hour2: `${sausaged[0].hour2}`,
+                    weightMedium: `${sausaged[0].weight_medium}`,
+                    hour3: `${sausaged[0].hour3}`,
+                    weightFinal: `${sausaged[0].weight_exit}`
+                },
+                loteMeat: `${sausaged[0].lote_meat}`
             };
-        });
         return response;
     }
 

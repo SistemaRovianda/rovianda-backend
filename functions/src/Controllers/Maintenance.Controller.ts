@@ -19,6 +19,11 @@ export class MaintenanceController{
         let maintenance = await this.maintenanceService.getAllMaintenance();
         return res.status(200).send(maintenance);
     }
+
+    async getMaintenanceById(req:Request,res:Response){
+        let responser = await this.maintenanceService.getMaintenanceById(+req.params.id);
+        return res.status(200).send(responser);
+    }
   
     async createMaintenance(req:Request,res:Response){
         await this.maintenanceService.createMaintenance(req.body);

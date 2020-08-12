@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Store } from './Store';
 import { Devices } from './Devices';
 import { User } from './User';
+import { File } from './Files';
 
 @Entity({ name: "maintenance" })
 export class Maintenance {

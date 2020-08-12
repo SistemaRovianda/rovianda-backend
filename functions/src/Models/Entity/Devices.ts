@@ -17,6 +17,12 @@ export class Devices {
     @Column()
     model: string;
 
+    @Column()
+    date: string;
+
+    @Column()
+    description: string;
+
     @OneToMany(type=> Maintenance,maintenance=>maintenance.devices,{eager:false})
     maintenance: Maintenance[];
 

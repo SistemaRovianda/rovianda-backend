@@ -125,7 +125,6 @@ export class PackagingService{
     async saveReprocessing(reprocessingDTO:ReprocessingDTO){
 
         if(!reprocessingDTO.date) throw new Error("[400], date is required");
-        if(!reprocessingDTO.allergen) throw new Error("[400], allergen is required");
         if(!reprocessingDTO.area) throw new Error("[400], area is required");
         if(!reprocessingDTO.lotId) throw new Error("[400], lotId is required");
         if(!reprocessingDTO.productId) throw new Error("[400], productId is required");
@@ -146,7 +145,7 @@ export class PackagingService{
             reprocessingDTO.area == REPROCESSING.INJECCIONTENDERIZADO ||
             reprocessingDTO.area == REPROCESSING.MOLIENDA){
                 let reprocessing:Reprocessing = new Reprocessing();
-                reprocessing.allergens = reprocessingDTO.allergen;
+                if(reprocessingDTO.allergen) {reprocessing.allergens = reprocessingDTO.allergen;}
                 reprocessing.area = reprocessingDTO.area;
                 reprocessing.date = reprocessingDTO.date;
                 reprocessing.lotRepro = lot.newLote;

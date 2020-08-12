@@ -21,19 +21,27 @@ export class ProductRoviandaService{
 
     async saveProductRovianda(productRoviandaDTO:ProductRoviandaDTO){
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByName(productRoviandaDTO.name);
-        if(product) throw new Error("[409], Ya existe un producto con ese nombre");
-        let ingredients:Array<Product>=[];
-        for(let ingredient of productRoviandaDTO.ingredients){
-            let productIngredient:Product = await this.productRepository.getProductById(ingredient);
-            if(!productIngredient) throw new Error("[404], no existe el producto con el id: "+ingredient);
-            ingredients.push(productIngredient);
+        if(product){
+            if(product.status == false){
+                product.status = true;
+                return await this.productRoviandaRepository.saveProductRovianda(product);
+            }else{
+                throw new Error("[409], Ya existe un producto con ese nombre");
+            }
+        }else{
+            let ingredients:Array<Product>=[];
+            for(let ingredient of productRoviandaDTO.ingredients){
+                let productIngredient:Product = await this.productRepository.getProductById(ingredient);
+                if(!productIngredient) throw new Error("[404], no existe el producto con el id: "+ingredient);
+                ingredients.push(productIngredient);
+            }
+    
+            let productRovianda:ProductRovianda = new ProductRovianda();
+            productRovianda.name = productRoviandaDTO.name;
+            productRovianda.ingredients = ingredients;
+            console.log("Producto rovianda",JSON.stringify(productRovianda));
+            return await this.productRoviandaRepository.saveProductRovianda(productRovianda);
         }
-
-        let productRovianda:ProductRovianda = new ProductRovianda();
-        productRovianda.name = productRoviandaDTO.name;
-        productRovianda.ingredients = ingredients;
-        console.log("Producto rovianda",JSON.stringify(productRovianda));
-        await this.productRoviandaRepository.saveProductRovianda(productRovianda);
     }
 
     async getProductRovianda(req:Request){

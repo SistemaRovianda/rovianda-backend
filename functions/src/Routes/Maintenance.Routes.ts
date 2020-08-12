@@ -96,5 +96,11 @@ export const maintenanceRoutes:Array<routeInterface>=[
         method:"get",
         controller:MaintenanceController,
         target:"getStores"
+    },
+    {
+        url:"/rovianda/maintenance/:id",
+        method:"get",
+        controller:MaintenanceController,
+        target:"getMaintenanceById"
     }
 ];

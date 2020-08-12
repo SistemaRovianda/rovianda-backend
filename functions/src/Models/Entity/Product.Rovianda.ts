@@ -9,6 +9,7 @@ import { Inspection } from "./Inspection";
 import { Grinding } from "./Grinding";
 import { Conditioning } from "./Conditioning";
 import { Tenderized } from "./Tenderized";
+import { Sausaged } from "./Sausaged";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -42,6 +43,9 @@ export class ProductRovianda {
 
     @OneToMany(type=>Conditioning, conditioning=>conditioning.productId)
     conditioning:Conditioning[];
+
+    @OneToMany(type=>Sausaged, sausaged=>sausaged.productId)
+    sausaged:Sausaged[];
 
     @OneToMany(type=>Tenderized, tenderized=>tenderized.productId)
     tenderized:Tenderized[];

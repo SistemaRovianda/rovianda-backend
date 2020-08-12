@@ -95,19 +95,19 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportProcess"
     },
     {
-        url: "/rovianda/report/formulation/document/:iniDate/:finDate",
+        url: "/rovianda/report/document/formulation/:iniDate/:finDate",
         method: "get",
         controller: ReportController,
         target: "documentReportFormulationByDates"
     },
     {
-        url: "/rovianda/report/entry/packing/document/:iniDate/:finDate",
+        url: "/rovianda/report/document/entry/packing/:iniDate/:finDate",
         method: "get",
         controller: ReportController,
         target: "documentReportPackingByDates"
     },
     {
-        url: "/rovianda/report/entry/drief/document/:iniDate/:finDate",
+        url: "/rovianda/report/document/entry/drief/:iniDate/:finDate",
         method: "get",
         controller: ReportController,
         target: "documentReportEntryDriefsByDates"
@@ -135,5 +135,11 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "documentReportEntryDriefById"
+    },
+    {
+        url:"/rovianda/report/document/oven/:iniDate/:finDate",
+        method:"get",
+        controller:ReportController,
+        target:"documentReportOvenByDates"
     }
 ];

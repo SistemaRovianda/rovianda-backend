@@ -1909,7 +1909,7 @@ export default class PdfHelper{
             </tr>
 
             <tr>
-              <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.description}</th>
+              <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.name}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.date}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.temperature}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.weightIni} (${data.sausageId == null ? "" : data.sausageId.hour1})</th>
