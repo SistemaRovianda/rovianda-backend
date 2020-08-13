@@ -41,42 +41,36 @@ export class EntranceMeat{
 
     @Column("simple-json",{name:"strangeMaterial"})
     strangeMaterial:{
-        value: string,
         observations: string,
         accepted: boolean
         }
 
     @Column("simple-json")
     expiration:{
-        value: string,
         observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     packing:{
-        value: string,
         observations: string,
         accepted: boolean
         }
 
     @Column("simple-json")
     odor:{
-        value: string,
         observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     transport:{
-        value: string,
         observations: string,
         accepted: boolean
         }
     
     @Column("simple-json")
     texture:{
-        value: string,
         observations: string,
         accepted: boolean
         }

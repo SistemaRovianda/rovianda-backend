@@ -33,6 +33,11 @@ export class StoreDeviceRepository{
         return await this.storeDeviceRepository.findOne({store})
     }
 
+    async getStoreDevicesByStore(store:Store){
+        await this.getConnection();
+        return await this.storeDeviceRepository.find({store})
+    }
+
     async getByStoreDevice(storeId:number,devicesId:number){
         await this.getConnection();
         return await this.storeDeviceRepository.query(`

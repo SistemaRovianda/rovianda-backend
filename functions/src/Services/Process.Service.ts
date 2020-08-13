@@ -79,7 +79,7 @@ export class ProcessService{
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
-        processEntity.newLote = formulation.newLote;
+        processEntity.newLote = formulation.loteInterno;
         processEntity.currentProcess = "Descongelamiento";
         await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
         return await this.processRepository.createProcess(processEntity);

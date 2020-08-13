@@ -9,17 +9,21 @@ import { Devices } from "../Models/Entity/Devices";
 import { DeviceRepository } from "../Repositories/Device.Repository";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { File } from "../Models/Entity/Files";
+import { StoreDevice } from "../Models/Entity/Store.Devices";
+import { StoreDeviceRepository } from "../Repositories/Store.Device.Repository";
 
 export class MaintenanceService{
     private maintenanceRepository:MaintenanceRepository;
     private userRepository:UserRepository;
     private storeRepository:StoreRepository;
     private deviceRepository:DeviceRepository;
+    private storeDeviceRepository:StoreDeviceRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.maintenanceRepository = new MaintenanceRepository();
         this.userRepository = new UserRepository();
         this.storeRepository = new StoreRepository();
         this.deviceRepository = new DeviceRepository();
+        this.storeDeviceRepository = new StoreDeviceRepository();
     }
 
     async getAllMaintenance(){
@@ -178,5 +182,30 @@ export class MaintenanceService{
         if(!week)throw new Error("[400],week in path is required");
         if(parseInt(week)<0 || parseInt(week)>53)throw new Error("[400],Invalid week");
         return await this.maintenanceRepository.getMaintenanceByWeek(week);
+    }
+
+    async getAllDevicesStore(){
+        let store:Store[] = await this.storeRepository.getStores();
+        let response:any = [];
+        for(let i = 0; i < store.length; i++){
+            let storeDevice:StoreDevice[] = await this.storeDeviceRepository.getStoreDevicesByStore(store[i]);
+            let response2:any = [];
+            for(let e = 0; e < storeDevice.length; e++){
+                //console.log(storeDevice);
+                response2.push({
+                    id: `${storeDevice[e].devices.id}`,
+                    name: `${storeDevice[e].devices.name}`,
+                    model: `${storeDevice[e].devices.model}`,
+                    cost: `${storeDevice[e].devices.costDevice}`,
+                    description: `${storeDevice[e].devices.description}`
+                })
+            }
+            response.push({
+                storeId: `${store[i].id}`,
+                name: `${store[i].name}`,
+                devices: response2
+            })
+        }
+        return response;
     }
 }

@@ -52,4 +52,7 @@ export class OvenProducts {
     @OneToMany(type=>RevisionsOvenProducts,ovenProducts=>ovenProducts.ovenProducts)
     revisions:RevisionsOvenProducts[];
 
+    // @Column({ name: "new_lote" })
+    // newLote: string;
+
 }
