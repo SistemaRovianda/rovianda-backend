@@ -30,8 +30,8 @@ export interface UpdateProductRoviandaDTO{
          ingredientId: number,
          description: string,
          mark: string,
-         Variant: string,
-         Presentation: string
+         variant: string,
+         presentation: string
       }
    ],
    presentations: [
