@@ -9,6 +9,9 @@ import { Inspection } from "./Inspection";
 import { Grinding } from "./Grinding";
 import { Conditioning } from "./Conditioning";
 import { Tenderized } from "./Tenderized";
+import { SubOrder } from "./SubOrder.Sale.Seller";
+import { SellerInventory } from "./Seller.Inventory";
+import { SubSales } from "./Sub.Sales";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -54,5 +57,17 @@ export class ProductRovianda {
 
     @OneToMany(type=> Inspection,inspection=>inspection.productId,{eager:false})
     inspection: Inspection[];
+
+    @OneToMany(type=>SubOrder,subOrder=>subOrder.product)
+    subOrdersSeller:SubOrder[];
+
+    @Column({name:"img_s3"})
+    imgS3:string;
+
+    @OneToMany(type=>SellerInventory,sellerInv=>sellerInv.product)
+    sellerInventory?:SellerInventory[];
+
+    @OneToMany(type=>SubSales,subSale=>subSale.product)
+    subSales:SubSales[];
 
 }

@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO, PackagingOutput } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -20,6 +20,15 @@ import { BoxPackaging } from '../Models/Entity/Box.Packaging';
 import { BoxPackagingRepository } from '../Repositories/Box.Packaging.Repository';
 import { REPROCESSING } from '../Models/Enum/Reprocessing.Area';
 import { ProcessRepository } from '../Repositories/Process.Repository';
+import { validPackagingOutput } from '../Utils/Validators/Packaging.Validators';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
+import { SalesSellerRepository } from '../Repositories/SaleSeller.Repository';
+import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
+import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
+import { SubOrderMetadata } from '../Models/Entity/SubOrder.Sale.Seller.Metadata';
+import { SubOrderMetadataRepository } from '../Repositories/SubOrder.Metadata.Repository';
+import { SellerInventory } from '../Models/Entity/Seller.Inventory';
+import { SellerInventoryRepository } from '../Repositories/Seller.Inventory.Repository';
 
 
 export class PackagingService{
@@ -34,8 +43,10 @@ export class PackagingService{
     private presentationsProductsRepository:PresentationsProductsRepository;
     private boxPackagingRepository:BoxPackagingRepository;
     private processRepository:ProcessRepository;
-
-
+    private orderSellerRepository:SalesSellerRepository;
+    private subOrderRepository:SalesRequestRepository;
+    private subOrderMetadataRepository:SubOrderMetadataRepository;
+    private sellerInventoryRepository:SellerInventoryRepository;
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
@@ -48,6 +59,10 @@ export class PackagingService{
         this.presentationsProductsRepository = new PresentationsProductsRepository();
         this.boxPackagingRepository= new BoxPackagingRepository();
         this.processRepository = new ProcessRepository();
+        this.orderSellerRepository = new SalesSellerRepository();
+        this.subOrderRepository = new SalesRequestRepository();
+        this.subOrderMetadataRepository = new SubOrderMetadataRepository();
+        this.sellerInventoryRepository= new SellerInventoryRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO) {
@@ -266,4 +281,56 @@ export class PackagingService{
         }
         return response; 
     }
+
+    async getProductPresentationInventory(productId:number){
+        return await this.packagingRepository.getPackagingAvailableProductLotsPresentation(productId);
+    }
+
+    async savePackagingInventoryLotsProductOutput(packagingOutput:PackagingOutput,userPackingId:string){
+        await validPackagingOutput(packagingOutput);
+        let orderSeller:OrderSeller = await this.orderSellerRepository.getOrderById(packagingOutput.orderSellerId);
+        if(!orderSeller) throw new Error("[404], no existe la orden");
+        try{
+            let user:User = await this.userRepository.getUserbyIdWithRol(userPackingId);
+            if(!user) throw new Error("[404], no existe el usuario empacador");
+            if(user.roles.description!="PACKAGING") throw new Error("[401], el usuario no es de empaque");
+        for(let product of packagingOutput.products){
+            for(let presentation of product.presentations){
+                let subOrder:SubOrder = await this.subOrderRepository.getSubOrder(presentation.subOrderId);
+                if(!subOrder) throw new Error(`[404], no existe la subOrden: ${presentation.subOrderId}`);
+                let cantidad = presentation.lots.map(x=>x.quantity).reduce((a,b)=>a+b,0);
+                if(subOrder.units<cantidad) throw new Error(`[409], se requiren mas productos para la subOrden ${presentation.subOrderId}, ${cantidad} de ${subOrder.units}`);
+                for(let loteItem of presentation.lots){
+                    let subOrderMetadata:SubOrderMetadata = new SubOrderMetadata();
+                    subOrderMetadata.loteId=loteItem.lotId;
+                    subOrderMetadata.quantity=loteItem.quantity;
+                    subOrderMetadata.subOrder=subOrder;
+                    subOrderMetadata.outputDate=packagingOutput.dateOutput;
+                    await this.subOrderMetadataRepository.saveSubOrderMetadata(subOrderMetadata);
+                    let presentationProducts:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentation.presentationId);
+                    if(!presentationProducts) throw new Error(`[404], no existe la presentacion del producto con el id: ${presentation.presentationId}`);
+                    let sellerInventory:SellerInventory = new SellerInventory();
+                    sellerInventory.loteId = loteItem.lotId;
+                    sellerInventory.presentation=presentationProducts;
+                    sellerInventory.quantity = loteItem.quantity
+                    sellerInventory.dateEntrance=packagingOutput.dateOutput;
+                    let productRovianda:ProductRovianda = await this.productRoviandaRepository.getById(product.productId);
+                    if(!productRovianda) throw new Error(`[404], no existe el producto de rovianda con el id: ${product.productId}`);
+                    sellerInventory.product = productRovianda;
+                    let presetationEntity:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentation.presentationId)
+                    if(!presetationEntity) throw new Error(`[404], no existe la presentacion con el id:${presentation.presentationId}`);
+                    sellerInventory.presentation= presetationEntity;
+                    sellerInventory.seller=orderSeller.user; 
+                    await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+                }
+            }
+        }
+        }catch(err){
+            await this.subOrderRepository.deleteByOrderSeller(packagingOutput.orderSellerId);
+            throw new Error(err.message);
+        }      
+        
+
+    }
+
 }

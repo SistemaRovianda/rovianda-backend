@@ -1,7 +1,7 @@
 export interface PackagingDTO{
     registerDate: string;
     productId: number;
-    lotId : number;
+    lotId : string;
     expiration: string;
     products: [
         {
@@ -28,4 +28,33 @@ export interface PackagingAssignedDTO{
     boxs: number,
     presentationId: number,
     packagingId: number
+}
+
+export interface PackagingProductPresentationLot{
+    productId:number;
+    loteId: string;
+    quantity: number;
+    presentationId:number;
+    presentation:string;
+    typePresentation:string;
+    pricePresentation:number;
+}
+
+export interface PackagingOutput{
+    orderSellerId:number;
+    products:PackagingProductOutput[];
+    dateOutput:string;
+}
+export interface PackagingProductOutput{
+    productId:number;
+    presentations: PackagingProductPresentationsOutput[];
+}
+export interface PackagingProductPresentationsOutput{
+    presentationId:number;
+    subOrderId:number;
+    lots:PackagingProductLotsOutput[];
+}
+export interface PackagingProductLotsOutput{
+    lotId:string;
+    quantity: number;
 }

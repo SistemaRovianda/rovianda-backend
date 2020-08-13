@@ -1,7 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable } from "typeorm";
 import { PropertiesPackaging } from "./Properties.Packaging";
 import { ProductRovianda } from "./Product.Rovianda";
-import { SalesRequest } from "./Sales.Request";
+import { SubOrder } from "./SubOrder.Sale.Seller";
+import { SellerInventory } from "./Seller.Inventory";
+import { SubSales } from "./Sub.Sales";
 
 @Entity({ name: "presentation_products" })
 export class PresentationProducts {
@@ -31,6 +33,12 @@ export class PresentationProducts {
     })
     productsRovianda: ProductRovianda[];
 
-    @OneToMany(type=> SalesRequest,saleRequest=>saleRequest.presentation,{eager:false})
-    saleRequest: SalesRequest[];
+    @OneToMany(type=> SubOrder,subOrder=>subOrder.presentation,{eager:false})
+    saleRequest: SubOrder[];
+
+    @OneToMany(type=>SellerInventory,sellerInv=>sellerInv.presentation)
+    sellerInventory:SellerInventory[];
+
+    @OneToMany(type=>SubSales,subSale=>subSale.presentation)
+    subSales:SubSales[];
 }
