@@ -40,7 +40,10 @@ export class PackagingRepository{
   
     async findPackagingById(id:number){
         await this.getConnection();
-        return await this.packagingRepository.findOne({id});
+        return await this.packagingRepository.findOne({
+            where:{id:`${id}`},
+            relations:["productId","userId"]
+        });
     }
 
     async getLastPackaging(){
@@ -56,6 +59,13 @@ export class PackagingRepository{
         );
     }
 
+    async findPropiertiesPackagingById(id:number){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        SELECT * FROM properties_packaging
+        WHERE properties_packaging.packaging_id = ${id};`);
+    }
+  
     async getPackagingWithProperties(products:OrderSellerRequestProduct[]){
         let ids = "and";
         for(let product of products){

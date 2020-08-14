@@ -15,6 +15,10 @@ import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { productRoutes } from '../Routes/Product.Routes';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { Packaging } from '../Models/Entity/Packaging';
+import { response } from 'express';
 
 export default class PdfHelper{
 
@@ -1950,5 +1954,124 @@ export default class PdfHelper{
         let content = this.headReportProcess()+this.bodyReportProcess(data,conditioning,sausaged,tenderized);
         return content;
     }
-}
 
+
+
+    headReportPackaging(){
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>R4</title>
+            <style>
+                body{
+                    margin: 0;
+                    padding:0;
+                }
+                .cel{
+                    height: 15px;
+                }
+        
+                header{
+                   text-align: center;
+                    transform: translateY(190%);
+                }
+        
+                #ta{
+                    margin-left: 770px;
+        
+                }
+        
+                #fec{
+                   transform:translateY(450%) translateX(20%);
+                }
+        
+                #mueve{
+                  width: 194px;
+               margin-left: 898px;
+           }
+              
+              img{
+                  width: 80px;
+                  height:100px;
+                  transform: translateY(50%) translateX(350%);
+              }
+        
+              .anch{
+                  width: 314px;
+              }
+            </style>
+        </head>
+        `;
+    }
+
+    bodyReportPackaging(data:Packaging, properties:PropertiesPackaging[],presentations:PresentationProducts[]){
+        let content =` 
+        </head>
+        <body>
+        
+            <header >
+                <p> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+                <p> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+            </header>
+        
+             
+            <img src="${LOGO.data}" alt=""> 
+              
+            <div id="fec" >
+            <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
+             </div><br><br>
+        
+        
+            <table border="1" align="center" width="60%">
+                <tr>
+                    <th>PRODUCTO</th>
+                    <th>LOTE Y CADUCIDAD</th>
+                    <th>PRESENTACIONES</th>
+                    <th>UNIDADES</th>
+                    <th>PESO(KG)</th>
+                    <th>OBSERVACIONES</th>
+                    <th>USUARIOS</th>
+                </tr>
+            
+                <tr>
+                <td class="cel">${data.productId == null ? " " : data.productId.name}</td>
+                <td class="cel">${data.lotId ? data.lotId:" "} (Cad. ${data.expiration})</td>
+                
+                <td class="cel">`;
+                
+            for (let i = 0; i<presentations.length; i++) {
+                 content+=` ${presentations[i].presentation} </br>`;
+            }
+
+                let content2=`
+                </td>
+
+                <td class="cel">${properties.length ? properties[0].units:""}</td>
+                <td class="cel">${properties.length ? properties[0].weight:""}</td>
+                <td class="cel">${properties.length ? properties[0].observations:""}</td>
+                <td class="cel">${data.userId ==null ? " ": data.userId.name }</td>
+                </tr>
+
+            </table>
+        
+            <table align="right" width="25%" border="1px" w>
+                <tr>     
+                        <td >F-CALL-RO-020</td>
+                    
+                </tr>
+            </table>
+            
+        </body>
+        </html>`
+         return content+content2;
+     }
+    
+
+    async reportPackagingById(data:Packaging,properties: PropertiesPackaging[],presentations:any){
+        let content = this.headReportPackaging()+this.bodyReportPackaging(data,properties,presentations);
+        return content;
+    }
+}

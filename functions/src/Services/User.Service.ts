@@ -116,4 +116,10 @@ export class UserService{
         let user:User = await this.userRepository.getUserById(uid);
         if(!user) throw new Error("[404], User not found");
         return user;    }
+
+    async getUserByFullName(name:string){
+        let fullname= name.split(" ");
+        let user:User = await this.userRepository.getUserByFullName(fullname[0],fullname[1],fullname[2]);
+        if(!user) throw new Error("[404], User not found");
+        return user;    }        
 }
