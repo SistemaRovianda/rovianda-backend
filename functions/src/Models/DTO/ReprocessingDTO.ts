@@ -5,4 +5,9 @@ export interface ReprocessingDTO{
     weight : number,
     allergen : string,
     area : string
-  }
+}
+
+export interface UpdateReprocessingDTO{
+  loteProcess:string,
+  reprocessingId:number
+}

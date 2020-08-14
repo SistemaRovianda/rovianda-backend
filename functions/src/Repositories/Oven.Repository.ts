@@ -33,10 +33,10 @@ export class OvenRepository{
          });
     }
 
-    async getOvenProductByIds(id:number){
+    async getOvenProductByIds(id:string){
         await this.getConnection();
         console.log("consulta")
-        return await this.ovenRepository.findOne({id});
+        return await this.ovenRepository.findOne({newLote:id});
     }
 
     async getOvenProductByProductId(product_id:number){

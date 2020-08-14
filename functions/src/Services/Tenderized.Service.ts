@@ -49,6 +49,7 @@ export class TenderizedService{
         await this.tenderizedRepository.createTenderized(tenderized);
         
         let lastTenderized:Tenderized = await this.tenderizedRepository.getLastTenderized();
+        if(!process.loteInterno) { process.loteInterno = tenderizedDTO.loteMeat; }
         process.tenderizedId = lastTenderized;
         process.currentProcess = "Inyecion-Tenderizado";
         return await this.processRepository.saveProcess(process);

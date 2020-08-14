@@ -47,5 +47,23 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"get",
         controller:PackagingController,
         target:"getReprocessingByArea" 
+    },
+    {
+        url: "/rovianda/packaging-lots/inventory/product/:productId", // servicio para obtener los productos por presentation y por lote en empaques
+        method: "get",
+        controller: PackagingController,
+        target: "getPackagingInventoryLotsProduct"
+    },
+    {
+        url: "/rovianda/packaging-lots/inventory/product/outputs/:userPackingId",
+        method: "post",
+        controller: PackagingController,
+        target: "savePackagingInventoryLotsProductOutput"
+    },
+    {
+        url:"/rovianda/packaging/reprocessing/lot",
+        method:"patch",
+        controller:PackagingController,
+        target:"updateReprocessing" 
     }
 ];

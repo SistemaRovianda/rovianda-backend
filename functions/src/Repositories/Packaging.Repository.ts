@@ -1,6 +1,8 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Packaging } from '../Models/Entity/Packaging';
+import { OrderSellerRequestProduct, PackagingProperties } from '../Models/DTO/Sales.ProductDTO';
+import { PackagingProductPresentationLot } from '../Models/DTO/PackagingDTO';
 export class PackagingRepository{
     private packagingRepository:Repository<Packaging>;
 
@@ -62,5 +64,44 @@ export class PackagingRepository{
         return await this.packagingRepository.query(`
         SELECT * FROM properties_packaging
         WHERE properties_packaging.packaging_id = ${id};`);
+    }
+
+  async getPackagingWithProperties(products:OrderSellerRequestProduct[]){
+        let ids = "and";
+        for(let product of products){
+            ids+=` pack.id = ${product.productId} or `;
+        }
+        ids+=";";
+        ids = ids.replace("or ;",";");
+        let query = `select pack.product_id as productId,proppack.presentation_id as presentationId,proppack.units from packaging as pack left join properties_packaging as proppack or proppack.packaging_id = pack.id ${(ids!="and")?ids:""}`;
+
+        let properties:PackagingProperties[] = await this.packagingRepository.query(query) as PackagingProperties[];
+        return properties;
+    }
+
+    async getPackagingAvailable(){
+        await this.getConnection();
+        return await this.packagingRepository.query(
+            `select distinct(pack.product_id) as productId,prorov.name,prorov.img_s3 as imgS3 from packaging as pack inner join products_rovianda as prorov on pack.product_id = prorov.id where active=1 group by pack.product_id`
+            );
+    }
+
+    async getPackagingAvailableProduct(productId:number){
+        await this.getConnection();
+        return await this.packagingRepository.query(
+            `select distinct(pack.product_id) as productId,propack.presentation_id as presentationId,sum(propack.units) as quantity,pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentatation
+             from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id
+            inner join presentations_products as pp on propack.presentation_id = pp.presentation_id where pack.product_id=${productId} group by pack.product_id,propack.presentation_id `
+        );
+    }
+
+    async getPackagingAvailableProductLotsPresentation(productId:number):Promise<Array<PackagingProductPresentationLot>>{
+        await this.getConnection();
+        return await this.packagingRepository.query(
+            `select pack.product_id as productId,pack.lot_id as loteId,sum(propack.units) as quantity,propack.presentation_id as presentationId,
+            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation
+             from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id inner join presentation_products as pp
+             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and propack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
+        ) as Array<PackagingProductPresentationLot>;
     }
 }

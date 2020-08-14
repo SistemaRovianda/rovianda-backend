@@ -7,4 +7,5 @@ export interface ConditioningDTO{
     temperature: string;
     productId: number;
     date: string;
+    lotMeat:string
 }
