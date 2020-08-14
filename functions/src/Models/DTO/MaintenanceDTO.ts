@@ -3,6 +3,7 @@ export interface MaintenanceDTO{
     description : string;
     fullName : string;
     dateInit : string;
+    image : string;
 }
 
 export interface MaintenanceUpdateDTO{

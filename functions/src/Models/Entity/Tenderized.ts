@@ -31,6 +31,9 @@ export class Tenderized{
     @JoinColumn({name:"product_id"})
     productId:ProductRovianda;
 
+    @Column({name:"lote_meat"})
+    loteMeat:string;
+
 
 }
 

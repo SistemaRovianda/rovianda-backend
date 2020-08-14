@@ -2,6 +2,7 @@ export interface SausagedDTO{
     productId:number;
     temperature:string;
     date: string;
+    loteMeat:string
     time:
     {
         hour:string;

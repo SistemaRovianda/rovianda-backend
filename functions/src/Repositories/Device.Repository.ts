@@ -21,9 +21,15 @@ export class DeviceRepository{
         return await this.deviceRepository.findOne({id})
     }
 
-    async getDeviceByName(name:string){
+    async getDeviceByName(name:string,model:string){
         await this.getConnection();
-        return await this.deviceRepository.findOne({name})
+        return await this.deviceRepository.findOne({name,model})
+    }
+
+    async getDeviceByNameModel(name:string,model:string){
+        await this.getConnection();
+        return await this.deviceRepository.query(`
+        SELECT * FROM devices WHERE name = "${name}" AND model = "${model}"`);
     }
 
     async getLastDevice(){

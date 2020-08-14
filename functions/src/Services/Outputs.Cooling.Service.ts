@@ -90,5 +90,25 @@ export class OutputsCoolingService{
         // });
         // return response;
     }
+
+    async getLotMeat(){
+        let cooling = await this.coolingRepository.getCoolingByStatusOpenClose();
+        let response:any = []
+        console.log(cooling)
+        for(let i = 0; i < cooling.length; i++){
+            console.log(cooling[i].lote_interno);
+            let outputsCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingByLot(cooling[i].lote_interno);
+            if(outputsCooling){
+                console.log(outputsCooling)
+                if(outputsCooling.status == "NOTUSED"){
+                    response.push({
+                        outputsCoolingId: `${outputsCooling.id}`,
+                        lot: `${outputsCooling.loteInterno}`
+                    })
+                }
+            }
+        }
+        return response;
+    }
     
 }

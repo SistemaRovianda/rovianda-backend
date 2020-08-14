@@ -46,6 +46,11 @@ export class EntrancesMeatController{
         return res.status(200).send(outputsCooling);
     }
 
+    async getLotMeat(req:Request,res:Response){
+        let response = await this.outputCoolingService.getLotMeat();
+        return res.status(200).send(response)
+    }
+
 }
 
 

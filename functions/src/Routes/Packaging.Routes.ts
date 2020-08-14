@@ -59,5 +59,11 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "post",
         controller: PackagingController,
         target: "savePackagingInventoryLotsProductOutput"
+    },
+    {
+        url:"/rovianda/packaging/reprocessing/lot",
+        method:"patch",
+        controller:PackagingController,
+        target:"updateReprocessing" 
     }
 ];

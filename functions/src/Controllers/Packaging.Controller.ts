@@ -16,6 +16,11 @@ export class PackagingController{
         return res.status(201).send();
     }
 
+    async updateReprocessing(req:Request,res:Response){
+        await this.packagingService.updateReprocessing(req.body);
+        return res.status(204).send();
+    }
+
     async getProducts(req:Request,res:Response){
         let products:ProductRovianda[] = await this.packagingService.getProducts();
         return res.status(200).send(products);

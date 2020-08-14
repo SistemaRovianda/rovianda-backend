@@ -70,16 +70,16 @@ export class ProcessService{
         updateoutputCooling.status = OutputsCoolingStatus.USED;
 
         let processEntity:Process = await this.processRepository.findProcessById(process.processId);
+        if(!processEntity.loteInterno) processEntity.loteInterno = process.lote.loteId;
 
         //let processEntity:Process = new Process();
         processEntity.product = productCatalog;
         processEntity.entranceHour= process.hourEntrance;
         processEntity.weigth=+process.weight;
-        processEntity.loteInterno = process.lote.loteId;
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
-        processEntity.newLote = formulation.newLote;
+        processEntity.newLote = formulation.loteInterno;
         processEntity.currentProcess = "Descongelamiento";
         await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
         return await this.processRepository.createProcess(processEntity);

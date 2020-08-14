@@ -2,5 +2,7 @@ export interface DeviceDTO{
     name:string,
     model:string,
     costDevice:number,
-    storeId: number
+    storeId: number,
+    date: string,
+    description: string
 }

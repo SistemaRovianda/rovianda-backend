@@ -8,17 +8,22 @@ import { StoreRepository } from "../Repositories/Store.Repository";
 import { Devices } from "../Models/Entity/Devices";
 import { DeviceRepository } from "../Repositories/Device.Repository";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
+import { File } from "../Models/Entity/Files";
+import { StoreDevice } from "../Models/Entity/Store.Devices";
+import { StoreDeviceRepository } from "../Repositories/Store.Device.Repository";
 
 export class MaintenanceService{
     private maintenanceRepository:MaintenanceRepository;
     private userRepository:UserRepository;
     private storeRepository:StoreRepository;
     private deviceRepository:DeviceRepository;
+    private storeDeviceRepository:StoreDeviceRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.maintenanceRepository = new MaintenanceRepository();
         this.userRepository = new UserRepository();
         this.storeRepository = new StoreRepository();
         this.deviceRepository = new DeviceRepository();
+        this.storeDeviceRepository = new StoreDeviceRepository();
     }
 
     async getAllMaintenance(){
@@ -29,23 +34,46 @@ export class MaintenanceService{
                 titleFailure: `${i.title}`,
                 date: `${i.date}`,
                 image: `${i.picture}`,
-                description: `${i.description}`
+                description: `${i.description}`,
+                maintenanceId: `${i.id}`,
+                userId: `${i.user.id}`,
+                user: `${i.user.name} ${i.user.firstSurname} ${i.user.lastSurname}`
               }
             );
         });
         return response;
     }
 
+    async getMaintenanceById(maintenanceId:number){
+        if (!maintenanceId)  throw new Error("[400],maintenanceId is required");
+        let maintenance:Maintenance = await this.maintenanceRepository.getMaintenanceById(maintenanceId);
+        if (!maintenance)  throw new Error("[404],maintenance not found");
+        let response = {
+            titleFailure: `${maintenance.title}`,
+            date: `${maintenance.date}`,
+            image: `${maintenance.picture}`,
+            description: `${maintenance.description}`,
+            maintenanceId: `${maintenance.id}`,
+            userId: `${maintenance.user.id}`,
+            user: `${maintenance.user.name} ${maintenance.user.firstSurname} ${maintenance.user.lastSurname}`
+        }
+        return response
+    }
+
     async createMaintenance(maintenanceDTO:MaintenanceDTO){
 
-        if (!maintenanceDTO.dateInit)  throw new Error("[400],dateInit is required");
+        if (!maintenanceDTO.dateInit)  throw new Error("[400],name is required");
         if (!maintenanceDTO.description)  throw new Error("[400],description is required");
         if (!maintenanceDTO.fullName)  throw new Error("[400],fullName is required");
         if (!maintenanceDTO.typeFailure)  throw new Error("[400],typeFailure is required");
+        if (!maintenanceDTO.image)  throw new Error("[400],image is required");
 
         let cadena = maintenanceDTO.fullName.split(" ");
         let user = await this.userRepository.getByFullName(cadena[0],cadena[1],cadena[2])
         if (!user[0])  throw new Error("[404],User not found");
+
+        let photo = Buffer.from(maintenanceDTO.image, 'base64');
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${maintenanceDTO.dateInit.replace(/\//g, "")}/${maintenanceDTO.typeFailure}/`, photo);
 
         let maintenance : Maintenance = new Maintenance();
         maintenance.date = maintenanceDTO.dateInit;
@@ -53,6 +81,7 @@ export class MaintenanceService{
         maintenance.title = maintenanceDTO.typeFailure;
         maintenance.user = user[0];
         maintenance.status = "OPENED";
+        maintenance.picture = urlOfImage;
 
         await this.maintenanceRepository.createMaintenance(maintenance);
     }
@@ -99,9 +128,9 @@ export class MaintenanceService{
         if (!device)  throw new Error("[404],device not found");
         let maintenance = await this.maintenanceRepository.getMaintenanceById(maintenanceId);
         if (!maintenance)  throw new Error("[404],maintenance not found");
-        let image = Buffer.from(maintenanceUpdateDTO.image, 'base64');
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`/${maintenanceUpdateDTO.description}/${maintenanceId}/`, image);
-
+        let photo = Buffer.from(maintenanceUpdateDTO.image, 'base64');
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${maintenanceUpdateDTO.description}/${maintenanceId}/`, photo);
+    
         maintenance.descriptionEnd = maintenanceUpdateDTO.description;
         maintenance.picture = urlOfImage;
         maintenance.store = store;
@@ -153,5 +182,30 @@ export class MaintenanceService{
         if(!week)throw new Error("[400],week in path is required");
         if(parseInt(week)<0 || parseInt(week)>53)throw new Error("[400],Invalid week");
         return await this.maintenanceRepository.getMaintenanceByWeek(week);
+    }
+
+    async getAllDevicesStore(){
+        let store:Store[] = await this.storeRepository.getStores();
+        let response:any = [];
+        for(let i = 0; i < store.length; i++){
+            let storeDevice:StoreDevice[] = await this.storeDeviceRepository.getStoreDevicesByStore(store[i]);
+            let response2:any = [];
+            for(let e = 0; e < storeDevice.length; e++){
+                //console.log(storeDevice);
+                response2.push({
+                    id: `${storeDevice[e].devices.id}`,
+                    name: `${storeDevice[e].devices.name}`,
+                    model: `${storeDevice[e].devices.model}`,
+                    cost: `${storeDevice[e].devices.costDevice}`,
+                    description: `${storeDevice[e].devices.description}`
+                })
+            }
+            response.push({
+                storeId: `${store[i].id}`,
+                name: `${store[i].name}`,
+                devices: response2
+            })
+        }
+        return response;
     }
 }

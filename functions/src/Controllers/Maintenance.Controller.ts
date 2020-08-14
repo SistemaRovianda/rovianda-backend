@@ -4,6 +4,7 @@ import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { MaintenanceService } from '../Services/Maintenance.Service';
 import { StoreService } from '../Services/Store.Service';
 import { DeviceService } from '../Services/Device.Service';
+import { times } from 'lodash';
 export class MaintenanceController{
 
     private maintenanceService:MaintenanceService;
@@ -18,6 +19,11 @@ export class MaintenanceController{
     async getAllMaintenance(req:Request,res:Response){
         let maintenance = await this.maintenanceService.getAllMaintenance();
         return res.status(200).send(maintenance);
+    }
+
+    async getMaintenanceById(req:Request,res:Response){
+        let responser = await this.maintenanceService.getMaintenanceById(+req.params.id);
+        return res.status(200).send(responser);
     }
   
     async createMaintenance(req:Request,res:Response){
@@ -96,6 +102,11 @@ export class MaintenanceController{
 
     async getStores(req:Request,res:Response){
         let response = await this.storeService.getStores();
+        return res.status(200).send(response);
+    }
+
+    async getAllDevicesStore(req:Request,res:Response){
+        let response = await this.maintenanceService.getAllDevicesStore();
         return res.status(200).send(response);
     }
 }

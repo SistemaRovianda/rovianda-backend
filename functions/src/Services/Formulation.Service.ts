@@ -57,10 +57,10 @@ export class FormulationService {
             throw new Error("[400], makeId is required");
         if (!formulationDTO.temperatureWater)
             throw new Error("[400], temperatureWater is required");
-        if (!formulationDTO.assignmentLot.newLotId)
-            throw new Error("[400], assigmentLot is missing newLotId attribute");
-        if (!formulationDTO.assignmentLot.dateEntry)
-            throw new Error("[400], assigmentLot is missing dateEntry attribute");
+        // if (!formulationDTO.assignmentLot.newLotId)
+        //     throw new Error("[400], assigmentLot is missing newLotId attribute");
+        // if (!formulationDTO.assignmentLot.dateEntry)
+        //     throw new Error("[400], assigmentLot is missing dateEntry attribute");
         for(let ingredient of formulationDTO.ingredient){
             if (!ingredient.ingredientId)
                 throw new Error("[400], One of ingredients is missing ingredentId attribute");
@@ -83,7 +83,7 @@ export class FormulationService {
         formulationToSave.make = make;
         formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
-        formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
+        //formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
         
         try {
             let formulationSaved = await this.formulationRepository.saveFormulation(formulationToSave);

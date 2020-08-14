@@ -322,9 +322,9 @@ export default class PdfHelper{
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
+            <td><font size=1>${meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.color.observations ? meat.color.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -1223,8 +1223,8 @@ export default class PdfHelper{
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat[i].texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat[i].color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].color.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 
@@ -1909,7 +1909,7 @@ export default class PdfHelper{
             </tr>
 
             <tr>
-              <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.description}</th>
+              <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.name}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.date}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.temperature}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.weightIni} (${data.sausageId == null ? "" : data.sausageId.hour1})</th>

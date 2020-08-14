@@ -31,11 +31,11 @@ export class SausagedRepository{
     async getSausagedByProcess(processid:number){
         await this.getConnection();
         return await this.sausagedRepository.query(`SELECT 
-        sausaged.id, sausaged.product_id, sausaged.date, sausaged.temperature, 
+        sausaged.id, sausaged.product_id, sausaged.date, sausaged.temperature, sausaged.lote_meat,  
         sausaged.weight_ini, sausaged.hour1, sausaged.weight_medium, sausaged.hour2, 
-        sausaged.weight_exit, sausaged.hour3, product_catalog.description 
+        sausaged.weight_exit, sausaged.hour3, products_rovianda.name 
         FROM sausaged 
-        INNER JOIN product_catalog ON sausaged.product_id = product_catalog.id
+        INNER JOIN products_rovianda ON sausaged.product_id = products_rovianda.id
         INNER JOIN process ON sausaged.id = process.sausage_id
         WHERE process.id= ${processid};`)
     }

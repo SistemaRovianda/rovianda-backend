@@ -28,8 +28,8 @@ export class Formulation {
     @Column({ name: "water_temp" })
     waterTemp: string;
 
-    @Column({ name: "new_lote" })
-    newLote: string;
+    // @Column({ name: "new_lote" })
+    // newLote: string;
 
     @ManyToOne(type=>User, verifit=>verifit.formulationVerifit, {eager:true, onDelete:"SET NULL"})
     verifit:User;

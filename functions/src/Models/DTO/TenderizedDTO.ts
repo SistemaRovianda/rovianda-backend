@@ -5,4 +5,5 @@ export interface TenderizedDTO{
     weightSalmuera: number
     percentage: number
     date: string
+    loteMeat:string
 }

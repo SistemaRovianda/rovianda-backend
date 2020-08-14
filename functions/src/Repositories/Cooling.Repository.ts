@@ -58,4 +58,13 @@ export class CoolingRepository{
             where: {loteInterno: `${loteInterno}`},
         });
     }
+
+    async getCoolingByStatusOpenClose(){
+        await this.getConnection();
+        return await this.coolingRepository.query(`
+        SELECT * FROM cooling 
+        WHERE status = "OPENED" 
+        OR status = "CLOSED"
+        `);
+    }
 }

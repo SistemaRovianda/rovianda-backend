@@ -88,5 +88,11 @@ export const entrancesRoutes:Array<routeInterface>=[
         method:"get",
         controller:EntrancesMeatController,
         target:"getOutputsCoolingByStatus"
+    },
+    {
+        url:"/rovianda/lot/meat/output",
+        method:"get",
+        controller:EntrancesMeatController,
+        target:"getLotMeat"
     }
 ];

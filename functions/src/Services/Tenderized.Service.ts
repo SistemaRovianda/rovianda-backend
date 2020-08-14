@@ -28,6 +28,7 @@ export class TenderizedService{
         let process :Process = await this.processRepository.findTenderizedByProcessId(+processId);
         if(!process)throw new Error("[404], no existe proceso");
         if(!tenderizedDTO.date) throw new Error("[400], falta el parametro date");
+        if(!tenderizedDTO.loteMeat) throw new Error("[400], falta el parametro loteMeat");
         if(!tenderizedDTO.percentage) throw new Error("[400], falta el parametro percentage");
         if(!tenderizedDTO.productId) throw new Error("[400], falta el parametro productId");
         if(!tenderizedDTO.temperature) throw new Error("[400], falta el parametro temperature");
@@ -43,10 +44,12 @@ export class TenderizedService{
         tenderized.productId = product;
         tenderized.temperature = tenderizedDTO.temperature;
         tenderized.weight = tenderizedDTO.weight;
+        tenderized.loteMeat = tenderizedDTO.loteMeat;
         tenderized.weightSalmuera = tenderizedDTO.weightSalmuera;
         await this.tenderizedRepository.createTenderized(tenderized);
         
         let lastTenderized:Tenderized = await this.tenderizedRepository.getLastTenderized();
+        if(!process.loteInterno) { process.loteInterno = tenderizedDTO.loteMeat; }
         process.tenderizedId = lastTenderized;
         process.currentProcess = "Inyecion-Tenderizado";
         return await this.processRepository.saveProcess(process);
@@ -82,7 +85,8 @@ export class TenderizedService{
             product: {
                 id: `${product.product.id}`,
                 description: `${product.product.name}`
-            }
+            },
+            loteMeat: `${tenderized.tenderizedId.loteMeat}`
         });
         return response;
     

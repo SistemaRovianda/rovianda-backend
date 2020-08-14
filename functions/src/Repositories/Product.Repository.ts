@@ -81,7 +81,7 @@ export class ProductRepository{
         await this.getConnection();
         console.log("consulta")
         return await this.productRepository.query(`select 
-        product_catalog.id as ingredentId,
+        product_catalog.id as ingredientId,
         product_catalog.description,
         product_catalog.mark, 
         product_catalog.variant, 
