@@ -16,7 +16,7 @@ export class ConditioningController{
     private productService: ProductService;
 
     constructor(private firebaseInstance:FirebaseHelper){
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.conditionigService = new ConditioningService();
         this.productService = new ProductService();
     }

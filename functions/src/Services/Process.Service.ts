@@ -13,6 +13,7 @@ import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
+import { FirebaseHelper } from "../Utils/Firebase.Helper";
 
 export class ProcessService{
     private processRepository:ProcessRepository;
@@ -22,9 +23,9 @@ export class ProcessService{
     private userRepository:UserRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
     private outputsCoolingRepository:OutputsCoolingRepository;
-    constructor(){
+    constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
-        this.productRoviandaService= new ProductRoviandaService();
+        this.productRoviandaService= new ProductRoviandaService(this.firebaseHelper);
         this.outputCoolingService = new OutputsCoolingService();
         this.formulationService = new FormulationService();
         this.userRepository = new UserRepository();

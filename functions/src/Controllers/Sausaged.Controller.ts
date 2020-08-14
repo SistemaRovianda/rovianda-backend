@@ -16,7 +16,7 @@ export class SausagedController{
     private processRepository: ProcessRepository;
 
     constructor(private firebaseInstance:FirebaseHelper){
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.sausagedService = new SausagedService();
         this.productService = new ProductService();
         this.processRepository = new ProcessRepository();

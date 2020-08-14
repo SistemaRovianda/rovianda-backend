@@ -54,9 +54,9 @@ export class WarehouseDriefService{
         return await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
     }
     
-    async getWarehouseDriefRepositoryById(id:number){
-        return await this.warehouseDriefRepository.getWarehouseDriefById(id);
-    }
+    // async getWarehouseDriefRepositoryById(id:number){
+    //     return await this.warehouseDriefRepository.getWarehouseDriefById(id);
+    // }
 
     
     async getWarehouseDriefRepositoryByStatus(status:string){
@@ -94,7 +94,7 @@ export class WarehouseDriefService{
 
     async getDriefHistory(lotId:string) {
 
-        let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(+lotId);
+        let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(lotId);
 
         if (!warehouseDrief)
             throw new Error(`[404], warehouseDrief with lot ${lotId} was not found`);

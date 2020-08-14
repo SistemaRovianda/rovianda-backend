@@ -260,17 +260,19 @@ export class PackagingService{
     }
 
     async getPackaging(){
-        let packaging = await this.packagingRepository.getPackaging();
+        let packaging:Packaging[] = await this.packagingRepository.getPackaging();
+        console.log(packaging)
         let response = [];
         for(let i = 0; i<packaging.length; i++){
-            let presentations = await this.propertiesPackagingRepository.findPropiertiesPackaging(+packaging[i].propertiesPackaging[0].id);
+            let presentations = await this.propertiesPackagingRepository.findPropiertiesPackagings(packaging[i]);
+            console.log(presentations)
             let response1 = [];
             for(let j = 0; j< presentations.length; j++){
                 response1.push({
-                    presentationId : presentations[j].presentationId.id,
-                    presentation : presentations[j].presentationId.presentation,
-                    typePresentation : presentations[j].presentationId.presentationType,
-                    pricePresentation : presentations[j].presentationId.presentationPrice
+                    presentationId : `${presentations[j].presentationId.id}`,
+                    presentation : `${presentations[j].presentationId.presentation}`,
+                    typePresentation : `${presentations[j].presentationId.presentationType}`,
+                    pricePresentation : `${presentations[j].presentationId.presentationPrice}`
                 });
             }
             response.push({ 

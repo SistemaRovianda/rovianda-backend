@@ -130,7 +130,7 @@ export class ProcessController {
     private grindingService: GrindingService;
 
     constructor(private firebaseInstance: FirebaseHelper) {
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.grindingService = new GrindingService();
     }
 

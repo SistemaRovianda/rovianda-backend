@@ -8,6 +8,11 @@ export const packagingRoutes:Array<routeInterface>=[
         controller:PackagingController,
         target:"savePackaging"
     },{
+        url:"/rovianda/packaging",
+        method:"get",
+        controller:PackagingController,
+        target:"savePackaging"
+    },{
         url:"/rovianda/pack",
         method:"get",
         controller:PackagingController,

@@ -53,9 +53,9 @@ import { SubSales } from "../Models/Entity/Sub.Sales";
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "localhost",//, "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",
+    host: "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"localhost",//, 
     port: 3306,
-    username: "root",//"admin",
+    username: "admin",//"root",
     password: "Holamundo1250",
     database: "rovianda-test-dev",
     synchronize: true,

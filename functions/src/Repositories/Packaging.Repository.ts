@@ -91,7 +91,7 @@ export class PackagingRepository{
             `select pack.product_id as productId,pack.lot_id as loteId,sum(propack.units) as quantity,propack.presentation_id as presentationId,
             pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation
              from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id inner join presentation_products as pp
-             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and propack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
+             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and pack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
         ) as Array<PackagingProductPresentationLot>;
     }
 }

@@ -54,7 +54,7 @@ export class Initializer {
         this.fridgesController = new FridgesController(this.firebaseInstance);
         this.entrancesMeatController = new EntrancesMeatController(this.firebaseInstance);
         this.lotController = new LotController(this.firebaseInstance);
-        this.productController = new ProductController()
+        this.productController = new ProductController(this.firebaseInstance)
         this.warehouseController = new EntrancesPackingController();
         this.conditioningController = new ConditioningController(this.firebaseInstance);
         this.tenderizedController = new TenderizedController(this.firebaseInstance);

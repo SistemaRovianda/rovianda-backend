@@ -57,7 +57,7 @@ export class ReportController{
         this.entrancePackingService = new EntrancePackingService();
         this.ovenService = new OvenService();
         this.revisionOvenProductService = new RevisionOvenProductService();
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.conditioningService = new ConditioningService();
         this.sausagedService = new SausagedService();
         this.tenderizedService = new TenderizedService();

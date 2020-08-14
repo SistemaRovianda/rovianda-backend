@@ -70,26 +70,27 @@ export class SausagedService{
         let process:Process = await this.processRepository.getProcessWithSausagedById(+req.params.processId);
         if(!process) throw new Error("[404], process not found");
         console.log(process)
-        let sausaged = await this.sausagedRepository.getSausagedByProcess(+req.params.processId);
-        console.log(sausaged[0])
+        if(!process.sausageId) throw new Error("[404], dont have sausage");
+        let sausaged:Sausaged = await this.sausagedRepository.getSausagedById(process.sausageId.id);
+        console.log(sausaged)
         let response:any = {};
             response = {
-                sausagedId: `${sausaged[0].id}`,
+                sausagedId: `${sausaged.id}`,
                 product: {
-                    id: `${sausaged[0].product_id}`,
-                    description: `${sausaged[0].name}`
+                    id: `${sausaged.productId ? sausaged.productId.id : ""}`,
+                    description: `${sausaged.productId? sausaged.productId.name : ""}`
                 },
-                temperature: `${sausaged[0].temperature}`,
-                date: `${sausaged[0].date}`,
+                temperature: `${sausaged.temperature}`,
+                date: `${sausaged.date}`,
                 time: {
-                    hour1: `${sausaged[0].hour1}`,
-                    weightInitial: `${sausaged[0].weight_ini}`,
-                    hour2: `${sausaged[0].hour2}`,
-                    weightMedium: `${sausaged[0].weight_medium}`,
-                    hour3: `${sausaged[0].hour3}`,
-                    weightFinal: `${sausaged[0].weight_exit}`
+                    hour1: `${sausaged.hour1}`,
+                    weightInitial: `${sausaged.weightIni}`,
+                    hour2: `${sausaged.hour2}`,
+                    weightMedium: `${sausaged.weightMedium}`,
+                    hour3: `${sausaged.hour3}`,
+                    weightFinal: `${sausaged.weightExit}`
                 },
-                loteMeat: `${sausaged[0].lote_meat}`
+                loteMeat: `${sausaged.loteMeat}`
             };
         return response;
     }
