@@ -294,4 +294,8 @@ export class ProductRoviandaService{
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(productId);
         return product;
     }
+
+    async getProductsPresentation(productId:number){
+        return await this.productRoviandaRepository.getProductPresentation(productId);
+    }
 }

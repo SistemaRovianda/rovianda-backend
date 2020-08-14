@@ -85,4 +85,13 @@ export class ProductRoviandaRepository {
         await this.getConnection();
         return await this.repository.findOne({id});
     }
+
+    async getProductPresentation(id:number){
+        await this.getConnection();
+        return await this.repository.query(`
+        SELECT * FROM presentation_products
+        INNER JOIN products_rovianda_presentation
+        ON products_rovianda_presentation.presentation_id = presentation_products.presentation_id
+        WHERE products_rovianda_presentation.product_id = ${ id };`);
+    }
 }

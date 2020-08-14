@@ -30,6 +30,11 @@ import { TenderizedService } from '../Services/Tenderized.Service';
 import Excel4Node from "../Utils/Excel.Helper" 
 import * as os from "os";
 import * as fs from "fs";
+import { Packaging } from '../Models/Entity/Packaging';
+import { PackagingService } from '../Services/Packaging.Service';
+import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import _ = require('lodash');
 
 export class ReportController{
@@ -45,7 +50,9 @@ export class ReportController{
     private processService:ProcessService;
     private conditioningService:ConditioningService;
     private sausagedService:SausagedService;
-    private tenderizedService:TenderizedService
+    private tenderizedService:TenderizedService;
+    private packagingService:PackagingService;
+    private productRoviandaService:ProductRoviandaService;
     private pdfHelper: PdfHelper;
     private excel: Excel4Node;
     constructor(private firebaseInstance:FirebaseHelper){
@@ -61,6 +68,8 @@ export class ReportController{
         this.conditioningService = new ConditioningService();
         this.sausagedService = new SausagedService();
         this.tenderizedService = new TenderizedService();
+        this.packagingService = new PackagingService();
+        this.productRoviandaService = new ProductRoviandaService();
         this.pdfHelper = new PdfHelper();
         this.excel = new Excel4Node();
     }
@@ -675,5 +684,32 @@ export class ReportController{
         })
     });
   }
+
+  async reportPackagingById(req:Request,res:Response){
+    let packagingId = req.params.packaginId;
+
+    let packaging:Packaging = await this.packagingService.getPackagingById(+packagingId);
+    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(+packagingId);
+    let presentations:PresentationProducts[] = await this.productRoviandaService.getProductsPresentation(+packaging.productId.id)
+    let report = await this.pdfHelper.reportPackagingById(packaging,properties,presentations);
+    pdf.create(report, {
+        format: 'Legal',
+        orientation:'landscape',
+        border: {
+            top: "2cm", 
+            right: "2cm",
+            bottom: "2cm",
+            left: "2cm"
+        }
+        
+    }).toStream((function (err, stream) {
+        res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'responseType': 'blob',
+            'Content-disposition': `attachment; filename=reporteEmpaquetadoPDF.pdf`
+        });
+        stream.pipe(res);
+    }));
+}
 
 }
