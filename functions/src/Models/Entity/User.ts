@@ -4,8 +4,12 @@ import { EntranceMeat } from "./Entrances.Meat";
 import { Maintenance } from "./Maintenance";
 import { Formulation } from "./Formulation";
 import { EntrancePacking } from "./Entrances.Packing";
-import { SaleSeller } from "./Sale.Seller";
+import { OrderSeller } from "./Order.Seller";
 import { Packaging } from "./Packaging";
+import { SellerInventory } from "./Seller.Inventory";
+import { Sale } from "./Sales";
+import { SellerOperation } from "./Seller.Operations";
+import { Client } from "./Client";
 
 @Entity({name:"users"})
 export class User{
@@ -50,9 +54,21 @@ export class User{
     @OneToMany(type=> EntrancePacking,entrancePackinMake=>entrancePackinMake.make)
     entrancePackinMake:EntrancePacking[];
 
-    @OneToMany(type=> SaleSeller,saleSeller=>saleSeller.user,{eager:false})
-    saleSeller: SaleSeller[];
+    @OneToMany(type=> OrderSeller,orderSeller=>orderSeller.user,{eager:false})
+    saleSeller: OrderSeller[];
 
     @OneToMany(type=> Packaging,packaging=>packaging.userId)
     packaging:Packaging[];
+
+    @OneToMany(type=>SellerInventory,sellerInv=>sellerInv.seller)
+    sellerInventory?:SellerInventory[];
+
+    @OneToMany(type=>Sale,sale=>sale.seller)
+    sales:Sale[];
+
+    @OneToMany(type=>SellerOperation,sellerOp=>sellerOp.seller)
+    sellerOperations?:SellerOperation[];
+
+    @OneToMany(type=>Client,client=>client.seller)
+    clients?:Client[];
 }

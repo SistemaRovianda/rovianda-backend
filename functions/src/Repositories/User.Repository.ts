@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { User } from '../Models/Entity/User';
 import { Roles } from '../Models/Entity/Roles';
+import { request } from 'express';
 export class UserRepository{
     private userRepository:Repository<User>;
 
@@ -19,6 +20,11 @@ export class UserRepository{
     async getUserById(userId:string){
         await this.getConnection();
         return await this.userRepository.findOne({id:userId});
+    }
+
+    async getUserbyIdWithRol(id:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({id},{relations:["roles"]});
     }
 
     async getUserByName(name:string){
