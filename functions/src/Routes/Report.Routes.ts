@@ -146,5 +146,11 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportPackagingById"
+    },
+    {
+        url:"/rovianda/report/document/packagin/:packaginId",
+        method:"get",
+        controller:ReportController,
+        target:"reportDocumentPackagingById"
     }
 ];
