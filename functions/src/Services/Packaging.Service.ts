@@ -11,7 +11,7 @@ import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
-import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
+import { ReprocessingDTO,UpdateReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { User } from '../Models/Entity/User';
@@ -20,6 +20,7 @@ import { BoxPackaging } from '../Models/Entity/Box.Packaging';
 import { BoxPackagingRepository } from '../Repositories/Box.Packaging.Repository';
 import { REPROCESSING } from '../Models/Enum/Reprocessing.Area';
 import { ProcessRepository } from '../Repositories/Process.Repository';
+import { Process } from '../Models/Entity/Process';
 
 
 export class PackagingService{
@@ -264,5 +265,16 @@ export class PackagingService{
             })
         }
         return response; 
+    }
+
+    async updateReprocessing(updateReprocessingDTO:UpdateReprocessingDTO){
+        if(!updateReprocessingDTO.loteProcess) throw new Error("[400], loteProcess is required");
+        if(!updateReprocessingDTO.reprocessingId) throw new Error("[400], reprocessingId is required");
+        let reprocessing:Reprocessing = await this.reprocessingRepository.getReprocessingById(updateReprocessingDTO.reprocessingId);
+        if(!reprocessing) throw new Error("[404], repocessing not found");
+        let process:Process = await this.processRepository.getProceesByLotInerno(updateReprocessingDTO.loteProcess);
+        if(!process) throw new Error("[404], lote Interno not found");
+        reprocessing.lotProcess = updateReprocessingDTO.loteProcess;
+        return await this.reprocessingRepository.saveRepocessing(reprocessing);
     }
 }

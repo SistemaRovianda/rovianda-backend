@@ -21,5 +21,10 @@ export class ReprocessingRepository{
         return await this.reprocessingRepository.find({area});
     }
 
+    async getReprocessingById(id:number){
+        await this.getConnection();
+        return await this.reprocessingRepository.findOne({id})
+    }
+
 
 }

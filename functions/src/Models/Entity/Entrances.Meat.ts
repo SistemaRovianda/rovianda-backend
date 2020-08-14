@@ -64,6 +64,12 @@ export class EntranceMeat{
         }
     
     @Column("simple-json")
+    color:{
+        observations: string,
+        accepted: boolean
+        }
+    
+    @Column("simple-json")
     transport:{
         observations: string,
         accepted: boolean

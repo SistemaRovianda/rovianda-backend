@@ -10,6 +10,7 @@ export interface EntranceMeatDTO{
     expiration:PropsEntrance2;
     packing: PropsEntrance2;
     odor: PropsEntrance2;
+    color: PropsEntrance2;
     transport:PropsEntrance2;
     texture: PropsEntrance2;
     fridge: PropsFridge;

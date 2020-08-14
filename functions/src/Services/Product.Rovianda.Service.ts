@@ -139,7 +139,7 @@ export class ProductRoviandaService{
         if(!productRoviandaDTO.ingredients[0]) throw new Error("[400],ingredients is required");
         if(!productRoviandaDTO.presentations[0]) throw new Error("[400],presentations is required");
         
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByName(productRoviandaDTO.nameProduct);
+        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaCode(productRoviandaDTO.code);
         if(product) throw new Error("[409],product with that name already exists ");
 
         let productRovianda:ProductRovianda = new ProductRovianda();

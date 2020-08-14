@@ -19,6 +19,11 @@ export class ProductRoviandaRepository {
         await this.getConnection();
         return await this.repository.findOne({ name });
     }
+
+    async getProductRoviandaCode(code:string){
+        await this.getConnection();
+        return await this.repository.findOne({code})
+    }
     async getProductRoviandaById(id: number) {
         await this.getConnection();
         return await this.repository.findOne({
