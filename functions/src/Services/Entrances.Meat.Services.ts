@@ -44,6 +44,7 @@ export class EntranceMeatService {
         if (!entranceMeatDTO.slaughterDate) throw new Error("[400],Falta la propiedad slaughterDate");
         if (!entranceMeatDTO.packing) throw new Error("[400],Falta la propiedad packing");
         if (!entranceMeatDTO.odor) throw new Error("[400],Falta la propiedad odor");
+        if (!entranceMeatDTO.color) throw new Error("[400],Falta la propiedad odor");
         if (!entranceMeatDTO.job) throw new Error("[400],Falta la propiedad job");
         if (!entranceMeatDTO.fridge) throw new Error("[400],Falta la propiedad fridge");
         if (!entranceMeatDTO.expiration) throw new Error("[400],Falta la propiedad expiration");
@@ -79,6 +80,7 @@ export class EntranceMeatService {
             slaughterDate: entranceMeatDTO.slaughterDate,
             packing: entranceMeatDTO.packing,
             odor: entranceMeatDTO.odor,
+            color:entranceMeatDTO.color,
             job: entranceMeatDTO.job,
             qualityInspector: userInspector,
             fridge: entranceMeatDTO.fridge,

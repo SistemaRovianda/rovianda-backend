@@ -15,7 +15,6 @@ import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { Process } from '../Models/Entity/Process';
 import { Grinding } from '../Models/Entity/Grinding';
-import { Sale } from "../Models/Entity/Sale";
 import { Pin } from '../Models/Entity/Pin';
 import { Fridge } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
@@ -30,7 +29,7 @@ import { User } from "../Models/Entity/User";
 import { Roles } from "../Models/Entity/Roles";
 import { DryingLabel } from "../Models/Entity/Dryng.Label";
 import { Inspection } from '../Models/Entity/Inspection';
-import { SalesRequest } from '../Models/Entity/Sales.Request';
+import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { BoxPackaging } from "../Models/Entity/Box.Packaging";
@@ -41,14 +40,22 @@ import { Devices } from "../Models/Entity/Devices";
 import { Store } from "../Models/Entity/Store";
 import { Maintenance } from "../Models/Entity/Maintenance";
 import { StoreDevice } from "../Models/Entity/Store.Devices";
-import { SaleSeller } from "../Models/Entity/Sale.Seller";
+import { OrderSeller } from "../Models/Entity/Order.Seller";
+import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata";
+import { SellerInventory } from "../Models/Entity/Seller.Inventory";
+import { Address } from "../Models/Entity/Address";
+import { Client } from "../Models/Entity/Client";
+import { Debts } from "../Models/Entity/Debts";
+import { Sale } from "../Models/Entity/Sales";
+import { SellerOperation } from "../Models/Entity/Seller.Operations";
+import { SubSales } from "../Models/Entity/Sub.Sales";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",
+    host: "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"localhost",//, 
     port: 3306,
-    username: "admin",
+    username: "admin",//"root",
     password: "Holamundo1250",
     database: "rovianda-test-dev",
     synchronize: true,
@@ -76,7 +83,6 @@ const config: ConnectionOptions = {
         Tenderized,
         Process,
         Grinding,
-        Sale,
         Fridge,
         Cooling,
         OutputsCooling,
@@ -88,7 +94,7 @@ const config: ConnectionOptions = {
         Packaging,
         DryingLabel,
         Inspection,
-        SalesRequest,
+        OrderSeller,
         Reprocessing,
         PresentationProducts,
         BoxPackaging,
@@ -98,7 +104,10 @@ const config: ConnectionOptions = {
         Store,
         Maintenance,
         StoreDevice,
-        SaleSeller
+        SubOrder,
+        SubOrderMetadata,
+        SellerInventory,
+        Address,Client,Debts,Sale,SellerOperation,SubSales
     ]
 }
 let connection: Connection;

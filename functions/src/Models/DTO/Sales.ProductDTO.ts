@@ -9,3 +9,21 @@ export interface SalesProductDTO{
        }
     ]
  }
+
+export interface OrderSellerRequest{
+   products:Array<OrderSellerRequestProduct>,
+   urgent:boolean;
+   date:string;
+}
+
+export interface OrderSellerRequestProduct{
+   productId:number,
+   presentationId:number,
+   quantity:number;
+}
+
+export interface PackagingProperties{
+   productId:number;
+   presentationId:number;
+   units:number;
+}

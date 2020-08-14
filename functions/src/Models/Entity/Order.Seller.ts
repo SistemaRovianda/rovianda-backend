@@ -1,15 +1,15 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { User } from "./User";
-import { SalesRequest } from "./Sales.Request";
+import { SubOrder } from "./SubOrder.Sale.Seller";
 
-@Entity({name:"sale_seller"})
-export class SaleSeller{
+@Entity({name:"orders_sellers"})
+export class OrderSeller{
 
-    @PrimaryGeneratedColumn({name:"sale_seller_id"})
+    @PrimaryGeneratedColumn({name:"order_seller_id"})
     id:number;
 
     @ManyToOne(type=>User, user=>user.saleSeller, {eager:true, onDelete:"SET NULL"})
-    @JoinColumn({name:"user_ids"})
+    @JoinColumn({name:"user_id"})
     user:User;
 
     @Column()
@@ -21,6 +21,6 @@ export class SaleSeller{
     @Column()
     urgent: boolean;
 
-    @OneToMany(type=> SalesRequest,saleRequest=>saleRequest.saleSeller)
-    saleRequest: SalesRequest[];
+    @OneToMany(type=> SubOrder,saleRequest=>saleRequest.orderSeller,{cascade:true})
+    subOrders?: SubOrder[];
 }

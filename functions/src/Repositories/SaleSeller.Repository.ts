@@ -1,17 +1,18 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
-import { SaleSeller } from '../Models/Entity/Sale.Seller';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
+import { assignWith } from 'lodash';
 
 export class SalesSellerRepository{
-    private salesSellerRepository:Repository<SaleSeller>;
+    private salesSellerRepository:Repository<OrderSeller>;
 
     async getConnection(){
         if(!this.salesSellerRepository){
-            this.salesSellerRepository= (await connect()).getRepository(SaleSeller);
+            this.salesSellerRepository= (await connect()).getRepository(OrderSeller);
         }
     }
 
-    async saveSalesSeller(sale:SaleSeller){
+    async saveSalesSeller(sale:OrderSeller){
         await this.getConnection();
         return await this.salesSellerRepository.save(sale);
     }
@@ -24,5 +25,16 @@ export class SalesSellerRepository{
                 }
         });
     }
+
+    async getOrders(uid:string){
+        await this.getConnection();
+        return await this.salesSellerRepository.query(`select order_seller_id as orderId,date,urgent from orders_sellers where user_id="${uid}"`);
+    }
+
+    async getOrderById(id:number){
+        await this.getConnection();
+        return await this.salesSellerRepository.findOne({id},{relations:["user"]});
+    }
+
 
 }

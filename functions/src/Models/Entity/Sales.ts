@@ -1,4 +1,7 @@
-import { PrimaryGeneratedColumn, Column, Entity } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, JoinColumn, OneToMany } from "typeorm";
+import { User } from "./User";
+import { Client } from "./Client";
+import { SubSales } from "./Sub.Sales";
 
 @Entity({name:"sales"})
 export class Sale{
@@ -6,16 +9,25 @@ export class Sale{
     @PrimaryGeneratedColumn({name:"sale_id"})
     saleId:number;
 
-    @Column({name:"user_id"})
-    userId:string;
-
-    @Column({name:"product_id"})
-    productId:string;
-    
-    @Column()
-    quantity:number;
+    @ManyToOne(type=>User,user=>user.sales)
+    @JoinColumn({name:"seller_id"})
+    seller:string;
 
     @Column()
-    presentation:string;
+    date:string;
     
+    @Column()
+    amount:number;
+
+    @Column()
+    credit: number;
+
+
+    @ManyToOne(type=>Client,client=>client.sales)
+    @JoinColumn({name:"client_id"})
+    client:Client;
+    
+    @OneToMany(type=>SubSales,subSale=>subSale.sale,{cascade:true})
+    subSales:SubSales[];
+
 }

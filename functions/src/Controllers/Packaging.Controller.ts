@@ -16,6 +16,11 @@ export class PackagingController{
         return res.status(201).send();
     }
 
+    async updateReprocessing(req:Request,res:Response){
+        await this.packagingService.updateReprocessing(req.body);
+        return res.status(204).send();
+    }
+
     async getProducts(req:Request,res:Response){
         let products:ProductRovianda[] = await this.packagingService.getProducts();
         return res.status(200).send(products);
@@ -59,5 +64,16 @@ export class PackagingController{
     async getPackaging(req: Request, res: Response){
         let response = await this.packagingService.getPackaging();
         return res.status(200).send(response);
+    }
+
+    async getPackagingInventoryLotsProduct(req:Request,res:Response){
+        let productId:number = +req.params.productId;
+        return res.status(200).send(await this.packagingService.getProductPresentationInventory(productId));
+    }
+
+    async savePackagingInventoryLotsProductOutput(req:Request,res:Response){
+        let userPackingId:string = req.params.userPackingId;
+        await this.packagingService.savePackagingInventoryLotsProductOutput(req.body,userPackingId)
+        return res.status(201).send();
     }
 }

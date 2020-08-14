@@ -20,7 +20,7 @@ export class Packaging{
     registerDate:string;
     
     @Column({name:"lot_id"})
-    lotId:number;
+    lotId:string;
 
     @Column()
     expiration:string;

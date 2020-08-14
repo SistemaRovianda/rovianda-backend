@@ -1320,8 +1320,8 @@ export default class Excel4Node{
 
         worksheet.cell(20, 3, 20, 4, true).string("Color").style(style);
         worksheet.cell(20, 5, 20, 6, true).string("Característico").style(style);
-        worksheet.cell(20, 7, 20, 7, true).string(` ${data.odor.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(20, 8, 20, 8, true).string(` ${!data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(20, 7, 20, 7, true).string(` ${data.color.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(20, 8, 20, 8, true).string(` ${!data.color.accepted ? "xxx" : ""} `).style(style);
         worksheet.cell(20, 9, 20, 10,true).string(` `).style(style);
 
         worksheet.cell(21, 3, 21, 4, true).string("Textura").style(style);
@@ -1766,8 +1766,8 @@ export default class Excel4Node{
 
             worksheet.cell(++row, 4).string(`Color`).style(styleUser);
             worksheet.cell(row, 5, row, 9, true).string(`Caracteristico`).style(styleUser);
-            worksheet.cell(row, 10).string(`${m.texture.accepted? "xxx" : ""}`).style(styleUser);
-            worksheet.cell(row, 11).string(`${!m.texture.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 10).string(`${m.color.accepted? "xxx" : ""}`).style(styleUser);
+            worksheet.cell(row, 11).string(`${!m.color.accepted? "xxx" : ""}`).style(styleUser);
             worksheet.cell(row, 12).string(``).style(styleUser);
 
 

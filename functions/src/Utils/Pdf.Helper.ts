@@ -326,9 +326,9 @@ export default class PdfHelper{
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
+            <td><font size=1>${meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.color.observations ? meat.color.observations : ""}</font></td>
          </tr>
 
          <tr>
@@ -1227,8 +1227,8 @@ export default class PdfHelper{
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat[i].texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat[i].texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat[i].color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${!meat[i].color.accepted ? "xxx" : ""}</font></td>
             <td></td>
          </tr>
 

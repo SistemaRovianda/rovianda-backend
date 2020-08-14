@@ -9,6 +9,7 @@ import { GrindingService } from '../Services/Grinding.Service';
 import { ProcessRepository } from '../Repositories/Process.Repository';
 
 
+
 export class GrindingController{
 
     private processService:ProcessService;
@@ -16,19 +17,20 @@ export class GrindingController{
     private productRoviandaService:ProductRoviandaService;
 
     constructor(private firebaseInstance:FirebaseHelper){
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.grindingService = new GrindingService();
-        this.productRoviandaService = new ProductRoviandaService();
+        this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
     }
 
     async createGrinding(req:Request,res:Response){
-        let {rawMaterial,process,weight,date,productId} = req.body;
+        let {rawMaterial,process,weight,date,productId,loteMeat} = req.body;
         let processId = req.params.processId;
         if (!rawMaterial) return res.status(400).send({ msg: 'rawMaterial is required'});
         if (!process) return res.status(400).send({ msg: 'process is required'});
         if (!weight) return res.status(400).send({ msg: 'weight is required'});
         if (!date) return res.status(400).send({ msg: 'date is required'});
         if (!processId) return res.status(400).send({ msg: 'processId is required'});
+        if (!loteMeat) return res.status(400).send({ msg: 'loteMeat is required'});
         let product:ProductRovianda = await this.productRoviandaService.getById(+productId);
         if (!product) return res.status(404).send({ msg: 'Product Rovianda Not found'});
         let grinding = new Grinding();
@@ -43,6 +45,7 @@ export class GrindingController{
                 grinding.product = product;
                 await this.grindingService.saveGrinding(grinding);
                 let objGrinding:Grinding = await this.grindingService.getLastGrinding();
+                if(!processObj.loteInterno){ processObj.loteInterno = loteMeat; }
                 processObj.grindingId = objGrinding[0];
                 processObj.currentProcess = "Molienda";
                 await this.processService.updateProcessProperties(processObj);
