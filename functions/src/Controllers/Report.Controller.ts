@@ -69,7 +69,7 @@ export class ReportController{
         this.sausagedService = new SausagedService();
         this.tenderizedService = new TenderizedService();
         this.packagingService = new PackagingService();
-        this.productRoviandaService = new ProductRoviandaService();
+        this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
         this.pdfHelper = new PdfHelper();
         this.excel = new Excel4Node();
     }

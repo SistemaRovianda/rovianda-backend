@@ -42,9 +42,9 @@ export class WarehousePackingService{
         
     }
 
-    async getWarehousePackingById(id:number){
-        return await this.warehousePackingRepository.getWarehousePackingfById(id);
-    }
+    // async getWarehousePackingById(id:number){
+    //     return await this.warehousePackingRepository.getWarehousePackingfById(id);
+    // }
 
     
     async getWarehousePackingByStatus(status:string){
@@ -82,7 +82,7 @@ export class WarehousePackingService{
     
     async getPackingHistory(lotId:string){
 
-        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(+lotId);
+        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(lotId);
         if(!warehousePacking)
             throw new Error(`[404], warehousePacking with lot ${lotId} was not found`);
         let outputs = warehousePacking.outputsPacking.map(output =>{ 

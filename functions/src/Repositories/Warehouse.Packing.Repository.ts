@@ -11,7 +11,7 @@ export class WarehousePackingRepository{
         }
     }
 
-    async getWarehousePackingfById(lotId:number){
+    async getWarehousePackingfById(lotId:string){
         await this.getConnection();
         return await this.warehousePackingRepository.findOne({
             where: {loteProveedor :lotId},
