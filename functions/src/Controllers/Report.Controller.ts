@@ -712,4 +712,34 @@ export class ReportController{
     }));
 }
 
+async reportDocumentPackagingById(req:Request,res:Response){
+    let packagingId = req.params.packaginId;
+
+    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let tmp = os.tmpdir();
+
+    let packaging:Packaging = await this.packagingService.getPackagingById(+packagingId);
+    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(+packagingId);
+    let presentations:PresentationProducts[] = await this.productRoviandaService.getProductsPresentation(+packaging.productId.id)
+    
+    let workbook = this.excel.generatePackagingDocumentById(packaging,properties,presentations); 
+    workbook.write(`${tmp}/Reporte-Rebanado-Empacado.xlsx`,(err, stats)=>{
+        if(err){
+            console.log(err);
+        }
+        res.setHeader(
+            "Content-disposition",
+            'inline; filename="Reporte-Rebanado-Empacado.xlsx"'
+          );
+          res.setHeader("Content-Type", "application/vnd.ms-excel");
+          res.status(200); 
+        console.log(stats);
+        return res.download(`${tmp}/Reporte-Rebanado-Empacado.xlsx`,(er) =>{ 
+            if (er) console.log(er);
+            fs.unlinkSync(`${tmp+"/Reporte-Rebanado-Empacado.xlsx"}`);
+            fs.unlinkSync(`${tmp}/imageTmp.png`);
+        })
+    });
+}
+
 }

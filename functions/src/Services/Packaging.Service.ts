@@ -283,7 +283,7 @@ export class PackagingService{
         }
         return response; 
     }
-
+  
     async getProductPresentationInventory(productId:number){
         return await this.packagingRepository.getPackagingAvailableProductLotsPresentation(productId);
     }
@@ -364,6 +364,7 @@ export class PackagingService{
         return packaging
 
     }
+
 
     async getPackagingOpen(){
 
