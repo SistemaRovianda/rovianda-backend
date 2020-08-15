@@ -65,8 +65,8 @@ export class PackagingRepository{
         SELECT * FROM properties_packaging
         WHERE properties_packaging.packaging_id = ${id};`);
     }
-  
-    async getPackagingWithProperties(products:OrderSellerRequestProduct[]){
+
+  async getPackagingWithProperties(products:OrderSellerRequestProduct[]){
         let ids = "and";
         for(let product of products){
             ids+=` pack.id = ${product.productId} or `;

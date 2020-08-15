@@ -287,9 +287,7 @@ export class PackagingService{
     async getPackagingById(packagingId:number){
 
         if(!packagingId) throw new Error(`[400], packaginId is required`);
-
         let packaging = await this.packagingRepository.findPackagingById(packagingId);
-        
         if(!packaging) throw new Error(`[404], packaging whit id ${packagingId} not found`);
         
         return packaging
@@ -301,7 +299,7 @@ export class PackagingService{
         let packaging = await this.packagingRepository.findPropiertiesPackagingById(packagingId);
         return packaging
     }
-
+  
     async getProductPresentationInventory(productId:number){
         return await this.packagingRepository.getPackagingAvailableProductLotsPresentation(productId);
     }

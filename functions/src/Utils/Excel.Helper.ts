@@ -12,6 +12,9 @@ import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { RevisionsOvenProducts } from "../Models/Entity/Revisions.Oven.Products";
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
+import { Packaging } from '../Models/Entity/Packaging';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 
 
 export default class Excel4Node{
@@ -1789,6 +1792,142 @@ export default class Excel4Node{
             worksheet.cell(++row, 4, row, 9, true).string(`Realizó:`).style(styleUser);
             worksheet.cell(row, 10, row, 12, true).string(`Firma:`).style(styleUser);
         });
+
+        return workbook;
+    }
+
+
+    generatePackagingDocumentById(data:Packaging, properties:PropertiesPackaging[],presentations:PresentationProducts[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Packaging');
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ //comando para añadir una imagen
+            path: `${tmp}/imageTmp.png`,//path de la imagen
+            name: 'logo', // nombre no es obligatorio
+            type: 'picture', // el tipo de archivo
+            position: { // existen diferentes posiciones
+                type: 'twoCellAnchor', //oneCellAnchor para respetar tamaño de imagen y solo se manda from
+                //twoCellAnchor para modificar el tamaño de imagen y se manda from y to
+                from: { //
+                  col: 3,//columna donde empieza la esquina superior izquierda
+                  colOff: '0in', //margen
+                  row: 2, // fila donde empieza la esquina superior izquierda
+                  rowOff: '0in', // margen 
+                },
+                to: {
+                    col: 4, // columna donde termina la esquina inferior derecha
+                    colOff: '0in',
+                    row: 6, // fila donde termina la esquina inferior derecha
+                    rowOff: '0in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        });
+
+            worksheet.cell(2, 6, 2, 11, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(4, 6, 4, 11, true).string("BITÁCORA DE CONTROL DE REBANADO Y EMPACADO").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(6, 4, 6, 5, true).string(`Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}`).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+
+            let row = 8;
+            worksheet.cell(row, 3, row, 4,  true).string(`PRODUCTO`).style(styleUser);
+            worksheet.cell(row, 5, row, 6,  true).string(`LOTE Y CADUCIDAD`).style(styleUser);
+            worksheet.cell(row, 7, row, 8,  true).string(`PRESENTACIONES`).style(styleUser);
+            worksheet.cell(row, 9, row, 9,  true).string(`UNIDADES`).style(styleUser);
+            worksheet.cell(row, 10,row, 10, true).string(`PESO KG`).style(styleUser);
+            worksheet.cell(row, 11,row, 12, true).string(`OBSERVACIONES`).style(styleUser);
+            worksheet.cell(row, 13,row, 14, true).string(`USUARIOS`).style(styleUser);
+            
+            worksheet.cell(row+1, 3, row+1, 4,  true).string(`${data.productId == null ? " " : data.productId.name}`).style(style);
+            worksheet.cell(row+1, 5, row+1, 6,  true).string(`${data.lotId? data.lotId:""} (Cad. ${data.expiration})`).style(style);
+            
+            let presentaciones="";
+                                   
+            for(let i = 0 ; i < presentations.length ; i++){
+            presentaciones+=`${presentations[i].presentation}\n`}
+
+            worksheet.cell(row+1, 7, row+1, 8, true).string(presentaciones).style(style);
+
+            worksheet.cell(row+1, 9, row+1, 9,  true).string(`${properties.length ? properties[0].units:" "}`).style(style);
+            worksheet.cell(row+1, 10,row+1, 10, true).string(`${properties.length ? properties[0].weight:" "}`).style(style);
+            worksheet.cell(row+1, 11,row+1, 12, true).string(`${properties.length ? properties[0].observations:" "}`).style(style);
+            worksheet.cell(row+1, 13,row+1, 14, true).string(`${data.userId ==null ? " ": data.userId.name }`).style(style);
+            worksheet.cell(row+2, 13,row+2, 14, true).string(`F-CALL-RO-020`).style(styleUser);
 
         return workbook;
     }
