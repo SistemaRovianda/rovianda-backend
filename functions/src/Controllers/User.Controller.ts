@@ -16,7 +16,7 @@ export class UserController{
     private productService:ProductService
     private usersService:UserService;
     constructor(private firebaseInstance:FirebaseHelper){
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.usersService = new UserService(this.firebaseInstance);
         this.productService = new ProductService();
         

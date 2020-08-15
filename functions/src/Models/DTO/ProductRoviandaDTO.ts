@@ -6,6 +6,7 @@ export interface ProductRoviandaDTO{
 export interface SaveProductRoviandaDTO{
     code: string,
     nameProduct: string,
+    image: string,
     ingredients: [
        {
           productId: number,

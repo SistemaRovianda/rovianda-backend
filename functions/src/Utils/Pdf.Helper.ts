@@ -2060,6 +2060,7 @@ export default class PdfHelper{
             <table align="right" width="25%" border="1px" w>
                 <tr>     
                         <td>F-CALL-RO-020</td>
+                        <td >F-CALL-RO-020</td>
                 </tr>
             </table>
             

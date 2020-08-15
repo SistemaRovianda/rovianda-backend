@@ -4,6 +4,7 @@ import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { Request, response } from "express";
+import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { PresentationsProductsRepository }  from '../Repositories/Presentation.Products.Repository';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 
@@ -12,7 +13,7 @@ export class ProductRoviandaService{
     private productRoviandaRepository:ProductRoviandaRepository;
     private productRepository:ProductRepository;
     private presentationsProductsRepository:PresentationsProductsRepository;
-    constructor(){
+    constructor(private firebaseHelper: FirebaseHelper){
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.presentationsProductsRepository= new PresentationsProductsRepository();
@@ -135,6 +136,7 @@ export class ProductRoviandaService{
     async createProductRovianda(productRoviandaDTO:SaveProductRoviandaDTO){
 
         if(!productRoviandaDTO.code) throw new Error("[400],code is required");
+        if(!productRoviandaDTO.image) throw new Error("[400],image is required");
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
         if(!productRoviandaDTO.ingredients[0]) throw new Error("[400],ingredients is required");
         if(!productRoviandaDTO.presentations[0]) throw new Error("[400],presentations is required");
@@ -142,10 +144,14 @@ export class ProductRoviandaService{
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaCode(productRoviandaDTO.code);
         if(product) throw new Error("[409],product with that name already exists ");
 
+        let photo = Buffer.from(productRoviandaDTO.image, 'base64');
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.image}/`, photo);
+        
         let productRovianda:ProductRovianda = new ProductRovianda();
         productRovianda.code = productRoviandaDTO.code;
         productRovianda.name = productRoviandaDTO.nameProduct;
         productRovianda.status = true;
+        productRovianda.imgS3 = urlOfImage;
          await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
         for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {

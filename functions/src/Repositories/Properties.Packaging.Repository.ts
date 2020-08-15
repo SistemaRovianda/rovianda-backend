@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
+import { Packaging } from "../Models/Entity/Packaging";
 
 export class PropertiesPackagingRepository{
     private propertiesPackaginRepository: Repository<PropertiesPackaging>;
@@ -54,5 +55,15 @@ export class PropertiesPackagingRepository{
             where:{ id :`${id}`}
         });
     }
+
+    async findPropiertiesPackagings(packagingId: Packaging){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.find({
+            relations:["presentationId"],
+            where:{ packagingId}
+        });
+    }
+
+    
 }
 

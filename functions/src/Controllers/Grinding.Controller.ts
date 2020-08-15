@@ -9,6 +9,7 @@ import { GrindingService } from '../Services/Grinding.Service';
 import { ProcessRepository } from '../Repositories/Process.Repository';
 
 
+
 export class GrindingController{
 
     private processService:ProcessService;
@@ -16,9 +17,9 @@ export class GrindingController{
     private productRoviandaService:ProductRoviandaService;
 
     constructor(private firebaseInstance:FirebaseHelper){
-        this.processService = new ProcessService();
+        this.processService = new ProcessService(this.firebaseInstance);
         this.grindingService = new GrindingService();
-        this.productRoviandaService = new ProductRoviandaService();
+        this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
     }
 
     async createGrinding(req:Request,res:Response){

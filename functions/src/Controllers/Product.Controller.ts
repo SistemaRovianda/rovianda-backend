@@ -3,14 +3,15 @@ import { ProductService } from '../Services/Product.Services';
 import { Product } from '../Models/Entity/Product';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
 
 export class ProductController{
 
     private productService:ProductService;
     private productRoviandaService:ProductRoviandaService;
-    constructor(){
+    constructor(private firebaseInstance:FirebaseHelper){
         this.productService = new ProductService();
-        this.productRoviandaService = new ProductRoviandaService();
+        this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
     }
 
 
