@@ -594,15 +594,18 @@ export default class Excel4Node{
         return workbook;
     }
   
-    generateOvenProductsDocumentsByDate(userElaborated:User, userVerify: User, data: OvenProducts[]){
+    generateOvenProductsDocumentsByDate(data: OvenProducts[]){
         let tmp = os.tmpdir(); 
         var workbook = new excel.Workbook(); 
-
-        let worksheet = workbook.addWorksheet('OvenProducts'); 
 
         let buff = new Buffer(Logo.data.split(',')[1], 'base64');
 
         fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        
+        data.forEach((ovenProduct,index) => {
+        
+        let worksheet = workbook.addWorksheet('Pagina '+(index+1)); 
 
         worksheet.addImage({ 
             path: `${tmp}/imageTmp.png`,
@@ -696,7 +699,6 @@ export default class Excel4Node{
 
         let row = 5;
 
-        data.forEach(ovenProduct => {
             worksheet.cell(row, 11, row, 13, true).string(`Tiempo estimado: ${ovenProduct.stimatedTime}`).style(styleUser);
             worksheet.cell(++row, 4, row, 6, true).string(`Producto: ${ovenProduct.product.name}`).style(styleUser);
             worksheet.cell(row, 7, row, 8, true).string(`PCC: ${ovenProduct.pcc}`).style(styleUser);
@@ -718,20 +720,20 @@ export default class Excel4Node{
             }
             row+=2;
 
+
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${ovenProduct.nameElaborated}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobElaborated}`).style(style);
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Revisó: ${ovenProduct.nameCheck}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobCheck}`).style(style); 
+
+        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${ovenProduct.nameVerify}`).style(styleUser);
+        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobVerify}`).style(style); 
         });
-
-        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}`).style(styleUser);
-        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
-        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].jobElaborated}`).style(style);
-
-        worksheet.cell(++row, 4,row, 8, true).string(`Revisó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
-        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
-        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].jobVerify}`).style(style); 
-
-        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
-        worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
-        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${data[0].nameVerify}`).style(style); 
-
         return workbook;
     }
 

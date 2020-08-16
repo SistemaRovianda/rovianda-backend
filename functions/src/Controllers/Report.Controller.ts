@@ -481,10 +481,8 @@ export class ReportController{
         let dateEnd = req.params.finDate;
         let user:User = await this.userService.getUserByUid(req.query.uid);
         let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
-        let userElaborated:User= await this.userService.getUserByName(oven[0].nameElaborated);
-        let userVerify:User= await this.userService.getUserByName(oven[0].nameVerify);
 
-        let workbook = this.excel.generateOvenProductsDocumentsByDate(userElaborated, userVerify,oven); 
+        let workbook = this.excel.generateOvenProductsDocumentsByDate(oven); 
 
         workbook.write(`${tmp}/oven-products-report.xlsx`,(err, stats)=>{
             if(err){
