@@ -34,7 +34,6 @@ export class ConditioningService{
         if (!conditioningDTO.temperature)  throw new Error("[400],temperature is required");
         if (isNaN(conditioningDTO.productId) || conditioningDTO.productId < 1)  throw new Error("[400],productId is required");
         if (!conditioningDTO.date)  throw new Error("[400],date is required");
-        if (!conditioningDTO.lotMeat)  throw new Error("[400],date is required");
 
         let process: Process = await this.processRepository.findProcessById(+processId);
     if(!process) throw new Error("[400], no existe proceso");
