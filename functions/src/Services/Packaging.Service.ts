@@ -100,6 +100,7 @@ export class PackagingService{
             propertiesPackaging.presentationId = presentation;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
+        return packing[0].id;
    }
   
     async getProducts() {

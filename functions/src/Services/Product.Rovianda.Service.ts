@@ -145,14 +145,14 @@ export class ProductRoviandaService{
         if(product) throw new Error("[409],product with that name already exists ");
 
         let photo = Buffer.from(productRoviandaDTO.image, 'base64');
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.image}/`, photo);
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.code}/`, photo);
         
         let productRovianda:ProductRovianda = new ProductRovianda();
         productRovianda.code = productRoviandaDTO.code;
         productRovianda.name = productRoviandaDTO.nameProduct;
         productRovianda.status = true;
         productRovianda.imgS3 = urlOfImage;
-         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+        await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
         for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
             if(!productRoviandaDTO.ingredients[i].productId) throw new Error("[400],productId is required");

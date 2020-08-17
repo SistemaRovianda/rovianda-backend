@@ -12,8 +12,8 @@ export class PackagingController{
     }
 
     async savePackaging(req:Request,res:Response){
-        await this.packagingService.savePackaging(req.body);
-        return res.status(201).send();
+        let response = await this.packagingService.savePackaging(req.body);
+        return res.status(201).send({packaging: response});
     }
 
     async updateReprocessing(req:Request,res:Response){
