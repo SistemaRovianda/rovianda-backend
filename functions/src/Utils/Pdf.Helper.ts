@@ -1672,7 +1672,7 @@ export default class PdfHelper{
             <td>${formulation.loteInterno}</td>
             <td>${formulation.temp ? formulation.temp : ""}</td>
             <td>${formulation.waterTemp ? formulation.waterTemp : ""}</td>
-            <td>${formulation.formulationIngredients[0].productId.description ? formulation.formulationIngredients[0].productId.description : "" }</td>
+            <td>${formulation.formulationIngredients.length && formulation.formulationIngredients[0].productId.description ? formulation.formulationIngredients[0].productId.description : "" }</td>
             <td>${formulation.date ? new Date(formulation.date).toLocaleDateString() : "" }</td>
         </tr>`;
             
