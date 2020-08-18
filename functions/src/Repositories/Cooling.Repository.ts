@@ -67,4 +67,13 @@ export class CoolingRepository{
         OR status = "CLOSED"
         `);
     }
+
+
+    async getCoolingByFridgeId(fridgeId:number){
+        await this.getConnection();
+        return await this.coolingRepository.findOne({
+            where:{ fridge:`${fridgeId}`} 
+        });
+    }
+
 }

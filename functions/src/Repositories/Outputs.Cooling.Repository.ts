@@ -49,4 +49,13 @@ export class OutputsCoolingRepository{
         AND status = "${status}"`);
     }
     
+    async getOutputsCoolingByLotInter(loteInterno:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.query(`
+        SELECT cooling.opening_date as startOutput,
+	           outputs_cooling.output_date as endOutput
+        FROM cooling 
+        INNER JOIN outputs_cooling ON outputs_cooling.lote_interno = cooling.lote_interno
+        WHERE cooling.lote_interno = ${loteInterno}`);
+    }
 }

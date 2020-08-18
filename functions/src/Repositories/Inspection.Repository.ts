@@ -34,5 +34,10 @@ export class InspectionRepository{
         return await this.inspectionRepository.save(inspection);
     }
 
-
+    async getInspectionByLot(lot:string){
+        await this.getConnection();
+        return await this.inspectionRepository.findOne({
+            where: {lotId: `${lot}`}
+        });
+    }
 }
