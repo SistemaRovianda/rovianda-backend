@@ -31,7 +31,7 @@ export class PackagingRepository{
         .getMany();
     }
     
-    async getPackagingByLotId(lotId:number){
+    async getPackagingByLotId(lotId:string){
         await this.getConnection();
         return await this.packagingRepository.findOne({
             where: {lotId: `${lotId}`}
@@ -104,4 +104,17 @@ export class PackagingRepository{
              on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and pack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
         ) as Array<PackagingProductPresentationLot>;
     }
+
+    async getPackagingByLot(lotId:string){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        SELECT packaging.register_date as date,
+        presentation_products.presentation as presentation,
+        properties_packaging.units as quantity
+        FROM packaging
+        INNER JOIN properties_packaging ON properties_packaging.packaging_id = packaging.id
+        INNER JOIN presentation_products ON properties_packaging.presentation_id = presentation_products.presentation_id
+        WHERE packaging.lot_id =${lotId};`);
+    }
+/*      */
 }

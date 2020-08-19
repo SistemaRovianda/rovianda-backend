@@ -1,6 +1,7 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { LotController } from '../Controllers/Lot.Controller';
 import { RawController } from '../Controllers/Raw.Controller';
+import { EntrancesMeatController } from '../Controllers/Entrances.Meat.Controller';
 export const lotRoutes:Array<routeInterface>=[
 
     {
@@ -33,5 +34,11 @@ export const lotRoutes:Array<routeInterface>=[
         method: "get",
         controller: RawController,
         target: "getRaw"
+    },
+    {
+        url: "/rovianda/quality/history/meat/:lotId",
+        method: "get",
+        controller: EntrancesMeatController,
+        target: "getHistoryMeat" 
     }
 ];

@@ -132,6 +132,19 @@ export class ProcessRepository{
         return await this.processRepository.query(`SELECT * FROM process ORDER BY id DESC LIMIT 1`)
     }
 
+    async getProceesByLotInter(loteInterno:string){
+        await this.getConnection();
+        return await this.processRepository.query(`
+        SELECT process.start_date as date,
+	           process.current_process as description
+        FROM process
+        WHERE process.lote_interno = ${loteInterno}`);
+        /* createQueryBuilder("process")
+        .select("process.startDate","date")
+        .addSelect("process.currentProcess","description")
+        .where("process.loteInterno = :loteInterno",{loteInterno:`${loteInterno}`})
+        .getMany() */
+    }
 }
 
 

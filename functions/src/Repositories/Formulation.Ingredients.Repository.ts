@@ -23,4 +23,22 @@ export class FormulatioIngredientsRepository {
             relations: ["productId"]
         });
     }
+
+    async getFormulationByLotInter(loteInterno:string){
+        await this.getConnection();
+        return await this.formulationIngredientsRepository.query(`
+        SELECT formulation.makeId as providerId,
+        product_catalog.description as ingredent 
+        FROM formulation_ingredients
+        INNER JOIN formulation ON formulation.id = formulation_ingredients.formulation_id
+        INNER JOIN product_catalog ON product_catalog.id = formulation_ingredients.product_id
+        WHERE formulation.lote_interno = ${loteInterno}; 
+        `);/* createQueryBuilder("formulationIngredents")
+        .innerJoin("formulationIngredents.formulationId","Formulation")
+        .innerJoin("formulationIngredents.productId","Ingredents")
+        .addSelect("Formulation.make","providerId")
+        .addSelect("Ingredents.description","ingredient")
+        .andWhere("Formulation.loteInterno = :loteInterno",{loteInterno:`${loteInterno}`})
+        .getMany(); */
+    }
 }

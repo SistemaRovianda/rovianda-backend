@@ -51,6 +51,11 @@ export class EntrancesMeatController{
         return res.status(200).send(response)
     }
 
+    async getHistoryMeat(req:Request,res:Response){
+        let response = await this.entrancesmeatService.getHistoryMeat(req.params.lotId);
+        return res.status(200).send(response)
+    }
+
 }
 
 

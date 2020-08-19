@@ -12,12 +12,24 @@ import { UserRepository } from '../Repositories/User.Repository';
 import { User } from '../Models/Entity/User';
 import { Raw } from '../Models/Entity/Raw';
 import { RawRepository } from '../Repositories/Raw.Repository';
+import { FormulatioIngredientsRepository } from '../Repositories/Formulation.Ingredients.Repository';
+import { ProcessRepository } from '../Repositories/Process.Repository';
+import { OvenRepository } from '../Repositories/Oven.Repository';
+import { PackagingRepository } from '../Repositories/Packaging.Repository';
+import { InspectionRepository } from '../Repositories/Inspection.Repository';
+import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
     private userRepository: UserRepository;
     private fridgeRepository: FridgeRepository;
     private coolingRepository: CoolingRepository;
+    private formulatioIngredientsRepository:FormulatioIngredientsRepository;
+    private processRepository:ProcessRepository;
+    private ovenRepository:OvenRepository;
+    private packagingRepository:PackagingRepository;
+    private inspectionRepository:InspectionRepository;
+    private outputsCoolingRepository:OutputsCoolingRepository;
     private rawRepository:RawRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
@@ -25,6 +37,12 @@ export class EntranceMeatService {
         this.fridgeRepository = new FridgeRepository();
         this.coolingRepository = new CoolingRepository();
         this.rawRepository = new RawRepository();
+        this.formulatioIngredientsRepository = new FormulatioIngredientsRepository();
+        this.processRepository = new ProcessRepository();
+        this.ovenRepository = new OvenRepository();
+        this.packagingRepository = new PackagingRepository();
+        this.inspectionRepository = new InspectionRepository();
+        this.outputsCoolingRepository = new OutputsCoolingRepository();
     }
 
 
@@ -137,7 +155,44 @@ export class EntranceMeatService {
 
         if(!meat.length)
             throw new Error("[404], No Entrances meats found, can not generate report");
-
         return meat;
     }
+
+    async getHistoryMeat(lotId:string){
+        if(!lotId) throw new Error("[400], lotId is required");
+
+        let meat:EntranceMeat = await this.entrancesMeatRepository.getMeatByLot(lotId);
+        if(!meat) throw new Error(`[404],  Lot ${lotId} not found`);
+        let cooling:Cooling = await this.coolingRepository.getCoolingByFridgeId(+meat.fridge.fridgeId);
+        let formulation = await this.formulatioIngredientsRepository.getFormulationByLotInter(meat.loteInterno);
+        let process = await this.processRepository.getProceesByLotInter(meat.loteInterno);
+        let oven = await this.ovenRepository.getOvenProductByLot(meat.loteInterno);
+        let packaging = await this.packagingRepository.getPackagingByLot(meat.loteInterno);
+        let inspection = await this.inspectionRepository.getInspectionByLot(meat.loteInterno);
+        let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno);
+
+        let response=
+        {
+            receptionDate: meat.createdAt ? meat.createdAt : "",
+            fridge: {
+              openingDate: cooling.openingDate? cooling.openingDate: null,
+              closedDate: cooling.closingDate? cooling.closingDate:null
+            },
+            formulation: formulation,
+            process: process,
+            oven: {
+              entranceDate: oven ? oven.date : null
+            },
+            packingDate: packaging,
+            devolutions: {
+              date: null,
+              lotProcess: null
+            },
+            InspectionDate: inspection ? inspection.expirationDate:null,
+            outputs: outputs
+          };
+
+        return response;
+    }
+
 }

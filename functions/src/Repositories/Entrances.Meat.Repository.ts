@@ -33,5 +33,12 @@ export class EntranceMeatRepository{
             where:{ createdAt : Between(dateInit, dateEnd)}
     });
     }
-    
+
+    async getMeatByLot(lotId:string){
+        await this.getConnection();
+        return await this.entrancesMeatRepository.createQueryBuilder("meat")
+        .where("meat.loteProveedor = :lotId", { lotId })
+        .orWhere("meat.loteInterno = :lotId", { lotId })
+        .getOne();
+    }
 }

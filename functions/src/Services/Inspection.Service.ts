@@ -53,7 +53,7 @@ export class InspectionService{
         if (!product)  throw new Error("[400],producto no encontrado en tabla packaging");
         let prod:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByProductId(+inspectionDTO.productId)
         if (!prod)  throw new Error("[404],producto no encontrado");
-        let lot = await this.packagingRepository.getPackagingByLotId(+inspectionDTO.lotId);
+        let lot = await this.packagingRepository.getPackagingByLotId(inspectionDTO.lotId);
         if (!lot)  throw new Error("[400],No existe lote");
         console.log(lot);
 
