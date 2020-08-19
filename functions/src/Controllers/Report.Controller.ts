@@ -483,6 +483,7 @@ export class ReportController{
         let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
 
         let workbook = this.excel.generateOvenProductsDocumentsByDate(oven); 
+        console.log(oven);
 
         workbook.write(`${tmp}/oven-products-report.xlsx`,(err, stats)=>{
             if(err){

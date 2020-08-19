@@ -603,9 +603,8 @@ export default class Excel4Node{
         fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
 
         
-        data.forEach((ovenProduct,index) => {
-        
-        let worksheet = workbook.addWorksheet('Pagina '+(index+1)); 
+        let worksheet = workbook.addWorksheet('oven-product'); 
+        let row = 1;
 
         worksheet.addImage({ 
             path: `${tmp}/imageTmp.png`,
@@ -617,17 +616,39 @@ export default class Excel4Node{
                 from: { 
                   col: 1,
                   colOff: '1in', 
-                  row: 1, 
+                  row: row, 
                   rowOff: '0.1in', 
                 },
                 to: {
                     col: 3, 
                     colOff: '1in',
-                    row: 8, 
+                    row: (row+8), 
                     rowOff: '0.1in',
                   }
               }
           });
+
+          worksheet.cell(row, 6, row, 12, true).string("EMPACADORA ROVIANDA S.A.P.I. DE C.V").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+        row+=3;
+        worksheet.cell(row, 6, row, 12, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center'
+            }
+        });
+
+        data.forEach((ovenProduct,index) => {
 
         let style = workbook.createStyle({ 
             font: {
@@ -677,27 +698,9 @@ export default class Excel4Node{
                 wrapText: true
             }
         })
-        worksheet.cell(1, 6, 1, 12, true).string("EMPACADORA ROVIANDA S.A.P.I. DE C.V").style({
-            font: {
-                bold: true
-            },
-            alignment: {
-                wrapText: true,
-                horizontal: 'center'
-            }
-        });
+        
 
-        worksheet.cell(3, 6, 3, 12, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
-            font: {
-                bold: true
-            },
-            alignment: {
-                wrapText: true,
-                horizontal: 'center'
-            }
-        });
-
-        let row = 5;
+        row = row+5;
 
             worksheet.cell(row, 11, row, 13, true).string(`Tiempo estimado: ${ovenProduct.stimatedTime}`).style(styleUser);
             worksheet.cell(++row, 4, row, 6, true).string(`Producto: ${ovenProduct.product.name}`).style(styleUser);
@@ -733,6 +736,7 @@ export default class Excel4Node{
         worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${ovenProduct.nameVerify}`).style(styleUser);
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobVerify}`).style(style); 
+        row+=2;
         });
         return workbook;
     }
@@ -1522,9 +1526,9 @@ export default class Excel4Node{
 
         fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
 
-        meat.forEach((m , index)=>{
-            let worksheet = workbook.addWorksheet('Pagina '+(index+1)); 
+        let worksheet = workbook.addWorksheet('Entry-Meats'); 
 
+        let row = 1;
 
 
             worksheet.addImage({ 
@@ -1537,18 +1541,55 @@ export default class Excel4Node{
                     from: { 
                     col: 1,
                     colOff: '1in', 
-                    row: 1, 
+                    row: row, 
                     rowOff: '0.1in', 
                     },
                     to: {
                         col: 3, 
                         colOff: '1in',
-                        row: 8, 
+                        row: row, 
                         rowOff: '0.1in',
                     }
                 }
             });
 
+            worksheet.cell(1, 4, 2, 8, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(1, 10, 2, 12, true).string("F-CAL-RO-04").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+            worksheet.cell(3, 4, 4, 9, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            });
+
+
+
+        meat.forEach((m , index)=>{
+            
             let style = workbook.createStyle({ 
                 font: {
                 color: '#000000',
@@ -1596,8 +1637,9 @@ export default class Excel4Node{
                 alignment: {
                     wrapText: true
                 }
-            })
-            worksheet.cell(1, 4, 2, 8, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+            });
+            
+            worksheet.cell(row+3, 10, row+4, 11, true).string("LOTE INTERNO: "+m.loteInterno).style({
                 font: {
                     bold: true
                 },
@@ -1608,51 +1650,7 @@ export default class Excel4Node{
                 }
             });
 
-            worksheet.cell(1, 10, 2, 12, true).string("F-CAL-RO-04").style({
-                font: {
-                    bold: true
-                },
-                alignment: {
-                    wrapText: true,
-                    horizontal: 'center',
-                    vertical: 'center'
-                }
-            });
-
-            worksheet.cell(3, 4, 4, 9, true).string("CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO").style({
-                font: {
-                    bold: true
-                },
-                alignment: {
-                    wrapText: true,
-                    horizontal: 'center',
-                    vertical: 'center'
-                }
-            });
-
-            worksheet.cell(3, 10, 4, 11, true).string("LOTE INTERNO: "+m.loteInterno).style({
-                font: {
-                    bold: true
-                },
-                alignment: {
-                    wrapText: true,
-                    horizontal: 'center',
-                    vertical: 'center'
-                }
-            });
-
-            worksheet.cell(3, 12).string(`Pag: ${(index+1)} de ${meat.length}`).style({
-                font: {
-                    bold: true
-                },
-                alignment: {
-                    wrapText: true,
-                    horizontal: 'center',
-                    vertical: 'center'
-                }
-            });
-
-            let row = 5;
+            row = row+5;
 
             worksheet.cell(row, 4).string(`Fecha`).style(styleUser).style({
                 aligment:{
@@ -1793,6 +1791,7 @@ export default class Excel4Node{
             row+=10;
             worksheet.cell(++row, 4, row, 9, true).string(`Realizó:`).style(styleUser);
             worksheet.cell(row, 10, row, 12, true).string(`Firma:`).style(styleUser);
+            row+=3;
         });
 
         return workbook;
