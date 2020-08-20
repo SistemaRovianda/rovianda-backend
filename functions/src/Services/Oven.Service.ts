@@ -32,23 +32,29 @@ export class OvenService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
-    async getOvenProducts() {
-        let oven = await this.ovenRepository.getOvenProducts();
-        let response = [];
-        for(let i =0; i<oven.length; i++){
-            response.push({
-                ovenProductId: `${oven[i].id}`,
-                pcc: `${oven[i].pcc}`,
-                oven: `${oven[i].oven}`,
-                product: {
-                    id: `${oven[i].product_id}`,
-                    description: `${oven[i].name}`, 
-                },
-                newLotId: `${oven[i].new_lote}`,
-                date: `${oven[i].date}`
-            });
+    async getOvenProducts(status) {
+        if(!status) throw new Error("[400], status is required");
+        if(status == OvenProductStatusEnum.CLOSED || status == OvenProductStatusEnum.OPENED){
+            let oven:OvenProducts[] = await this.ovenRepository.getOvenStatus(status);
+            let response = [];
+            for(let i =0; i<oven.length; i++){
+                response.push({
+                    ovenProductId: `${oven[i].id}`,
+                    pcc: `${oven[i].pcc}`,
+                    oven: `${oven[i].oven}`,
+                    product: {
+                        id: `${oven[i].product? oven[i].product.id : ""}`,
+                        description: `${oven[i].product? oven[i].product.name : ""}`, 
+                    },
+                    newLotId: `${oven[i].newLote}`,
+                    date: `${oven[i].date}`
+                });
+            }
+            return response;
+        }else{
+            throw new Error("[404], status incorrect");
         }
-        return response;
+        
     }
 
     async getOvenProductsByProductId(req:Request){
@@ -177,6 +183,7 @@ export class OvenService{
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;
         oven.product = product;
+        oven.status = OvenProductStatusEnum.OPENED;
         await this.ovenRepository.saveOvenProduct(oven);
         console.log("hace0a0")
         let ovenObj:OvenProducts[] = await this.ovenRepository.getLastOven();

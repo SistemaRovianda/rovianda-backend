@@ -16,6 +16,10 @@ import {SellerInventoryRepository} from "../Repositories/Seller.Inventory.Reposi
 import { ClientsBySeller, ClientDTO } from '../Models/DTO/Client.DTO';
 import { ClientRepository } from '../Repositories/Client.Repository';
 import { DebtsRepository } from '../Repositories/Debts.Repository';
+import { SellerOperation } from '../Models/Entity/Seller.Operations';
+import { SellerOperationRepository } from '../Repositories/Seller.Operation.Repository';
+import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
+import { RelationCount } from 'typeorm';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -27,6 +31,7 @@ export class SalesRequestService{
     private sellerInventoryRepository:SellerInventoryRepository;
     private clientRepository:ClientRepository;
     private debRepository:DebtsRepository;
+    private sellerOperationRepository:SellerOperationRepository;
     constructor(){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -37,6 +42,7 @@ export class SalesRequestService{
         this.sellerInventoryRepository = new SellerInventoryRepository();
         this.clientRepository = new ClientRepository();
         this.debRepository = new DebtsRepository();
+        this.sellerOperationRepository = new SellerOperationRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -119,6 +125,27 @@ export class SalesRequestService{
     async payDeb(debId:number){
       await this.debRepository.payDeb(debId);
     }
+
+    async saveSellerOperation(sellerOperationDTO:SellerOperationDTO){
+      if(!sellerOperationDTO.date) throw new Error("[400], date is required");
+      if(!sellerOperationDTO.sellerUid) throw new Error("[400], date is required");
+      if(!sellerOperationDTO.timeStart) throw new Error("[400], date is required");
+      let user:User = await this.userRepository.getUserById(sellerOperationDTO.sellerUid);
+      if(!user) throw new Error("[404], user not found");
+      let sellerOperation:SellerOperation = new SellerOperation();
+      sellerOperation.date = sellerOperationDTO.date;
+      sellerOperation.eatingTimeStart = sellerOperationDTO.timeStart;
+      sellerOperation.seller = user;
+      return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
+    }
+
+    async updateHourSellerOperation(){
+      let date = new Date();
+      let hour = date.getTime();
+      console.log(hour); 
+      return hour;
+    }
+
     // async getSales(){
 
     //   let sales_request : SalesRequest[] = await this.salesRequestRepository.getSalesRequest();

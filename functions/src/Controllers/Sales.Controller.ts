@@ -74,6 +74,16 @@ export class SalesRequestController{
         return res.status(204).send();
     }
 
+    async saveSellerOperation(req:Request,res:Response){
+        await this.salesRequestService.saveSellerOperation(req.body);
+        return res.status(201).send();
+    }
+
+    async updateHourSellerOperation(req:Request,res:Response){
+        await this.salesRequestService.updateHourSellerOperation();
+        return res.status(204).send();
+    }
+
     
     // async getSalesRequest(req:Request, res:Response){ 
              

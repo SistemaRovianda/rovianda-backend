@@ -2007,7 +2007,7 @@ export default class PdfHelper{
         `;
     }
 
-    bodyReportPackaging(data:Packaging, properties:PropertiesPackaging[],presentations:PresentationProducts[]){
+    bodyReportPackaging(data:Packaging, properties:PropertiesPackaging[]){
         let content =` 
         </head>
         <body>
@@ -2039,22 +2039,28 @@ export default class PdfHelper{
                 <tr>
                 <td class="cel">${data.productId == null ? " " : data.productId.name}</td>
                 <td class="cel">${data.lotId ? data.lotId:" "} (Cad. ${data.expiration})</td>
-                
-                <td class="cel">`;
-                
-            for (let i = 0; i<presentations.length; i++) {
-                 content+=` ${presentations[i].presentation} </br>`;
-            }
-
-                let content2=`
-                </td>
-
-                <td class="cel">${properties.length ? properties[0].units:""}</td>
-                <td class="cel">${properties.length ? properties[0].weight:""}</td>
-                <td class="cel">${properties.length ? properties[0].observations:""}</td>
-                <td class="cel">${data.userId ==null ? " ": data.userId.name }</td>
+                <td class="cel">${!properties ? " " : properties[0].presentationId.presentation}</td>
+                <td class="cel">${!properties ? " " : properties[0].units}</td>
+                <td class="cel">${!properties ? " " : properties[0].weight}</td>
+                <td class="cel">${!properties ? " " : properties[0].observations}</td>
+                <td class="cel">${!data ? " " : data.userId.id}</td>
                 </tr>
-
+                `;
+                let content2 = "";
+                for(let i = 1; i<properties.length; i++){
+                    content2 = content2 + `
+                    <tr>
+                        <td class="cel"></td>
+                        <td class="cel"></td>
+                        <td class="cel">${!properties ? " " : properties[i].presentationId.presentation}</td>
+                        <td class="cel">${!properties ? " " : properties[i].units}</td>
+                        <td class="cel">${!properties ? " " : properties[i].weight}</td>
+                        <td class="cel">${!properties ? " " : properties[i].observations}</td>
+                        <td class="cel"></td>
+                    </tr>
+                    `;
+                }
+                let content3 = `
             </table>
         
             <table align="right" width="25%" border="1px" w>
@@ -2065,13 +2071,14 @@ export default class PdfHelper{
             </table>
             
         </body>
-        </html>`
-         return content+content2;
+        </html>
+                `;
+         return content+content2+content3;
      }
     
 
-    async reportPackagingById(data:Packaging,properties: PropertiesPackaging[],presentations:any){
-        let content = this.headReportPackaging()+this.bodyReportPackaging(data,properties,presentations);
+    async reportPackagingById(data:Packaging,properties: PropertiesPackaging[]){
+        let content = this.headReportPackaging()+this.bodyReportPackaging(data,properties);
         return content;
     }
 }

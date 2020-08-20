@@ -67,6 +67,18 @@ export const salesRoutes:Array<routeInterface>=[
         method: "patch",
         controller: SalesRequestController,
         target: "payDebPending"
+    },
+    {
+        url: "/rovianda/seller/eat/time", 
+        method: "post",
+        controller: SalesRequestController,
+        target: "saveSellerOperation"
+    },
+    {
+        url: "/rovianda/seller/eat/:sellerUid", 
+        method: "patch",
+        controller: SalesRequestController,
+        target: "updateHourSellerOperation"
     }
 
 ];

@@ -24,6 +24,11 @@ export class OvenRepository{
         FROM oven_products INNER JOIN products_rovianda WHERE oven_products.product_id = products_rovianda.id`);
     }
 
+    async getOvenStatus(status){
+        await this.getConnection();
+        return await this.ovenRepository.find({status});
+    }
+
     async getOvenProductById(ovenProduct_id:number){
         await this.getConnection();
         console.log("consulta")

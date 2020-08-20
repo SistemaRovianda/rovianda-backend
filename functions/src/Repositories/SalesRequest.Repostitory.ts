@@ -20,6 +20,13 @@ export class SalesRequestRepository{
         });
     }
 
+    async getSubOrderById(subOrderId:number){
+        await this.getConnection();
+        return await this.salesRequestRepository.query(`
+        SELECT * FROM suborders WHERE suborder_id = ${subOrderId}
+        `);
+    }
+
     async saveSalesProduct(sale:SubOrder){
         await this.getConnection();
         return await this.salesRequestRepository.save(sale);

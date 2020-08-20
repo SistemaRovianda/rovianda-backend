@@ -58,3 +58,9 @@ export interface PackagingProductLotsOutput{
     lotId:string;
     quantity: number;
 }
+
+export interface SubOrdersMetadataDTO{
+    outputsProduct:[{
+        
+    }]
+}

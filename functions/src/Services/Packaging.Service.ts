@@ -359,9 +359,10 @@ export class PackagingService{
 
     }
 
-    async getPackagingPropertiesById(packagingId:number){
+    async getPackagingPropertiesById(packagingId:Packaging){
 
-        let packaging = await this.packagingRepository.findPropiertiesPackagingById(packagingId);
+        // let packaging = await this.packagingRepository.findPropiertiesPackagingById(packagingId);
+        let packaging:PropertiesPackaging[] = await this.propertiesPackagingRepository.findPropiertiesPackagings(packagingId);
         return packaging
 
     }
@@ -369,5 +370,18 @@ export class PackagingService{
 
     async getPackagingOpen(){
 
+    }
+
+    async saveSubOrderMetaData(req:Request){
+        for(let i = 0; i < req.body.length; i++){
+            console.log(req.body[i])
+            let metadata:SubOrderMetadata = new SubOrderMetadata();
+            let subOrde = await this.subOrderRepository.getSubOrderById(+req.body[i].subOrderId);
+            console.log(subOrde);
+            metadata.loteId = req.body[i].loteId;
+            metadata.subOrder = subOrde[0];
+            metadata.quantity = req.body[i].quantity;
+            await this.subOrderMetadataRepository.saveSubOrderMetadata(metadata);
+        }
     }
 }

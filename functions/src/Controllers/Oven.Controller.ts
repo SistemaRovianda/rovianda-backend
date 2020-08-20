@@ -18,7 +18,7 @@ export class OvenController{
     }
 
     async getOvenProducts(req:Request, res:Response){   
-        let oven_products = await this.ovenService.getOvenProducts(); 
+        let oven_products = await this.ovenService.getOvenProducts(req.query.status); 
         return res.status(200).send(oven_products);
     }
 

@@ -76,4 +76,9 @@ export class PackagingController{
         await this.packagingService.savePackagingInventoryLotsProductOutput(req.body,userPackingId)
         return res.status(201).send();
     }
+
+    async saveSubOrderMetaData(req:Request,res:Response){
+        await this.packagingService.saveSubOrderMetaData(req);
+        return res.status(201).send();
+    }
 }

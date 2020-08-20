@@ -688,9 +688,8 @@ export class ReportController{
     let packagingId = req.params.packaginId;
 
     let packaging:Packaging = await this.packagingService.getPackagingById(+packagingId);
-    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(+packagingId);
-    let presentations:PresentationProducts[] = await this.productRoviandaService.getProductsPresentation(+packaging.productId.id)
-    let report = await this.pdfHelper.reportPackagingById(packaging,properties,presentations);
+    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(packaging);
+    let report = await this.pdfHelper.reportPackagingById(packaging,properties);
     pdf.create(report, {
         format: 'Legal',
         orientation:'landscape',
@@ -718,7 +717,7 @@ async reportDocumentPackagingById(req:Request,res:Response){
     let tmp = os.tmpdir();
 
     let packaging:Packaging = await this.packagingService.getPackagingById(+packagingId);
-    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(+packagingId);
+    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(packaging);
     let presentations:PresentationProducts[] = await this.productRoviandaService.getProductsPresentation(+packaging.productId.id)
     
     let workbook = this.excel.generatePackagingDocumentById(packaging,properties,presentations); 
