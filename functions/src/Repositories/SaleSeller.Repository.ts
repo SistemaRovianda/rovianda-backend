@@ -36,5 +36,13 @@ export class SalesSellerRepository{
         return await this.salesSellerRepository.findOne({id},{relations:["user"]});
     }
 
+    async getOrderSellerByUrgent(urgent:boolean){
+        await this.getConnection();
+        return await this.salesSellerRepository.find({
+            where:{ urgent : urgent},
+            relations:["user"]
+        });
+    }
+
 
 }

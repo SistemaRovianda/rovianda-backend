@@ -81,4 +81,9 @@ export class PackagingController{
         await this.packagingService.saveSubOrderMetaData(req);
         return res.status(201).send();
     }
+
+    async getOrderSellerByUrgent(req:Request,res:Response){
+        let response = await this.packagingService.getOrderSellerByUrgent(req.params.urgent);
+        return res.status(200).send(response);
+    }
 }

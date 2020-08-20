@@ -384,4 +384,24 @@ export class PackagingService{
             await this.subOrderMetadataRepository.saveSubOrderMetadata(metadata);
         }
     }
+
+    async getOrderSellerByUrgent(urgent:string){
+        if(urgent == null) throw new Error(`[400], urgent is required`);
+        let bUrgent:boolean;
+        if(urgent == "true" || urgent == "True"){ bUrgent = true;}
+        if(urgent == "false" || urgent == "False"){ bUrgent = false;} 
+        let orderSeller:OrderSeller[] = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
+        let response:any = [];
+        orderSeller.forEach( i=> {
+            response.push({
+                orderId: `${i.id}`,
+                date: `${i.date}`,
+                userId: `${i.user ? i.user.id : ""}`,
+                vendedor: `${i.user ? i.user.name : ""} ${i.user ? i.user.firstSurname : ""} ${i.user ? i.user.lastSurname : ""}`,
+                status: `${i.status}`
+            })
+        });
+        return response;
+
+    }
 }

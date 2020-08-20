@@ -71,5 +71,11 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"post",
         controller:PackagingController,
         target:"saveSubOrderMetaData" 
+    },
+    {
+        url:"/rovianda/packaging/sellers/:urgent",
+        method:"get",
+        controller:PackagingController,
+        target:"getOrderSellerByUrgent" 
     }
 ];
