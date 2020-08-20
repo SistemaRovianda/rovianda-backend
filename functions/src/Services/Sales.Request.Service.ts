@@ -139,11 +139,15 @@ export class SalesRequestService{
       return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
 
-    async updateHourSellerOperation(){
+    async updateHourSellerOperation(sellerUid:number){
+      if(!sellerUid) throw new Error("[400], sellerUid is required");
+      let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationById(sellerUid);
+      if(!sellerOperation) throw new Error("[404], sellerOperation not found");
       let date = new Date();
-      let hour = date.getTime();
-      console.log(hour); 
-      return hour;
+      let horas = 6;
+      let newHour = (date.setHours(date.getHours() + horas) && date.getHours()) + ":" + date.getMinutes();
+      sellerOperation.eatingTimeEnd = newHour;
+      return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
 
     // async getSales(){

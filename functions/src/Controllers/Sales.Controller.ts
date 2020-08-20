@@ -80,7 +80,7 @@ export class SalesRequestController{
     }
 
     async updateHourSellerOperation(req:Request,res:Response){
-        await this.salesRequestService.updateHourSellerOperation();
+        await this.salesRequestService.updateHourSellerOperation(+req.params.sellerUid);
         return res.status(204).send();
     }
 
