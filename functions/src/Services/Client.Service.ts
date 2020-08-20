@@ -81,7 +81,6 @@ export class ClientService {
 
         try{
             
-            await this.addressRepository.saveAddress(newAddress);
             await this.clientRepository.saveClient(newClient);
         }catch(err){
             throw new Error(`[500], ${err.message}`);
