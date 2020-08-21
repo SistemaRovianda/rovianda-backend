@@ -89,6 +89,11 @@ export class SalesRequestController{
         return res.status(200).send(response);
     }
 
+    async saleClient(req:Request,res:Response){
+        let response = await this.salesRequestService.saleClient(req.params.sellerUid,+req.params.saleId);
+        return res.status(200).send(response);
+    }
+
     
     // async getSalesRequest(req:Request, res:Response){ 
              

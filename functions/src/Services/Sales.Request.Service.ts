@@ -22,6 +22,9 @@ import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
 import { RelationCount } from 'typeorm';
 import { Sale } from '../Models/Entity/Sales';
 import { SaleRepository } from '../Repositories/Sale.Repository';
+import { times } from 'lodash';
+import { SubSaleRepository } from '../Repositories/SubSale.Repository';
+import { SubSales } from '../Models/Entity/Sub.Sales';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -35,6 +38,7 @@ export class SalesRequestService{
     private debRepository:DebtsRepository;
     private sellerOperationRepository:SellerOperationRepository;
     private saleRepository:SaleRepository;
+    private subSalesRepository:SubSaleRepository;
     constructor(){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -47,6 +51,7 @@ export class SalesRequestService{
         this.debRepository = new DebtsRepository();
         this.sellerOperationRepository = new SellerOperationRepository();
         this.saleRepository = new SaleRepository();
+        this.subSalesRepository = new SubSaleRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -198,6 +203,42 @@ export class SalesRequestService{
         })
       }
       return response;
+    }
+
+    async saleClient(sellerUid:string,saleId:number){
+      if(!sellerUid) throw new Error("[400], sellerUid is required");
+      if(!saleId) throw new Error("[400], saleId is required");
+      let userSeller:User = await this.userRepository.getUserById(sellerUid);
+      if(!userSeller) throw new Error("[404], Seller not found");
+      let sale:Sale = await this.saleRepository.getSalesBySaleIdSeller(saleId,sellerUid);
+      if(!sale) throw new Error("[404], sale not found");
+      let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(sale);
+      console.log(subSales)
+      let response:any = [];
+      let response2:any = {};
+      let tot:number = 0;
+      let piecestot:number = 0;
+      for(let i = 0; i < subSales.length; i++){
+        tot = tot + subSales[i].amount;
+        piecestot = piecestot + subSales[i].quantity;
+        response.push({
+          description: `${subSales[i].product ? subSales[i].product.name : ""}`,
+          quantity: subSales[i].quantity,
+          price: subSales[i].presentation ? subSales[i].presentation.presentationPrice : "",
+          amount: subSales[i].amount
+        })
+      }
+      response2 = {
+        numNota: sale.saleId,
+        date: sale.date,
+        hour: sale.hour,
+        vendedor: userSeller.name,
+        client: sale.client.id,
+        sale: response,
+        pieces: piecestot,
+        total: tot
+      }
+      return response2;
     }
 
     // async getSales(){

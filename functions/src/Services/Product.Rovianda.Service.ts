@@ -212,6 +212,7 @@ export class ProductRoviandaService{
             code: productRovianda.code ? productRovianda.code : null,
             nameProduct: productRovianda.name ? productRovianda.name : null,
             status: productRovianda.status ? productRovianda.status : null,
+            image: productRovianda.imgS3,
             ingredents: ingredients,
             presentations: presentations
           }

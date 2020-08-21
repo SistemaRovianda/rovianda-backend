@@ -25,4 +25,12 @@ export class SaleRepository{
             relations:["client"]
         });
     }
+
+    async getSalesBySaleIdSeller(saleId:number,seller:string){
+        await this.getConnection();
+        return await this.saleRepository.findOne({
+            where:{ saleId, seller},
+            relations:["client"]
+        });
+    }
 }
