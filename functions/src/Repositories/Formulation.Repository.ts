@@ -68,4 +68,9 @@ export class FormulationRepository{
         SELECT * FROM formulation WHERE product_rovianda_id = ${productId} 
         GROUP BY lote_interno`);
     }
+
+    async getOneFormulationByLote(loteInterno:string){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({loteInterno});
+    }
 }

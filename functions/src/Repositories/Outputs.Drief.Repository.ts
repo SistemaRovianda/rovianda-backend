@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OutputsDrief } from '../Models/Entity/Outputs.Drief';
 import { Product } from '../Models/Entity/Product';
+import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 export class OutputsDriefRepository{
     private outputsDriefRepository:Repository<OutputsDrief>;
 
@@ -47,5 +48,10 @@ export class OutputsDriefRepository{
         await this.getConnection();
 
         return this.outputsDriefRepository.find({product});
+    }
+
+    async getOutputsDriefByWarehouseDrief(warehouseDrief:WarehouseDrief){
+        await this.getConnection();
+        return this.outputsDriefRepository.find({warehouseDrief})
     }
 }

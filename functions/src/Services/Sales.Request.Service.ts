@@ -20,6 +20,8 @@ import { SellerOperation } from '../Models/Entity/Seller.Operations';
 import { SellerOperationRepository } from '../Repositories/Seller.Operation.Repository';
 import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
 import { RelationCount } from 'typeorm';
+import { Sale } from '../Models/Entity/Sales';
+import { SaleRepository } from '../Repositories/Sale.Repository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -32,6 +34,7 @@ export class SalesRequestService{
     private clientRepository:ClientRepository;
     private debRepository:DebtsRepository;
     private sellerOperationRepository:SellerOperationRepository;
+    private saleRepository:SaleRepository;
     constructor(){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -43,6 +46,7 @@ export class SalesRequestService{
         this.clientRepository = new ClientRepository();
         this.debRepository = new DebtsRepository();
         this.sellerOperationRepository = new SellerOperationRepository();
+        this.saleRepository = new SaleRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -150,6 +154,52 @@ export class SalesRequestService{
       return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
 
+    async timesMovents(sellerUid:string){
+      if(!sellerUid) throw new Error("[400], sellerUid is required");
+      let user:User = await this.userRepository.getUserById(sellerUid);
+      if(!user) throw new Error("[404], sellerUid not found");
+      let today = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; 
+      let yyyy:any = today.getFullYear();
+      if(dd<10) { dd='0'+dd; } 
+      if(mm<10) { mm='0'+mm; }
+      let date = `${yyyy}-${mm}-${dd}`;
+      let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationByDateUser(date,user);
+      let sales:Sale[] = await this.saleRepository.getSalleSellerByDateUser(sellerUid,date);
+      console.log(sales)
+      let c:number=0; 
+      let nc:number=0
+      let response:any = []
+      for(let i = 0; i < sales.length; i++){
+        if(sellerOperation.eatingTimeStart < sales[i].hour){
+          response.push({
+              numConse: "---",
+              venta: sellerOperation.eatingTimeStart,
+              hora: sellerOperation.eatingTimeEnd
+            })
+          i = sales.length;
+        }else{
+          nc++;
+          response.push({
+            numConse: nc,
+            venta: `C:${sales[i].client.id}`,
+            hora: sales[i].hour
+          })
+          c++;
+        }
+      }
+      for(;c<sales.length;c++){
+        nc++;
+        response.push({
+          numConse: nc,
+          venta: `C:${sales[c].client.id}`,
+          hora: sales[c].hour
+        })
+      }
+      return response;
+    }
+
     // async getSales(){
 
     //   let sales_request : SalesRequest[] = await this.salesRequestRepository.getSalesRequest();
@@ -210,6 +260,7 @@ export class SalesRequestService{
     
       return Math.floor((utc2 - utc1) / _MS_PER_DAY);
     }
+
 
   }
 

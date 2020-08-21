@@ -7,15 +7,22 @@ import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { EntranceDriefRepository } from "../Repositories/Entrance.Drief.Repository";
 import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 import { Request } from "express";
+import { FormulationRepository } from "../Repositories/Formulation.Repository";
+import { Formulation } from "../Models/Entity/Formulation";
+import { OutputsDriefRepository } from "../Repositories/Outputs.Drief.Repository";
 
 export class WarehouseDriefService{
     private warehouseDriefRepository:WarehouseDriefRepository;
     private productRepository:ProductRepository;
     private entranceDriefRepository:EntranceDriefRepository;
+    private formulationRepository:FormulationRepository;
+    private outputsDriefRepository: OutputsDriefRepository;
     constructor(){
         this.warehouseDriefRepository = new WarehouseDriefRepository();
         this.productRepository = new ProductRepository();
         this.entranceDriefRepository = new EntranceDriefRepository();
+        this.formulationRepository = new FormulationRepository();
+        this.outputsDriefRepository = new OutputsDriefRepository();
     }
 
     async updateWarehouseDrief(warehouseDTO:WarehouseDTO,warehouseDriefId:number){
@@ -95,24 +102,37 @@ export class WarehouseDriefService{
     async getDriefHistory(lotId:string) {
 
         let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(lotId);
-
+        console.log(warehouseDrief);
         if (!warehouseDrief)
             throw new Error(`[404], warehouseDrief with lot ${lotId} was not found`);
-
-        let outputs = warehouseDrief.outputDriefs.map(outputDrief => {
-            return {
-                outputDate: outputDrief.date,
-                product: outputDrief.product.description,
-                productId: outputDrief.product.id,
-                observations: outputDrief.observations
-            }
-        });
+        let response2:any = [];
+        let outputs:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByWarehouseDrief(warehouseDrief);
+        for(let i = 0; i < outputs.length; i++){
+            let formulation:Formulation = await this.formulationRepository.getOneFormulationByLote(outputs[i].loteProveedor);
+            response2.push({
+                outputDate: outputs[i].date,
+                product: outputs[i].product ? outputs[i].product.description :  "",
+                productId: outputs[i].product ? outputs[i].product.id : "",
+                observations: outputs[i].observations,
+                lot: formulation.loteInterno
+            })
+        }
+        // let outputs = warehouseDrief.outputDriefs.map(async outputDrief => {
+        //     let formulation:Formulation = await this.formulationRepository.getOneFormulationByLote(outputDrief.loteProveedor);
+        //     return {
+        //         outputDate: outputDrief.date,
+        //         product: outputDrief.product.description,
+        //         productId: outputDrief.product.id,
+        //         observations: outputDrief.observations,
+        //         lot: formulation.loteInterno
+        //     }
+        // });
 
         let response = {
             receptionDate: warehouseDrief.date,
             openingDate: warehouseDrief.openingDate,
             closedDate: warehouseDrief.closingDate,
-            outputs
+            outputs: response2
         }
 
         return response;

@@ -35,7 +35,8 @@ export class SalesRequestRepository{
     async getProductsOfOrder(orderId:number){
         await this.getConnection();
         return await this.salesRequestRepository.query(
-            `select distinct(sub.product_id),prorov.name,prorov.img_s3 as imgS3 from suborders as sub left join products_rovianda as prorov
+            `select distinct(sub.product_id),prorov.name,prorov.img_s3 as imgS3 
+            from suborders as sub left join products_rovianda as prorov
             on sub.product_id = prorov.id where sub.order_seller_id=${orderId} group by sub.order_seller_id,sub.product_id;`
             );
     }

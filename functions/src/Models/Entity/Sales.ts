@@ -15,6 +15,9 @@ export class Sale{
 
     @Column()
     date:string;
+
+    @Column()
+    hour:string;
     
     @Column()
     amount:number;

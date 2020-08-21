@@ -79,6 +79,12 @@ export const salesRoutes:Array<routeInterface>=[
         method: "patch",
         controller: SalesRequestController,
         target: "updateHourSellerOperation"
+    },
+    {
+        url: "/rovianda/report/times/movements/:sellerUid", 
+        method: "get",
+        controller: SalesRequestController,
+        target: "timesMovents"
     }
 
 ];

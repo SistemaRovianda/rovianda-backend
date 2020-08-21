@@ -84,6 +84,11 @@ export class SalesRequestController{
         return res.status(204).send();
     }
 
+    async timesMovents(req:Request,res:Response){
+        let response = await this.salesRequestService.timesMovents(req.params.sellerUid);
+        return res.status(200).send(response);
+    }
+
     
     // async getSalesRequest(req:Request, res:Response){ 
              
