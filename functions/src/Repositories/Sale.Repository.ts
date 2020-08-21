@@ -14,7 +14,7 @@ export class SaleRepository{
     async getSaleById(id: number){
         await this.getConnection();
         return await this.saleRepository.find({
-            where: {id}
+            where: { saleId: id }
         });
     }
 
