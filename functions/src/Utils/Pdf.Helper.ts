@@ -2022,7 +2022,7 @@ export default class PdfHelper{
               
             <div id="fec" >
             <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
-             </div><br><br>
+             </div><br>
         
         
             <table border="1" align="center" width="60%">
@@ -2043,7 +2043,7 @@ export default class PdfHelper{
                 <td class="cel">${!properties ? " " : properties[0].units}</td>
                 <td class="cel">${!properties ? " " : properties[0].weight}</td>
                 <td class="cel">${!properties ? " " : properties[0].observations}</td>
-                <td class="cel">${!data ? " " : data.userId.id}</td>
+                <td class="cel">${!data ? " " : data.userId.name} ${!data ? " " : data.userId.firstSurname} ${!data ? " " : data.userId.lastSurname}</td>
                 </tr>
                 `;
                 let content2 = "";
