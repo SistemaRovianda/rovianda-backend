@@ -228,6 +228,16 @@ export class ProductRoviandaService{
         
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
         if(!product) throw new Error(`[404],product_rovianda with id ${id} not found`);
+        product.code = productRoviandaDTO.code;
+        product.name = productRoviandaDTO.nameProduct;
+        product.status = productRoviandaDTO.status;
+        if(productRoviandaDTO.image){
+            let photo = Buffer.from(productRoviandaDTO.image, 'base64');
+            let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.code}/`, photo);
+            product.imgS3 = urlOfImage;
+        }
+        await this.productRoviandaRepository.saveProductRovianda(product);
+        
         if (productRoviandaDTO.ingredients.length > 0)
             for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
                 if(!productRoviandaDTO.ingredients[i].ingredientId) throw new Error("[400],ingredientId is required");
@@ -239,43 +249,64 @@ export class ProductRoviandaService{
                 let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].ingredientId);
                 if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].ingredientId} not found`);
 
-                let ingredentRovianda = await this.productRepository.belongTo(+id,productRoviandaDTO.ingredients[i].ingredientId);
-                if(ingredentRovianda[0]==null) 
-                    throw new Error(`[409],the ingredient with id ${productRoviandaDTO.ingredients[i].ingredientId} does not belong to this rovianda product`);
+                let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+                productRovianda.ingredients = productIngredient[i];
+                await this.productRoviandaRepository.saveProductRovianda(productRovianda);
 
                 productIngredient.presentation = productRoviandaDTO.ingredients[i].presentation;
                 productIngredient.variant = productRoviandaDTO.ingredients[i].variant;
                 productIngredient.description = productRoviandaDTO.ingredients[i].description;
                 productIngredient.mark = productRoviandaDTO.ingredients[i].mark;
+                productIngredient.productRovianda = productRovianda[0];
+
                 await this.productRepository.createProduct(productIngredient);
+
+                // let ingre:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].ingredientId);
+                // product.ingredients = ingre[i];
+                let ingre = await this.productRepository.getIngredients(productRovianda.id,productIngredient.id);
+                if(!ingre.length) {await this.productRepository.saveIngredients(productRovianda.id,productIngredient.id);}
                 
                 }
         if (productRoviandaDTO.presentation.length)
             for (let i = 0; i < productRoviandaDTO.presentation.length; i++) {
                 if(!productRoviandaDTO.presentation[i].presentation) throw new Error("[400],presentation is required");
-                //if(!productRoviandaDTO.presentations[i].presentationId) throw new Error("[400],presentationId is required");
                 if(!productRoviandaDTO.presentation[i].pricePresentation) throw new Error("[400],pricePresentation is required");
                 if(!productRoviandaDTO.presentation[i].typePresentation) throw new Error("[400],typePresentation is required");
                 let presentationProduct:PresentationProducts = new PresentationProducts();
                 if(productRoviandaDTO.presentation[i].presentationId){
                     presentationProduct = await this.presentationsProductsRepository.getPresentatiosProductsById(productRoviandaDTO.presentation[i].presentationId);
+                    let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+                    presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
+                    presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
+                    presentationProduct.presentationType = productRoviandaDTO.presentation[i].typePresentation;
+                    presentationProduct.productsRovianda = productRovianda[0];
+    
+                    await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
+                    
+                    productRovianda.presentationProducts = presentationProduct[i];
+                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+                    let ingre = await this.presentationsProductsRepository.getPresentationsProducts(presentationProduct.id,productRovianda.id);
+                    if(!ingre.length){await this.presentationsProductsRepository.savePresentationsProducts(presentationProduct.id,productRovianda.id);}
+                    
+                }else{
+                    let presentationProduct:PresentationProducts = new PresentationProducts();
+                    let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
+                    presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
+                    presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
+                    presentationProduct.presentationType = productRoviandaDTO.presentation[i].typePresentation;
+                    presentationProduct.productsRovianda = productRovianda[0];
+    
+                    await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
+                    
+                    productRovianda.presentationProducts = presentationProduct[i];
+                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+                    await this.presentationsProductsRepository.savePresentationsProducts(presentationProduct.id,productRovianda.id);
                 }
 
-                // let presentationRovianda = await this.presentationsProductsRepository.belongToProduct(+id,productRoviandaDTO.presentations[i].presentationId);
-                // if(presentationRovianda[0]==null) 
-                // throw new Error(`[409],this presentation product with id ${productRoviandaDTO.presentations[i].presentationId} does not belong to this rovianda product`);
-
-                presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
-                presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
-                presentationProduct.presentationType = productRoviandaDTO.presentation[i].typePresentation;
-
-                await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
+                
             }
 
-        product.code = productRoviandaDTO.code;
-        product.name = productRoviandaDTO.nameProduct;
-        product.status = productRoviandaDTO.status;
-        await this.productRoviandaRepository.saveProductRovianda(product);
+        
     }   
 
     async getProductsRoviandaByCode(req: Request) {

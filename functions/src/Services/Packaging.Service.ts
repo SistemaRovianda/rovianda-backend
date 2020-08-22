@@ -167,7 +167,7 @@ export class PackagingService{
                 reprocessing.date = reprocessingDTO.date;
                 reprocessing.lotRepro = lot.newLote;
                 reprocessing.productId = product.id;
-                reprocessing.lotProcess = process[0].lote_interno;
+                //reprocessing.lotProcess = process[0].lote_interno;
                 return await this.reprocessingRepository.saveRepocessing(reprocessing);
         
         }else{

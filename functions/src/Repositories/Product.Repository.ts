@@ -77,6 +77,16 @@ export class ProductRepository{
         return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`)
     }
 
+    async getIngredients(rovianda:number,catalog:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.productRepository.query(`
+        SELECT * FROM ingredients 
+        WHERE productsRoviandaId = ${rovianda} 
+        AND productCatalogId = ${catalog}
+        `)
+    }
+
     async getIngredientsByProduct(id:number){
         await this.getConnection();
         console.log("consulta")

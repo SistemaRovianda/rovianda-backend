@@ -34,6 +34,16 @@ export class PresentationsProductsRepository{
         return await this.presentationsProductsRepository.query(`INSERT INTO products_rovianda_presentation (presentation_id ,product_id) VALUES (${presentation},${product})`)
     }
 
+    async getPresentationsProducts(presentation:number,product:number){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.presentationsProductsRepository.query(`
+        SELECT * FROM products_rovianda_presentation 
+        WHERE presentation_id = ${presentation} 
+        AND product_id = ${product}
+        `)
+    }
+
     async createPresentation(presentation:PresentationProducts){
         await this.getConnection();
         return await this.presentationsProductsRepository.save(presentation);

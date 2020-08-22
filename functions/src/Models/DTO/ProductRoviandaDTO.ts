@@ -26,6 +26,7 @@ export interface UpdateProductRoviandaDTO{
    code: string,
    nameProduct: string,
    status: boolean,
+   image: string,
    ingredients: [
       {
          ingredientId: number,
