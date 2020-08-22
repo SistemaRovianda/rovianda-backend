@@ -96,5 +96,8 @@ export class SalesRequestController{
     //     return res.status(200).send(sales_request);
     // }
 
+    async getSellerGuard(req:Request,res:Response){
+        return res.status(200).send(await this.salesRequestService.getSellerGuards(req.params.sellerUid));
+    }
     
 } 
