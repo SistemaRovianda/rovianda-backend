@@ -91,6 +91,12 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "saleClient"
+    },
+    {
+        url: "/rovianda/report/sales/:sellerUid", 
+        method: "get",
+        controller: SalesRequestController,
+        target: "reportSales"
     }
 
 ];

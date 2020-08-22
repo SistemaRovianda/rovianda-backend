@@ -93,6 +93,11 @@ export class SalesRequestController{
         let response = await this.salesRequestService.saleClient(req.params.sellerUid,+req.params.saleId);
         return res.status(200).send(response);
     }
+    
+    async reportSales(req:Request,res:Response){
+        let response = await this.salesRequestService.reportSales(req.params.sellerUid);
+        return res.status(200).send(response);
+    }
 
     
     // async getSalesRequest(req:Request, res:Response){ 

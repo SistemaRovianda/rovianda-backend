@@ -33,4 +33,12 @@ export class SaleRepository{
             relations:["client"]
         });
     }
+
+    async getSalesBySellerId(sellerUid:string,date:string){
+        await this.getConnection();
+        return await this.saleRepository.find({
+            where:{ sellerUid,date},
+            relations:["client"]
+        });
+    }
 }

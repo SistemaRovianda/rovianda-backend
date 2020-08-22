@@ -241,6 +241,55 @@ export class SalesRequestService{
       return response2;
     }
 
+    async reportSales(sellerUid:string){
+      if(!sellerUid) throw new Error("[400], sellerUid is required");
+      let sellerUser:User = await this.userRepository.getUserById(sellerUid);
+      if(!sellerUser) throw new Error("[404], sellerUid not found");
+      let today = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; 
+      let yyyy:any = today.getFullYear();
+      if(dd<10) { dd='0'+dd; } 
+      if(mm<10) { mm='0'+mm; }
+      let date = `${yyyy}-${mm}-${dd}`;
+      console.log(date)
+      let sale:Sale[] = await this.saleRepository.getSalesBySellerId(sellerUid,date);
+      let response3:any = [];
+      let response2:any = {};
+      let totSale:number = 0;
+      for(let i = 0; i < sale.length; i++){
+        let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(sale[i]);
+        let response:any = [];
+        let tot:number = 0;
+        let piecestot:number = 0;
+        for(let c = 0; c < subSales.length; c++){
+          tot = tot + subSales[c].amount;
+          piecestot = piecestot + subSales[c].quantity;
+          response.push({
+            description: `${subSales[c].product ? subSales[c].product.name : ""}`,
+            quantity: subSales[c].quantity,
+            price: subSales[c].presentation ? subSales[c].presentation.presentationPrice : "",
+            amount: subSales[c].amount
+          })
+        }
+        totSale = totSale + tot;
+        response3.push({
+          numConsecutive: i+1,
+          invoice: sale[i].saleId,
+          nameClient: sale[i].client ? sale[i].client.client : "",
+          client: sale[i].client ? sale[i].client.id : "",
+          amountTot: tot,
+          sale: response,
+        })
+      }
+
+      response2 = {
+        saleDay: response3,
+        totSaleDay:totSale
+      }
+      return response2;
+    }
+
     // async getSales(){
 
     //   let sales_request : SalesRequest[] = await this.salesRequestRepository.getSalesRequest();
