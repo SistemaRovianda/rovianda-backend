@@ -35,7 +35,7 @@ export interface UpdateProductRoviandaDTO{
          presentation: string
       }
    ],
-   presentations: [
+   presentation: [
       {
          presentationId: number,
          presentation: number,
