@@ -21,7 +21,7 @@ export class SellerInventoryRepository{
         return await this.repository.query(`select distinct(selinv.product_id) as productId,
         prorov.name,prorov.img_s3
         from seller_inventory as selinv inner join products_rovianda as prorov 
-        on selinv.product_id = prorov.id where selinv.seller_id="${sellerUid}"`);
+        on selinv.productId = prorov.id where selinv.seller_id="${sellerUid}"`);
     }
 
     async getSellerInventoryProductPresentation(sellerUid:string,productId:number){
@@ -31,4 +31,19 @@ export class SellerInventoryRepository{
         on sellInv.presentation_id = pp.presentation_id where sellInnv.seller_id="${sellerUid}" and sellInv.product_id = ${productId} group by sellInv.product_id,sellInv.presentation_id`);
     }
 
+    async getSellerBySellerId(sellerUid:string){
+        await this.getConnection();
+        return await this.repository.find({
+            where:{seller:`${sellerUid}`},
+            relations:["product"]
+        });
+    }
+
+    async getPresentationsSeller(productId:number,sellerUid:string){
+        await this.getConnection();
+        return await this.repository.query(`select selinv.presentation_id as presentationId ,selinv.quantity, prepro.presentation,prepro.type_presentation as typePresentation 
+        from presentation_products as prepro
+        inner join seller_inventory as selinv on selinv.presentation_id = prepro.presentation_id
+        where selinv.productId = ${productId} and selinv.seller_id = "${sellerUid}"; `);
+    }
 }

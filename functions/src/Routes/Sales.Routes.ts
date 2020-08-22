@@ -87,6 +87,12 @@ export const salesRoutes:Array<routeInterface>=[
         target: "timesMovents"
     },
     {
+        url: "/rovianda/seller/guard/:sellerUid", // obtiene el resguardo de un vendedor
+        method: "get",
+        controller: SalesRequestController,
+        target: "getSellerGuard"
+    },
+    {
         url: "/rovianda/report/sale/client/:sellerUid/:saleId", 
         method: "get",
         controller: SalesRequestController,
@@ -98,5 +104,4 @@ export const salesRoutes:Array<routeInterface>=[
         controller: SalesRequestController,
         target: "reportSales"
     }
-
 ];

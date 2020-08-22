@@ -27,3 +27,15 @@ export interface PackagingProperties{
    presentationId:number;
    units:number;
 }
+
+export interface SaleOrderDTO {
+   urgent: boolean,
+   date: string,
+   products: [
+     {
+       presentationId: number,
+       productId: number,
+       quantity: number
+     }
+   ]
+ }

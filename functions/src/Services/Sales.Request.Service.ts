@@ -1,7 +1,7 @@
 import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
-import { OrderSellerRequest } from '../Models/DTO/Sales.ProductDTO';
+import { OrderSellerRequest, SaleOrderDTO } from '../Models/DTO/Sales.ProductDTO';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
@@ -351,7 +351,20 @@ export class SalesRequestService{
       return Math.floor((utc2 - utc1) / _MS_PER_DAY);
     }
 
-
+    async getSellerGuards(sellerUid:string){
+      let user:User = await this.userRepository.getUserById(sellerUid);
+      if(!user) throw new Error("[404], user not found");
+      let sellerGuard = await this.sellerInventoryRepository.getSellerBySellerId(sellerUid);
+      if(sellerGuard.length ==0){return []}
+      let response = [];
+      for (let i = 0; i < sellerGuard.length; i++) {
+          response.push({
+            productId : sellerGuard[i].product ? sellerGuard[i].product.id :null,
+            presentations : await this.sellerInventoryRepository.getPresentationsSeller(sellerGuard[i].product.id,sellerUid)
+          });
+      }
+       return response;
+     }
   }
 
   
