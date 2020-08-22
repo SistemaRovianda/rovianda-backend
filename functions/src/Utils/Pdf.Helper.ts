@@ -1611,13 +1611,16 @@ export default class PdfHelper{
                 width: 80%;
               }
         
-              img {
-                width: 150px;
-                height: 150px;
-                transform: translateY(87%);
-                border-radius: 15px;
-                margin-left: 10px;
+              img{
+                width: 60px;
+                height:80px;
+                transform: translateY(78%) translateX(474%);
               }
+        
+            .title{
+                transform: translateY(507%) translateX(-2%);
+                top: 200px;
+            }
         
               header {
                 text-align: center;
@@ -1639,7 +1642,7 @@ export default class PdfHelper{
 
     bodyReportFormulationInfo(formulations: Formulation[]){
         const formulationHeaderInfo = `<header>
-        <b><p>BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
+        <b><p class="title">BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
       </header>
   
       <img src="${LOGO.data}" alt="" />

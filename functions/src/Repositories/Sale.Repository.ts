@@ -14,7 +14,7 @@ export class SaleRepository{
     async getSaleById(id: number){
         await this.getConnection();
         return await this.saleRepository.find({
-            where: {id}
+            where: { saleId: id }
         });
     }
 
@@ -22,6 +22,14 @@ export class SaleRepository{
         await this.getConnection();
         return await this.saleRepository.find({
             where:{ seller, date},
+            relations:["client"]
+        });
+    }
+
+    async getSalesBySaleIdSeller(saleId:number,seller:string){
+        await this.getConnection();
+        return await this.saleRepository.findOne({
+            where:{ saleId, seller},
             relations:["client"]
         });
     }
