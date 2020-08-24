@@ -32,7 +32,7 @@ export class OutputsPackingService{
         outputsPacking.product = product;
         outputsPacking.quantity = outputsPackingDTO.quantity;
         outputsPacking.date=outputsPackingDTO.date;
-
+        outputsPacking.warehousePacking=lote;
         return await this.outputsPackingRepository.createOutputsPacking(outputsPacking);
     }
 

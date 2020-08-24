@@ -14,4 +14,7 @@ export class Fridge{
     @OneToMany(type=> Cooling,cooling=>cooling.fridge,{eager:false})
     coolings: Cooling[];
 
+    @Column()
+    status:string;
+
 }

@@ -138,7 +138,7 @@ export class ProcessRepository{
         SELECT process.start_date as date,
 	           process.current_process as description
         FROM process
-        WHERE process.lote_interno = ${loteInterno}`);
+        WHERE process.lote_interno = "${loteInterno}"`);
         /* createQueryBuilder("process")
         .select("process.startDate","date")
         .addSelect("process.currentProcess","description")

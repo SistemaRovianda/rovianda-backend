@@ -55,26 +55,26 @@ export class OutputsCoolingService{
         return await this.outputsCoolingRepository.getOutputsCoolingByLot(lot);
     }
 
-    async getOutputsCoolingByStatus(status:string,rawMaterialId:number){
+    async getOutputsCoolingByStatus(status:string){
         console.log("entra")
         if(!status) throw new Error("[400], status is required");
-        if(!rawMaterialId) throw new Error("[400], rawMaterialId is required");
         if(status == OutputsCoolingStatus.NOTUSED || status == OutputsCoolingStatus.USED){
-            let raw:Raw = await this.rawRepository.getById(rawMaterialId);
-            console.log(raw);
-            if(!raw) throw new Error("[404], rawMaterialId not found");
-            let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByRaw(raw);
+            
+            let outputsCooling:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByStatus(status);
             let response:any = [];
-            outputsCooling.forEach(i => {
+            if(outputsCooling.length){
+            response = outputsCooling.map(i => {
                 if(i.status == status){
-                    response.push({
+                    return {
                         lotId:`${i.loteInterno}`,
                         quantity: `${i.quantity}`,
                         outputId: `${i.id}`,
                         name: `${i.rawMaterial.rawMaterial}`
-                    });
+                    };
                 }
+            
             });
+            }
             return response;
         }else{
             throw new Error("[409], status incorrect");

@@ -11,9 +11,16 @@ export class FridgesService{
     async saveFridges(req:Request){
         let {tempOfFridge} = req.body;
         if(!tempOfFridge) throw new Error("[400],tempOfFridge is required")
-        let fridges:Fridge = new Fridge();
-        fridges.temp = tempOfFridge;
-        return await this.fridgesRepository.saveFridge(fridges);
+        let fridge = await this.fridgesRepository.getByTemp(tempOfFridge);
+        if(!fridge){
+            let fridges:Fridge = new Fridge();
+            fridges.temp = tempOfFridge;
+            fridges.status="ACTIVE";
+            await this.fridgesRepository.saveFridge(fridges);
+        }else if(fridge && fridge.status=="INACTIVE"){
+            fridge.status="ACTIVE";
+            await this.fridgesRepository.saveFridge(fridge);
+        }
     }
     
     async getAllFridges(){
@@ -30,5 +37,9 @@ export class FridgesService{
 
     async getFridgesById(id:number){
         return await this.fridgesRepository.getFridgeById(id);
+    }
+
+    async deleteFridge(fridgeId:number){
+        await this.fridgesRepository.deleteFridgeById(fridgeId);
     }
 }

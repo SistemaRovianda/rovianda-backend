@@ -80,18 +80,21 @@ export class WarehousePackingService{
         return await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
     }
     
-    async getPackingHistory(lotId:string){
+    async getPackingHistory(lotIdProveedor:string){
 
-        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(lotId);
+        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(lotIdProveedor);
         if(!warehousePacking)
-            throw new Error(`[404], warehousePacking with lot ${lotId} was not found`);
-        let outputs = warehousePacking.outputsPacking.map(output =>{ 
-            return {
-                outputName: output.product.description,
-                date: output.date
-            }
-        })
-
+            throw new Error(`[404], warehousePacking with lot ${lotIdProveedor} was not found`);
+            
+        let outputs=[];
+        if(warehousePacking.outputsPacking.length){
+            outputs = warehousePacking.outputsPacking.map(output =>{ 
+                return {
+                    outputName: output.operatorOutlet,
+                    date: output.date
+                }
+            })
+        }
         let response = {
             receptionDate: warehousePacking.date,
             openingDate: warehousePacking.openingDate,

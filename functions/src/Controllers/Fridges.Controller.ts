@@ -19,4 +19,10 @@ export class FridgesController{
         return res.status(200).send(fridges);
     }
 
+    async deleteFridge(req:Request,res:Response){
+        let fridgeId= req.params.fridgeId;
+        await this.fridgesService.deleteFridge(+fridgeId);
+        return res.status(204).send();
+    }
+
 }

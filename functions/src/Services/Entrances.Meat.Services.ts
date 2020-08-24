@@ -49,6 +49,7 @@ export class EntranceMeatService {
     async saveEntrancesMeat(req: any) {
         let entranceMeatDTO: EntranceMeatDTO = req.body;
         //let photo:any= req.files[0];
+        console.log("REVISION DE CUERPO DE REQUEST",JSON.stringify(entranceMeatDTO));
         entranceMeatDTO.createdAt = new Date().toLocaleDateString();
         if (!entranceMeatDTO.lotInternal) throw new Error("[400],Falta la propiedad loteInterno");
         if (!entranceMeatDTO.lotProveedor) throw new Error("[400],Falta la propiedad loteProveedor");
@@ -107,34 +108,41 @@ export class EntranceMeatService {
             photo: file
         }
 
-        let cooling:Cooling = new Cooling();
-        cooling.loteInterno = entranceMeatDTO.lotInternal;
-        cooling.loteProveedor = entranceMeatDTO.lotProveedor;
-        cooling.quantity = entranceMeatDTO.weight.value;
-        cooling.status = WarehouseStatus.PENDING;
-        cooling.fridge = fridge;
-        cooling.userId = req.headers.uid;
-        cooling.closingDate = null;
-        cooling.openingDate = null;
-
-        let raw:Raw = await this.rawRepository.getByName(entranceMeatDTO.rawMaterial);
-        if(raw){
-            cooling.rawMaterial = raw;
-        }else{
-            let saveRaw:Raw = new Raw();
-            saveRaw.rawMaterial= entranceMeatDTO.rawMaterial;
-            await this.rawRepository.saveRaw(saveRaw);
-            let enRaw:Raw[] = await this.rawRepository.getLastRaw();
-            cooling.rawMaterial = enRaw[0];
+        if(entranceMeatDTO.color.accepted==true
+            && entranceMeatDTO.expiration.accepted==true && entranceMeatDTO.odor.accepted==true && entranceMeatDTO.packing.accepted==true 
+            && entranceMeatDTO.slaughterDate.accepted==true && entranceMeatDTO.strageMaterial.accepted==true && entranceMeatDTO.temperature.accepted==true &&
+            entranceMeatDTO.texture.accepted ==true && entranceMeatDTO.transport.accepted==true && entranceMeatDTO.weight.accepted==true &&
+            entranceMeatDTO.fridge.accepted==true){
+                let cooling:Cooling = new Cooling();
+                cooling.loteInterno = entranceMeatDTO.lotInternal;
+                cooling.loteProveedor = entranceMeatDTO.lotProveedor;
+                cooling.quantity = entranceMeatDTO.weight.value;
+                cooling.status = WarehouseStatus.PENDING;
+                cooling.fridge = fridge;
+                cooling.userId = req.headers.uid;
+                cooling.closingDate = null;
+                cooling.openingDate = null;
+        
+                let raw:Raw = await this.rawRepository.getByName(entranceMeatDTO.rawMaterial);
+                if(raw){
+                    cooling.rawMaterial = raw;
+                }else{
+                    let saveRaw:Raw = new Raw();
+                    saveRaw.rawMaterial= entranceMeatDTO.rawMaterial;
+                    await this.rawRepository.saveRaw(saveRaw);
+                    let enRaw:Raw[] = await this.rawRepository.getLastRaw();
+                    cooling.rawMaterial = enRaw[0];
+                }
+                await this.coolingRepository.saveCooling(cooling);
         }
 
+        
         entranceMeat.photo = file;
 
         
-        await this.coolingRepository.saveCooling(cooling);
-        await this.entrancesMeatRepository.saveEntrancesMeat(entranceMeat);
-        let id:any = await this.entrancesMeatRepository.getLastEntrnaceMeat();
-        return id[0].id;
+        
+        let entranceMeatSaved:EntranceMeat=await this.entrancesMeatRepository.saveEntrancesMeat(entranceMeat);
+        return entranceMeatSaved.id;
     }
 
     async reportEntranceMeat(meatId:number){

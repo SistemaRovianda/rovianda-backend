@@ -35,7 +35,7 @@ export class LotController{
     }
 
     async getOutputIngredients(req: Request, res: Response){
-        let ingredients = await this.outputsDriefServices.getOutputIngredients();
+        let ingredients = await this.outputsDriefServices.getAllDrief();
         return res.status(200).send(ingredients);
     }
 

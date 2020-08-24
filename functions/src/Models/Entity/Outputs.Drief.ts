@@ -24,7 +24,8 @@ export class OutputsDrief{
     @Column()
     observations:string;
 
-
+    @Column()
+    status:string;
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
     //product:Product;
 

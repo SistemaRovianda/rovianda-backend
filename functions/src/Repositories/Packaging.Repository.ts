@@ -114,7 +114,7 @@ export class PackagingRepository{
         FROM packaging
         INNER JOIN properties_packaging ON properties_packaging.packaging_id = packaging.id
         INNER JOIN presentation_products ON properties_packaging.presentation_id = presentation_products.presentation_id
-        WHERE packaging.lot_id =${lotId};`);
+        WHERE packaging.lot_id ="${lotId}";`);
     }
 /*      */
 }

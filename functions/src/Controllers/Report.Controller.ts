@@ -170,7 +170,7 @@ export class ReportController{
         let packin:EntrancePacking = await this.entrancePackingService.getReportPacking(+req.params.pakingId);
         let report = await this.pdfHelper.reportEntrancePacking(packin);
         pdf.create(report, {
-            format: 'Legal',
+            format:'Letter',
             header: {
                 height: "30px"
             },

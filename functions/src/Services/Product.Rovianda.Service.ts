@@ -52,11 +52,11 @@ export class ProductRoviandaService{
         console.log(productRovianda)
         let response = {};
         let ingredent = []
-        productRovianda.ingredients.forEach(i =>{
-            ingredent.push({
+        ingredent= productRovianda.ingredients.map(i =>{
+            return {
                 productId: i.id,
                 description: i.description
-            })
+            }
         })
         response = {
             id: productRovianda.id,
