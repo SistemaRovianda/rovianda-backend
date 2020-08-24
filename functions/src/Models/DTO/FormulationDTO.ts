@@ -1,6 +1,6 @@
 export interface FormulationDTO {
     productRoviandaId: number,
-    lotId: string,
+    lotIdRecordId: string,
     temperature: string,
     temperatureWater: string,
     verifitId:string,

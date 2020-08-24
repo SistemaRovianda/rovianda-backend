@@ -102,4 +102,11 @@ export class ProductRepository{
         where ingredients.productCatalogId = product_catalog.id;`)
     
     }
+
+    async getAllProductsExisting(type:string){
+        await this.getConnection();
+        return await this.productRepository.query(`
+        select distinct(pc.description),pc.id,pc.mark,pc.variant,pc.presentation,pc.category,pc.state FROM product_catalog  as pc where pc.category="${type}" and pc.state=1
+        `) as Array<Product>;
+    }
 }

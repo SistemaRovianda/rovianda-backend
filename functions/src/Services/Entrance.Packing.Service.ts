@@ -61,20 +61,22 @@ export class EntrancePackingService{
         entrancePacking.transport = entrancePackingDTO.transport;
         entrancePacking.make = make;
         entrancePacking.verifit = verifit;
-
-        let warehousePacking:WarehousePacking = new WarehousePacking();
-        warehousePacking.isPz = entrancePackingDTO.isPz;
-        warehousePacking.loteProveedor = entrancePackingDTO.lotProveedor;
-        warehousePacking.observations = entrancePackingDTO.observations;
-        warehousePacking.product = product;
-        warehousePacking.quantity = entrancePackingDTO.quantity;
-        warehousePacking.status = WarehouseStatus.PENDING;
-        warehousePacking.userId= req.headers.uid as string;
-        warehousePacking.date = entrancePackingDTO.date;
-        await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
-        await this.entrancePackingRepository.saveEntracenPacking(entrancePacking);
-        let id:any = await this.entrancePackingRepository.getLastEntrnacePacking();
-        return id[0].id;
+        if(entrancePackingDTO.quality==true && entrancePackingDTO.strageMaterial==true && entrancePackingDTO.transport==true && entrancePackingDTO.paking==true){
+            let warehousePacking:WarehousePacking = new WarehousePacking();
+            warehousePacking.isPz = entrancePackingDTO.isPz;
+            warehousePacking.loteProveedor = entrancePackingDTO.lotProveedor;
+            warehousePacking.observations = entrancePackingDTO.observations;
+            warehousePacking.product = product;
+            warehousePacking.quantity = entrancePackingDTO.quantity;
+            warehousePacking.status = WarehouseStatus.PENDING;
+            warehousePacking.userId= req.headers.uid as string;
+            warehousePacking.date = entrancePackingDTO.date;
+            await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);    
+        }
+        
+        let entranceSaved:EntrancePacking=await this.entrancePackingRepository.saveEntracenPacking(entrancePacking);
+        
+        return entranceSaved.id;
     }
 
     async getReportPacking(pakingId:number){

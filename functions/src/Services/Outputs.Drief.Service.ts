@@ -35,7 +35,7 @@ export class OutputsDriefService {
         outputsDrief.observations = outputsDriefDTO.observations;
         outputsDrief.product = product;
         outputsDrief.warehouseDrief = lote;
-
+        outputsDrief.status = "NOTUSED";
         return await this.outputsDriefRepository.createOutputsDrief(outputsDrief);
     }
 
@@ -47,8 +47,8 @@ export class OutputsDriefService {
         return await this.outputsDriefRepository.getOutputsDriefById(id);
     }
 
-    async getOutputsDriefByLot(lot: string) {
-        return await this.outputsDriefRepository.getOutputsDriefByLot(lot);
+    async getOutputsDriefByLot(lot: string,status:string) {
+        return await this.outputsDriefRepository.getOutputsDriefByLotIdAndStatus(lot,status);
     }
 
     async getOutputIngredients() {
@@ -60,6 +60,10 @@ export class OutputsDriefService {
                 ingredients.push(outputDrief.product);
         }
         return ingredients;
+    }
+
+    async getAllDrief(){
+        return await this.productRepository.getAllProductsDrief("DRIEF");
     }
 
     // async getIngredients(lotsId:[]){
@@ -85,18 +89,17 @@ export class OutputsDriefService {
         for(let i = 0; i<lotsId.length; i++){
             let response:any = []
             let product:Product = await this.productRepository.getProductById(lotsId[i]);
-            let productOpen:WarehouseDrief[] = await this.warehouseDriefRep.getByProductIdAndStatus(lotsId[i],"OPENED");
-            console.log(productOpen)
-            if(productOpen[0]){
+            //let productOpen:WarehouseDrief[] = await this.warehouseDriefRep.getByProductIdAndStatus(lotsId[i],"OPENED");
+            
                 console.log("pasa")
-                let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByProduct(product);
+                let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByProductAndStatus(product,"NOTUSED");
                 console.log(outputsDrief)
                 if(outputsDrief[0]){
                     outputsDrief.forEach(e => {
                         response.push(e.loteProveedor)
                     })
                 }
-            }
+            
             response2.push({
                 productId: lotsId[i],
                 lots: response 

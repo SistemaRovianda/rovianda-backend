@@ -112,8 +112,8 @@ export default class PdfHelper{
             <tr>
                 <th>Certificado de calidad</th>
                 <th>Entrega de Certificado</th>
-                <th></th>
-                <th></th>
+                <th>${drief.quality?"---":""}</th>
+                <th>${!drief.quality?"---":""}</th>
                 <th>${drief.observations}</th>
             </tr>
             <tr>
@@ -683,82 +683,97 @@ export default class PdfHelper{
             <b><p id="title">EMPACADORA ROVIANDA S.A.P.I DE C.V</p></b>
             <p id="title">BITACORA DE CONTROL DE CALIDAD ALMACEN EMPAQUES  </p>
         </header>
-        <img src="${LOGO.data}" alt="" >
-        <table border="1" align="center">
-            <tr>
-                <th class="ta">Nombre: ${packing.make ? packing.make.name+" "+packing.make.firstSurname+" "+packing.make.lastSurname : "" }</th>
-            </tr>
-            <tr>
-                <th class="ta">Firma: </th>
-            </tr>
-            <tr>
-                <th class="ta">Puesto: ${packing.make ? packing.make.job : "" }</th>
-            </tr>
-        </table>
-    
-    <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="550" align="center">
-            <tr>
-                <th class="ma">Materia prima: ${packing.product.description}</th>
-                <th  rowspan="2" >Lote proveedor: ${packing.loteProveedor}</th>
-                <th  id="fec" rowspan="2">Fecha: ${packing.date}</th>
-            </tr>
-            <tr>
-                <th class="ma">Proveedor: ${packing.proveedor}</th>
-            </tr>
-        </table>
-    
-    <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="550" align="center">
-            <tr>
-                <th>Control</th>
-                <th>Estandar</th>
-                <th>Aceptado</th>
-                <th>Rechazado</th>
-                <th>Observaciones</th>
-            </tr>
-            <tr>
-                <th>Certificado de calidad</th>
-                <th>Entrega de Certificado</th>
-                <th>${packing.quality ? "---" : ""}</th>
-                <th>${!packing.quality ? "---" : ""}</th>
-                <th>${packing.observations}</th>
-            </tr>
-            <tr>
-                <th>Materia extraña</th>
-                <th>Ausente</th>
-                <th>${packing.strangeMaterial ? "---" : ""}</th>
-                <th>${!packing.strangeMaterial ? "---" : ""}</th>
-                <th></th>
-            </tr>
-            <tr>
-                <th>Transporte</th>
-                <th>Limpio</th>
-                <th>${packing.transport ? "---" : ""}</th>
-                <th>${!packing.transport ? "---" : ""}</th>
-                <th></th>
-            </tr>
-            <tr>
-                <th>Empaque</th>
-                <th>Sin daños y limpios</th>
-                <th>${packing.paking ? "---" : ""}</th>
-                <th>${!packing.paking ? "---" : ""}</th>
-                <th></th>
-            </tr>
-        </table>
-    
-        <table border="1px" WIDTH="550" align="center">
-                <tr>
-                    <td class="te"><b>Verifico: ${packing.verifit ? packing.verifit.name+" "+packing.verifit.firstSurname+" "+packing.verifit.lastSurname : "" }</b> </td> 
-                <b> <td class="te"> <b> Firma: </b></td>  
-                <b> <td class="te"> <b> Puesto: ${packing.verifit ? packing.verifit.job : "" }</b> </td>
-                </tr> 
-        </table>
-        <table id="mueve" border="1px">
-            <tr>     
-                    <td >F-CAL-RO-03 </td>
-                
-            </tr>
+        <table border="1" align="center" style="width:90%">
+        <tr>
+        <td>
+            <img src="${LOGO.data}" alt="" >
+        </td>
+        <td colspan="4">
+            Nombre: ${packing.make ? packing.make.name+" "+packing.make.firstSurname+" "+packing.make.lastSurname : "" }
+        </td>
+        <td></td>
+        </tr>
+        <tr>
+        <td>
+            
+        </td>
+        <td colspan="4">
+            Firma:
+        </td>
+        <td></td>
+        </tr>
+        <tr>
+        <td>
+            
+        </td>
+        <td colspan="4">
+            Puesto: ${packing.make ? packing.make.job : "" }
+        </td>
+        <td></td>
+        </tr>
+        <tr>
+        <td colspan="4">
+        Materia prima: ${packing.product.description}
+        </td>
+        <td  rowspan="2">
+        Lote proveedor: ${packing.loteProveedor}
+        </td>
+        <td  rowspan="2">
+        Fecha: ${packing.date}
+        </td>
+        </tr>
+        <tr>
+        <td colspan="4">
+        Proveedor: ${packing.proveedor}
+        </td>
+        
+        </tr>
+        <tr>
+        <td><strong>Control</strong></td>
+        <td><strong>Estandar</strong></td>
+        <td><strong>Aceptado</strong></td>   
+        <td><strong>Rechazado</strong></td>
+        <td colspan="2">Observaciones</td>
+        </tr>
+        <tr>
+            <td>Certificado de calidad</td>
+            <td>Entrega de Certificado</td>
+            <td>${packing.quality ? "---" : ""}</td>
+            <td>${!packing.quality ? "---" : ""}</td>
+            <td colspan="2" style="max-width:140px"><div style="width: 140px;height: auto;word-wrap: break-word;">${packing.observations}</div></td>
+        </tr>
+        <tr>
+            <td>Materia extraña</td>
+            <td>Ausente</td>
+            <td>${packing.strangeMaterial ? "---" : ""}</td>
+            <td>${!packing.strangeMaterial ? "---" : ""}</td>
+            <td colspan="2"></td>
+        </tr>
+       
+        <tr>
+                <td>Transporte</td>
+                <td>Limpio</td>
+                <td>${packing.transport ? "---" : ""}</td>
+                <td>${!packing.transport ? "---" : ""}</td>
+                <td colspan="2"></td>
+        </tr>
+     
+        <tr>
+            <td>Empaque</td>
+            <td>Sin daños y limpios</td>
+            <td>${packing.paking ? "---" : ""}</td>
+            <td>${!packing.paking ? "---" : ""}</td>
+            <td colspan="2"></td>
+        </tr>
+        <tr>
+        <td colspan="2"><b>Verifico: ${packing.verifit ? packing.verifit.name+" "+packing.verifit.firstSurname+" "+packing.verifit.lastSurname : "" }</b> </td> 
+        <td  colspan="2"> <b> Firma:</b></td>  
+        <td  colspan="2"> <b> Puesto: ${packing.verifit ? packing.verifit.job : "" }</b> </td>
+        </tr>
+        <tr>
+        <td colspan="4"></td>
+        <td colspan="2">F-CAL-RO-03 </td>
+        </tr>
         </table>
     
         

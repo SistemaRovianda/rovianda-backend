@@ -45,7 +45,7 @@ export class FormulationService {
         let productRovianda: ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+formulationDTO.productRoviandaId);
         if (!productRovianda)
             throw new Error(`[409], Rovianda Product with id ${formulationDTO.productRoviandaId} was not found`)
-        if (!formulationDTO.lotId)
+        if (!formulationDTO.lotIdRecordId)
             throw new Error("[400], lotId is required");
         if (!formulationDTO.temperature)
             throw new Error("[400], lotId is required");
@@ -68,7 +68,8 @@ export class FormulationService {
             if (!ingredient.lotId)
                 throw new Error("[400], One of ingredients is missing lotId attribute");
         }
-        let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingByLot(formulationDTO.lotId);       
+        let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingById(+formulationDTO.lotIdRecordId);
+        outputCooling.status="USED";       
         if(!outputCooling) throw new Error("[404], no existe salida de este lote");
         let verifit:User = await this.userRepository.getUserById(formulationDTO.verifitId);       
         if(!verifit) throw new Error("[404], no existe verifit");
@@ -76,7 +77,7 @@ export class FormulationService {
         if(!make) throw new Error("[404], no existe make");
         let formulationToSave: Formulation =new Formulation();
         
-        formulationToSave.loteInterno= formulationDTO.lotId;
+        formulationToSave.loteInterno= outputCooling.loteInterno;
         formulationToSave.productRovianda= productRovianda;
         formulationToSave.temp= formulationDTO.temperature;
         formulationToSave.verifit = verifit;
@@ -87,9 +88,8 @@ export class FormulationService {
         
         try {
             let formulationSaved = await this.formulationRepository.saveFormulation(formulationToSave);
-            
-            let fors:Formulation[] = await this.formulationRepository.getLastFormulation();
-            console.log(fors[0])
+        
+            console.log(formulationSaved)
             for (let i = 0; i < formulationDTO.ingredient.length; i++) {
 
                 let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredientId);
@@ -100,7 +100,7 @@ export class FormulationService {
                     if (outputDried) {
                         let formulationIngredients: FormulationIngredients = {
                             id: 0,
-                            formulationId: fors[0],
+                            formulationId: formulationSaved,
                             lotId: outputDried,
                             productId: product
                         }
@@ -109,8 +109,8 @@ export class FormulationService {
                     }
                 }
             }
-            let id:any = await this.formulationRepository.getLastFormulation();
-            return id[0].id;
+            this.outputsCoolingRepository.createOutputsCooling(outputCooling);
+            return formulationSaved.id;
         } catch (err) {
             throw new Error(`[500], ${err}`);
         }

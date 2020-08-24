@@ -44,6 +44,13 @@ export class OutputsDriefRepository{
             });
     }
 
+    async getOutputsDriefByLotIdAndStatus(lotsId:any,status:string){
+        await this.getConnection();
+        return this.outputsDriefRepository.find({
+                where: {loteProveedor: `${lotsId}`,status }   
+            });
+    }
+
     async getOutputsDriefByProduct(product:Product){
         await this.getConnection();
 
@@ -53,5 +60,10 @@ export class OutputsDriefRepository{
     async getOutputsDriefByWarehouseDrief(warehouseDrief:WarehouseDrief){
         await this.getConnection();
         return this.outputsDriefRepository.find({warehouseDrief})
+    }
+
+    async getOutputsDriefByProductAndStatus(product:Product,status:string){
+        await this.getConnection();
+        return await this.outputsDriefRepository.find({product,status});
     }
 }

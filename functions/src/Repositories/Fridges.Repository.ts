@@ -17,7 +17,7 @@ export class FridgeRepository{
 
     async getAllFridges(){
         await this.getConnection();
-        return await this.fridgesRepository.find();
+        return await this.fridgesRepository.find({status:"ACTIVE"});
     }
 
     async getFridgeById(id:number){
@@ -28,5 +28,15 @@ export class FridgeRepository{
     async getFridgeByIdFridge(id:number){
         await this.getConnection();
         return await this.fridgesRepository.findOne({fridgeId:id})
+    }
+
+    async getByTemp(temp:string){
+        await this.getConnection();
+        return await this.fridgesRepository.findOne({temp});
+    }
+
+    async deleteFridgeById(fridgeId:number){
+        await this.getConnection();
+        await this.fridgesRepository.delete({fridgeId});
     }
 }

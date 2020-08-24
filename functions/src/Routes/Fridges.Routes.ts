@@ -13,5 +13,11 @@ export const fridgesRoutes:Array<routeInterface>=[
         method:"get",
         controller:FridgesController,
         target:"getAllFridges"
+    },
+    {
+        url:"/rovianda/fridge/:fridgeId",
+        method: "delete",
+        controller: FridgesController,
+        target: "deleteFridge"   
     }
 ];

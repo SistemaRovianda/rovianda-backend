@@ -58,21 +58,27 @@ export class EntranceDriefService{
         entranceDrief.observations = entranceDriefDTO.observations;
         entranceDrief.odor = entranceDriefDTO.odor;
 
-        let warehouseDrief:WarehouseDrief = new WarehouseDrief();
+        if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
+            && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
+            entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){
+
+                let warehouseDrief:WarehouseDrief = new WarehouseDrief();
         
-        warehouseDrief.userId = req.headers.uid as string;
-        warehouseDrief.date= entranceDriefDTO.date;
-        warehouseDrief.isPz = entranceDriefDTO.isPz;
-        warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
-        warehouseDrief.observations = entranceDriefDTO.observations;
-        warehouseDrief.product = product;
-        warehouseDrief.quantity = entranceDriefDTO.quantity;
-        warehouseDrief.status = WarehouseStatus.PENDING
+                warehouseDrief.userId = req.headers.uid as string;
+                warehouseDrief.date= entranceDriefDTO.date;
+                warehouseDrief.isPz = entranceDriefDTO.isPz;
+                warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
+                warehouseDrief.observations = entranceDriefDTO.observations;
+                warehouseDrief.product = product;
+                warehouseDrief.quantity = entranceDriefDTO.quantity;
+                warehouseDrief.status = WarehouseStatus.PENDING
+                await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+            }
+
         
-        await this.entranceDriefRepository.saveDrief(entranceDrief);
-        await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
-        let id:any = await this.entranceDriefRepository.getLastEntrnaceDrief();
-        return id[0].id;
+        let entranceDriefSaved:EntranceDrief=await this.entranceDriefRepository.saveDrief(entranceDrief);
+    
+        return entranceDriefSaved.id;
     }
 
     async reportEntranceDrief(driefId:number){
