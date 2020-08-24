@@ -94,6 +94,12 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportProcess"
     },
     {
+        url:"/rovianda/report/document/process/:processId",
+        method:"get",
+        controller:ReportController,
+        target:"reportDocumentProcess"
+    },
+    {
         url: "/rovianda/report/document/formulation/:iniDate/:finDate",
         method: "get",
         controller: ReportController,

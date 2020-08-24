@@ -547,6 +547,48 @@ export class ReportController{
         }));
     }
 
+    async reportDocumentProcess(req:Request, res:Response){
+        let process:Process = await this.processService.getProcessById(+req.params.processId);
+        let tmp = os.tmpdir();
+        let conditioning:Conditioning = new Conditioning();
+        let sausaged:Sausaged = new Sausaged();
+        let tenderized:Tenderized= new Tenderized();
+        
+        if(process.conditioningId == null){
+            conditioning = null;
+        }else{
+            conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
+        }      
+        if(process.sausageId == null){
+            sausaged = null;
+        }else{
+            sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
+        }    
+        if(process.tenderizedId == null){
+            tenderized = null;
+        }else{
+            tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
+        }                                                                    
+        let workbook = this.excel.generateReportProcess(process, conditioning, sausaged, tenderized); 
+        workbook.write(`${tmp}/Reporte-procesos.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="Reporte-procesos.xlsx"'
+            );
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/Reporte-procesos.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/Reporte-procesos.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        });
+    }
+
     async documentReportFormulationByDates(req: Request, res: Response){
         let user:User = await this.userService.getUserByUid(req.query.uid);
         let {iniDate, finDate} = req.params;
