@@ -15,6 +15,10 @@ import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
 import { Packaging } from '../Models/Entity/Packaging';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { Process } from "../Models/Entity/Process";
+import { Conditioning } from "../Models/Entity/Conditioning";
+import { Sausaged } from "../Models/Entity/Sausaged";
+import { Tenderized } from "../Models/Entity/Tenderized";
 
 
 export default class Excel4Node{
@@ -1933,4 +1937,243 @@ export default class Excel4Node{
         return workbook;
     }
 
+
+    generateReportProcess(process: Process , conditioning: Conditioning, sausaged: Sausaged, tenderized: Tenderized){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook(); 
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        let worksheet = workbook.addWorksheet('Entry-Meats'); 
+
+        let row = 1;
+
+
+        worksheet.addImage({ 
+            path: `${tmp}/imageTmp.png`,
+            name: 'logo', 
+            type: 'picture', 
+            position: { 
+                type: 'twoCellAnchor', 
+
+                from: { 
+                col: 1,
+                colOff: '1in', 
+                row: row, 
+                rowOff: '0.1in', 
+                },
+                to: {
+                    col: 3, 
+                    colOff: '1in',
+                    row: row, 
+                    rowOff: '0.1in',
+                }
+            }
+        });
+        
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        });
+
+        worksheet.cell(1, 4, 2, 8, true).string("EMPACADORA ROVIANDA S.A.P.I. DE C.V").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center',
+                vertical: 'center'
+            }
+        });
+
+        worksheet.cell(3, 4, 4, 9, true).string("BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO").style({
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center',
+                vertical: 'center'
+            }
+        });
+
+        row = 5;
+
+        worksheet.cell(row, 10).string(`No. lote: ${process.loteInterno}`);
+        worksheet.cell(++row, 10).string(`Fecha: ${new Date(process.createAt).toLocaleDateString()}`);
+
+        worksheet.cell(++row, 4, row, 6, true).string("DESCONGELADO").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
+        worksheet.cell(row, 6).string("FECHA").style(styleUser);
+        worksheet.cell(row, 7).string("PESO Kg").style(styleUser);
+        worksheet.cell(row, 8, row, 9, true).string("HORA DE ENTRADA").style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string("HORA DE SALIDA").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string(`${process.product ? process.product.name : ""}`).style(style);
+        worksheet.cell(row, 6).string(`${process.startDate ? process.startDate : ""}`).style(style);
+        worksheet.cell(row, 7).string(`${process.weigth ? process.weigth : ""}`).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(`${process.entranceHour ? process.entranceHour : "" }`).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(`${process.outputHour ? process.outputHour : ""}`).style(style);
+
+        worksheet.cell(++row, 4, row, 6, true).string("ACONDICIONAMIENTO").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
+        worksheet.cell(row, 6).string("FECHA").style(styleUser);
+        worksheet.cell(row, 7).string("PROCESO").style(styleUser);
+        worksheet.cell(row, 8, row, 9, true).string("PESO Kg").style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string(`${process.conditioningId ? process.conditioningId.raw : ""}`).style(style);
+        worksheet.cell(row, 6).string(`${process.conditioningId ? process.conditioningId.date : ""}`).style(style);
+        worksheet.cell(row, 7).string(`${process.currentProcess ? process.currentProcess : ""}`).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(`${process.conditioningId ? process.conditioningId.weight : "" }`).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(`${conditioning ? conditioning.productId : ""}`).style(style);
+        worksheet.cell(row, 12).string(`clave`).style(styleUser);
+        worksheet.cell(row, 13).string(`Proceso`).style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string(``).style(style);
+        worksheet.cell(row, 6).string(``).style(style);
+        worksheet.cell(row, 7).string(``).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(``).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(``).style(style);
+        worksheet.cell(row, 12).string(`D`).style(styleUser);
+        worksheet.cell(row, 13).string(`Deshuese`).style(styleUser);
+        
+        
+        worksheet.cell(++row, 4, row, 5, true).string(``).style(style);
+        worksheet.cell(row, 6).string(``).style(style);
+        worksheet.cell(row, 7).string(``).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(``).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(``).style(style);
+        worksheet.cell(row, 12).string(`L`).style(styleUser);
+        worksheet.cell(row, 13).string(`Limpieza`).style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 5, true).string(``).style(style);
+        worksheet.cell(row, 6).string(``).style(style);
+        worksheet.cell(row, 7).string(``).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(``).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(``).style(style);
+        worksheet.cell(row, 12).string(`SC`).style(styleUser);
+        worksheet.cell(row, 13).string(`Salado y curado`).style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 5, true).string(``).style(style);
+        worksheet.cell(row, 6).string(``).style(style);
+        worksheet.cell(row, 7).string(``).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(``).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(``).style(style);
+
+        worksheet.cell(++row, 4, row, 6, true).string("MOLIENDA").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
+        worksheet.cell(row, 6).string("FECHA").style(styleUser);
+        worksheet.cell(row, 7).string("PROCESO").style(styleUser);
+        worksheet.cell(row, 8).string("PESO Kg").style(styleUser);
+        worksheet.cell(row, 9).string("T* C").style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 5, true).string(`${process.grindingId ? process.grindingId.raw : "" }`).style(styleUser);
+        worksheet.cell(row, 6).string(`${process.grindingId ? new Date(process.grindingId.date).toLocaleDateString() : "" }`).style(styleUser);
+        worksheet.cell(row, 7).string(`${process.grindingId ? process.grindingId.process : "" }`).style(styleUser);
+        worksheet.cell(row, 8).string(`${process.grindingId ? process.grindingId.weight : "" }`).style(styleUser);
+        worksheet.cell(row, 9).string(`${process.temperature ? process.temperature : "" }`).style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string(`${process.product ? process.product.name : "" }`).style(styleUser);
+
+        worksheet.cell(++row, 4, row, 6, true).string("INYECCION/TENDERIZADO").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 5, true).string("PRODUCTO").style(styleUser);
+        worksheet.cell(row, 6).string("FECHA").style(styleUser);
+        worksheet.cell(row, 7).string("PESO Kg").style(styleUser);
+        worksheet.cell(row, 8).string("T*C").style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string("PESO SALMUERA Kg").style(styleUser);
+        worksheet.cell(row, 11).string("%INYECCION").style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 5, true).string(`${tenderized.productId == null ? "" : tenderized.productId.name}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${process.tenderizedId == null ? "" : process.tenderizedId.date}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${process.tenderizedId == null ? "" : process.tenderizedId.weight}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${process.tenderizedId == null ? "" : process.tenderizedId.temperature}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${process.tenderizedId == null ? "" : process.tenderizedId.weightSalmuera}`).style(styleUser);
+        worksheet.cell(row, 11).string(`${process.tenderizedId == null ? "" : process.tenderizedId.percentInject}`).style(styleUser);
+
+        worksheet.cell(++row, 4, row, 6, true).string("EMBUTIDO").style(styleUser);
+
+        worksheet.cell(++row, 4, row, 6, true).string("PRODUCTO").style(styleUser);
+        worksheet.cell(row, 7).string("FECHA").style(styleUser);
+        worksheet.cell(row, 8).string("T*C").style(styleUser);
+        worksheet.cell(row, 9).string("PESO Kg.Inicio(Hra)").style(styleUser);
+        worksheet.cell(row, 10).string("PESO Kg.Medio(Hra)").style(styleUser);
+        worksheet.cell(row, 11).string("PESO kg. Fin(Hra)").style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 5, true).string(`${sausaged.productId == null ? "" :sausaged.productId.name}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${process.sausageId == null ? "" : process.sausageId.date}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${process.sausageId == null ? "" : process.sausageId.temperature}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${process.sausageId == null ? "" : process.sausageId.weightIni} (${process.sausageId == null ? "" : process.sausageId.hour1}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${process.sausageId == null ? "" : process.sausageId.weightMedium} (${process.sausageId == null ? "" : process.sausageId.hour2}`).style(styleUser);
+        worksheet.cell(row, 11).string(`${process.sausageId == null ? "" : process.sausageId.weightExit} (${process.sausageId == null ? "" : process.sausageId.hour3}`).style(styleUser);
+
+        worksheet.cell(++row, 11).string(`F-CAL-RO-07`).style(styleUser);
+        row+=2;
+
+        
+        worksheet.cell(row, 4, row, 6, true).string(`Elaboro: ${process.nameElaborated}`).style(styleUser);
+        worksheet.cell(row, 7, row, 8, true).string(`Firma:`).style(styleUser);
+        worksheet.cell(row, 9, row, 11, true).string(`Puesto: ${process.jobElaborated}`).style(styleUser);
+
+        
+        worksheet.cell(++row, 4, row, 6, true).string(`Verifico: ${process.nameVerify}`).style(styleUser);
+        worksheet.cell(row, 7, row, 8, true).string(`Firma:`).style(styleUser);
+        worksheet.cell(row, 9, row, 11, true).string(`Puesto: ${process.jobVerify}`).style(styleUser);
+
+        return workbook;
+    }
 }
