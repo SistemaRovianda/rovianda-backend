@@ -40,10 +40,13 @@ export class SausagedService{
                 sausaged.loteMeat = sausagedDTO.loteMeat
                 sausaged.weightIni = sausagedDTO.time.weight.toString();
                 sausaged.productId = product;
-                await this.sausagedRepository.saveSausaged(sausaged);
-                let objSausaged:Sausaged = await this.sausagedRepository.getLastSausaged();
+                let objSausaged:Sausaged = await this.sausagedRepository.saveSausaged(sausaged);
                 if(!processObj.loteInterno) { processObj.loteInterno = sausagedDTO.loteMeat; }
-                processObj.sausageId = objSausaged[0];
+                
+                processObj.sausageId = objSausaged;
+                if(!processObj.product){
+                    processObj.product=product;
+                }
                 processObj.currentProcess = "Embutido";
                 await this.processRepository.saveProcess(processObj);
             }else{

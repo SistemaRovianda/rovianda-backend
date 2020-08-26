@@ -39,4 +39,10 @@ export class Formulation {
 
     @OneToMany(type => FormulationIngredients, formulationIngredients => formulationIngredients.formulationId)
     formulationIngredients: FormulationIngredients[];
+
+    @Column()
+    status:string;
+
+    @Column({name:"output_cooling_id_record",nullable:true})
+    outputCoolingIdRecord:number;
 }

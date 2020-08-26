@@ -110,5 +110,13 @@ export class OutputsCoolingService{
         }
         return response;
     }
+
+    async getOutputsCoolingByRawIdAndStatus(status:string,rawMaterialId:number){
+        return await this.outputsCoolingRepository.getOutputCoolingByRawIdAndStatus(status,rawMaterialId);
+    }
+
+    async updateOutputCooling(outputCooling:OutputsCooling){
+        return await this.outputsCoolingRepository.createOutputsCooling(outputCooling);
+    }
     
 }

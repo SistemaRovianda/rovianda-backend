@@ -29,8 +29,6 @@ export class RevisionOvenProductService {
             throw new Error("[400], humidity is required");
         if (!revisionOvenProductDTO.interTemp)
             throw new Error("[400], interTemp is required");
-        if (!revisionOvenProductDTO.observations)
-            throw new Error("[400], observations is required");
         if (!revisionOvenProductDTO.ovenTemp)
             throw new Error("[400], ovenTemp is required");
 
@@ -39,7 +37,7 @@ export class RevisionOvenProductService {
             hour: revisionOvenProductDTO.hour,
             humidity: revisionOvenProductDTO.humidity,
             interTemp: revisionOvenProductDTO.interTemp,
-            observations: revisionOvenProductDTO.observations,
+            observations: revisionOvenProductDTO.observations?revisionOvenProductDTO.observations:"",
             ovenTemp: revisionOvenProductDTO.ovenTemp,
             ovenProducts: product
         }

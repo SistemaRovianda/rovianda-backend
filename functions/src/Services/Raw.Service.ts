@@ -18,4 +18,8 @@ export class RawService{
         });
         return response;
     }
+    async getRawById(rawId:number){
+        
+        return await this.rawRepository.getById(rawId);
+    }
 }

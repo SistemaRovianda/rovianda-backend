@@ -1,4 +1,5 @@
 export enum OutputsCoolingStatus{
     USED = "USED",
-    NOTUSED = "NOTUSED"
+    NOTUSED = "NOTUSED",
+    TAKED = "TAKED"
 }

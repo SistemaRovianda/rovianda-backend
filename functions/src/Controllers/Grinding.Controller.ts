@@ -7,6 +7,7 @@ import { ProcessService } from '../Services/Process.Service';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { GrindingService } from '../Services/Grinding.Service';
 import { ProcessRepository } from '../Repositories/Process.Repository';
+import { FormulationService } from '../Services/Formulation.Service';
 
 
 
@@ -15,11 +16,12 @@ export class GrindingController{
     private processService:ProcessService;
     private grindingService:GrindingService;
     private productRoviandaService:ProductRoviandaService;
-
+    private formulationService:FormulationService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService(this.firebaseInstance);
         this.grindingService = new GrindingService();
         this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
+        this.formulationService = new FormulationService();
     }
 
     async createGrinding(req:Request,res:Response){
@@ -33,20 +35,37 @@ export class GrindingController{
         if (!loteMeat) return res.status(400).send({ msg: 'loteMeat is required'});
         let product:ProductRovianda = await this.productRoviandaService.getById(+productId);
         if (!product) return res.status(404).send({ msg: 'Product Rovianda Not found'});
-        let grinding = new Grinding();
+        
         try{
             let processObj:Process = await this.processService.getProcessWithGrindingById(+processId);
             if(processObj.grindingId) throw new Error("[409],El proceso ya tiene molienda registrado");
             if(processObj){
+
+                let formulationObj=await this.formulationService.getFormulationOutputCoolingId(loteMeat);
+                if(!formulationObj) return res.status(404).send({ msg: 'No existe la salida de carne en formulacion'});
+                formulationObj.status="TAKED";
+                await this.formulationService.updateFormulation(formulationObj);
+                processObj.product = product;
+                let grinding = new Grinding();
                 grinding.process = process;
                 grinding.date = date;
                 grinding.raw = rawMaterial;
                 grinding.weight = weight;
                 grinding.product = product;
-                await this.grindingService.saveGrinding(grinding);
-                let objGrinding:Grinding = await this.grindingService.getLastGrinding();
-                if(!processObj.loteInterno){ processObj.loteInterno = loteMeat; }
-                processObj.grindingId = objGrinding[0];
+
+                
+
+                let objGrinding:Grinding = await this.grindingService.saveGrinding(grinding);
+                
+                if(!processObj.loteInterno){ processObj.loteInterno = formulationObj.loteInterno; }
+                if(!processObj.outputLotRecordId){
+                    processObj.outputLotRecordId = loteMeat;
+                }
+                processObj.grindingId = objGrinding;
+                
+                if(!processObj.product){
+                    processObj.product = product;
+                }
                 processObj.currentProcess = "Molienda";
                 await this.processService.updateProcessProperties(processObj);
                 return res.status(201).send();

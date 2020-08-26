@@ -65,8 +65,8 @@ export class FormulationService {
             if (!ingredient.ingredientId)
                 throw new Error("[400], One of ingredients is missing ingredentId attribute");
             
-            if (!ingredient.lotId)
-                throw new Error("[400], One of ingredients is missing lotId attribute");
+            if (!ingredient.lotRecordId)
+                throw new Error("[400], One of ingredients is missing lotRecordId attribute");
         }
         let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingById(+formulationDTO.lotIdRecordId);
         outputCooling.status="USED";       
@@ -84,6 +84,8 @@ export class FormulationService {
         formulationToSave.make = make;
         formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
+        formulationToSave.status="TAKED";
+        formulationToSave.outputCoolingIdRecord = +formulationDTO.lotIdRecordId;
         //formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
         
         try {
@@ -95,9 +97,11 @@ export class FormulationService {
                 let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredientId);
                 console.log(product)
                 if (product) {
-                    let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefByLot(formulationDTO.ingredient[i].lotId);
+                    let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefById(formulationDTO.ingredient[i].lotRecordId);
                     console.log(outputDried)
+                    
                     if (outputDried) {
+                        outputDried.status="USED";
                         let formulationIngredients: FormulationIngredients = {
                             id: 0,
                             formulationId: formulationSaved,
@@ -106,6 +110,7 @@ export class FormulationService {
                         }
                         console.log("pasa")
                         await this.formulationIngredientsRepository.saveFormulationIngredients(formulationIngredients);
+                        await this.outputsDriedRepository.createOutputsDrief(outputDried);
                     }
                 }
             }
@@ -205,6 +210,14 @@ export class FormulationService {
         }
         
 
+    }
+
+    async getFormulationOutputCoolingId(outputCoolingId:number){
+        return await this.formulationRepository.getFormulationByOutputCoolingId(outputCoolingId);   
+    }
+
+    async updateFormulation(formulation:Formulation){
+        return await this.formulationRepository.saveFormulation(formulation);
     }
 
 }

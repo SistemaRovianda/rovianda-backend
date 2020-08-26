@@ -206,4 +206,9 @@ export class ProcessController {
     //     }
     // }
 
+    async getProcessProductsAvailables(req:Request,res:Response){
+        let response = await this.processService.getProcessAllAvailables();
+        return res.status(200).send(response);
+    }
+
 }

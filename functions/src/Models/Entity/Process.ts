@@ -81,6 +81,12 @@ export class Process{
     @Column({name:"create_at"})
     createAt:string
 
+
+    @Column({name:"date_ended_process",nullable:true})
+    dateEndedProcess:string;
+
+    @Column()
+    outputLotRecordId:number;
     // @OneToOne(type => Grinding)
     // @JoinColumn({ name: "molienda_id" })
     // moliendaId: Grinding;

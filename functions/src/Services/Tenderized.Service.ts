@@ -46,11 +46,14 @@ export class TenderizedService{
         tenderized.weight = tenderizedDTO.weight;
         tenderized.loteMeat = tenderizedDTO.loteMeat;
         tenderized.weightSalmuera = tenderizedDTO.weightSalmuera;
-        await this.tenderizedRepository.createTenderized(tenderized);
-        
-        let lastTenderized:Tenderized = await this.tenderizedRepository.getLastTenderized();
+        let lastTenderized:Tenderized = await this.tenderizedRepository.createTenderized(tenderized);
+    
         if(!process.loteInterno) { process.loteInterno = tenderizedDTO.loteMeat; }
-        process.tenderizedId = lastTenderized;
+        
+            process.tenderizedId=lastTenderized;
+        if(!process.product){
+            process.product = product;
+        }
         process.currentProcess = "Inyecion-Tenderizado";
         return await this.processRepository.saveProcess(process);
     }

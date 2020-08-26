@@ -100,4 +100,10 @@ export const processRoutes: Array<routeInterface> = [
         controller:ProcessController,
         target:"createProcessInter"
     },
+    {
+        url: "/rovianda/process-availables/products",
+        method: "get",
+        controller: ProcessController,
+        target: "getProcessProductsAvailables"
+    }
 ];

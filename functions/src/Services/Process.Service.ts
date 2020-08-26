@@ -5,7 +5,7 @@ import { ProcessUpdateDTO, ProcessDTO, UserProcessDTO } from '../Models/DTO/Proc
 import { ProductRoviandaService } from './Product.Rovianda.Service';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
-import { ProcessStatus } from '../Models/Enum/ProcessStatus';
+import { ProcessStatus, ProcessAvailablesToOven, ProcessAvailablesByLots } from '../Models/Enum/ProcessStatus';
 import { FormulationService } from './Formulation.Service';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
@@ -14,6 +14,8 @@ import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repo
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
+import { RawService } from './Raw.Service';
+import { Formulation } from '../Models/Entity/Formulation';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
@@ -23,6 +25,7 @@ export class ProcessService{
     private userRepository:UserRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
     private outputsCoolingRepository:OutputsCoolingRepository;
+    private rawService:RawService;
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
         this.productRoviandaService= new ProductRoviandaService(this.firebaseHelper);
@@ -31,11 +34,13 @@ export class ProcessService{
         this.userRepository = new UserRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.outputsCoolingRepository = new OutputsCoolingRepository();
+        this.rawService = new RawService();
     }
 
     async createProcessInter(){
         let process:Process = new Process();
         let today = new Date();
+        today.setHours(today.getHours()-5)
         let dd:any = today.getDate();
         let mm:any = today.getMonth()+1; 
         let yyyy:any = today.getFullYear();
@@ -44,7 +49,6 @@ export class ProcessService{
         let date = `${yyyy}-${mm}-${dd}`;
         process.status = ProcessStatus.ACTIVE;
         process.createAt = date;
-        process.status=ProcessStatus.ACTIVE;
         await this.processRepository.saveProcess(process);
         let id:any = await this.processRepository.getLastProcess();
         return id[0].id;
@@ -55,8 +59,8 @@ export class ProcessService{
         if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
         if(!process.productId) throw new Error("[400], falta el parametro productId");
         if(!process.processId) throw new Error("[400], falta el parametro processId");
-        let productCatalog = await this.productRoviandaRepository.getProductRoviandaByIds(process.productId);
-        if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
+        //let productCatalog = await this.rawService.getProductRoviandaByIds(process.productId);
+        //if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
         let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
         if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
         if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
@@ -64,8 +68,8 @@ export class ProcessService{
         if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
         if(!process.weight) throw new Error("[400], falta el parametro weigth");
         if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.loteId,productCatalog);
-        if(!formulation) throw new Error("[404], el lote no existe en formulacion");
+        //let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.loteId,productCatalog);
+        //if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
         if(!updateoutputCooling) throw new Error("[404], no existe outputId");
         updateoutputCooling.status = OutputsCoolingStatus.USED;
@@ -73,14 +77,19 @@ export class ProcessService{
         let processEntity:Process = await this.processRepository.findProcessById(process.processId);
         if(!processEntity.loteInterno) processEntity.loteInterno = process.lote.loteId;
 
+        //updating formulation used lot
+        let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(process.lote.outputId);
+        formulationEn.status="USED";
+        await this.formulationService.updateFormulation(formulationEn);
         //let processEntity:Process = new Process();
-        processEntity.product = productCatalog;
+        //processEntity.product = productCatalog;
+        processEntity.outputLotRecordId = process.lote.outputId;
         processEntity.entranceHour= process.hourEntrance;
         processEntity.weigth=+process.weight;
         processEntity.temperature = process.temperature;
         processEntity.startDate = process.dateIni;
         processEntity.status=ProcessStatus.ACTIVE;
-        processEntity.newLote = formulation.loteInterno;
+        //processEntity.newLote = formulation.loteInterno;
         processEntity.currentProcess = "Descongelamiento";
         await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
         return await this.processRepository.createProcess(processEntity);
@@ -143,10 +152,16 @@ export class ProcessService{
 
         if(!process) throw new Error("[404], process not found");
        
-        if(process.status == "CLOSED"){
+        if(process.status == ProcessStatus.INACTIVE){
             throw new Error("[403], PROCESO ANTERIORMENTE CERRADO");
         }else{
-            process.status = "CLOSED";
+            let outputCooling:OutputsCooling =await this.outputCoolingService.getOutputsCoolingById(process.outputLotRecordId);
+            outputCooling.status="TAKED";
+            this.outputCoolingService.updateOutputCooling(outputCooling);
+            process.status = ProcessStatus.INACTIVE;
+            let date:Date = new Date();
+            date.setHours(date.getHours()-5);
+            process.dateEndedProcess = date.toISOString();
             await this.processRepository.createProcess(process);
                 return "cerrado";
         }
@@ -197,5 +212,27 @@ export class ProcessService{
         let process:Process = await this.processRepository.findProcessByProcessId(processId);
         if(!process) throw new Error("[400], no existe proceso");
         return process;
+    }
+
+    async getProcessAllAvailables(){
+        let processAvailables:ProcessAvailablesToOven[]= await this.processRepository.getAllProcessAvailable();
+        let processAvailableMap:Map<number,ProcessAvailablesByLots>=new Map();
+
+        for(let process of processAvailables){
+            if(processAvailableMap.get(process.productId)==null){
+                processAvailableMap.set(process.productId,{
+                        lots:[{recordId:process.recordId,lotId:process.lotId,dateEndedProcess:process.dateEndedProcess}],
+                        productId: process.productId,
+                        productName: process.productName
+                });
+            }else{
+                let processMapped = processAvailableMap.get(process.productId);
+                processMapped.lots.push({recordId:process.recordId,lotId:process.lotId,dateEndedProcess:process.dateEndedProcess});
+                processAvailableMap.set(process.productId,processMapped);
+            }
+        }
+        let processAvailablesByLots:ProcessAvailablesByLots[] =[];
+        processAvailableMap.forEach((item)=>processAvailablesByLots.push(item))
+        return processAvailablesByLots;
     }
 }

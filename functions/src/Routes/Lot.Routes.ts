@@ -40,5 +40,11 @@ export const lotRoutes:Array<routeInterface>=[
         method: "get",
         controller: EntrancesMeatController,
         target: "getHistoryMeat" 
+    },
+    {
+        url: "/rovianda/lote/meat/process",
+        method: "get",
+        controller: LotController,
+        target:"getLotMeatUsedByRawId"
     }
 ];

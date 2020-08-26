@@ -60,7 +60,7 @@ export class FormulationRepository{
 
     async getAllFormulationLoteMeat(){
         await this.getConnection();
-        return await this.formulatioRepository.find();
+        return await this.formulatioRepository.find({status:"TAKED"});
     }
 
     async getByproductRovianda(productId:number){
@@ -79,5 +79,10 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.query(`select form.lote_interno,form.date,pr.name from formulation as form inner join formulation_ingredients as fi on form.id = fi.formulation_id
         inner join products_rovianda pr on form.product_rovianda_id=pr.id where fi.lot_id="${loteDriefProveedor}";`) as Array<LotInternalByLotDrief>;
+    }
+
+    async getFormulationByOutputCoolingId(outputCoolingId:number){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({outputCoolingIdRecord:outputCoolingId});
     }
 }

@@ -7,6 +7,10 @@ import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from '../Repositories/Product.Repository';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsCoolingService } from './Outputs.Cooling.Service';
+import { FormulationService } from './Formulation.Service';
+import { Formulation } from '../Models/Entity/Formulation';
 
 
 export class ConditioningService{
@@ -14,12 +18,15 @@ export class ConditioningService{
     private processRepository:ProcessRepository;
     private productRepository:ProductRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private outputCooling:OutputsCoolingService;
+    private formulationService:FormulationService;
     constructor(){
         this.conditioningRepository = new ConditioningRepository();
         this.processRepository = new ProcessRepository();
         this.productRepository = new ProductRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
-        
+        this.outputCooling = new OutputsCoolingService();
+        this.formulationService = new FormulationService();
     }
     
     async createConditioningByProcessId(conditioningDTO:ConditioningDTO, processId:string){
@@ -57,14 +64,22 @@ export class ConditioningService{
             conditioning.productId = product;
             conditioning.date = conditioningDTO.date;
     
-            await this.conditioningRepository.createConditioning(conditioning);
-    
-            let lastConditioning :Conditioning = await this.conditioningRepository.getLastConditioning();
-            console.log(lastConditioning);
-            if(!process.loteInterno) { process.loteInterno = conditioningDTO.lotMeat }
+            let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(+conditioningDTO.lotMeat);
+            if(!formulationEn) throw new Error("[400], no existe la salida de carne en formulacion");
+            formulationEn.status="USED";
+            let lastConditioning :Conditioning = await this.conditioningRepository.createConditioning(conditioning);
+            
+            await this.formulationService.updateFormulation(formulationEn);
+
+            process.outputLotRecordId = +conditioningDTO.lotMeat;
+            if(!process.loteInterno) { 
+                process.loteInterno = formulationEn.loteInterno;
+            }
+            if(!process.product){
+                process.product = product;
+            }
             process.currentProcess = "Acondicionamiento ";
-            process.conditioningId = lastConditioning;
-    
+            process.conditioningId = lastConditioning;            
             return await this.processRepository.createProcess(process);    
     }
 
@@ -92,6 +107,7 @@ export class ConditioningService{
             clean: `${conditioning.conditioningId.clean}`,
             healthing: `${conditioning.conditioningId.healthing}`,
             weight: `${conditioning.conditioningId.weight}`,
+            bone: `${conditioning.conditioningId.bone}`,
             temperature: `${conditioning.conditioningId.temperature}`,
             product: {
                 id: `${product.product.id}`,

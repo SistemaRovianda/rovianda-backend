@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Process } from '../Models/Entity/Process';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { ProcessAvailablesToOven } from '../Models/Enum/ProcessStatus';
 
 export class ProcessRepository{
     private processRepository:Repository<Process>;
@@ -51,7 +52,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["grindingId"]
+            relations:["grindingId","product"]
         });
     }
 
@@ -59,7 +60,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["sausageId"]
+            relations:["sausageId","product"]
         });
     }
 
@@ -73,7 +74,7 @@ export class ProcessRepository{
 
     async findProcessByProcessId(id:number){
         await this.getConnection();
-        return await this.processRepository.findOne({id})
+        return await this.processRepository.findOne({id},{relations:["product"]})
     }
      
     async getProceesByLot(newLote:string,productId:number){
@@ -123,7 +124,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id: `${id}`},
-            relations:["tenderizedId"]
+            relations:["tenderizedId","product"]
         });
     }
 
@@ -144,6 +145,20 @@ export class ProcessRepository{
         .addSelect("process.currentProcess","description")
         .where("process.loteInterno = :loteInterno",{loteInterno:`${loteInterno}`})
         .getMany() */
+    }
+
+    async getAllProcessAvailable(){
+        await this.getConnection();
+        return await this.processRepository.query(`
+        select pro.id as recordId,pro.lote_interno as lotId,pro.product_rovianda_id as productId,pr.name as productName,pro.date_ended_process as dateEndedProcess
+         from process as pro inner join products_rovianda as pr on pro.product_rovianda_id = pr.id 
+         where pro.status="INACTIVE" order by pro.lote_interno,pro.product_rovianda_id
+        `) as ProcessAvailablesToOven[];
+    }
+
+    async getProcessById(processId:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({id:processId});
     }
 }
 

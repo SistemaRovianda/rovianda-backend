@@ -63,7 +63,7 @@ export class OutputsDriefService {
     }
 
     async getAllDrief(){
-        return await this.productRepository.getAllProductsDrief("DRIEF");
+        return await this.productRepository.getAllProductsExisting("DRIEF");
     }
 
     // async getIngredients(lotsId:[]){
@@ -96,7 +96,13 @@ export class OutputsDriefService {
                 console.log(outputsDrief)
                 if(outputsDrief[0]){
                     outputsDrief.forEach(e => {
-                        response.push(e.loteProveedor)
+                        response.push(
+                            {
+                             loteId:e.loteProveedor,
+                             lotRecordId:e.id,
+                             date: e.date
+                            }
+                            )
                     })
                 }
             

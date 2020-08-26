@@ -4,7 +4,8 @@ import { CoolingService } from '../Services/Cooling.Service';
 import { OutputsDriefService } from '../Services/Outputs.Drief.Service';
 import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
 import { WarehousePackingService } from '../Services/Warehouse.Packing.Service';
-import { TYPE, LOTESTATUS } from '../Models/Enum/Type.Lot';
+import { TYPE, LOTESTATUS, LotMeatOutput } from '../Models/Enum/Type.Lot';
+import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
 export class LotController{
 
     
@@ -12,11 +13,13 @@ export class LotController{
     private outputsDriefServices: OutputsDriefService;
     private warehouseDriefService:WarehouseDriefService;
     private warehousePackingService:WarehousePackingService
+    private outputsCoolingService:OutputsCoolingService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.coolingService = new CoolingService();
         this.outputsDriefServices = new OutputsDriefService();
         this.warehouseDriefService = new WarehouseDriefService();
         this.warehousePackingService = new WarehousePackingService();
+        this.outputsCoolingService = new OutputsCoolingService();
     }
 
     async getAllLots(req:Request,res:Response){
@@ -52,6 +55,14 @@ export class LotController{
     
     async getDriefHistory(req: Request, res: Response){
         let response = await this.warehouseDriefService.getDriefHistory(req.params.lotId);
+        return res.status(200).send(response);
+    }
+
+    async getLotMeatUsedByRawId(req:Request,res:Response){
+        let status = req.query.status;
+        let rawMaterialId = req.query.rawMaterialId;
+        
+        let response:LotMeatOutput[]=await this.outputsCoolingService.getOutputsCoolingByRawIdAndStatus(status,rawMaterialId);
         return res.status(200).send(response);
     }
 
