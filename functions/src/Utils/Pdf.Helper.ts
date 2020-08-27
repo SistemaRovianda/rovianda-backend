@@ -569,19 +569,19 @@ export default class PdfHelper{
     bodyReportWarehouseDrief(data:WarehouseDrief[]){
        let content = `
        <body bgcolor="">
-       <header>
-           <img src="${LOGO.data}" alt="" align="left">
-           <p>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p>
-           <P>BITACORA DE CONTROL DE PEP´S ALAMACENES</P>
+       <div id="pageHeader">
+           <p align="center">EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p>
+           <P align="center">BITACORA DE CONTROL DE PEP´S ALAMACENES</P>
        </header>
         <br>
-        <table align="right"  border="1" width="30%">
+        <table border="1" align="center" width="100%">
             <tr>
-                <td> ALMACEN:</td>
+                <td>
+                    <img src="${LOGO.data}" alt="" align="left">
+                </td>
+                <td colspan="4"></td>
+                <td align="left"> ALMACEN:</td>
             </tr>
-        </table>
-        <br>
-       <table border="1" align="center" width="100%">
            <tr>
                <th>Fecha de entrada</th>
                <th>Producto/Material</th>
@@ -594,22 +594,21 @@ export default class PdfHelper{
         let content2 = "";
         for(let i = 0; i<data.length; i++){
             content2=content2 + `
-         <tr>
-            <th class="lista">${data[i].date}</th>
-            <th class="lista">${data[i].product.description}</th>
-            <th class="lista">${data[i].loteProveedor}</th>
-            <th class="lista">${data[i].quantity}</th>
-            <th class="lista"></th>
-            <th class="lista">${data[i].observations}</th>
-         </tr>
-            `};
+            <tr>
+                <th class="lista">${data[i].date}</th>
+                <th class="lista">${data[i].product.description}</th>
+                <th class="lista">${data[i].loteProveedor}</th>
+                <th class="lista">${data[i].quantity}</th>
+                <th class="lista"></th>
+                <th class="lista">${data[i].observations}</th>
+            </tr>
+            `}
         
 
         let content3 = `
-        </table>
-
-        <table align="right" border="1px" >
+        
             <tr>     
+                <td colspan="5"></td>
                 <td >F-TZR-ROV-01</td>
             </tr>
         </table>
