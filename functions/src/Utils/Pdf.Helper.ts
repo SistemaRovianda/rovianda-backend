@@ -395,9 +395,7 @@ export default class PdfHelper{
                 }
                 #ini{
                     text-align: left;
-                    margin-left: 240px;
-                    width: 250px;
-                    height: 150px;
+                    margin-left: 80px;
                 }
                 
                 img{
@@ -431,26 +429,25 @@ export default class PdfHelper{
     bodyReportFormulation(formulation:Formulation,ingredents:FormulationIngredients[]){
         let content = `
         <body>
-        <br><br><br>
-        <header>
-            <b><p id="title">  BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
-        </header>
-        <img src="${LOGO.data}" alt="">
         <br>
-        <table id="ini" border="1"  >
+        <br>
+        <table id="ini" border="1" width="80%" >
+        <caption>
+            <b><p id="title"> ROVIANDA S.A.P.I. DE C.V.</p></b>
+            <b><p id="title"> BITÁCORA DE CONTROL DE CALIDAD FORMULACIÓN</p></b>
+        </caption>
             <tr>
-                <th>Realizo, Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            <td rowspan="3"><img src="${LOGO.data}" width=60px height=70px ></td>
+            <th colspan="5">Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
             </tr>
             <tr>
-                <th>Firma: </th>
-            </tr>      
-            <th>Puesto: ${formulation.make.job}</th>
-            <tr>
+            <th colspan="5">Firma: </th>
             </tr>
-        </table>
-        `;
+            <tr>
+            <th colspan="5">Puesto: ${formulation.make.job}</th>
+            </tr>`;
+
         let content2 = `
-        <table  id="ta" border="1" align="center" width="550">
             <tr>
                 <td class="pro" >Producto</td>
                 <td>Lote</td>
@@ -486,17 +483,14 @@ export default class PdfHelper{
 
     footerReportFormulation(formulation:Formulation){
         return `
-            </table>
-            <table id="fo1" border="1" >
                 <tr>
-                    <td>Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
-                    <td>Firma:                                    </td>
-                    <td>Puesto: ${formulation.verifit.job}</td>
+                    <td colspan="3">Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+                    <td>Firma:</td>
+                    <td colspan="2">Puesto: ${formulation.verifit.job}</td>
                 </tr>
-            </table>
-            <table id="fo" border="1" >
                 <tr>
-                    <th>F-CAL-RO-05</th>
+                    <td colspan="5"></td>
+                    <td><b>F-CAL-RO-05</b></td>
                 </tr>
             </table>
         </body>
