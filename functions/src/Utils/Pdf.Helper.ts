@@ -224,9 +224,9 @@ export default class PdfHelper{
             border: #65768C 3px solid;
             }
 
-            #ubica{
-            margin-bottom: 70px;;
-            }    
+            .enbloque {
+                display: block;
+            }
         </style>
     </head>`;
     }
@@ -234,20 +234,19 @@ export default class PdfHelper{
     bodyReportEntranceMeat(user:User,meat:EntranceMeat){
         return `
         <body bgcolor="">
-        <table  align="center" border="1px"   width="70%" > 
+
+        <table  align="center" border="1px"   width="85%" > 
+        <caption>
+            <b><p align="center">ROVIANDA S.A.P.I. DE C.V.</p></b>
+            <font size=2><p align="center">RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</p></font>
+        </caption>
          <tr>
-            <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px"></td>
-            <td align="center"><font size=1>ROVIANDA S.A.P.I. DE C.V.</font></td>
-            <td colspan="2" align="center"><font size=1>F-CAL-RO-04</font></td>
+            <td rowspan="2" align="center">  <img src="${LOGO.data}" alt=""  height="60px"></td>
+            <td align="center" rowspan="2" colspan="3"><font size=1>LOTE INTERNO: ${meat.loteInterno}</font> </td>
+            <td align="center" rowspan="2" colspan="2"><font size=1>Pág.:1 de 1</font></td>
          </tr>
-            <td align="center"><font size=1>RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</font></td>
-            <td align="center"><font size=1>LOTE INTERNO: ${meat.loteInterno}</font> </td>
-            <td align="center"><font size=1>Pág.:1 de 1</font></td>
-        </table>
-<!-- ************************************************************************************************-->
-        <table align="center" border="1px"  width="90%"  >
+         <tr></tr>
          <tr>
-            <img src="" alt="">
             <th><font size=1>Fecha</font></th>
             <th><font size=1>Proveedor</font</th>
             <th colspan="2"><font size=1>Materia prima</font></th>
@@ -269,106 +268,99 @@ export default class PdfHelper{
 <!-- ************************************************************************************************-->
          <tr>
             <td><font size=1>Transporte</font> </td>
-            <td align="center" height="2px"><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
-            <td><font size=1>${meat.transport.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.transport.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
+            <td><font size=1>${meat.transport.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.transport.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.transport.observations ? meat.transport.observations : ""}</font></td>
          </tr>
-         
          <tr>
             <td><font size=1>Empaque</font></td>
             <td><font size=1>Sin daños y limpio</font> </td>
-            <td><font size=1>${meat.packing.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.packing.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.packing.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.packing.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.packing.observations ? meat.packing.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Caducidad</font></td>
             <td><font size=1>Vigente:</font></td>
-            <td><font size=1>${meat.expiration.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.expiration.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.expiration.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.expiration.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.expiration.observations ? meat.expiration.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Peso</font></td>
             <td><font size=1>Según el empaque</font></td>
-            <td><font size=1>${meat.weight.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.weight.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.weight.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.weight.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.weight.observations ? meat.weight.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Materia extraña</font></td>
             <td><font size=1>Ausente</font></td>
-            <td><font size=1>${meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.strangeMaterial.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.strangeMaterial.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.strangeMaterial.observations ? meat.strangeMaterial.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td rowspan="2"><font size=1>Temperatura</font></td>
             <td><font size=1>Fresco: Max. 4°C</font></td> 
-            <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.temperature.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.temperature.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.temperature.descriptions ? meat.temperature.descriptions : ""}</font></td>
          </tr>  
-
          <tr>
             <td><font size=1>Congelado: Max. -18°C</font></td>
-            <td><font size=1>${meat.fridge.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.fridge.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.fridge.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.fridge.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.fridge.observations ? meat.fridge.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Olor</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.odor.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.odor.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.odor.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.odor.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.odor.observations ? meat.odor.observations : ""}</font></td>
          </tr>
-        
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.color.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.color.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.color.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.color.observations ? meat.color.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Textura</font></td>
             <td><font size=1>Firme, Característico</font></td>
-            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.texture.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.texture.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td colspan="5"><font size=1>Desviación:</font></td>
          </tr>
-
          <tr>
             <td class ="separa" colspan="5"></td>
          </tr>
-
          <tr>
             <td colspan="5"><font size=1>Acción correctiva:</font></td>
          </tr>
-
          <tr>
             <td  class ="separa" colspan="5"></td>
          </tr>
-
          <tr>
-            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: <img src="${meat.photo.url}" height="150"  width="150"> </font></div>  </td>
+            <td colspan="5" ><font size=1> Etiqueta:</font></td>
+         </tr> 
+         <tr>
+         <td colspan="5"><div align="center"><img src="${meat.photo.url}" class="enbloque" height="100" width="140" border="1"/></div></td> 
+         </tr> 
+         <tr>
+            <th ><font size=1>Inspector de calidad</font></th>
+            <th ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
+            <th colspan="3" ><font size=1>Firma:</font></th>
          </tr>
          <tr>
-            <th class="fin" ><font size=1>Inspector de calidad</font></th>
-            <th class="fin"  ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
-            <th class="fin" colspan="3" ><font size=1>Firma:</font></th>
+            <td colspan="4"></td>
+            <td align="center"><font size=1>F-CAL-RO-04</font></td>
          </tr>
         </table>
       </body>
