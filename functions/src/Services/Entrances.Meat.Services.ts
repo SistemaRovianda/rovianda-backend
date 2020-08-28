@@ -177,7 +177,7 @@ export class EntranceMeatService {
         let oven = await this.ovenRepository.getOvenProductByLot(meat.loteInterno);
         let packaging = await this.packagingRepository.getPackagingByLot(meat.loteInterno);
         let inspection = await this.inspectionRepository.getInspectionByLot(meat.loteInterno);
-        let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno);
+        let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno,meat.fridge.fridgeId,meat.loteProveedor);
 
         let response=
         {

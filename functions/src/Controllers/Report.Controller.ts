@@ -102,6 +102,7 @@ export class ReportController{
         let report = await this.pdfHelper.reportFormulation(formulation,formulationIngredents);
         pdf.create(report, {
             format: 'Legal',
+            orientation:"landscape",
             header: {
                 height: "30px"
             },

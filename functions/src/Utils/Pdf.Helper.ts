@@ -68,29 +68,35 @@ export default class PdfHelper{
         return `
         <body>
         <br><br>
-        <header>
-            <b><p id="title">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
-        </header>
-        <img src="${LOGO.data}" alt="" >
-        <table border="1" align="center">
-            <tr>
-                <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
-            </tr>
-
-            <tr>
-                <th class="ta">Firma: </th>
-            </tr>
-
-            <tr>
-                <th class="ta">Puesto: ${user.job}</th>
-            </tr>
-            
-        </table>
-        <!--------------------------------------------------------------------------->
+        <div id="pageHeader">
+            <b><p id="title" align="center">EMPACADORA ROVIANDA S.A.P.I DE CV</p></b>
+            <br>
+            <b><p id="title" align="center" >BITACORA DE CONTROL DE CALIDAD DE ALMACEN EMPAQUES</p></b>
+        </div>
+        
         <table border="1" WIDTH="450" align="center">
             <tr>
+                <th><img src="${LOGO.data}" alt="" ></th>
+                <th class="ta" colspan="3">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <th></th>
+                <th class="ta" colspan="3">Firma: </th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <th></th>
+                <th class="ta" colspan="3">Puesto: ${user.job}</th>
+                <th></th>
+            </tr>
+            
+        <!--------------------------------------------------------------------------->
+            <tr>
                 <th class="ma">Materia prima: ${drief.product.description}</th>
-                <th  rowspan="2" >Lote proveedor: ${drief.loteProveedor}</th>
+                <th  rowspan="2" colspan="3" >Lote proveedor: ${drief.loteProveedor}</th>
                 <th  id="fec" rowspan="2">Fecha: ${drief.date}</th>
             </tr>
 
@@ -98,9 +104,8 @@ export default class PdfHelper{
                 <th class="ma">Proveedor: ${drief.proveedor}</th>
                 
             </tr>
-        </table>
         <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="150" align="center">
+        
             <tr>
                 <th>Control</th>
                 <th>Estandar</th>
@@ -112,76 +117,78 @@ export default class PdfHelper{
             <tr>
                 <th>Certificado de calidad</th>
                 <th>Entrega de Certificado</th>
-                <th>${drief.quality?"---":""}</th>
-                <th>${!drief.quality?"---":""}</th>
+                <th>${drief.quality?"Ok":""}</th>
+                <th>${!drief.quality?"Ok":""}</th>
                 <th>${drief.observations}</th>
             </tr>
             <tr>
                 <th>Caducidad</th>
                 <th>Vigente</th>
-                <th>${drief.expiration ? "---" : ""}</th>
-                <th>${!drief.expiration ? "---" : ""}</th>
+                <th>${drief.expiration ? "Ok" : ""}</th>
+                <th>${!drief.expiration ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Materia Extraña</th>
                 <th>Ausente</th>
-                <th>${drief.strangeMaterial ? "---" : ""}</th>
-                <th>${!drief.strangeMaterial ? "---" : ""}</th>
+                <th>${drief.strangeMaterial ? "Ok" : ""}</th>
+                <th>${!drief.strangeMaterial ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Transporte</th>
                 <th>Limpio</th>
-                <th>${drief.transport ? "---" : ""}</th>
-                <th>${!drief.transport ? "---" : ""}</th>
+                <th>${drief.transport ? "Ok" : ""}</th>
+                <th>${!drief.transport ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Empaque</th>
                 <th>Sin daños y limpio</th>
-                <th>${drief.paking ? "---" : ""}</th>
-                <th>${!drief.paking ? "---" : ""}</th>
+                <th>${drief.paking ? "Ok" : ""}</th>
+                <th>${!drief.paking ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Olor</th>
                 <th>Caracteristico</th>
-                <th>${drief.odor ? "---" : ""}</th>
-                <th>${!drief.odor ? "---" : ""}</th>
+                <th>${drief.odor ? "Ok" : ""}</th>
+                <th>${!drief.odor ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Color</th>
                 <th>Caracteristico</th>
-                <th>${drief.color ? "---" : ""}</th>
-                <th>${!drief.color ? "---" : ""}</th>
+                <th>${drief.color ? "Ok" : ""}</th>
+                <th>${!drief.color ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Textura</th>
                 <th>Caracteristico</th>
-                <th>${drief.texture ? "---" : ""}</th>
-                <th>${!drief.texture ? "---" : ""}</th>
+                <th>${drief.texture ? "Ok" : ""}</th>
+                <th>${!drief.texture ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Peso</th>
                 <th>Según Empaque</th>
-                <th>${drief.weight ? "---" : ""}</th>
-                <th>${!drief.weight ? "---" : ""}</th>
+                <th>${drief.weight ? "Ok" : ""}</th>
+                <th>${!drief.weight ? "Ok" : ""}</th>
                 <th></th>
             </tr>
-        </table>
-        <table id="mueve" border="1px">
-            <tr>     
+            <tr style="border:0px">
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>     
                 <td >F-CAL-RO-02</td>
             </tr>
         </table>
@@ -217,9 +224,9 @@ export default class PdfHelper{
             border: #65768C 3px solid;
             }
 
-            #ubica{
-            margin-bottom: 70px;;
-            }    
+            .enbloque {
+                display: block;
+            }
         </style>
     </head>`;
     }
@@ -227,20 +234,19 @@ export default class PdfHelper{
     bodyReportEntranceMeat(user:User,meat:EntranceMeat){
         return `
         <body bgcolor="">
-        <table  align="center" border="1px"   width="70%" > 
+
+        <table  align="center" border="1px"   width="85%" > 
+        <caption>
+            <b><p align="center">ROVIANDA S.A.P.I. DE C.V.</p></b>
+            <font size=2><p align="center">RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</p></font>
+        </caption>
          <tr>
-            <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px"></td>
-            <td align="center"><font size=1>ROVIANDA S.A.P.I. DE C.V.</font></td>
-            <td colspan="2" align="center"><font size=1>F-CAL-RO-04</font></td>
+            <td rowspan="2" align="center">  <img src="${LOGO.data}" alt=""  height="60px"></td>
+            <td align="center" rowspan="2" colspan="3"><font size=1>LOTE INTERNO: ${meat.loteInterno}</font> </td>
+            <td align="center" rowspan="2" colspan="2"><font size=1>Pág.:1 de 1</font></td>
          </tr>
-            <td align="center"><font size=1>RECEPCIÓN DE MATERIA PRIMA CÁRNICOS</font></td>
-            <td align="center"><font size=1>LOTE INTERNO: ${meat.loteInterno}</font> </td>
-            <td align="center"><font size=1>Pág.:1 de 1</font></td>
-        </table>
-<!-- ************************************************************************************************-->
-        <table align="center" border="1px"  width="90%"  >
+         <tr></tr>
          <tr>
-            <img src="" alt="">
             <th><font size=1>Fecha</font></th>
             <th><font size=1>Proveedor</font</th>
             <th colspan="2"><font size=1>Materia prima</font></th>
@@ -262,106 +268,99 @@ export default class PdfHelper{
 <!-- ************************************************************************************************-->
          <tr>
             <td><font size=1>Transporte</font> </td>
-            <td align="center" height="2px"><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
-            <td><font size=1>${meat.transport.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.transport.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>Limpio, sin olores,sin material ajeno, sin plagas</font></td>
+            <td><font size=1>${meat.transport.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.transport.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.transport.observations ? meat.transport.observations : ""}</font></td>
          </tr>
-         
          <tr>
             <td><font size=1>Empaque</font></td>
             <td><font size=1>Sin daños y limpio</font> </td>
-            <td><font size=1>${meat.packing.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.packing.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.packing.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.packing.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.packing.observations ? meat.packing.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Caducidad</font></td>
             <td><font size=1>Vigente:</font></td>
-            <td><font size=1>${meat.expiration.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.expiration.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.expiration.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.expiration.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.expiration.observations ? meat.expiration.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Peso</font></td>
             <td><font size=1>Según el empaque</font></td>
-            <td><font size=1>${meat.weight.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.weight.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.weight.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.weight.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.weight.observations ? meat.weight.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Materia extraña</font></td>
             <td><font size=1>Ausente</font></td>
-            <td><font size=1>${meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.strangeMaterial.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.strangeMaterial.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.strangeMaterial.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.strangeMaterial.observations ? meat.strangeMaterial.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td rowspan="2"><font size=1>Temperatura</font></td>
             <td><font size=1>Fresco: Max. 4°C</font></td> 
-            <td><font size=1>${meat.temperature.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.temperature.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.temperature.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.temperature.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.temperature.descriptions ? meat.temperature.descriptions : ""}</font></td>
          </tr>  
-
          <tr>
             <td><font size=1>Congelado: Max. -18°C</font></td>
-            <td><font size=1>${meat.fridge.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.fridge.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.fridge.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.fridge.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.fridge.observations ? meat.fridge.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Olor</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.odor.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.odor.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.odor.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.odor.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.odor.observations ? meat.odor.observations : ""}</font></td>
          </tr>
-        
          <tr>
             <td><font size=1>Color</font></td>
             <td><font size=1>Característico</font></td>
-            <td><font size=1>${meat.color.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.color.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.color.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.color.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.color.observations ? meat.color.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td><font size=1>Textura</font></td>
             <td><font size=1>Firme, Característico</font></td>
-            <td><font size=1>${meat.texture.accepted ? "xxx" : ""}</font></td>
-            <td><font size=1>${!meat.texture.accepted ? "xxx" : ""}</font></td>
+            <td><font size=1>${meat.texture.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.texture.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.texture.observations ? meat.texture.observations : ""}</font></td>
          </tr>
-
          <tr>
             <td colspan="5"><font size=1>Desviación:</font></td>
          </tr>
-
          <tr>
             <td class ="separa" colspan="5"></td>
          </tr>
-
          <tr>
             <td colspan="5"><font size=1>Acción correctiva:</font></td>
          </tr>
-
          <tr>
             <td  class ="separa" colspan="5"></td>
          </tr>
-
          <tr>
-            <td height="60px"  width="" colspan="5" > <div id="ubica"><font size=1>Etiqueta: <img src="${meat.photo.url}" height="150"  width="150"> </font></div>  </td>
+            <td colspan="5" ><font size=1> Etiqueta:</font></td>
+         </tr> 
+         <tr>
+         <td colspan="5"><div align="center"><img src="${meat.photo.url}" class="enbloque" height="100" width="140" border="1"/></div></td> 
+         </tr> 
+         <tr>
+            <th ><font size=1>Inspector de calidad</font></th>
+            <th ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
+            <th colspan="3" ><font size=1>Firma:</font></th>
          </tr>
          <tr>
-            <th class="fin" ><font size=1>Inspector de calidad</font></th>
-            <th class="fin"  ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
-            <th class="fin" colspan="3" ><font size=1>Firma:</font></th>
+            <td colspan="4"></td>
+            <td align="center"><font size=1>F-CAL-RO-04</font></td>
          </tr>
         </table>
       </body>
@@ -396,9 +395,7 @@ export default class PdfHelper{
                 }
                 #ini{
                     text-align: left;
-                    margin-left: 240px;
-                    width: 250px;
-                    height: 150px;
+                    margin-left: 80px;
                 }
                 
                 img{
@@ -432,26 +429,25 @@ export default class PdfHelper{
     bodyReportFormulation(formulation:Formulation,ingredents:FormulationIngredients[]){
         let content = `
         <body>
-        <br><br><br>
-        <header>
-            <b><p id="title">  BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
-        </header>
-        <img src="${LOGO.data}" alt="">
         <br>
-        <table id="ini" border="1"  >
+        <br>
+        <table id="ini" border="1" width="80%" >
+        <caption>
+            <b><p id="title"> ROVIANDA S.A.P.I. DE C.V.</p></b>
+            <b><p id="title"> BITÁCORA DE CONTROL DE CALIDAD FORMULACIÓN</p></b>
+        </caption>
             <tr>
-                <th>Realizo, Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            <td rowspan="3"><img src="${LOGO.data}" width=60px height=70px ></td>
+            <th colspan="5">Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
             </tr>
             <tr>
-                <th>Firma: </th>
-            </tr>      
-            <th>Puesto: ${formulation.make.job}</th>
-            <tr>
+            <th colspan="5">Firma: </th>
             </tr>
-        </table>
-        `;
+            <tr>
+            <th colspan="5">Puesto: ${formulation.make.job}</th>
+            </tr>`;
+
         let content2 = `
-        <table  id="ta" border="1" align="center" width="550">
             <tr>
                 <td class="pro" >Producto</td>
                 <td>Lote</td>
@@ -487,17 +483,14 @@ export default class PdfHelper{
 
     footerReportFormulation(formulation:Formulation){
         return `
-            </table>
-            <table id="fo1" border="1" >
                 <tr>
-                    <td>Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
-                    <td>Firma:                                    </td>
-                    <td>Puesto: ${formulation.verifit.job}</td>
+                    <td colspan="3">Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+                    <td>Firma:</td>
+                    <td colspan="2">Puesto: ${formulation.verifit.job}</td>
                 </tr>
-            </table>
-            <table id="fo" border="1" >
                 <tr>
-                    <th>F-CAL-RO-05</th>
+                    <td colspan="5"></td>
+                    <td><b>F-CAL-RO-05</b></td>
                 </tr>
             </table>
         </body>
@@ -569,19 +562,19 @@ export default class PdfHelper{
     bodyReportWarehouseDrief(data:WarehouseDrief[]){
        let content = `
        <body bgcolor="">
-       <header>
-           <img src="${LOGO.data}" alt="" align="left">
-           <p>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p>
-           <P>BITACORA DE CONTROL DE PEP´S ALAMACENES</P>
+       <div id="pageHeader">
+           <p align="center">EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p>
+           <P align="center">BITACORA DE CONTROL DE PEP´S ALAMACENES</P>
        </header>
         <br>
-        <table align="right"  border="1" width="30%">
+        <table border="1" align="center" width="100%">
             <tr>
-                <td> ALMACEN:</td>
+                <td>
+                    <img src="${LOGO.data}" alt="" align="left">
+                </td>
+                <td colspan="4"></td>
+                <td align="left"> ALMACEN:</td>
             </tr>
-        </table>
-        <br>
-       <table border="1" align="center" width="100%">
            <tr>
                <th>Fecha de entrada</th>
                <th>Producto/Material</th>
@@ -594,22 +587,21 @@ export default class PdfHelper{
         let content2 = "";
         for(let i = 0; i<data.length; i++){
             content2=content2 + `
-         <tr>
-            <th class="lista">${data[i].date}</th>
-            <th class="lista">${data[i].product.description}</th>
-            <th class="lista">${data[i].loteProveedor}</th>
-            <th class="lista">${data[i].quantity}</th>
-            <th class="lista"></th>
-            <th class="lista">${data[i].observations}</th>
-         </tr>
-            `};
+            <tr>
+                <th class="lista">${data[i].date}</th>
+                <th class="lista">${data[i].product.description}</th>
+                <th class="lista">${data[i].loteProveedor}</th>
+                <th class="lista">${data[i].quantity}</th>
+                <th class="lista"></th>
+                <th class="lista">${data[i].observations}</th>
+            </tr>
+            `}
         
 
         let content3 = `
-        </table>
-
-        <table align="right" border="1px" >
+        
             <tr>     
+                <td colspan="5"></td>
                 <td >F-TZR-ROV-01</td>
             </tr>
         </table>
