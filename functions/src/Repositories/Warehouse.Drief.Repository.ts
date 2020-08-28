@@ -57,6 +57,16 @@ export class WarehouseDriefRepository{
         return await this.warehouseDriefRepository.query(`SELECT distinct(lote_proveedor) FROM warehouse_drief WHERE status = "${status}"`);
     }
 
+    async getWarehouseDriefByStatusGroupProduct(status:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.query(`
+        SELECT distinct(warehouse_drief.productId), product_catalog.description 
+        FROM warehouse_drief 
+        INNER JOIN product_catalog  ON product_catalog.id = warehouse_drief.productId
+        WHERE status = "${status}"
+        `);
+    }
+
     async getWarehouseDriefByLoteProveedor(loteProveedor:string, status:string){
         await this.getConnection();
         return await this.warehouseDriefRepository.query(`
@@ -64,6 +74,16 @@ export class WarehouseDriefRepository{
         FROM warehouse_drief 
         INNER JOIN product_catalog  ON product_catalog.id = warehouse_drief.productId 
         WHERE lote_proveedor = "${loteProveedor}" 
+        AND status = "${status}"`);
+    }
+
+    async getWarehouseDriefByPrductStatus(productId:number, status:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.query(`
+        SELECT warehouse_drief.id, warehouse_drief.quantity, warehouse_drief.lote_proveedor, warehouse_drief.productId, product_catalog.description 
+        FROM warehouse_drief 
+        INNER JOIN product_catalog  ON product_catalog.id = warehouse_drief.productId 
+        WHERE productId = ${productId} 
         AND status = "${status}"`);
     }
 

@@ -37,6 +37,21 @@ export class LotController{
         return res.status(200).send(response);
     }
 
+    async getAllLotsProduct(req:Request,res:Response){
+        let {type,status} = req.query;
+        if(!(status==LOTESTATUS.OPENED || status ==LOTESTATUS.CLOSED || status==LOTESTATUS.PENDING)) throw new Error("[400], status parameter value is invalid");
+        let response = null;
+        if(TYPE.DRIEF == type){
+            let wareHouseDriefStatus = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatusProduct(status);
+            response = wareHouseDriefStatus;
+        }
+        // if(TYPE.PACKING == type){
+        //     let wareHousePackingStatus = await this.warehousePackingService.getWarehousePackingByStatus(status);
+        //     response= wareHousePackingStatus;
+        // }
+        return res.status(200).send(response);
+    }
+
     async getOutputIngredients(req: Request, res: Response){
         let ingredients = await this.outputsDriefServices.getAllDrief();
         return res.status(200).send(ingredients);
