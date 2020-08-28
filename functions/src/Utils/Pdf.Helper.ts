@@ -68,29 +68,35 @@ export default class PdfHelper{
         return `
         <body>
         <br><br>
-        <header>
-            <b><p id="title">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
-        </header>
-        <img src="${LOGO.data}" alt="" >
-        <table border="1" align="center">
-            <tr>
-                <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
-            </tr>
-
-            <tr>
-                <th class="ta">Firma: </th>
-            </tr>
-
-            <tr>
-                <th class="ta">Puesto: ${user.job}</th>
-            </tr>
-            
-        </table>
-        <!--------------------------------------------------------------------------->
+        <div id="pageHeader">
+            <b><p id="title" align="center">EMPACADORA ROVIANDA S.A.P.I DE CV</p></b>
+            <br>
+            <b><p id="title" align="center" >BITACORA DE CONTROL DE CALIDAD DE ALMACEN EMPAQUES</p></b>
+        </div>
+        
         <table border="1" WIDTH="450" align="center">
             <tr>
+                <th><img src="${LOGO.data}" alt="" ></th>
+                <th class="ta" colspan="3">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <th></th>
+                <th class="ta" colspan="3">Firma: </th>
+                <th></th>
+            </tr>
+
+            <tr>
+                <th></th>
+                <th class="ta" colspan="3">Puesto: ${user.job}</th>
+                <th></th>
+            </tr>
+            
+        <!--------------------------------------------------------------------------->
+            <tr>
                 <th class="ma">Materia prima: ${drief.product.description}</th>
-                <th  rowspan="2" >Lote proveedor: ${drief.loteProveedor}</th>
+                <th  rowspan="2" colspan="3" >Lote proveedor: ${drief.loteProveedor}</th>
                 <th  id="fec" rowspan="2">Fecha: ${drief.date}</th>
             </tr>
 
@@ -98,9 +104,8 @@ export default class PdfHelper{
                 <th class="ma">Proveedor: ${drief.proveedor}</th>
                 
             </tr>
-        </table>
         <!--------------------------------------------------------------------------->
-        <table border="1" WIDTH="150" align="center">
+        
             <tr>
                 <th>Control</th>
                 <th>Estandar</th>
@@ -112,76 +117,78 @@ export default class PdfHelper{
             <tr>
                 <th>Certificado de calidad</th>
                 <th>Entrega de Certificado</th>
-                <th>${drief.quality?"---":""}</th>
-                <th>${!drief.quality?"---":""}</th>
+                <th>${drief.quality?"Ok":""}</th>
+                <th>${!drief.quality?"Ok":""}</th>
                 <th>${drief.observations}</th>
             </tr>
             <tr>
                 <th>Caducidad</th>
                 <th>Vigente</th>
-                <th>${drief.expiration ? "---" : ""}</th>
-                <th>${!drief.expiration ? "---" : ""}</th>
+                <th>${drief.expiration ? "Ok" : ""}</th>
+                <th>${!drief.expiration ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Materia Extraña</th>
                 <th>Ausente</th>
-                <th>${drief.strangeMaterial ? "---" : ""}</th>
-                <th>${!drief.strangeMaterial ? "---" : ""}</th>
+                <th>${drief.strangeMaterial ? "Ok" : ""}</th>
+                <th>${!drief.strangeMaterial ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Transporte</th>
                 <th>Limpio</th>
-                <th>${drief.transport ? "---" : ""}</th>
-                <th>${!drief.transport ? "---" : ""}</th>
+                <th>${drief.transport ? "Ok" : ""}</th>
+                <th>${!drief.transport ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Empaque</th>
                 <th>Sin daños y limpio</th>
-                <th>${drief.paking ? "---" : ""}</th>
-                <th>${!drief.paking ? "---" : ""}</th>
+                <th>${drief.paking ? "Ok" : ""}</th>
+                <th>${!drief.paking ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Olor</th>
                 <th>Caracteristico</th>
-                <th>${drief.odor ? "---" : ""}</th>
-                <th>${!drief.odor ? "---" : ""}</th>
+                <th>${drief.odor ? "Ok" : ""}</th>
+                <th>${!drief.odor ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Color</th>
                 <th>Caracteristico</th>
-                <th>${drief.color ? "---" : ""}</th>
-                <th>${!drief.color ? "---" : ""}</th>
+                <th>${drief.color ? "Ok" : ""}</th>
+                <th>${!drief.color ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Textura</th>
                 <th>Caracteristico</th>
-                <th>${drief.texture ? "---" : ""}</th>
-                <th>${!drief.texture ? "---" : ""}</th>
+                <th>${drief.texture ? "Ok" : ""}</th>
+                <th>${!drief.texture ? "Ok" : ""}</th>
                 <th></th>
             </tr>
 
             <tr>
                 <th>Peso</th>
                 <th>Según Empaque</th>
-                <th>${drief.weight ? "---" : ""}</th>
-                <th>${!drief.weight ? "---" : ""}</th>
+                <th>${drief.weight ? "Ok" : ""}</th>
+                <th>${!drief.weight ? "Ok" : ""}</th>
                 <th></th>
             </tr>
-        </table>
-        <table id="mueve" border="1px">
-            <tr>     
+            <tr style="border:0px">
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>
+                <td style="border:0px;"></td>     
                 <td >F-CAL-RO-02</td>
             </tr>
         </table>
