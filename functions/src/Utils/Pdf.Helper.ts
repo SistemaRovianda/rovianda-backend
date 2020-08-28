@@ -1654,12 +1654,13 @@ export default class PdfHelper{
   
       
     `;
-    let formulationTableInfo = "";
-    formulations.forEach( formulation => {
-     formulationTableInfo += `
-      <table id="ta" border="1" align="center" width="90%">
+    let formulationTableInfo = `
+        <table id="ta" border="1" align="center" width="90%">
         <tr>
-            <th rowspan="3"><img src="${LOGO.data}" alt="" /></th>
+            <th rowspan="3"><img src="${LOGO.data}" alt="" /></th>`;
+    formulations.forEach( (formulation,index) => {
+     formulationTableInfo += `
+            ${index>0? `<tr><th rowspan="3"></th>` : ``}
             <th colspan="5">Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
         </tr>
         <tr>
@@ -1703,17 +1704,18 @@ export default class PdfHelper{
           <td align="left" colspan="2">Firma:</td>
           <td align="left" colspan="3">Puesto:  ${formulation.verifit.job}</td>
         </tr>
-        <tr>
-            <th colspan="5"></th>
-            <th>F-CAL-RO-05</th>
-        </tr>
-    </table>
-    <br>
+    
+    
         `
       
 
     });
       formulationTableInfo+=`
+      <tr>
+            <th colspan="5"></th>
+            <th>F-CAL-RO-05</th>
+        </tr>
+      </table>
     </body>
   </html>
   `;
