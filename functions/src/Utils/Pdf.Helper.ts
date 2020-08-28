@@ -973,19 +973,18 @@ export default class PdfHelper{
         <header>
             <b><p id="title">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
         </header>
-            <img src="${LOGO.data}" alt="" align="left" >
-    
-                <table border="1" align="rigth" width="70%">
+       
+                <table border="1" align="rigth" width="90%">
                     <tr>
-                        <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                        <th rowspan="3"><img src="${LOGO.data}" alt="" align="left" ></th> 
+                        <th class="ta" colspan="4">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
                     </tr>
                     <tr>
-                        <th class="ta">Firma: </th>
+                        <th class="ta" colspan="4">Firma: </th>
                     </tr>
                     <tr>
-                        <th class="ta">Puesto: ${user.job}</th>
+                        <th class="ta" colspan="4">Puesto: ${user.job}</th>
                     </tr>
-                </table>
                 
       `;
     }
@@ -995,18 +994,15 @@ export default class PdfHelper{
         let content=" ";
         for(let i = 0; i<data.length; i++){
             content =content + `
-            <table border="1" align="center" width="100%">
                     <tr>
                         <th class="ma">Materia prima: ${data[i].product.description} </th>
-                        <th  rowspan="2">Lote proveedor: ${data[i].loteProveedor} </th>
+                        <th  rowspan="2" colspan="3">Lote proveedor: ${data[i].loteProveedor} </th>
                         <th  id="fec" rowspan="2">Fecha: ${data[i].date}</th>
                     </tr>
                     <tr>
                         <th class="ma">Proveedor: ${data[i].proveedor}</th>
                     </tr>
-                </table>
     <!--------------------------------------------------------------------------->
-                <table border="1" width="100%">
                     <tr>
                         <th>Control</th>
                         <th>Estandar</th>
@@ -1017,67 +1013,67 @@ export default class PdfHelper{
                     <tr>
                         <th><font size=1 > Certificado de calidad </font></th>
                         <th><font size=1 > Entrega de Certificado </font></th>
-                        <th>${data[i].quality ? "xxx" : ""}</th>
-                        <th>${!data[i].quality ? "xxx" : ""}</th>
+                        <th>${data[i].quality ? "Ok" : ""}</th>
+                        <th>${!data[i].quality ? "Ok" : ""}</th>
                         <th><font size=1 > ${data[i].observations} </font></th>
                     </tr>
                     <tr>
                         <th><font size=1> Caducidad </font></th>
                         <th><font size=1> Vigente </font></th>
-                        <th>${data[i].expiration ? "xxx" : ""}</th>
-                        <th>${!data[i].expiration ? "xxx" : ""}</th>
+                        <th>${data[i].expiration ? "Ok" : ""}</th>
+                        <th>${!data[i].expiration ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Materia Extraña </font></th>
                         <th><font size=1> Ausente </font></th>
-                        <th>${data[i].strangeMaterial ? "xxx" : ""}</th>
-                        <th>${!data[i].strangeMaterial ? "xxx" : ""}</th>
+                        <th>${data[i].strangeMaterial ? "Ok" : ""}</th>
+                        <th>${!data[i].strangeMaterial ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Transporte </font></th>
                         <th><font size=1> Limpio </font></th>
-                        <th>${data[i].transport ? "xxx" : ""}</th>
-                        <th>${!data[i].transport ? "xxx" : ""}</th>
+                        <th>${data[i].transport ? "Ok" : ""}</th>
+                        <th>${!data[i].transport ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Empaque </font></th>
                         <th><font size=1> Sin daños y limpio </font></th>
-                        <th>${data[i].paking ? "xxx" : ""}</th>
-                        <th>${!data[i].paking ? "xxx" : ""}</th>
+                        <th>${data[i].paking ? "Ok" : ""}</th>
+                        <th>${!data[i].paking ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Olor </font></th>
                         <th><font size=1> Caracteristico </font></th>
-                        <th>${data[i].odor ? "xxx" : ""}</th>
-                        <th>${!data[i].odor ? "xxx" : ""}</th>
+                        <th>${data[i].odor ? "Ok" : ""}</th>
+                        <th>${!data[i].odor ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Color </font></th>
                         <th><font size=1> Caracteristico </font></th>
-                        <th>${data[i].color ? "xxx" : ""}</th>
-                        <th>${!data[i].color ? "xxx" : ""}</th>
+                        <th>${data[i].color ? "Ok" : ""}</th>
+                        <th>${!data[i].color ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
                     <tr>
                         <th><font size=1> Textura </font></th>
                         <th><font size=1> Caracteristico </font></th>
-                        <th>${data[i].texture ? "xxx" : ""}</th>
-                        <th>${!data[i].texture ? "xxx" : ""}</th>
+                        <th>${data[i].texture ? "Ok" : ""}</th>
+                        <th>${!data[i].texture ? "Ok" : ""}</th>
                         <th></th> 
                     </tr>
                     <tr>
                         <th><font size=1> Peso </font></th>
                         <th><font size=1> Según Empaque </font></th>
-                        <th>${data[i].weight ? "xxx" : ""}</th>
-                        <th>${!data[i].weight ? "xxx" : ""}</th>
+                        <th>${data[i].weight ? "Ok" : ""}</th>
+                        <th>${!data[i].weight ? "Ok" : ""}</th>
                         <th></th>
                     </tr>
-                </table>
+                
              `;
         }
         return content
@@ -1085,8 +1081,8 @@ export default class PdfHelper{
 
      footerReportEntryDriefs(){
         return `
-        <table align="right" width="25%" border="1px">
-            <tr>     
+            <tr> 
+                <td colspan="4"></td>   
                 <td>F-CAL-RO-02</td>
             </tr>
         </table>
