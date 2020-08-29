@@ -75,33 +75,19 @@ export class WarehousePackingService{
         return response;
     }
 
-    async getWarehousePackingByStatusProduct(status:string){
-        let warehousePackingStatus = await this.warehousePackingRepository.getWarehousePackingByStatusGroup(status);
+    async getWarehousePackingRepositoryByStatusProduct(status:string){
+        let warehousePackingStatus = await this.warehousePackingRepository.getWarehousePackingByStatusGroupProduct(status);
+        console.log(warehousePackingStatus)
         let response:any = [];
-        for(let i = 0; i<warehousePackingStatus.length; i++){
-            let warehousePackingLote = await this.warehousePackingRepository.getWarehousePackingByLoteProveedor(warehousePackingStatus[i].lote_proveedor,status);
-            let response1:any = [];
-            for(let n = 0; n<warehousePackingLote.length; n++){
-                let entrancePaking = await this.entrancePackingRepository.getEntrnacePackingByLotProduct(warehousePackingLote[n].lote_proveedor,warehousePackingLote[n].productId)
-                if(entrancePaking.length){
-                    if(entrancePaking[0].quality == true && entrancePaking[0].strange_material == true && 
-                        entrancePaking[0].transport == true && entrancePaking[0].paking == true){
-                            response1.push({
-                                id: `${warehousePackingLote[n].productId}`,
-                                description: `${warehousePackingLote[n].description}`,
-                                warehousePackingId: `${warehousePackingLote[n].id}`,
-                                quantity: `${warehousePackingLote[n].quantity}`
-                            });
-                        }
-                }
-            }
+        for(let i = 0; i < warehousePackingStatus.length; i++){
             response.push({
-                loteId: `${warehousePackingStatus[i].lote_proveedor}`,
-                products: response1
+                productId: `${warehousePackingStatus[i].productId}`,
+                product: `${warehousePackingStatus[i].description}`
             })
         }
         return response;
     }
+    
 
 
     async saveWarehousePacking(warehousePacking:WarehousePacking){
@@ -130,6 +116,21 @@ export class WarehousePackingService{
             outputs
         }
 
+        return response;
+    }
+
+    async getLotsPackingByProduct(productId:number){
+        if(!productId) throw new Error(`[400], productId is required`);
+        let product:Product = await this.productRepository.getProductById(productId);
+        if(!product) throw new Error(`[400], productId is required`);
+        let response:any = [];
+        let lot:WarehousePacking[] = await this.warehousePackingRepository.findLotsPackingByProduct(product);
+        lot.forEach( i => {
+            response.push({
+                warehouseId: `${i.id}`,
+                lot: `${i.loteProveedor}`
+            })
+        });
         return response;
     }
 

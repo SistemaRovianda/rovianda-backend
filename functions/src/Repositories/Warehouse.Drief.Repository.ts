@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository, Between } from 'typeorm';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { Product } from '../Models/Entity/Product';
+import { response } from 'express';
 export class WarehouseDriefRepository{
     private warehouseDriefRepository:Repository<WarehouseDrief>;
 
@@ -113,5 +114,10 @@ export class WarehouseDriefRepository{
     async getByLoteProveedor(loteProveedor:string){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({loteProveedor})
+    }
+
+    async findLotsByProduct(product:Product){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.find({product});
     }
 }

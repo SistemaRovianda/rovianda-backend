@@ -11,6 +11,7 @@ import { FormulationRepository } from "../Repositories/Formulation.Repository";
 import { Formulation } from "../Models/Entity/Formulation";
 import { OutputsDriefRepository } from "../Repositories/Outputs.Drief.Repository";
 import { LotInternalByLotDrief } from "../Models/DTO/LotInternalByLotDrief";
+import { forEach } from "lodash";
 
 export class WarehouseDriefService{
     private warehouseDriefRepository:WarehouseDriefRepository;
@@ -104,28 +105,10 @@ export class WarehouseDriefService{
         let warehouseDriefStatus = await this.warehouseDriefRepository.getWarehouseDriefByStatusGroupProduct(status);
         console.log(warehouseDriefStatus)
         let response:any = [];
-        for(let i = 0; i<warehouseDriefStatus.length; i++){
-            let warehouseDriefProduct = await this.warehouseDriefRepository.getWarehouseDriefByPrductStatus(+warehouseDriefStatus[i].productId,status);
-            console.log(warehouseDriefProduct)
-            let response1:any = [];
-            for(let n = 0; n<warehouseDriefProduct.length; n++){
-                let entranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProduct(warehouseDriefProduct[n].lote_proveedor,warehouseDriefProduct[n].productId);
-                console.log("entranceDrief[0]")
-                console.log(entranceDrief[0])
-                if(entranceDrief.length){
-                    if(entranceDrief[0].quality == true && entranceDrief[0].expiration == true && 
-                        entranceDrief[0].transport == true && entranceDrief[0].strange_material == true &&
-                        entranceDrief[0].paking == true && entranceDrief[0].color == true &&
-                        entranceDrief[0].texture == true && entranceDrief[0].weight == true &&
-                        entranceDrief[0].odor == true){
-                            response1.push(`${warehouseDriefProduct[n].lote_proveedor}`,);
-                        }
-                }
-            }
-            response.push({ 
-                producId: `${warehouseDriefStatus[i].productId}`,
-                product: `${warehouseDriefStatus[i].description}`,
-                lots: response1
+        for(let i = 0; i < warehouseDriefStatus.length; i++){
+            response.push({
+                productId: `${warehouseDriefStatus[i].productId}`,
+                product: `${warehouseDriefStatus[i].description}`
             })
         }
         return response;
@@ -191,6 +174,21 @@ export class WarehouseDriefService{
         if(Date.parse(dateInit)>Date.parse(dateEnd)) throw new Error(`[400], initDate cannot be greater than finalDate`);
 
         return await this.warehouseDriefRepository.getWarehouseDriefReport(dateInit,dateEnd);
+    }
+
+    async getLotsByProduct(productId:number){
+        if(!productId) throw new Error(`[400], productId is required`);
+        let product:Product = await this.productRepository.getProductById(productId);
+        if(!product) throw new Error(`[400], productId is required`);
+        let response:any = [];
+        let lot:WarehouseDrief[] = await this.warehouseDriefRepository.findLotsByProduct(product);
+        lot.forEach( i => {
+            response.push({
+                warehouseId: `${i.id}`,
+                lot: `${i.loteProveedor}`
+            })
+        });
+        return response;
     }
 
 }

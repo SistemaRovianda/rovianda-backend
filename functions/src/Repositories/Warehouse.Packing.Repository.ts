@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
+import { Product } from '../Models/Entity/Product';
 
 export class WarehousePackingRepository{
     private warehousePackingRepository:Repository<WarehousePacking>;
@@ -38,6 +39,16 @@ export class WarehousePackingRepository{
         return await this.warehousePackingRepository.query(`SELECT distinct(lote_proveedor) FROM warehouse_packing WHERE status = "${status}"`);
     }
 
+    async getWarehousePackingByStatusGroupProduct(status:string){
+        await this.getConnection();
+        return await this.warehousePackingRepository.query(`
+        SELECT distinct(warehouse_packing.productId), product_catalog.description 
+        FROM warehouse_packing 
+        INNER JOIN product_catalog  ON product_catalog.id = warehouse_packing.productId
+        WHERE status = "${status}"
+        `);
+    }
+
     async getWarehousePackingByLoteProveedor(loteProveedor:string, status:string){
         await this.getConnection();
         return await this.warehousePackingRepository.query(`
@@ -54,4 +65,9 @@ export class WarehousePackingRepository{
         await this.getConnection();
         return await this.warehousePackingRepository.save(warehousepacking);
     } 
+
+    async findLotsPackingByProduct(product:Product){
+        await this.getConnection();
+        return await this.warehousePackingRepository.find({product});
+    }
 }

@@ -52,4 +52,11 @@ export class EntranceDriefRepository{
         `);
     }
 
+    async getEntrnaceDriefByProduct(productId:number){
+        await this.getConnection();
+        return await this.repository.query(`
+        SELECT * FROM entrances_drief WHERE productId = ${productId}
+        `);
+    }
+
 }

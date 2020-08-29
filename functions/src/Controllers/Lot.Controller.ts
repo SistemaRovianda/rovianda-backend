@@ -45,10 +45,10 @@ export class LotController{
             let wareHouseDriefStatus = await this.warehouseDriefService.getWarehouseDriefRepositoryByStatusProduct(status);
             response = wareHouseDriefStatus;
         }
-        // if(TYPE.PACKING == type){
-        //     let wareHousePackingStatus = await this.warehousePackingService.getWarehousePackingByStatus(status);
-        //     response= wareHousePackingStatus;
-        // }
+        if(TYPE.PACKING == type){
+            let wareHousePackingStatus = await this.warehousePackingService.getWarehousePackingRepositoryByStatusProduct(status);
+            response= wareHousePackingStatus;
+        }
         return res.status(200).send(response);
     }
 
@@ -78,6 +78,20 @@ export class LotController{
         let rawMaterialId = req.query.rawMaterialId;
         
         let response:LotMeatOutput[]=await this.outputsCoolingService.getOutputsCoolingByRawIdAndStatus(status,rawMaterialId);
+        return res.status(200).send(response);
+    }
+
+    async getAllLotsByProduct(req:Request,res:Response){
+        let {type} = req.query;
+        let response = null;
+        if(TYPE.DRIEF == type){
+            let wareHouseDriefStatus = await this.warehouseDriefService.getLotsByProduct(+req.params.productId);
+            response = wareHouseDriefStatus;
+        }
+        if(TYPE.PACKING == type){
+            let wareHousePackingStatus = await this.warehousePackingService.getLotsPackingByProduct(+req.params.productId);
+            response= wareHousePackingStatus;
+        }
         return res.status(200).send(response);
     }
 
