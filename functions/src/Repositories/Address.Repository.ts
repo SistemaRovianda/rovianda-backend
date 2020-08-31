@@ -22,4 +22,14 @@ export class AddressRepository {
         });
     }
 
+    async getLastAddress(){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.addressRepository.findOne({ 
+            order : {  
+                id:"DESC" 
+                } 
+        });
+    }
+
 }

@@ -5,17 +5,21 @@ import { Address } from "../Models/Entity/Address";
 import { AddressRepository } from "../Repositories/Address.Repository";
 import { SaleRepository } from "../Repositories/Sale.Repository";
 import { ClientRepository } from "../Repositories/Client.Repository";
+import { UserRepository } from "../Repositories/User.Repository";
+import { User } from "../Models/Entity/User";
 
 export class ClientService {
     private addressRepository: AddressRepository;
     private saleRepository: SaleRepository;
     private clientRepository: ClientRepository;
+    private userRepository: UserRepository;
 
 
     constructor() {
         this.addressRepository = new AddressRepository();
         this.saleRepository = new SaleRepository();
         this.clientRepository = new ClientRepository();
+        this.userRepository = new UserRepository();
     }
 
     async createCustomer(req: Request) {
@@ -48,45 +52,34 @@ export class ClientService {
             throw new Error(`[400], street is required`);
         if (!clientDTO.addressClient.reference)
             throw new Error(`[400], reference is required`);
-        
-        let sale = await this.saleRepository.getSaleById(+clientDTO.saleuid);
-        if (!sale && !sale.length)
-            throw new Error(`[404], sale with id ${clientDTO.saleuid} does not exist`);
-        
-        const newAddress: Address = {
-            id: 0,
-            state: clientDTO.addressClient.state,
-            municipality: clientDTO.addressClient.municipality,
-            location: clientDTO.addressClient.location,
-            suburb: clientDTO.addressClient.suburb,
-            extNumber: clientDTO.addressClient.extNumber,
-            street: clientDTO.addressClient.street,
-            reference: clientDTO.addressClient.reference
-        };
-        
-        const newClient: Client = {
-            id: 0,
-            keyClient: clientDTO.keyClient,
-            client: clientDTO.client,
-            typeClient: `${clientDTO.typeClient}`,
-            currentCredit: clientDTO.currentCredit,
-            daysCredit: clientDTO.daysCredit.toLocaleString(),
-            address: newAddress,
-            credit: clientDTO.currentCredit,
-            debs: null,
-            rfc: clientDTO.rfc,
-            sales: sale,
-            seller: null
-        };
 
-        try{
-            
-            await this.clientRepository.saveClient(newClient);
-        }catch(err){
-            throw new Error(`[500], ${err.message}`);
-        }
+        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.saleuid);
+        if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
+
+        let newAddress:Address = new Address();
+        newAddress.state = clientDTO.addressClient.state;
+        newAddress.municipality = clientDTO.addressClient.municipality;
+        newAddress.location = clientDTO.addressClient.location;
+        newAddress.suburb = clientDTO.addressClient.suburb;
+        newAddress.extNumber = clientDTO.addressClient.extNumber;
+        newAddress.street = clientDTO.addressClient.street;
+        newAddress.reference = clientDTO.addressClient.reference;
+
+        await this.addressRepository.saveAddress(newAddress);
+
+        let address:Address = await this.addressRepository.getLastAddress();
         
-            
-                
+        let newClient:Client = new Client();
+        newClient.keyClient = clientDTO.keyClient;
+        newClient.client = clientDTO.client;
+        newClient.typeClient = clientDTO.typeClient.toString();
+        newClient.currentCredit = clientDTO.currentCredit;
+        newClient.daysCredit = clientDTO.daysCredit.toLocaleString();
+        address = address;
+        newClient.credit = clientDTO.currentCredit;
+        newClient.rfc = clientDTO.rfc;
+        newClient.seller = sellerOwner;
+
+         return await this.clientRepository.saveClient(newClient);        
     }
 }
