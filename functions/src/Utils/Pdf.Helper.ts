@@ -839,33 +839,39 @@ export default class PdfHelper{
     bodyReportOven(revisionOven:OvenProducts,dataRevision:RevisionsOvenProducts[]){
         let content = `
         <body>
+        <div id="pageHeader">
+        <b><p align="center">EMPACADORA ROVIANDA S.A.P.I. DE C.V.</p></b>
+        <b><p align="center">CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO</p></b>
+        
+        </div>
 
          <table  align="center"    width="100%" > 
              <tr> <!-- columna-->
-                 <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px">    </td>
-                 <td colspan="2" align="center"><font size=1>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</font></td>
+                 
+                 <td colspan="2" align="center"><font size=1></font></td>
              </tr>
-                 <td align="center"><font size=1>CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO</font></td>
+                 <td align="center"><font size=1></font></td>
          </table>
  
          <table align="right" border="1px">
-             <tr>       
+             <tr>
+                <th colspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="60px">    </th>
+                <th colspan="3"></th>
                  <th><font size=1>Tiempo estimado:${revisionOven.stimatedTime}</font></th>   
              </tr>
-         </table>
- 
-         <table border="1" align="center" width="100%"> 
-             <th colspan="2"><font size=1>Producto: ${revisionOven.product.name}</font></th>
-             <th><font size=1>PCC: ${revisionOven.pcc}</font></th>
-             <th id="mueve7"><font size=1>Fecha: ${revisionOven.date}</font></th>
-             <th> <font size=1>PCC = 70° C</font></th>
+             <tr>
+                <th colspan="2"><font size=1>Producto: ${revisionOven.product.name}</font></th>
+                <th><font size=1>PCC: ${revisionOven.pcc}</font></th>
+                <th id="mueve7"><font size=1>Fecha: ${revisionOven.date}</font></th>
+                <th colspan="2"> <font size=1>PCC = 70° C</font></th>
+             <tr>
  
              <tr>
                  <td id="mueve5"><font size=1>Hora</font></td>
                  <td  id="mueve3"><font size=1>Temperatura interna del producto</font></td>
                  <td id="mueve4"><font size=1>Temperatura del horno</font></td>
                  <td id="mueve6"><font size=1>Humedad</font></td>
-                 <td id="mueve2"><font size=1>Observaciones</font></td>
+                 <td colspan="2" id="mueve2"><font size=1>Observaciones</font></td>
              </tr>`;
  
              
@@ -877,7 +883,7 @@ export default class PdfHelper{
                  <td class="espa"><font size=1>${dataRevision[i].interTemp}</font></td>
                  <td class="espa"><font size=1>${dataRevision[i].ovenTemp}</font></td>
                  <td class="espa"><font size=1>${dataRevision[i].humidity}</font></td>
-                 <td class="espa"><font size=1>${dataRevision[i].observations}</font></td> 
+                 <td colspan="2" class="espa"><font size=1>${dataRevision[i].observations}</font></td> 
              </tr >
              `;
             }
@@ -888,27 +894,24 @@ export default class PdfHelper{
 
     footerReportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts){
         return `
-        </table>
-        <table align="center" border="1" id="ult" width="100%" ">
             <tr>
-                <th class="seg"><font size=1>Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}</font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1>Puesto: ${revisionOven.jobElaborated}</font> </td>
+                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobElaborated}</font> </td>
             </tr>
             <tr>
-                <th class="seg"><font size=1>Revisó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Revisó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1><Puesto: ${revisionOven.jobVerify}</font></td>
+                <td colspan="2"><font size=1><Puesto: ${revisionOven.jobVerify}</font></td>
             </tr>
             <tr>
-                <th class="seg"><font size=1>Verificó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font</th>
+                <th colspan="3" class="seg"><font size=1>Verificó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font</th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1>Puesto: ${revisionOven.nameVerify}</font></td>
+                <td colspan="2"><font size=1>Puesto: ${revisionOven.nameVerify}</font></td>
             </tr>
-        </table>
-
-        <table align="right" border="1px">
-             <tr>     
+       
+             <tr>  
+                <td colspan="5"></td>   
                 <td><font size=1>F-HACCP-RO-05</font></td>
              </tr>
         </table>
