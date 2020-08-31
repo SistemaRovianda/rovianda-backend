@@ -353,7 +353,7 @@ export class PackagingService{
 
         let packaging = await this.packagingRepository.findPackagingById(packagingId);
 
-        if(!packaging) throw new Error(`[404], packaging whit id ${packagingId} not found`);
+        if(!packaging) throw new Error(`[404], packaging with id ${packagingId} not found`);
 
         return packaging
 

@@ -148,7 +148,7 @@ export class EntranceMeatService {
     async reportEntranceMeat(meatId:number){
         if(!meatId) throw new Error("[400], meatId is required");
         let meat:EntranceMeat = await this.entrancesMeatRepository.getEntranceMeatById(meatId);
-        if(!meat) throw new Error(`[404], meat whit id ${meatId} not found`);
+        if(!meat) throw new Error(`[404], meat with id ${meatId} not found`);
         return meat;
     }
 

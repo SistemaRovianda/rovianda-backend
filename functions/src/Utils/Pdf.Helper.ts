@@ -2018,20 +2018,23 @@ export default class PdfHelper{
         </head>
         <body>
         
-            <header >
-                <p> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
-                <p> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
-            </header>
+            <div id="pageHeader" >
+                <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+                <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+            </div>
         
-             
-            <img src="${LOGO.data}" alt=""> 
-              
-            <div id="fec" >
-            <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
-             </div><br>
+            
+            <table border="1" align="center" width="90%">
+            <tr>
+                <th>
+                    <img src="${LOGO.data}" alt=""> 
+                </th>
+                <th colspan="5"></th>
+                <th>            
+                    <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
+                </th>
+            </tr>
         
-        
-            <table border="1" align="center" width="60%">
                 <tr>
                     <th>PRODUCTO</th>
                     <th>LOTE Y CADUCIDAD</th>
@@ -2067,12 +2070,9 @@ export default class PdfHelper{
                     `;
                 }
                 let content3 = `
-            </table>
-        
-            <table align="right" width="25%" border="1px" w>
-                <tr>     
-                        <td>F-CALL-RO-020</td>
-                        <td >F-CALL-RO-020</td>
+                <tr>    
+                    <td colspan="6"></td>
+                    <td>F-CALL-RO-020</td>
                 </tr>
             </table>
             

@@ -38,7 +38,7 @@ export class WarehouseDriefService{
         let lote:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLoteIdAndProductId(warehouseDTO.loteId,warehouseDTO.productId);
         if(!lote.length) throw new Error("[404], el lote no existe");
         let warehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefByIds(warehouseDriefId);
-        if(!warehouseDrief) throw new Error(`[404], WarehouseDrief whit Id ${warehouseDriefId} not found`);
+        if(!warehouseDrief) throw new Error(`[404], WarehouseDrief with Id ${warehouseDriefId} not found`);
         
         switch(warehouseDTO.status){
             case WarehouseStatus.CLOSED:
