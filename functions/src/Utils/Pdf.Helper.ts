@@ -1648,37 +1648,36 @@ export default class PdfHelper{
     }
 
     bodyReportFormulationInfo(formulations: Formulation[]){
-        const formulationHeaderInfo = `<header>
-        <b><p class="title">BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
-      </header>
+        const formulationHeaderInfo = `<div id="pageHeader">
+        <b><p class="title" align="center">BITACORA DE CONTROL DE CALIDAD FORMULACION</p></b>
+      </div>
   
-      <img src="${LOGO.data}" alt="" />
+      
     `;
-    let formulationTableInfo = "";
-    formulations.forEach( formulation => {
+    let formulationTableInfo = `
+        <table id="ta" border="1" align="center" width="90%">
+        <tr>
+            <th rowspan="3"><img src="${LOGO.data}" alt="" /></th>`;
+    formulations.forEach( (formulation,index) => {
      formulationTableInfo += `
-      <table id="ini" border="1">
-        <tr>
-          <th>Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            ${index>0? `<tr><th rowspan="3"></th>` : ``}
+            <th colspan="5">Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
         </tr>
         <tr>
-          <th>Firma:</th>
+          <th colspan="5">Firma:</th>
         </tr>
-        <th>Puesto:  ${formulation.make.job}</th>
+        <th colspan="5">Puesto:  ${formulation.make.job}</th>
         <tr></tr>
-      </table>
-
-      <table id="ta" border="1" align="center" width="60%">
       <tr>
-        <td class="pro">Producto</td>
+        <td>Producto</td>
         <td>Lote</td>
         <td>Temperatura carne</td>
         <td>Temperatura agua</td>
         <td>Ingredientes</td>
-        <td style="width:50px;">Fechas</td>
+        <td>Fechas</td>
       </tr>
         <tr>
-            <td class="wi">${formulation.productRovianda.name}</td>
+            <td >${formulation.productRovianda.name}</td>
             <td>${formulation.loteInterno}</td>
             <td>${formulation.temp ? formulation.temp : ""}</td>
             <td>${formulation.waterTemp ? formulation.waterTemp : ""}</td>
@@ -1690,7 +1689,7 @@ export default class PdfHelper{
                 
                 formulationTableInfo+= `
                     <tr>
-                    <td class="wi"></td>
+                    <td ></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -1699,23 +1698,22 @@ export default class PdfHelper{
                 </tr>`;
             }
       
-     formulationTableInfo +=`</table>   <table id="fo1" border="1">
+     formulationTableInfo +=`
         <tr>
-          <td>Verifico:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
-          <td>Firma:</td>
-          <td>Puesto:  ${formulation.verifit.job}</td>
+          <td align="left">Verifico:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+          <td align="left" colspan="2">Firma:</td>
+          <td align="left" colspan="3">Puesto:  ${formulation.verifit.job}</td>
         </tr>
-      </table>
-      <br>
-      `
+    
+    
+        `
       
 
     });
       formulationTableInfo+=`
-  
-      <table id="fo" border="1">
-        <tr>
-          <th>F-CAL-RO-05</th>
+      <tr>
+            <th colspan="5"></th>
+            <th>F-CAL-RO-05</th>
         </tr>
       </table>
     </body>
