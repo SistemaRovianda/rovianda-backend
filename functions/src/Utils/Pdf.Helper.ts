@@ -1504,27 +1504,27 @@ export default class PdfHelper{
         </head>
 
         <body>
-         <table  align="center"    width="100%" > 
-             <tr> <!-- columna-->
-                 <td rowspan="2" align="center" >  <img src="${LOGO.data}" alt=""  height="80px">    </td>
-                 <td colspan="2" align="center"><font size=1>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</font></td>
-             </tr>
-                 <td align="center"><font size=1>CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO</font></td>
-         </table>
+         <div id="pageHeader"  align="center"    width="100%" > 
+                 
+                 <p colspan="2" align="center"><font size=1>EMPACADORA ROVIANDA S.A.P.I. DE C.V.</font></p>
+             
+                 <p align="center"><font size=1>CONTROL DE TEMPERATURA DEL CONOCIMENTO DEL PRODUCTO</font></p>
+         </div>
       `;
     }
 
     bodyReportOvenProducts(data:OvenProducts[]){
-        let content="";
+        let content=`<table border="1" align="center" width="100%">
+            
+        <tr>
+            <td>  <img src="${LOGO.data}" alt=""  height="80px">    </td>`;
         for(let i = 0; i<data.length; i++){
             content =content + ` 
-         <table align="right" border="1px">
-             <tr>       
+                ${i>0? "<td></td>" : ""}
+                 <td colspan="3"></td>   
                  <th><font size=1>Tiempo estimado:${data[i].stimatedTime}</font></th>   
              </tr>
-         </table>
- 
-         <table border="1" align="center" width="100%"> 
+         
              <th colspan="2"><font size=1>Producto: ${data[i].product.name}</font></th>
              <th><font size=1>PCC: ${data[i].pcc}</font></th>
              <th id="mueve7"><font size=1>Fecha: ${data[i].date}</font></th>
@@ -1555,27 +1555,24 @@ export default class PdfHelper{
 
     footerReportOvenProducts(userElaborated:User,userVerify:User,oven:OvenProducts){
         return `
-        </table>
-        <table align="center" border="1" id="ult" width="100%" ">
             <tr>
-                <th class="seg"><font size=1>Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Elaboró: ${oven.nameElaborated}</font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td><font size=1>Puesto: ${oven.jobElaborated}</font> </td>
             </tr>
             <tr>
-                <th class="seg"><font size=1>Revisó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Revisó: ${oven.nameCheck}</font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1><Puesto: ${oven.jobVerify}</font></td>
+                <td><font size=1><Puesto: ${oven.jobCheck}</font></td>
             </tr>
             <tr>
-                <th class="seg"><font size=1>Verificó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font</th>
+                <th colspan="3" class="seg"><font size=1>Verificó: ${oven.nameVerify}</font</th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td><font size=1>Puesto: ${oven.nameVerify}</font></td>
             </tr>
-        </table>
-
-        <table align="right" border="1px">
-             <tr>     
+        
+             <tr>  
+                <td colspan="4"></td>   
                 <td><font size=1>F-HACCP-RO-05</font></td>
              </tr>
         </table>
