@@ -1296,7 +1296,7 @@ export default class PdfHelper{
     }
 
 
-    headReportEntryPacking(user:User){
+    headReportEntryPacking(entrancePacking:EntrancePacking){
         return`
         <!DOCTYPE html>
         <html lang="en">
@@ -1315,7 +1315,6 @@ export default class PdfHelper{
             }
             .ma{
                text-align: left;
-               width: 300px; 
             }
             #fec{   
                 width:148px;
@@ -1323,6 +1322,9 @@ export default class PdfHelper{
             header{
                 text-align: center;
             }
+            .separa{
+                height: 15px;
+                }
             #mueve{
                 width: 185px;
                 margin-left: 773px
@@ -1350,20 +1352,18 @@ export default class PdfHelper{
         <p id="title">BITACORA DE CONTROL DE CALIDAD ALMACEN EMPAQUES  </p>
     </header>
   
+    <table border="1" align="center" width="90%">
 
-        <img src="${LOGO.data}" alt="" align="left" >
-
-        <table border="1" align="center" width="80%">
-            <tr>
-                <th class="ta">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
-            </tr>
-            <tr>
-                <th class="ta">Firma: </th>
-            </tr>
-            <tr>
-                <th class="ta">Puesto: ${user.job}</th>
-            </tr>
-        </table>
+        <tr>
+            <td rowspan="3"><img src="${LOGO.data}" width=60px height=70px ></td>
+            <th class="ma" colspan="4">Nombre: ${entrancePacking.make.name} ${entrancePacking.make.firstSurname} ${entrancePacking.make.lastSurname}</th>
+        </tr>
+        <tr>
+            <th class="ma" colspan="4">Firma: </th>
+        </tr>
+        <tr>
+            <th class="ma" colspan="4">Puesto: ${entrancePacking.make.job}</th>
+        </tr>
             </br>
     `;
     }
@@ -1373,19 +1373,15 @@ export default class PdfHelper{
         for(let i = 0; i<data.length; i++){
             content =content + `
             <!--------------------------------------------------------------------------->
-            <table border="1" align="center" width="90%">
                 <tr>
-                    <th class="ma">Materia prima: ${data[i].product.description}</th>
-                    <th  rowspan="2" >Lote proveedor: ${data[i].loteProveedor} </th>
+                    <th colspan="2" class="ma">Materia prima: ${data[i].product.description}</th>
+                    <th colspan="2" rowspan="2" >Lote proveedor: ${data[i].loteProveedor} </th>
                     <th  id="fec" rowspan="2">Fecha: ${data[i].date}</th>
                 </tr>
                 <tr>
-                    <th class="ma">Proveedor: ${data[i].proveedor}</th>
+                    <th colspan="2" class="ma">Proveedor: ${data[i].proveedor}</th>
                 </tr>
-            </table>
-
 <!--------------------------------------------------------------------------->
-            <table border="1" align="center" width="90%">
                 <tr>
                     <th>Control</th>
                     <th>Estandar</th>
@@ -1397,29 +1393,29 @@ export default class PdfHelper{
                   <tr>
                       <th><font size=1>Certificado de calidad</font></th>
                       <th><font size=1>Entrega de Certificado</font></th>
-                      <th>${data[i].quality ? "xxx" : ""}</th>
-                      <th>${!data[i].quality ? "xxx" : ""}</th>
+                      <th>${data[i].quality ? "Ok" : ""}</th>
+                      <th>${!data[i].quality ? "No ok" : ""}</th>
                       <th><font size=1>${data[i].observations ? data[i].observations :""}</font></th>
                 </tr>
                 <tr>
                     <th><font size=1>Materia extraña</font></th>
                     <th><font size=1>Ausente</font></th>
-                    <th>${data[i].strangeMaterial ? "xxx" : ""}</th>
-                    <th>${!data[i].strangeMaterial ? "xxx" : ""}</th>
+                    <th>${data[i].strangeMaterial ? "Ok" : ""}</th>
+                    <th>${!data[i].strangeMaterial ? "No ok" : ""}</th>
                     <th></th>
                 </tr>
                 <tr>
                     <th><font size=1>Transporte</font></th>
                     <th><font size=1>Limpio</font></th>
-                    <th>${data[i].transport ? "xxx" : ""}</th>
-                    <th>${!data[i].transport ? "xxx" : ""}</th>
+                    <th>${data[i].transport ? "Ok" : ""}</th>
+                    <th>${!data[i].transport ? "No ok" : ""}</th>
                     <th></th>
                 </tr>
                 <tr>
                     <th><font size=1>Empaque</font></th>
                     <th><font size=1>Sin daños y limpios</font></th>
-                    <th>${data[i].paking ? "xxx" : ""}</th>
-                    <th>${!data[i].paking ? "xxx" : ""}</th>
+                    <th>${data[i].paking ? "Ok" : ""}</th>
+                    <th>${!data[i].paking ? "No ok" : ""}</th>
                     <th></th>
                 </tr>
         `;
@@ -1430,15 +1426,13 @@ export default class PdfHelper{
 
     footerReportEntryPacking(entrancePacking:EntrancePacking){
     return `
-    <table border="1px"  align="center" width="90%">
         <tr>
-            <td class="te"><b>Verifico: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.name} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.firstSurname} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.lastSurname}</b> </td> 
-        <b> <td class="te"> <b> Firma: </b></td>  
+            <td colspan="2"><b>Verifico: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.name} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.firstSurname} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.lastSurname}</b> </td> 
+        <b> <td colspan="2" class="te"> <b> Firma: </b></td>  
         <b> <td class="te"> <b> Puesto: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.job}</b> </td>
         </tr> 
-    </table>
-    <table align="right" width="25%" border="1px">
-        <tr>     
+        <tr>  
+           <td colspan="4"></td>   
            <td >F-CAL-RO-03 </td>
         </tr>
     </table>
@@ -1448,7 +1442,7 @@ export default class PdfHelper{
     }
 
     async reportEntryPacking(user:User,packing:EntrancePacking[]){
-        let content = this.headReportEntryPacking(user)+this.bodyReportEntryPacking(packing)+this.footerReportEntryPacking(packing[0]);
+        let content = this.headReportEntryPacking(packing[0])+this.bodyReportEntryPacking(packing)+this.footerReportEntryPacking(packing[0]);
         return content;
     }
 
