@@ -69,9 +69,8 @@ export default class PdfHelper{
         <body>
         <br><br>
         <div id="pageHeader">
-            <b><p id="title" align="center">EMPACADORA ROVIANDA S.A.P.I DE CV</p></b>
-            <br>
-            <b><p id="title" align="center" >BITACORA DE CONTROL DE CALIDAD DE ALMACEN EMPAQUES</p></b>
+            <b><p align="center">EMPACADORA ROVIANDA S.A.P.I DE CV</p></b>
+            <b><p align="center" >BITACORA DE CONTROL DE CALIDAD DE ALMACEN EMPAQUES</p></b>
         </div>
         
         <table border="1" WIDTH="450" align="center">
