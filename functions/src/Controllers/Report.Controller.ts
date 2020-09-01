@@ -381,12 +381,15 @@ export class ReportController{
         let entrysMeats:EntranceMeat[] = await this.entranceMeatService.reportEntrancesMeats(dateInit,dateEnd);
         let report = await this.pdfHelper.reportEntryMeats(user,entrysMeats);
         pdf.create(report, {
-            format: 'Letter',
+            format: 'Legal',
             border: {
                 top: "1cm", 
                 right: "1cm",
                 bottom: "1cm",
                 left: "1cm"
+            },
+            footer: {
+                height: "10mm",
             }
         }).toStream((function (err, stream) {
             res.writeHead(200, {
