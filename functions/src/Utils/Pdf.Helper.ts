@@ -231,7 +231,7 @@ export default class PdfHelper{
     }
 
     bodyReportEntranceMeat(user:User,meat:EntranceMeat){
-        return `
+        let conten1=`
         <body bgcolor="">
 
         <table  align="center" border="1px"   width="85%" > 
@@ -291,7 +291,7 @@ export default class PdfHelper{
             <td><font size=1>Según el empaque</font></td>
             <td><font size=1>${meat.weight.accepted ? "Ok" : ""}</font></td>
             <td><font size=1>${!meat.weight.accepted ? "No ok" : ""}</font></td>
-            <td><font size=1>${meat.weight.observations ? meat.weight.observations : ""}</font></td>
+            <td><font size=1>${meat.weight.value ? meat.weight.value : ""}</font></td>
          </tr>
          <tr>
             <td><font size=1>Materia extraña</font></td>
@@ -300,20 +300,44 @@ export default class PdfHelper{
             <td><font size=1>${!meat.strangeMaterial.accepted ? "No ok" : ""}</font></td>
             <td><font size=1>${meat.strangeMaterial.observations ? meat.strangeMaterial.observations : ""}</font></td>
          </tr>
-         <tr>
+        `;
+        let conten2="";
+        if(+meat.temperature.value <= 4 && +meat.temperature.value >= -17){
+            conten2= `
+            <tr>
             <td rowspan="2"><font size=1>Temperatura</font></td>
             <td><font size=1>Fresco: Max. 4°C</font></td> 
-            <td><font size=1>${meat.temperature.accepted ? "Ok" : ""}</font></td>
+            <td><font size=1>${meat.temperature.accepted  ? "Ok" : ""}</font></td>
             <td><font size=1>${!meat.temperature.accepted ? "No ok" : ""}</font></td>
-            <td><font size=1>${meat.temperature.descriptions ? meat.temperature.descriptions : ""}</font></td>
+            <td><font size=1>${meat.temperature.value ? meat.temperature.value : ""}</font></td>
          </tr>  
          <tr>
             <td><font size=1>Congelado: Max. -18°C</font></td>
-            <td><font size=1>${meat.fridge.accepted ? "Ok" : ""}</font></td>
-            <td><font size=1>${!meat.fridge.accepted ? "No ok" : ""}</font></td>
-            <td><font size=1>${meat.fridge.observations ? meat.fridge.observations : ""}</font></td>
+            <td><font size=1>N/A</font></td>
+            <td><font size=1>N/A</font></td>
+            <td><font size=1></font></td>
          </tr>
+            `;
+        }
+        if(+meat.temperature.value <= -18){
+            conten2= `
+            <tr>
+            <td rowspan="2"><font size=1>Temperatura</font></td>
+            <td><font size=1>Fresco: Max. 4°C</font></td> 
+            <td><font size=1>N/A</font></td>
+            <td><font size=1>N/A</font></td>
+            <td><font size=1></font></td>
+         </tr>  
          <tr>
+            <td><font size=1>Congelado: Max. -18°C</font></td>
+            <td><font size=1>${meat.temperature.accepted  ? "Ok" : ""}</font></td>
+            <td><font size=1>${!meat.temperature.accepted ? "No ok" : ""}</font></td>
+            <td><font size=1>${meat.temperature.value ? meat.temperature.value : ""}</font></td>
+         </tr>
+            `;
+        }
+        let conten3=`
+        <tr>
             <td><font size=1>Olor</font></td>
             <td><font size=1>Característico</font></td>
             <td><font size=1>${meat.odor.accepted ? "Ok" : ""}</font></td>
@@ -364,6 +388,7 @@ export default class PdfHelper{
         </table>
       </body>
     </html>`;
+        return conten1+conten2+conten3;
     }
 
 
@@ -1200,7 +1225,7 @@ export default class PdfHelper{
             <td><font size=1>Según el empaque</font></td>
             <td><font size=1>${meat[i].weight.accepted ? "Ok" : ""}</font></td>
             <td><font size=1>${!meat[i].weight.accepted ? "No ok" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${!meat[i].weight.value}</font></td>
          </tr>
 
          <tr>
@@ -1214,16 +1239,16 @@ export default class PdfHelper{
          <tr>
             <td rowspan="2"><font size=1>Temperatura</font></td>
             <td><font size=1>Fresco: Max. 4°C</font></td> 
-            <td><font size=1>${meat[i].temperature.accepted ? "Ok" : ""}</font></td>
-            <td><font size=1>${!meat[i].temperature.accepted ? "No ok" : ""}</font></td>
-            <td></td>
+            <td><font size=1>${meat[i].temperature.accepted && (+meat[i].temperature.value <= 4 && +meat[i].temperature.value >= -17) ? "Ok" : "N/A"}</font></td>
+            <td><font size=1>${!meat[i].temperature.accepted && (+meat[i].temperature.value <= 4 && +meat[i].temperature.value >= -17) ? "No ok" : "N/A"}</font></td>
+            <td><font size=1>${(+meat[i].temperature.value <= 4 && +meat[i].temperature.value >= -17) ? meat[i].temperature.value : ""}</font></td>
          </tr>  
 
          <tr>
             <td><font size=1>Congelado: Max. -18°C</font></td>
-            <td><font size=1>${meat[i].temperature.accepted ? "Ok" : ""}</font></td>
-            <td><font size=1>${!meat[i].temperature.accepted ? "No ok" : ""}</font></td>
-            <td></td>   
+            <td><font size=1>${meat[i].temperature.accepted && (+meat[i].temperature.value <= -18) ? "Ok" : "N/A"}</font></td>
+            <td><font size=1>${!meat[i].temperature.accepted && (+meat[i].temperature.value <= -18) ? "No ok" : "N/A"}</font></td>
+            <td><font size=1>${(+meat[i].temperature.value <= -18) ? meat[i].temperature.value : "N/A"}</font></td>
          </tr>
 
          <tr>
