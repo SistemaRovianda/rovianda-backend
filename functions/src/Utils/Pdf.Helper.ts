@@ -1169,10 +1169,10 @@ export default class PdfHelper{
         for(let i = 0; i<meat.length; i++){
             content =content + `
     <table  align="center" border="1px"   width="90%" > 
-        <tr>
+    ${i>0 ? `<div style="page-break-after:always;"></div>` : " "}     
+    <tr>
         <td rowspan="2" align="center">  <img src="${LOGO.data}" alt=""  height="60px"></td>
-        <td align="center" rowspan="2" colspan="3"><font size=1>LOTE INTERNO: ${meat[i].loteInterno}</font> </td>
-        <td align="center" rowspan="2" colspan="2"><font size=1>Pág.:1 de 1</font></td>
+        <td align="center" rowspan="2" colspan="5"><font size=1>LOTE INTERNO: ${meat[i].loteInterno}</font> </td>
      </tr>
      <tr></tr>
          <tr>
@@ -1312,6 +1312,9 @@ export default class PdfHelper{
       <td colspan="2" align="center"><font size=1>F-CAL-RO-04</font></td>
       </tr>
     </table>
+    <div id="pageFooter" padding-top: 5px;">
+        <p style="color: #666; margin: 0; padding-bottom: 5px; text-align: right; font-family: sans-serif; font-size: .65em">Página {{page}} de {{pages}}</p>
+    </div>
     <br>
   </body>
 </html>      
