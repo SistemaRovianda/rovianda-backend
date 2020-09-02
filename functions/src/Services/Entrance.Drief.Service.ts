@@ -61,18 +61,28 @@ export class EntranceDriefService{
         if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
             && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
             entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){
-
-                let warehouseDrief:WarehouseDrief = new WarehouseDrief();
-        
-                warehouseDrief.userId = req.headers.uid as string;
-                warehouseDrief.date= entranceDriefDTO.date;
-                warehouseDrief.isPz = entranceDriefDTO.isPz;
-                warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
-                warehouseDrief.observations = entranceDriefDTO.observations;
-                warehouseDrief.product = product;
-                warehouseDrief.quantity = entranceDriefDTO.quantity;
-                warehouseDrief.status = WarehouseStatus.PENDING
-                await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+                let findWarehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.findWarehouseDriefByProductLot(product,entranceDriefDTO.lotProveedor)
+                if(findWarehouseDrief){
+                    if(findWarehouseDrief.status == WarehouseStatus.CLOSED){
+                        findWarehouseDrief.quantity = entranceDriefDTO.quantity; 
+                        await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
+                    }
+                    if(findWarehouseDrief.status == WarehouseStatus.OPENED){
+                        findWarehouseDrief.quantity = findWarehouseDrief.quantity + entranceDriefDTO.quantity;
+                        await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
+                    }
+                }else{
+                    let warehouseDrief:WarehouseDrief = new WarehouseDrief();
+                    warehouseDrief.userId = req.headers.uid as string;
+                    warehouseDrief.date= entranceDriefDTO.date;
+                    warehouseDrief.isPz = entranceDriefDTO.isPz;
+                    warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
+                    warehouseDrief.observations = entranceDriefDTO.observations;
+                    warehouseDrief.product = product;
+                    warehouseDrief.quantity = entranceDriefDTO.quantity;
+                    warehouseDrief.status = WarehouseStatus.PENDING
+                    await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+                }
             }
 
         

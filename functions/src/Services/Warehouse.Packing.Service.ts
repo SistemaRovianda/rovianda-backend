@@ -1,6 +1,6 @@
 import { WarehousePackingRepository } from "../Repositories/Warehouse.Packing.Repository";
 import { WarehousePacking } from "../Models/Entity/Warehouse.Packing";
-import { WarehouseDTO } from "../Models/DTO/WarehouseDTO";
+import { WarehouseDTO, WarehousePackingDTO } from "../Models/DTO/WarehouseDTO";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { Product } from "../Models/Entity/Product";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
@@ -17,28 +17,28 @@ export class WarehousePackingService{
         this.entrancePackingRepository = new EntrancePackingRepository();
     }
     
-    async updateWarehouseStatus(warehousePackinDTO:WarehouseDTO){
-        let product:Product = await this.productRepository.getProductById(+warehousePackinDTO.productId);
-        if(!product) throw new Error("[404], el producto no existe en la seccion de empaques");
-        
-        let lote:WarehousePacking[] = await this.warehousePackingRepository.getWarehousePackingByLoteIdAndProductId(warehousePackinDTO.loteId,warehousePackinDTO.productId); 
-        if(!lote.length) throw new Error("[404], el lote indicado en el request no existe");
+    async updateWarehouseStatus(warehousePackinDTO:WarehousePackingDTO){
+        if(!warehousePackinDTO.date) throw new Error("[400], date is required");
+        if(!warehousePackinDTO.status) throw new Error("[400], status is requires");
+        if(!warehousePackinDTO.warehouseId) throw new Error("[400], warehouseId is required");
+        let warehousePacking:WarehousePacking = await this.warehousePackingRepository.findWarehousePackingById(warehousePackinDTO.warehouseId);
+        if(!warehousePacking) throw new Error("[404], warehousePacking not found");
 
         switch(warehousePackinDTO.status){
             case WarehouseStatus.OPENED:
-                lote[0].status=WarehouseStatus.OPENED;
-                lote[0].openingDate = warehousePackinDTO.date;
+                warehousePacking.status=WarehouseStatus.OPENED;
+                warehousePacking.openingDate = warehousePackinDTO.date;
                 break;
             case WarehouseStatus.CLOSED:
-                lote[0].status=WarehouseStatus.CLOSED;
-                lote[0].closingDate = warehousePackinDTO.date;
+                warehousePacking.status=WarehouseStatus.CLOSED;
+                warehousePacking.closingDate = warehousePackinDTO.date;
                 break;
             default:
                 throw new Error("[400], status no valido");
                 break;
         }
 
-        await this.warehousePackingRepository.saveWarehousePacking(lote[0]);
+        await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);
         
     }
 

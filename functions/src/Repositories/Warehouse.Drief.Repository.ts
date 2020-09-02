@@ -120,4 +120,9 @@ export class WarehouseDriefRepository{
         await this.getConnection();
         return await this.warehouseDriefRepository.find({product});
     }
+
+    async findWarehouseDriefByProductLot(product:Product,loteProveedor:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({product,loteProveedor});
+    }
 }

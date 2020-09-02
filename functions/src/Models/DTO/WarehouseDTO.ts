@@ -7,6 +7,12 @@ export interface WarehouseDTO{
     status: WarehouseStatus
 }
 
+export interface WarehousePackingDTO{
+    warehouseId:number,
+    date:string
+    status: WarehouseStatus
+}
+
 export interface WarehouseCollingDTO{
     loteId:string;
     fridgeId:number;

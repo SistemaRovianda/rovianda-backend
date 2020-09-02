@@ -70,4 +70,14 @@ export class WarehousePackingRepository{
         await this.getConnection();
         return await this.warehousePackingRepository.find({product});
     }
+
+    async findWarehousePackingById(id:number){
+        await this.getConnection();
+        return await this.warehousePackingRepository.findOne({id});
+    }
+
+    async findWarehousePackingByProductLot(product:Product,loteProveedor:string){
+        await this.getConnection();
+        return await this.warehousePackingRepository.findOne({product,loteProveedor});
+    }
 }
