@@ -23,7 +23,8 @@ import { Tenderized } from "../Models/Entity/Tenderized";
 
 export default class Excel4Node{
 
-    generateFormulationDocumentByDates(formulationData: any){
+    generateFormulationDocumentByDates(formulationData: Formulation[]){
+        console.log(formulationData);
         let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
         var workbook = new excel.Workbook(); // se inicializa un workbook (archivo de excel)
 
@@ -115,53 +116,54 @@ export default class Excel4Node{
                 horizontal: 'center',//alineamiento del texto
             }
         });
+        let row = 4;
 
-        worksheet.cell(4, 5, 4, 8, true).string(`Realizo, Nombre:  ${formulationData.performer.name}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+        formulationData.forEach(formulation =>{
+            worksheet.cell(row, 5, row, 8, true).string(`Realizo, Nombre:  ${formulation.make? formulation.make.name+" "+formulation.make.firstSurname+" "+formulation.make.lastSurname : ""}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
 
-        worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
+        worksheet.cell(++row, 5, row, 8, true).string("Firma:  ").style(styleUser);
 
-        worksheet.cell(6, 5, 6, 8, true).string(`Puesto:  ${formulationData.performer.position}`).style(styleUser);
+        worksheet.cell(++row, 5, row, 8, true).string(`Puesto:  ${formulation.make? formulation.make.job : ""}`).style(styleUser);
            
-        worksheet.cell(9, 4, 9, 5, true).string("Producto").style(style);
-        worksheet.cell(9, 6, 9, 7, true).string("Lote").style(style);
-        worksheet.cell(9, 8, 9, 9, true).string("Temperatura carne").style(style);
-        worksheet.cell(9, 10, 9, 11, true).string("Temperatura agua").style(style);
-        worksheet.cell(9, 12, 9, 13, true).string("Ingredientes").style(style);
-        worksheet.cell(9, 14, 9, 15, true).string("Fechas").style(style);
+        worksheet.cell(++row, 4, row, 5, true).string("Producto").style(style);
+        worksheet.cell(row, 6, row, 7, true).string("Lote").style(style);
+        worksheet.cell(row, 8, row, 9, true).string("Temperatura carne").style(style);
+        worksheet.cell(row, 10, row, 11, true).string("Temperatura agua").style(style);
+        worksheet.cell(row, 12, row, 13, true).string("Ingredientes").style(style);
+        worksheet.cell(row, 14, row, 15, true).string("Fechas").style(style);
         
-        let row = 10;
         let col = 4;
 
         //ya que las hojas de calculo son entre comillas "matrices", los datos se deben manejar como tal
 
-        formulationData.product.forEach((product) => {
-            worksheet.cell(row, col, row, ++col, true).string(`${product.name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${product.lot}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${product.meatTemp}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${product.waterTemp}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${product.ingredients[0].name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${product.date}`).style(style);
-            for (let i = 1; i < product.ingredients.length; i++) {
+        
+            worksheet.cell(++row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.loteInterno}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[0] ? formulation.formulationIngredients[0].productId.description : ""}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
+            for (let i = 1; i < formulation.formulationIngredients.length; i++) {
                 col = 4;
                 row++;
                 worksheet.cell(row, col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
-                worksheet.cell(row, ++col, row, ++col, true).string(`${product.ingredients[i].name}`).style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[i].productId.description}`).style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
             }
-            col = 4;
-            row ++; 
-        });
 
-        worksheet.cell(++row, 4, row, 7,true).string(`Realizo, Nombre:  ${formulationData.verifier.name}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 7,true).string(`Verificó, Nombre:  ${formulation.verifit ? formulation.verifit.name+" "+formulation.verifit.firstSurname+" "+formulation.verifit.lastSurname : ""}`).style(styleUser);
 
         worksheet.cell(row, 8, row, 9, true).string("Firma:  ").style(styleUser);
 
-        worksheet.cell(row, 10, row, 11, true).string(`Puesto:  ${formulationData.verifier.ocupation}`).style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string(`Puesto:  ${formulation.verifit ? formulation.verifit.job : ""}`).style(styleUser);
 
 
+            row++;
+        });
+        
         return workbook;//se retorna el workbook
     }
   
