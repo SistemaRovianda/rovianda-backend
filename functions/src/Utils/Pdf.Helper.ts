@@ -1361,9 +1361,7 @@ export default class PdfHelper{
                 margin-left: 780px
             }
             img{
-                width: 60px;
-                height:80px;
-                transform: translateY(78%) translateX(474%);
+                height:55px;
               }
         
             #title{
@@ -1382,7 +1380,7 @@ export default class PdfHelper{
     <table border="1" align="center" width="100%">
 
         <tr>
-            <td rowspan="3"><img src="${LOGO.data}" width=60px height=70px ></td>
+            <td rowspan="3"><img src="${LOGO.data}"></td>
             <th class="ma" colspan="4"><font size=1>Nombre: ${entrancePacking.make.name} ${entrancePacking.make.firstSurname} ${entrancePacking.make.lastSurname}</font></th>
         </tr>
         <tr>
@@ -1772,33 +1770,26 @@ export default class PdfHelper{
         let content =` 
         <body bgcolor="">
     <header align="center">
-        <p>EMPACADORA ROVIANDA S.A.P.I. DE C.V</p>
-        <P>BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO</P>
+        <b><p>EMPACADORA ROVIANDA S.A.P.I. DE C.V</p></b>
+        <p>BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO</p>
     </header>
-
-    <table border="0" width="100%">
-       <tr>
-        <td> <img src="${LOGO.data}" align="left"  height="80px"></td>
-        <td>
-          <p align="right">No.Lote: ${data.loteInterno}</p>
-          <p align="right">Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
-        </td> 
-       </tr>
-    </table>
-   </br>
-    <table  align="left" border="1">
+    <table border="1" width="90%">
+        <tr>
+            <th colspan="2"><img src="${LOGO.data}" height="60px" /></th>
+            <th colspan="2">No.Lote: ${data.loteInterno}</th>
+            <th colspan="3">Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()} </th>
+        </tr>
         <tr>
             <th>DESCOGELADO</th>
+            <th colspan="6"></th>
         </tr>
-    </table>
-    <table border="1"  align="center" width="100%">
         <tr>
             <th>MATERIA PRIMA</th>
             <th>FECHA</th>
             <th>PESO Kg</th>
             <th>T*C</th>
             <th>HORA DE ENTRADA</th>
-            <th>HORA DE SALIDA</th>
+            <th colspan="2">HORA DE SALIDA</th>
         </tr>
         <tr>
         <td class="formacion" >${data.product == null ? "" : data.product.name}</td>
@@ -1806,23 +1797,20 @@ export default class PdfHelper{
         <td>${data.weigth ? data.weigth : ""}</td>
         <td>${data.temperature ? data.temperature :""}</td>
         <td>${data.entranceHour ? data.entranceHour :""}</td>
-        <td>${data.outputHour}</td>
+        <td colspan="2">${data.outputHour}</td>
         </tr>
-    </table>
-
-    <table  align="left" border="1">
         <tr>
-            <th>ACONDICIONAMIENTO</th>
+            <th colspan="2">ACONDICIONAMIENTO</th>
+            <th colspan="5"></th>
         </tr>
-    </table>
-
-    <table border="1" align="center" width="100%">
         <tr>
             <th>MATERIA PRIMA</th>
             <th>FECHA</th>
             <th>PROCESO</th>
             <th>PESO Kg</th>
             <th>PRODUCTO(s)</th> 
+            <th></th> 
+            <th></th> 
         </tr>
         <tr>
             <td  class="formacion">${data.conditioningId == null ? "" : data.conditioningId.raw}</td>
@@ -1832,8 +1820,6 @@ export default class PdfHelper{
             <td>${conditioning.productId == null ? "" :conditioning.productId.name}</td>
             <td cellspacing="0">clave</td>
             <td cellspacing="0">Proceso</td>
-            
-    
         </tr>
         <tr>
             <td></td>
@@ -1852,7 +1838,6 @@ export default class PdfHelper{
             <td></td>
             <td>L</td>
             <td>Limpieza</td>
-    
         </tr>
         <tr>
             <td></td>
@@ -1870,15 +1855,10 @@ export default class PdfHelper{
             <td></td>
             <td></td>
         </tr>
-        </table>
-
-        <table align="left" border="1">
             <tr>
                 <th>MOLIENDA</th>
+                <th colspan="6"></th>
             </tr>
-        </table>
-
-        <table border="1" align="center" width="100%">
             <tr>
                 <th>MATERIA PRIMA</th>
                 <th>FECHA</th>
@@ -1886,8 +1866,8 @@ export default class PdfHelper{
                 <th>PESO Kg</th>
                 <th>T*C</td>
                 <th>PRODUCTO(s)</th>
+                <th></th>
             </tr>
-
             <tr>
                 <th class="formacion">${data.grindingId == null ? "" : data.grindingId.raw}</th>
                 <th>${data.grindingId == null ? "" : data.grindingId.date}</th>
@@ -1895,17 +1875,13 @@ export default class PdfHelper{
                 <th>${data.grindingId == null ? "" : data.grindingId.weight}</th>
                 <th>${data.temperature}</th>
                 <th>${data.product == null ? "" : data.product.name}</th>
+                <th></th>
             </tr>
-        </table>
-
-
-          <table align="left" border="1">
+            <br><br>            
               <tr>
-                  <th>INYECCION/TENDERIZADO</th>
+                  <th colspan="2">INYECCION/TENDERIZADO</th>
+                  <th colspan="5"></th>
               </tr>
-          </table>
-
-          <table border="1"  align="center" width="100%">
               <tr>
                   <th>PRODUCTO</th>
                   <th>FECHA</th>
@@ -1913,8 +1889,8 @@ export default class PdfHelper{
                   <th>T*C</th>
                   <th>PESO SALMUERA Kg</th>
                   <th>%INYECCION</th>
+                  <th></th>
               </tr>
-
               <tr>
                 <th class="formacion">${tenderized.productId == null ? "" : tenderized.productId.name}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.date}</th>
@@ -1922,16 +1898,12 @@ export default class PdfHelper{
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.temperature}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.weightSalmuera}</th>
                 <th>${data.tenderizedId == null ? "" : data.tenderizedId.percentInject}</th>
+                <th></th>
             </tr>
-          </table>
-
-          <table align="left" border="1">
             <tr>
                 <th>EMBUTIDO</th>
+                <th colspan="6"></th>
             </tr>
-        </table>
-
-          <table border="1"  align="center" width="100%">
             <tr>
                 <th>PRODUCTO</th>
                 <th>FECHA</th>
@@ -1939,8 +1911,8 @@ export default class PdfHelper{
                 <th>PESO Kg.Inicio(Hra)</th>
                 <th>PESO Kg.Medio(Hra)</th>
                 <th>PESO Kg. Fin (Hra)</th>
+                <th></th>
             </tr>
-
             <tr>
               <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.name}</th>
               <th>${data.sausageId == null ? "" : data.sausageId.date}</th>
@@ -1948,30 +1920,23 @@ export default class PdfHelper{
               <th>${data.sausageId == null ? "" : data.sausageId.weightIni} (${data.sausageId == null ? "" : data.sausageId.hour1})</th>
               <th>${data.sausageId == null ? "" : data.sausageId.weightMedium} (${data.sausageId == null ? "" : data.sausageId.hour2})</th>
               <th>${data.sausageId == null ? "" : data.sausageId.weightExit} (${data.sausageId == null ? "" : data.sausageId.hour3})</th>
+              <th></th>
           </tr>
-
-        </table>
-
-        <table align="right" width="20%" border="1px">
-            <tr>     
-                    <td>F-CAL-RO-07</td>
+            <tr>
+                <td colspan="6"></td>     
+                <td>F-CAL-RO-07</td>
             </tr>
-        </table>
-
-        <table align="center" height="60px" width="100%" border="1">
         <tr>
-            <th>Elaboro: ${data.nameElaborated ? data.nameElaborated : ""}  </th>
-            <th>Firma: </th>
-            <th>Puesto: ${data.jobElaborated? data.jobElaborated:""}</th>
+            <th colspan="3">Elaboro: ${data.nameElaborated ? data.nameElaborated : ""}  </th>
+            <th colspan="2">Firma: </th>
+            <th colspan="2">Puesto: ${data.jobElaborated? data.jobElaborated:""}</th>
         </tr>
-    </table>
-    <table align="center" height="60px" width="100%" border="1">
         <tr>
-            <div id="text">
-            <th>Verifico: ${data.nameVerify? data.nameVerify : ""} </th>
-            <th>Firma: </th>
-            <th>Puesto: ${data.jobVerify?data.jobVerify:""}</th>
-        </div>
+          <div id="text">
+            <th colspan="3">Verifico: ${data.nameVerify? data.nameVerify : ""} </th>
+            <th colspan="2">Firma: </th>
+            <th colspan="2">Puesto: ${data.jobVerify?data.jobVerify:""}</th>
+          </div>
         </tr>
     </table>
 </body>
@@ -1983,7 +1948,6 @@ export default class PdfHelper{
         let content = this.headReportProcess()+this.bodyReportProcess(data,conditioning,sausaged,tenderized);
         return content;
     }
-
 
 
     headReportPackaging(){

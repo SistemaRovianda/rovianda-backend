@@ -534,7 +534,8 @@ export class ReportController{
         }                                                                    
         let report = await this.pdfHelper.reportProcess(process,conditioning,sausaged,tenderized);
         pdf.create(report, {
-            format: 'A3',
+            format: 'legal',
+            orientation:`landscape`,
             header: {
                 height: "0px"
             },
