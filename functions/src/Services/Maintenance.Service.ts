@@ -208,4 +208,30 @@ export class MaintenanceService{
         }
         return response;
     }
+
+    async getStoreMaintenance(dateIni:string,dateFin:string){
+        if(!dateIni)throw new Error("[400],dateIni in query is required");
+        if(!dateFin)throw new Error("[400],dateEnd in query is required");
+        let response:any = [];
+        let manintenance = await this.maintenanceRepository.getMaintenanceByDates(dateIni,dateFin);
+        for(let i = 0; i < manintenance.length; i++){
+            let aDevice:any = [];
+            let storeMa = await this.maintenanceRepository.getMaintenanceByDatesStore(dateIni,dateFin,manintenance[i].store_id);
+            for(let e = 0; e < storeMa.length; e++){
+                let device:Devices = await this.deviceRepository.getDeviceById(+storeMa[e].device_id);
+                aDevice.push({
+                    deviceId: device.id,
+                    name: device.name,
+                    costMaintenance: storeMa[e].cost
+                })
+            }
+            let store:Store = await this.storeRepository.getStoreById(+manintenance[i].store_id)
+            response.push({
+                storeId: store.id,
+                store: store.name,
+                devices: aDevice
+            })
+        }
+        return response
+    }
 }

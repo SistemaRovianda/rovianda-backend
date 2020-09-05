@@ -108,5 +108,11 @@ export const maintenanceRoutes:Array<routeInterface>=[
         method:"get",
         controller:MaintenanceController,
         target:"getAllDevicesStore"
+    },
+    {
+        url:"/rovianda/maintenance/store/device",
+        method:"post",
+        controller:MaintenanceController,
+        target:"getStoreMaintenance"
     }
 ];

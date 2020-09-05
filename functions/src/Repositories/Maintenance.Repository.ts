@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { Maintenance } from '../Models/Entity/Maintenance';
 import { Store } from '../Models/Entity/Store';
 export class MaintenanceRepository{
@@ -138,6 +138,26 @@ export class MaintenanceRepository{
         .groupBy("maintenance.id")
         .getRawMany();
 
+    }
+
+    async getMaintenanceByDates(dateInit:string,dateFin:string){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT * FROM maintenance 
+        WHERE date 
+        BETWEEN "${dateInit}" AND "${dateFin}"
+        GROUP BY store_id;
+        `);
+    }
+
+    async getMaintenanceByDatesStore(dateInit:string,dateFin:string,storeId:number){
+        await this.getConnection();
+        return await this.maintenanceRepository.query(`
+        SELECT * FROM maintenance 
+        WHERE date 
+        BETWEEN "${dateInit}" AND "${dateFin}" 
+        AND store_id = ${storeId}
+        `);
     }
 }
 

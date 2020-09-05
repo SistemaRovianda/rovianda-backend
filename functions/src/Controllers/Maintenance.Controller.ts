@@ -109,6 +109,12 @@ export class MaintenanceController{
         let response = await this.maintenanceService.getAllDevicesStore();
         return res.status(200).send(response);
     }
+
+    async getStoreMaintenance(req:Request,res:Response){
+        let { dateInit,dateEnd } = req.body;
+        let response = await this.maintenanceService.getStoreMaintenance(dateInit,dateEnd);
+        return res.status(200).send(response);
+    }
 }
 
 
