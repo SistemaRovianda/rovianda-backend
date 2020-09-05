@@ -90,4 +90,9 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.findOne({outputCoolingIdRecord:outputCoolingId});
     }
+
+    async getFormulationByLotInterProduct(loteInterno:string,productRovianda:ProductRovianda){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({loteInterno,productRovianda});
+    }
 }

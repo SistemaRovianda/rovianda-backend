@@ -11,6 +11,7 @@ import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
 import { FormulationService } from './Formulation.Service';
 import { Formulation } from '../Models/Entity/Formulation';
+import { FormulationRepository } from '../Repositories/Formulation.Repository';
 
 
 export class ConditioningService{
@@ -20,6 +21,7 @@ export class ConditioningService{
     private productRoviandaRepository:ProductRoviandaRepository;
     private outputCooling:OutputsCoolingService;
     private formulationService:FormulationService;
+    private formulationRepository:FormulationRepository;
     constructor(){
         this.conditioningRepository = new ConditioningRepository();
         this.processRepository = new ProcessRepository();
@@ -27,6 +29,7 @@ export class ConditioningService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.outputCooling = new OutputsCoolingService();
         this.formulationService = new FormulationService();
+        this.formulationRepository = new FormulationRepository();
     }
     
     async createConditioningByProcessId(conditioningDTO:ConditioningDTO, processId:string){
@@ -64,14 +67,18 @@ export class ConditioningService{
             conditioning.productId = product;
             conditioning.date = conditioningDTO.date;
     
-            let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(+conditioningDTO.lotMeat);
+            // let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(+conditioningDTO.lotMeat);
+            // if(!formulationEn) throw new Error("[400], no existe la salida de carne en formulacion");
+            // formulationEn.status="USED";
+            let formulationEn:Formulation = await this.formulationRepository.getFormulationByLotInterProduct(conditioningDTO.lotMeat,product);
             if(!formulationEn) throw new Error("[400], no existe la salida de carne en formulacion");
             formulationEn.status="USED";
+            console.log("pasa formulacion")
             let lastConditioning :Conditioning = await this.conditioningRepository.createConditioning(conditioning);
             
             await this.formulationService.updateFormulation(formulationEn);
 
-            process.outputLotRecordId = +conditioningDTO.lotMeat;
+            process.outputLotRecordId = formulationEn.id;
             if(!process.loteInterno) { 
                 process.loteInterno = formulationEn.loteInterno;
             }
