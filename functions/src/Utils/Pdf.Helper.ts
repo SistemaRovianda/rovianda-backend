@@ -419,11 +419,7 @@ export default class PdfHelper{
                     margin-left: 80px;
                 }
                 
-                img{
-                    width: 60px;
-                    height:80px;
-                    transform: translateY(78%) translateX(474%);
-                }
+                
                 #title{
                 transform: translateY(507%) translateX(-2%);
                 top: 200px;
@@ -458,7 +454,7 @@ export default class PdfHelper{
             <b><p id="title"> BITÁCORA DE CONTROL DE CALIDAD FORMULACIÓN</p></b>
         </caption>
             <tr>
-            <td rowspan="3"><img src="${LOGO.data}" width=60px height=70px ></td>
+            <td rowspan="3"><img src="${LOGO.data}" "width=120px" height="100px" ></td>
             <th colspan="5">Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
             </tr>
             <tr>
@@ -751,31 +747,31 @@ export default class PdfHelper{
         <tr>
             <td>Certificado de calidad</td>
             <td>Entrega de Certificado</td>
-            <td>${packing.quality ? "---" : ""}</td>
-            <td>${!packing.quality ? "---" : ""}</td>
+            <td>${packing.quality ? "Ok" : ""}</td>
+            <td>${!packing.quality ? "Ok" : ""}</td>
             <td colspan="2" style="max-width:140px"><div style="width: 140px;height: auto;word-wrap: break-word;">${packing.observations}</div></td>
         </tr>
         <tr>
             <td>Materia extraña</td>
             <td>Ausente</td>
-            <td>${packing.strangeMaterial ? "---" : ""}</td>
-            <td>${!packing.strangeMaterial ? "---" : ""}</td>
+            <td>${packing.strangeMaterial ? "Ok" : ""}</td>
+            <td>${!packing.strangeMaterial ? "Ok" : ""}</td>
             <td colspan="2"></td>
         </tr>
        
         <tr>
                 <td>Transporte</td>
                 <td>Limpio</td>
-                <td>${packing.transport ? "---" : ""}</td>
-                <td>${!packing.transport ? "---" : ""}</td>
+                <td>${packing.transport ? "Ok" : ""}</td>
+                <td>${!packing.transport ? "Ok" : ""}</td>
                 <td colspan="2"></td>
         </tr>
      
         <tr>
             <td>Empaque</td>
             <td>Sin daños y limpios</td>
-            <td>${packing.paking ? "---" : ""}</td>
-            <td>${!packing.paking ? "---" : ""}</td>
+            <td>${packing.paking ? "Ok" : ""}</td>
+            <td>${!packing.paking ? "Ok" : ""}</td>
             <td colspan="2"></td>
         </tr>
         <tr>
