@@ -6,6 +6,7 @@ import { Product } from "../Models/Entity/Product";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { Request } from "express";
 import { EntrancePackingRepository } from "../Repositories/Entrance.Packing.Repository";
+import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 
 export class WarehousePackingService{
     private warehousePackingRepository:WarehousePackingRepository;
@@ -96,26 +97,46 @@ export class WarehousePackingService{
     
     async getPackingHistory(lotIdProveedor:string){
 
-        let warehousePacking: WarehousePacking = await this.warehousePackingRepository.getWarehousePackingfById(lotIdProveedor);
-        if(!warehousePacking)
-            throw new Error(`[404], warehousePacking with lot ${lotIdProveedor} was not found`);
-            
-        let outputs=[];
-        if(warehousePacking.outputsPacking.length){
-            outputs = warehousePacking.outputsPacking.map(output =>{ 
-                return {
-                    outputName: output.operatorOutlet,
-                    date: output.date
-                }
+        let warehousePacking:WarehousePacking[] = await this.warehousePackingRepository.getWarehousePackingfByLote(lotIdProveedor);
+        if(!warehousePacking.length) throw new Error(`[404], warehousePacking with lot ${lotIdProveedor} was not found`);
+            console.log(warehousePacking);
+        let response:any = [];
+        for(let i = 0; i < warehousePacking.length; i++){
+            let entrancePacking:EntrancePacking = await this.entrancePackingRepository.getEntrnacePackingByLotProveedorProduct(warehousePacking[i].loteProveedor,warehousePacking[i].product);
+            let outputs=[];
+            if(warehousePacking[i].outputsPacking.length){
+                outputs = warehousePacking[i].outputsPacking.map(output =>{ 
+                    return {
+                        outputName: output.operatorOutlet,
+                        date: output.date
+                    }
+                })
+            }
+            response.push({
+                entrancePackingId: entrancePacking ? entrancePacking.id : "",
+                receptionDate: warehousePacking[i].date,
+                openingDate: warehousePacking[i].openingDate,
+                closedDate: warehousePacking[i].closingDate,
+                outputs
             })
         }
-        let response = {
-            receptionDate: warehousePacking.date,
-            openingDate: warehousePacking.openingDate,
-            closedDate: warehousePacking.closingDate,
-            outputs
-        }
+        // let outputs=[];
+        // if(warehousePacking.outputsPacking.length){
+        //     outputs = warehousePacking.outputsPacking.map(output =>{ 
+        //         return {
+        //             outputName: output.operatorOutlet,
+        //             date: output.date
+        //         }
+        //     })
+        // }
+        // let response = {
+        //     receptionDate: warehousePacking.date,
+        //     openingDate: warehousePacking.openingDate,
+        //     closedDate: warehousePacking.closingDate,
+        //     outputs
+        // }
 
+        // return response;
         return response;
     }
 

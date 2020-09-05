@@ -18,6 +18,12 @@ import { OvenRepository } from '../Repositories/Oven.Repository';
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
 import { InspectionRepository } from '../Repositories/Inspection.Repository';
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
+import { Formulation } from '../Models/Entity/Formulation';
+import { FormulationRepository } from '../Repositories/Formulation.Repository';
+import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
+import { Process } from '../Models/Entity/Process';
+import { OvenProducts } from '../Models/Entity/Oven.Products';
+import { Packaging } from '../Models/Entity/Packaging';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -31,6 +37,7 @@ export class EntranceMeatService {
     private inspectionRepository:InspectionRepository;
     private outputsCoolingRepository:OutputsCoolingRepository;
     private rawRepository:RawRepository;
+    private formulationRepository:FormulationRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
         this.userRepository = new UserRepository();
@@ -43,6 +50,7 @@ export class EntranceMeatService {
         this.packagingRepository = new PackagingRepository();
         this.inspectionRepository = new InspectionRepository();
         this.outputsCoolingRepository = new OutputsCoolingRepository();
+        this.formulationRepository = new FormulationRepository();
     }
 
 
@@ -168,39 +176,96 @@ export class EntranceMeatService {
 
     async getHistoryMeat(lotId:string){
         if(!lotId) throw new Error("[400], lotId is required");
+        let response:any = [];
+        let aMeat:any = [];
+        let aCooling:any = [];
+        let aFormulation:any = [];
+        let aProcess:any = [];
+        let aPackaging:any = [];
+        let aOven:any = []
+        let aInspection:any = [];
+        let aOutputs:any = [];
 
-        let meat:EntranceMeat = await this.entrancesMeatRepository.getMeatByLot(lotId);
-        if(!meat) throw new Error(`[404],  Lot ${lotId} not found`);
-        let cooling:Cooling = await this.coolingRepository.getCoolingByFridgeId(+meat.fridge.fridgeId);
-        let formulation = await this.formulatioIngredientsRepository.getFormulationByLotInter(meat.loteInterno);
-        let process = await this.processRepository.getProceesByLotInter(meat.loteInterno);
-        let oven = await this.ovenRepository.getOvenProductByLot(meat.loteInterno);
-        let packaging = await this.packagingRepository.getPackagingByLot(meat.loteInterno);
-        let inspection = await this.inspectionRepository.getInspectionByLot(meat.loteInterno);
-        let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno);
+        let meat:EntranceMeat[] = await this.entrancesMeatRepository.getEntranceMeatByLotInter(lotId);
+        if(meat){
+            meat.forEach( i => {
+                aMeat.push({
+                    receptionDate: i ? i.createdAt : "",
+                    entranceMeatId: i ? i.id : ""
+                })
+            })
+        }
+        let cooling:Cooling[] = await this.coolingRepository.getCoolingByLotInter(lotId);
+        if(cooling){
+            cooling.forEach( i => {
+                aCooling.push({
+                    coolingId: i ? i.id : "",
+                    openingDate: i ? i.openingDate : "",
+                    closedDate: i ? i.closingDate : ""
+                })
+            })
+        }
+        let formulation:Formulation[] = await this.formulationRepository.getOneFormulationsByLote(lotId);
+        if(formulation){
+            for(let i = 0; i < formulation.length; i++){
+                let ingredents:FormulationIngredients[] = await this.formulatioIngredientsRepository.getByFormulation(formulation[i]);
+                let ingreden:any = []
+                ingredents.forEach( i=> {
+                    ingreden.push(i.productId.description)
+                })
+                aFormulation.push({
+                    formulationId: formulation[i] ? formulation[i].id : "",
+                    providerId: formulation[i].make ? formulation[i].make.name + " " + formulation[i].make.firstSurname + " " + formulation[i].make.lastSurname : "",
+                    ingredient: ingreden
+                })
+            }
+        }
+        let process:Process[] = await this.processRepository.findProceesByLotInerno(lotId);
+        if(process){
+            process.forEach( i => {
+                aProcess.push({
+                    processId: i ? i.id : "",
+                    date: i ? i.startDate : "",
+                    description: i ? i.currentProcess : ""
+                })
+            })
+        }
+        let oven:OvenProducts[] = await this.ovenRepository.getOvensByNewLot(lotId);
+        if(oven){
+            oven.forEach( i => {
+                aOven.push({
+                    ovenId: i ? i.id : "",
+                    entranceDate: i ? i.date : ""
+                })
+            })
+        }
+        //let packaging:Packaging[] = await this.packagingRepository.getPackagingByLot
+        // let packaging = await this.packagingRepository.getPackagingByLot(meat.loteInterno);
+        // let inspection = await this.inspectionRepository.getInspectionByLot(meat.loteInterno);
+        // let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno);
 
-        let response=
-        {
-            receptionDate: meat.createdAt ? meat.createdAt : "",
-            fridge: {
-              openingDate: cooling.openingDate? cooling.openingDate: null,
-              closedDate: cooling.closingDate? cooling.closingDate:null
-            },
-            formulation: formulation,
-            process: process,
-            oven: {
-              entranceDate: oven ? oven.date : null
-            },
-            packingDate: packaging,
-            devolutions: {
-              date: null,
-              lotProcess: null
-            },
-            InspectionDate: inspection ? inspection.expirationDate:null,
-            outputs: outputs
-          };
+        // let response=
+        // {
+        //     receptionDate: meat.createdAt ? meat.createdAt : "",
+        //     fridge: {
+        //       openingDate: cooling.openingDate? cooling.openingDate: null,
+        //       closedDate: cooling.closingDate? cooling.closingDate:null
+        //     },
+        //     formulation: formulation,
+        //     process: process,
+        //     oven: {
+        //       entranceDate: oven ? oven.date : null
+        //     },
+        //     packingDate: packaging,
+        //     devolutions: {
+        //       date: null,
+        //       lotProcess: null
+        //     },
+        //     InspectionDate: inspection ? inspection.expirationDate:null,
+        //     outputs: outputs
+        //   };
 
-        return response;
+        // return response;
     }
 
 }

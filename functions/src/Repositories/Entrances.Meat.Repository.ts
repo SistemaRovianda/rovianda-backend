@@ -41,4 +41,9 @@ export class EntranceMeatRepository{
         .orWhere("meat.loteInterno = :lotId", { lotId })
         .getOne();
     }
+
+    async getEntranceMeatByLotInter(loteInterno:string){
+        await this.getConnection();
+        return await this.entrancesMeatRepository.find({loteInterno})
+    }
 }

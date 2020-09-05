@@ -20,6 +20,14 @@ export class WarehousePackingRepository{
         });
     }
 
+    async getWarehousePackingfByLote(lotId:string){
+        await this.getConnection();
+        return await this.warehousePackingRepository.find({
+            where: {loteProveedor :lotId},
+            relations:["outputsPacking","product"]
+        });
+    }
+
     async getWarehousePackingByLoteId(loteProveedor:string){
         await this.getConnection();
         return await this.warehousePackingRepository.findOne({loteProveedor:loteProveedor})

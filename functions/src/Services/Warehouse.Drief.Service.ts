@@ -12,6 +12,9 @@ import { Formulation } from "../Models/Entity/Formulation";
 import { OutputsDriefRepository } from "../Repositories/Outputs.Drief.Repository";
 import { LotInternalByLotDrief } from "../Models/DTO/LotInternalByLotDrief";
 import { forEach } from "lodash";
+import { FormulatioIngredientsRepository } from "../Repositories/Formulation.Ingredients.Repository";
+import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients';
+import { EntranceDrief } from "../Models/Entity/Entrances.Drief";
 
 export class WarehouseDriefService{
     private warehouseDriefRepository:WarehouseDriefRepository;
@@ -19,12 +22,14 @@ export class WarehouseDriefService{
     private entranceDriefRepository:EntranceDriefRepository;
     private formulationRepository:FormulationRepository;
     private outputsDriefRepository: OutputsDriefRepository;
+    private formulationIngredentsRepository:FormulatioIngredientsRepository;
     constructor(){
         this.warehouseDriefRepository = new WarehouseDriefRepository();
         this.productRepository = new ProductRepository();
         this.entranceDriefRepository = new EntranceDriefRepository();
         this.formulationRepository = new FormulationRepository();
         this.outputsDriefRepository = new OutputsDriefRepository();
+        this.formulationIngredentsRepository = new FormulatioIngredientsRepository();
     }
 
     async updateWarehouseDrief(warehouseDTO:WarehouseDTO,warehouseDriefId:number){
@@ -116,42 +121,36 @@ export class WarehouseDriefService{
 
     async getDriefHistory(lotIdProveedor:string) {
 
-        let warehouseDrief: WarehouseDrief = await this.warehouseDriefRepository.getWarehouseDriefById(lotIdProveedor);
+        let warehouseDrief:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLotProveedor(lotIdProveedor);
         console.log(warehouseDrief);
-        if (!warehouseDrief)
-            throw new Error(`[404], warehouseDrief with lot ${lotIdProveedor} was not found`);
-        let response2:any = [];
-        let outputs:OutputsDrief[] = warehouseDrief.outputDriefs;
-        let aplications:Array<LotInternalByLotDrief> = await this.formulationRepository.getLotInternalByLotDrief(lotIdProveedor);
-        for(let i = 0; i < outputs.length; i++){
-            response2.push({
-                outputDate: outputs[i].date,
-                product: outputs[i].product ? outputs[i].product.description :  "",
-                productId: outputs[i].product ? outputs[i].product.id : "",
-                observations: outputs[i].observations,
-                lot: warehouseDrief.loteProveedor
+        if (!warehouseDrief.length) throw new Error(`[404], warehouseDrief with lot ${lotIdProveedor} was not found`);
+        let response:any = [];
+        for(let e = 0; e < warehouseDrief.length; e++){
+            let entranceDrief:EntranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProveedorProduct(warehouseDrief[e].loteProveedor,warehouseDrief[e].product)
+            let response2:any = [];
+            let outputs:OutputsDrief[] = warehouseDrief[e].outputDriefs;
+            let aplications:Array<LotInternalByLotDrief> = await this.formulationRepository.getLotInternalByLotDrief(lotIdProveedor);
+            for(let i = 0; i < outputs.length; i++){
+                let lotInter:FormulationIngredients = await this.formulationIngredentsRepository.getFormulationIngredentByLotProduct(outputs[i].product,outputs[i]);
+                response2.push({
+                    outputDate: outputs[i].date,
+                    product: outputs[i].product ? outputs[i].product.description :  "",
+                    productId: outputs[i].product ? outputs[i].product.id : "",
+                    observations: outputs[i].observations ? outputs[i].observations : "",
+                    lot: lotInter ? lotInter.formulationId.loteInterno : ""
+                })
+            
+            }
+            response.push({
+                entranceDriefId: entranceDrief ? entranceDrief.id : "",
+                receptionDate: warehouseDrief[e].date,
+                openingDate: warehouseDrief[e].openingDate,
+                closedDate: warehouseDrief[e].closingDate,
+                outputs: response2,
+                aplications
             })
+        }
         
-        }
-        // let outputs = warehouseDrief.outputDriefs.map(async outputDrief => {
-        //     let formulation:Formulation = await this.formulationRepository.getOneFormulationByLote(outputDrief.loteProveedor);
-        //     return {
-        //         outputDate: outputDrief.date,
-        //         product: outputDrief.product.description,
-        //         productId: outputDrief.product.id,
-        //         observations: outputDrief.observations,
-        //         lot: formulation.loteInterno
-        //     }
-        // });
-
-        let response = {
-            receptionDate: warehouseDrief.date,
-            openingDate: warehouseDrief.openingDate,
-            closedDate: warehouseDrief.closingDate,
-            outputs: response2,
-            aplications
-        }
-
         return response;
     }
 

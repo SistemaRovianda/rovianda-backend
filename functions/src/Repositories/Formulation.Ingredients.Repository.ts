@@ -2,6 +2,8 @@ import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { Formulation } from "../Models/Entity/Formulation";
+import { Product } from "../Models/Entity/Product";
+import { OutputsDrief } from "../Models/Entity/Outputs.Drief";
 
 export class FormulatioIngredientsRepository {
     private formulationIngredientsRepository: Repository<FormulationIngredients>;
@@ -40,5 +42,10 @@ export class FormulatioIngredientsRepository {
         .addSelect("Ingredents.description","ingredient")
         .andWhere("Formulation.loteInterno = :loteInterno",{loteInterno:`${loteInterno}`})
         .getMany(); */
+    }
+
+    async getFormulationIngredentByLotProduct(productId:Product,lotId:OutputsDrief){
+        await this.getConnection();
+        return await this.formulationIngredientsRepository.findOne({productId,lotId},{relations: ["formulationId"]})
     }
 }

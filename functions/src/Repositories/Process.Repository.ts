@@ -104,6 +104,11 @@ export class ProcessRepository{
         return await this.processRepository.findOne({loteInterno})
     }
 
+    async findProceesByLotInerno(loteInterno:string){
+        await this.getConnection();
+        return await this.processRepository.find({loteInterno})
+    }
+
     async findProductByProcessId(id:number){
         await this.getConnection();
         return await this.processRepository.findOne({

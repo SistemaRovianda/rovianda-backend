@@ -120,5 +120,10 @@ export class OvenRepository{
     });
     }
 
+    async getOvensByNewLot(newLote:string){
+        await this.getConnection();
+        return await this.ovenRepository.find({newLote})
+    }
+
     
 }

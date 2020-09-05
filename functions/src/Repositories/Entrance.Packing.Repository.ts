@@ -2,6 +2,7 @@ import { Repository, Between } from "typeorm";
 import { connect } from "../Config/Db";
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 import { times } from "lodash";
+import { Product } from "../Models/Entity/Product";
 
 export class EntrancePackingRepository{
     private repository:Repository<EntrancePacking>;
@@ -53,5 +54,12 @@ export class EntrancePackingRepository{
         return await this.repository.query(`
         SELECT * FROM entrances_packing WHERE lote_proveedor = "${loteProveedor}" AND productId = ${productId}
         `);
+    }
+
+    async getEntrnacePackingByLotProveedorProduct(loteProveedor:string,product:Product){
+        await this.getConnection()
+        return await this.repository.findOne(
+            {loteProveedor,product},
+            {relations:["product"]});
     }
 }

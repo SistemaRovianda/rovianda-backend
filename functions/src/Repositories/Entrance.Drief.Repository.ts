@@ -1,6 +1,7 @@
 import { Repository, Between } from "typeorm";
 import { EntranceDrief } from "../Models/Entity/Entrances.Drief";
 import { connect } from "../Config/Db";
+import { Product } from "../Models/Entity/Product";
 
 export class EntranceDriefRepository{
     private repository:Repository<EntranceDrief>;
@@ -50,6 +51,11 @@ export class EntranceDriefRepository{
         return await this.repository.query(`
         SELECT * FROM entrances_drief WHERE lote_proveedor = "${loteProveedor}" AND productId = ${productId}
         `);
+    }
+
+    async getEntrnaceDriefByLotProveedorProduct(loteProveedor:string, product:Product){
+        await this.getConnection();
+        return await this.repository.findOne({loteProveedor,product})
     }
 
     async getEntrnaceDriefByProduct(productId:number){

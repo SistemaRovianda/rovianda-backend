@@ -30,6 +30,14 @@ export class WarehouseDriefRepository{
         })
     }
 
+    async getWarehouseDriefByLotProveedor(lotId:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.find({
+            where: {loteProveedor :lotId},
+            relations: ["outputDriefs","product"]
+        })
+    }
+
     async getWarehouseDriefByIds(id:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({id})

@@ -76,4 +76,9 @@ export class CoolingRepository{
         });
     }
 
+    async getCoolingByLotInter(loteInterno:string){
+        await this.getConnection();
+        return await this.coolingRepository.find({loteInterno})
+    }
+
 }
