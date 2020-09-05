@@ -69,38 +69,35 @@ export default class PdfHelper{
         <body>
         <br><br>
         <div id="pageHeader">
-            <b><p align="center">EMPACADORA ROVIANDA S.A.P.I DE CV</p></b>
-            <b><p align="center" >BITACORA DE CONTROL DE CALIDAD DE ALMACEN EMPAQUES</p></b>
+            <b><p align="center">RECEPCIÓN DE MATERIA PRIMA SECOS</p></b>
         </div>
         
-        <table border="1" WIDTH="450" align="center">
+        <table border="1" width="80%" align="center">
             <tr>
-                <th><img src="${LOGO.data}" alt="" ></th>
-                <th class="ta" colspan="3">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                <th colspan="2" rowspan="3"><img src="${LOGO.data}" alt="" ></th>
+                <th class="ta" colspan="2">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
                 <th></th>
             </tr>
 
             <tr>
-                <th></th>
-                <th class="ta" colspan="3">Firma: </th>
+                <th class="ta" colspan="2">Firma: </th>
                 <th></th>
             </tr>
 
             <tr>
-                <th></th>
-                <th class="ta" colspan="3">Puesto: ${user.job}</th>
+                <th class="ta" colspan="2">Puesto: ${user.job}</th>
                 <th></th>
             </tr>
             
         <!--------------------------------------------------------------------------->
             <tr>
-                <th class="ma">Materia prima: ${drief.product.description}</th>
-                <th  rowspan="2" colspan="3" >Lote proveedor: ${drief.loteProveedor}</th>
+                <th colspan="2" >Materia prima: ${drief.product.description}</th>
+                <th  rowspan="2" colspan="2" >Lote proveedor: ${drief.loteProveedor}</th>
                 <th  id="fec" rowspan="2">Fecha: ${drief.date}</th>
             </tr>
 
             <tr>
-                <th class="ma">Proveedor: ${drief.proveedor}</th>
+                <th colspan="2">Proveedor: ${drief.proveedor}</th>
                 
             </tr>
         <!--------------------------------------------------------------------------->
