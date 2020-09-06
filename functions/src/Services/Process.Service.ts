@@ -16,6 +16,7 @@ import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { RawService } from './Raw.Service';
 import { Formulation } from '../Models/Entity/Formulation';
+import { FormulationRepository } from '../Repositories/Formulation.Repository';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
@@ -26,6 +27,7 @@ export class ProcessService{
     private productRoviandaRepository:ProductRoviandaRepository;
     private outputsCoolingRepository:OutputsCoolingRepository;
     private rawService:RawService;
+    private formulationRepository:FormulationRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
         this.productRoviandaService= new ProductRoviandaService(this.firebaseHelper);
@@ -35,6 +37,7 @@ export class ProcessService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.outputsCoolingRepository = new OutputsCoolingRepository();
         this.rawService = new RawService();
+        this.formulationRepository = new FormulationRepository();
     }
 
     async createProcessInter(){
@@ -155,6 +158,7 @@ export class ProcessService{
         if(process.status == ProcessStatus.INACTIVE){
             throw new Error("[403], PROCESO ANTERIORMENTE CERRADO");
         }else{
+            let formulacion:Formulation = await this.formulationRepository.getByFormulationId(process.outputLotRecordId)
             let outputCooling:OutputsCooling =await this.outputCoolingService.getOutputsCoolingById(process.outputLotRecordId);
             outputCooling.status="TAKED";
             this.outputCoolingService.updateOutputCooling(outputCooling);

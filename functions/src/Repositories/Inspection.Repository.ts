@@ -40,4 +40,10 @@ export class InspectionRepository{
             where: {lotId: `${lot}`}
         });
     }
+    async getInspectionsByLot(lot:string){
+        await this.getConnection();
+        return await this.inspectionRepository.find({
+            where: {lotId: `${lot}`}
+        });
+    }
 }

@@ -70,7 +70,7 @@ export class ConditioningService{
             // let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(+conditioningDTO.lotMeat);
             // if(!formulationEn) throw new Error("[400], no existe la salida de carne en formulacion");
             // formulationEn.status="USED";
-            let formulationEn:Formulation = await this.formulationRepository.getFormulationByLotInterProduct(conditioningDTO.lotMeat,product);
+            let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(+conditioningDTO.lotMeat);
             if(!formulationEn) throw new Error("[400], no existe la salida de carne en formulacion");
             formulationEn.status="USED";
             console.log("pasa formulacion")
@@ -78,7 +78,7 @@ export class ConditioningService{
             
             await this.formulationService.updateFormulation(formulationEn);
 
-            process.outputLotRecordId = formulationEn.id;
+            process.outputLotRecordId = +conditioningDTO.lotMeat;
             if(!process.loteInterno) { 
                 process.loteInterno = formulationEn.loteInterno;
             }

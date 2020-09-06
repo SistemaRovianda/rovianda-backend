@@ -22,7 +22,9 @@ export class GrindingService{
     async getGrindingByProcessId(req: Request){
         let id = req.params.processId;
         let process: Process = await this.processRepository.getProcessWithGrindingById(+id);
-        //console.log(process)
+        if(!process) throw new Error(`[404], Process not found`);
+        if(!process.grindingId) throw new Error(`[404], not exist grinding in process ${id}`);
+        console.log(process)
         let grinding:Grinding = await this.grindingRepository.getGrindingById(process.grindingId.id);
         //console.log(grinding)
         

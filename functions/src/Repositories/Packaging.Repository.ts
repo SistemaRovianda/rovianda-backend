@@ -116,5 +116,9 @@ export class PackagingRepository{
         INNER JOIN presentation_products ON properties_packaging.presentation_id = presentation_products.presentation_id
         WHERE packaging.lot_id ="${lotId}";`);
     }
-/*      */
+
+    async getPackagingByProcessId(lotId:string){
+        await this.getConnection();
+        return await this.packagingRepository.find({lotId})
+    }
 }

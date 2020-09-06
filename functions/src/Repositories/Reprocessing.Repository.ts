@@ -26,5 +26,10 @@ export class ReprocessingRepository{
         return await this.reprocessingRepository.findOne({id})
     }
 
+    async getReprocessingByLotRepro(lotRepro:string){
+        await this.getConnection();
+        return await this.reprocessingRepository.find({lotRepro})
+    }
+
 
 }

@@ -125,5 +125,10 @@ export class OvenRepository{
         return await this.ovenRepository.find({newLote})
     }
 
+    async getOvenByProcessId(processId:number){
+        await this.getConnection();
+        return await this.ovenRepository.find({processId})
+    }
+
     
 }

@@ -4,6 +4,10 @@ export interface OvenDTO{
     pcc:string;
     productId:string;
     date:string;
+    assignmentLot:{
+        newLotId:string,
+        dateEntry:string
+    }
     nameElaborated: string;
     jobElaborated: string;
     nameVerify: string;

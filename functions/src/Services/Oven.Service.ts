@@ -159,6 +159,8 @@ export class OvenService{
         if(!ovenDTO.productId) throw new Error("[400], productId is required");
         if(!ovenDTO.date) throw new Error("[400], date is required");
         if(!ovenDTO.oven) throw new Error("[400], oven is required");
+        if(!ovenDTO.assignmentLot.dateEntry) throw new Error("[400], dateEntry is required");
+        if(!ovenDTO.assignmentLot.newLotId) throw new Error("[400], newLotId is required");
         if(!ovenDTO.firstRevision.hour) throw new Error("[400], hour is required");
         if(!ovenDTO.firstRevision.interTemp) throw new Error("[400], interTemp is required");
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
@@ -183,6 +185,7 @@ export class OvenService{
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;
         oven.product = product;
+        oven.processId = +process.id;
         oven.status = OvenProductStatusEnum.OPENED;
         await this.ovenRepository.saveOvenProduct(oven);
         console.log("hace0a0")

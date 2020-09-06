@@ -24,6 +24,11 @@ import { FormulationIngredients } from '../Models/Entity/Formulation.Ingredients
 import { Process } from '../Models/Entity/Process';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { Packaging } from '../Models/Entity/Packaging';
+import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
+import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
+import { Inspection } from '../Models/Entity/Inspection';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -38,6 +43,8 @@ export class EntranceMeatService {
     private outputsCoolingRepository:OutputsCoolingRepository;
     private rawRepository:RawRepository;
     private formulationRepository:FormulationRepository;
+    private propertiesPackagingRepository:PropertiesPackagingRepository;
+    private reprocessingRepository:ReprocessingRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
         this.userRepository = new UserRepository();
@@ -51,6 +58,8 @@ export class EntranceMeatService {
         this.inspectionRepository = new InspectionRepository();
         this.outputsCoolingRepository = new OutputsCoolingRepository();
         this.formulationRepository = new FormulationRepository();
+        this.propertiesPackagingRepository = new PropertiesPackagingRepository();
+        this.reprocessingRepository = new ReprocessingRepository();
     }
 
 
@@ -176,7 +185,7 @@ export class EntranceMeatService {
 
     async getHistoryMeat(lotId:string){
         if(!lotId) throw new Error("[400], lotId is required");
-        let response:any = [];
+        let response:any = {};
         let aMeat:any = [];
         let aCooling:any = [];
         let aFormulation:any = [];
@@ -185,6 +194,7 @@ export class EntranceMeatService {
         let aOven:any = []
         let aInspection:any = [];
         let aOutputs:any = [];
+        let aDevolution:any = [];
 
         let meat:EntranceMeat[] = await this.entrancesMeatRepository.getEntranceMeatByLotInter(lotId);
         if(meat){
@@ -230,42 +240,103 @@ export class EntranceMeatService {
                 })
             })
         }
-        let oven:OvenProducts[] = await this.ovenRepository.getOvensByNewLot(lotId);
-        if(oven){
-            oven.forEach( i => {
-                aOven.push({
-                    ovenId: i ? i.id : "",
-                    entranceDate: i ? i.date : ""
+        console.log("pasa proceso")
+        if(process){
+            for(let i = 0; i < process.length; i++){
+                let oven:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(process[i].id);
+                if(oven){
+                    oven.forEach( i => {
+                        aOven.push({
+                            ovenId: i ? i.id : "",
+                            entranceDate: i ? i.date : ""
+                        })
+                    })
+                }
+            }
+        }
+        console.log("pasa hornos")
+        if(process){
+            for(let i = 0; i < process.length; i++){
+                let packagin:Packaging[] = await this.packagingRepository.getPackagingByProcessId(process[i].id.toString());
+                if(packagin){
+                    for(let e = 0; e < packagin.length; e++){
+                        let proPackagin:PropertiesPackaging[] = await this.propertiesPackagingRepository.findPropiertiesPackagings(packagin[e]);
+                        let properties:any = [];
+                        proPackagin.forEach( i => {
+                            properties.push({
+                                quantity: i ? i.units : "",
+                                presentation: i.presentationId ? i.presentationId.presentation : ""
+                            })
+                        });
+                        aPackaging.push({
+                            packaginId: packagin[i] ? packagin[i].id : "",
+                            date: packagin[i] ? packagin[i].registerDate : "",
+                            properties: properties
+                        })
+                    }
+                }
+            }
+        }
+        console.log("pasa empaquetado")
+        if(process){
+            for(let i = 0; i < process.length; i++){
+                let oven:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(process[i].id);
+                if(oven){
+                    for(let e = 0; e < oven.length; e++){
+                        let reprocessing:Reprocessing[] = await this.reprocessingRepository.getReprocessingByLotRepro(oven[e].newLote);
+                        if(reprocessing){
+                            reprocessing.forEach(i=>{
+                                aDevolution.push({
+                                    reprocessingId: i ? i.id : "",
+                                    date: i ? i.date : "",
+                                    lotProcess: i.lotProcess ? i.lotProcess : ""
+                                })
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        console.log("pasa reproceso")
+        if(process){
+            for(let i = 0; i < process.length; i++){
+                let packagin:Packaging[] = await this.packagingRepository.getPackagingByProcessId(process[i].id.toString());
+                if(packagin){
+                    for(let e = 0; e < packagin.length; e++){
+                        let inspection:Inspection[] = await this.inspectionRepository.getInspectionsByLot(packagin[i].lotId);
+                        if(inspection){
+                            inspection.forEach(i=>{
+                                aInspection.push({
+                                    InspectionDate: i ? i.expirationDate : ""
+                                })
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        console.log("pasa devolucion")
+        let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInterno(lotId);
+        if(outputs){
+            outputs.forEach(i=>{
+                aOutputs.push({
+                    startOutput: i ? i.outputDate : ""
                 })
             })
         }
-        //let packaging:Packaging[] = await this.packagingRepository.getPackagingByLot
-        // let packaging = await this.packagingRepository.getPackagingByLot(meat.loteInterno);
-        // let inspection = await this.inspectionRepository.getInspectionByLot(meat.loteInterno);
-        // let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInter(meat.loteInterno);
-
-        // let response=
-        // {
-        //     receptionDate: meat.createdAt ? meat.createdAt : "",
-        //     fridge: {
-        //       openingDate: cooling.openingDate? cooling.openingDate: null,
-        //       closedDate: cooling.closingDate? cooling.closingDate:null
-        //     },
-        //     formulation: formulation,
-        //     process: process,
-        //     oven: {
-        //       entranceDate: oven ? oven.date : null
-        //     },
-        //     packingDate: packaging,
-        //     devolutions: {
-        //       date: null,
-        //       lotProcess: null
-        //     },
-        //     InspectionDate: inspection ? inspection.expirationDate:null,
-        //     outputs: outputs
-        //   };
-
-        // return response;
+        
+        response = {
+            entranceMeat: aMeat ? aMeat : "",
+            fridge: aCooling ? aCooling : "",
+            formulation: aFormulation ? aFormulation : "",
+            process: aProcess ? aProcess : "",
+            oven: aOven ? aOven : "",
+            packingDate: aPackaging ? aPackaging : "",
+            devolutions: aDevolution ? aDevolution : "",
+            InspectionDate: aInspection ? aInspection : "",
+            outputs: aOutputs ? aOutputs : ""
+        }
+        return response;
     }
 
 }

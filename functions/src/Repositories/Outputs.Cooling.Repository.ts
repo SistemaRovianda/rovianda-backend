@@ -59,6 +59,11 @@ export class OutputsCoolingRepository{
         WHERE cooling.lote_interno = "${loteInterno}"`);
     }
 
+    async getOutputsCoolingByLotInterno(loteInterno:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.find({loteInterno})
+    }
+
     async getOutputCoolingByRawIdAndStatus(status:string,rawMaterialId:number){
         await this.getConnection();
         return await this.outputsCoolingRepository.query(`
