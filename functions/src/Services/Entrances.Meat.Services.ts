@@ -320,6 +320,7 @@ export class EntranceMeatService {
         if(outputs){
             outputs.forEach(i=>{
                 aOutputs.push({
+                    outputsCoolingId: i ? i.id : "",
                     startOutput: i ? i.outputDate : ""
                 })
             })
