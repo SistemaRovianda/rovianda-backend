@@ -2082,7 +2082,7 @@ export default class PdfHelper{
             </div>
         
             
-            <table border="1" align="center" width="90%">
+            <table border="1" align="center" width="80%">
             <tr>
                 <th>
                     <img src="${LOGO.data}" alt=""> 
