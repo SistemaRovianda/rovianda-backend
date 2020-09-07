@@ -17,6 +17,7 @@ import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { RawService } from './Raw.Service';
 import { Formulation } from '../Models/Entity/Formulation';
 import { FormulationRepository } from '../Repositories/Formulation.Repository';
+import { Raw } from '../Models/Entity/Raw';
 
 export class ProcessService{
     private processRepository:ProcessRepository;
@@ -213,8 +214,15 @@ export class ProcessService{
     }
 
     async getDefrost(processId:number){
+        let response={};
         let process:Process = await this.processRepository.findProcessByProcessId(processId);
         if(!process) throw new Error("[400], no existe proceso");
+        if(process.outputLotRecordId!=null){
+        let outputCoolingRecord = await this.outputsCoolingRepository.getOutputsCoolingById(process.outputLotRecordId);
+        let raw:Raw = await this.rawService.getRawById(+outputCoolingRecord.rawMaterial);
+        response = {...response,...process,rawMaterialName:raw.rawMaterial}
+        }
+        response ={...response,...process}
         return process;
     }
 
