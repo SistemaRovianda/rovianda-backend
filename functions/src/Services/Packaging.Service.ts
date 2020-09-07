@@ -404,4 +404,25 @@ export class PackagingService{
         return response;
 
     }
+
+    //let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(packaging[i])
+    async getPackagingLotProduct(){
+        let packaging = await this.packagingRepository.getPackagingOrdeByProduct();
+        let response:any = [];
+        for(let i = 0; i < packaging.length; i++){
+            let response2:any = [];
+            let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+packaging[i].product_id);
+            let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(product);
+            for(let e = 0; e < aPackaging.length; e++){
+                let process:Process = await this.processRepository.findProcessById(+aPackaging[e].lotId);
+                response2.push(process.loteInterno);
+            }
+            response.push({
+                productId: product ? product.id : "",
+                product: product ? product.name : "",
+                lot: response2
+            })
+        }
+        return response;
+    }
 }

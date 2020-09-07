@@ -86,4 +86,9 @@ export class PackagingController{
         let response = await this.packagingService.getOrderSellerByUrgent(req.params.urgent);
         return res.status(200).send(response);
     }
+
+    async getPackagingLotProduct(req:Request,res:Response){
+        let response = await this.packagingService.getPackagingLotProduct();
+        return res.status(200).send(response);
+    }
 }

@@ -77,5 +77,11 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"get",
         controller:PackagingController,
         target:"getOrderSellerByUrgent" 
+    },
+    {
+        url:"/rovianda/packaging/lot",
+        method:"get",
+        controller:PackagingController,
+        target:"getPackagingLotProduct" 
     }
 ];

@@ -20,4 +20,9 @@ export class DryngLabelRepository{
         return await this.dryngLabekRepository.findOne(id);
     }
 
+    async getLastDryngLabel(){
+        await this.getConnection();
+        return await this.dryngLabekRepository.query(`SELECT * FROM drying_label ORDER BY drying_id DESC LIMIT 1`);
+    }
+
 }

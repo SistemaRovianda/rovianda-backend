@@ -165,6 +165,14 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({id:processId});
     }
+
+    async findsProcessById(id:number){
+        await this.getConnection();
+        return await this.processRepository.find({
+            where: {id},
+            relations:["sausageId","tenderizedId","conditioningId","grindingId","product"]
+        });
+    }
 }
 
 

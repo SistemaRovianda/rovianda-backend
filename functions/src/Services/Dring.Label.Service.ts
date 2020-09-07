@@ -31,8 +31,11 @@ export class DryngLabelService{
         dryngLabel.lotId = dryngLabelDTO.lotId.toString();
         dryngLabel.dateEntrance = dryngLabelDTO.dateEntrance;
         dryngLabel.dateOutput = dryngLabelDTO.dateOutput;
+        await this.dryngLabelRepository.createDryngLabel(dryngLabel);
 
-        return await this.dryngLabelRepository.createDryngLabel(dryngLabel);
+        let lastDryingLabel = await this.dryngLabelRepository.getLastDryngLabel();
+        let id = lastDryingLabel[0].drying_id
+        return id;
 
     }
 

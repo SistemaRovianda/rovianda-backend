@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { Packaging } from '../Models/Entity/Packaging';
 import { OrderSellerRequestProduct, PackagingProperties } from '../Models/DTO/Sales.ProductDTO';
 import { PackagingProductPresentationLot } from '../Models/DTO/PackagingDTO';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 export class PackagingRepository{
     private packagingRepository:Repository<Packaging>;
 
@@ -120,5 +121,20 @@ export class PackagingRepository{
     async getPackagingByProcessId(lotId:string){
         await this.getConnection();
         return await this.packagingRepository.find({lotId})
+    }
+
+    async getPackagingOrdeByProduct(){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        SELECT * FROM packaging  ORDER BY packaging.product_id
+        `);
+    }
+
+    async findPackagingByProduc(productId:ProductRovianda){
+        await this.getConnection();
+        return await this.packagingRepository.find({
+            where:{ productId},
+            relations:["productId","userId"]
+        });
     }
 }

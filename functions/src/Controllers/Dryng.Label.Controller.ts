@@ -8,8 +8,8 @@ export class DryngLabelController{
     }
 
     async createDringLabel(req:Request,res:Response){
-        await this.dryngLabelService.createDringLabel(req.body);
-        return res.status(201).send();
+        let response = await this.dryngLabelService.createDringLabel(req.body);
+        return res.status(201).send({dringId:response});
     }
 
     async getDryngLabelById(req:Request,res:Response){
