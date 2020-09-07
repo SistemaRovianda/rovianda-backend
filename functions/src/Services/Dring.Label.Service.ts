@@ -50,4 +50,13 @@ export class DryngLabelService{
         return response;
     }
 
+    async getDryngById(id:number){
+
+        if(!id) throw new Error("[400],id is required");
+        let dryngLabel:DryingLabel = await this.dryngLabelRepository.getDryngLabelById(id);
+        if(!dryngLabel) throw new Error("[404],Dryng Label not found");
+        
+        return dryngLabel;
+    }
+
 }

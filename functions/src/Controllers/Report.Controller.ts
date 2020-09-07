@@ -36,6 +36,9 @@ import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import _ = require('lodash');
+import { DryingLabel } from '../Models/Entity/Dryng.Label';
+import { DryngLabelService } from '../Services/Dring.Label.Service';
+import { ProductService } from '../Services/Product.Services';
 
 export class ReportController{
 
@@ -53,6 +56,8 @@ export class ReportController{
     private tenderizedService:TenderizedService;
     private packagingService:PackagingService;
     private productRoviandaService:ProductRoviandaService;
+    private dryingLabelService: DryngLabelService;
+    private productService: ProductService;
     private pdfHelper: PdfHelper;
     private excel: Excel4Node;
     constructor(private firebaseInstance:FirebaseHelper){
@@ -70,6 +75,8 @@ export class ReportController{
         this.tenderizedService = new TenderizedService();
         this.packagingService = new PackagingService();
         this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
+        this.dryingLabelService = new DryngLabelService();
+        this.productService = new ProductService();
         this.pdfHelper = new PdfHelper();
         this.excel = new Excel4Node();
     }
@@ -94,6 +101,32 @@ export class ReportController{
             });
             stream.pipe(res);
         }))
+    }
+
+    async reportDryinById(req: Request, res: Response){
+        let { dryingId } = req.params;
+        const user: User = await this.userService.getUserByUid(req.query.uid);
+        let drying: DryingLabel = await this.dryingLabelService.getDryngById(+dryingId);
+        let product = await this.productService.getProductById(+drying.productId);
+        let report = this.pdfHelper.reportDryingLaberById(product, drying);
+        pdf.create(report, {
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+          },
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporte-drying.pdf`
+            });
+            stream.pipe(res);
+        }))
+
+
     }
 
     async reportFormulation(req:Request, res:Response){

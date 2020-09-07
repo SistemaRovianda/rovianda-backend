@@ -19,6 +19,8 @@ import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Packaging } from '../Models/Entity/Packaging';
 import { response } from 'express';
+import { DryingLabel } from '../Models/Entity/Dryng.Label';
+import { Product } from '../Models/Entity/Product';
 
 export default class PdfHelper{
 
@@ -198,6 +200,82 @@ export default class PdfHelper{
         let content = this.headReportEntranceDrief()+this.bodyReportEntranceDrief(user,drief);
         return content;
     }
+
+    reportDryingLaberById(product: Product, drying: DryingLabel){
+        let html = this.headReportDryingLabelById() + this.bodyReportDryingLabelById(product, drying);
+        return html;
+    }
+
+    headReportDryingLabelById(){
+        return`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Rovianda</title>
+            <style>
+                .espa{
+                height: 15px;
+                }
+
+                .separa{
+                height: 15px;
+                }
+
+                table{
+                    border-collapse: collapse;
+                }
+
+                .enbloque {
+                    display: block;
+                }
+                .normal {
+                    border-bottom: 1px solid #000;
+                    border-top: 1px solid #000;
+                    border-right: 1px solid #000;
+                    border-left: 1px solid #000;
+                }
+                .special1{
+                    border-bottom: 1px solid #000;
+                    border-top: 1px solid #000;
+                    border-left: 1px solid #000;
+                }
+                .special2{
+                    border-bottom: 1px solid #000;
+                    border-top: 1px solid #000;
+                    border-right: 1px solid #000;
+                }
+
+            </style>
+        </head>`;
+    }
+
+    bodyReportDryingLabelById(product: Product, drying: DryingLabel){
+        return  `
+            <body>
+                <div id="pageHeader">
+                    <b><p align="center">ETIQUETA DE SECADO</p></b>
+                </div>
+                <br>
+                <table border="1" width="80%" align="center">
+                    <tr>
+                        <th>Producto</th>
+                        <td colspan="5">${product ? product.description : "" }</td>
+                    </tr>
+                    <tr>
+                        <th class="normal">Fecha de entrada</th>
+                        <td class="normal">${drying.dateEntrance}</td>
+                        <th class="special2">Fecha de salida</th>
+                        <td class="special1">${drying.dateOutput}</td>
+                        <th class="special2">lote</th>
+                        <td class="special1">${drying.lotId}</td>
+                    </tr>
+                </table>
+            </body>
+        </html>`
+    }
+
 
     headReportEntranceMeat(){
         return`
