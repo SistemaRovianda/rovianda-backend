@@ -10,6 +10,12 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportEntranceDrief"
     },
     {
+        url: "/rovianda/report/drying/:dryingId",
+        method: "get",
+        controller: ReportController,
+        target: "reportDryinById"
+    },
+    {
         url:"/rovianda/report/entry/meat/:meatId",
         method:"get",
         controller:ReportController,
