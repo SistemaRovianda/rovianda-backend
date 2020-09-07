@@ -220,7 +220,9 @@ export class ProcessService{
         if(process.outputLotRecordId!=null){
         let outputCoolingRecord = await this.outputsCoolingRepository.getOutputsCoolingById(process.outputLotRecordId);
         let raw:Raw = await this.rawService.getRawById(+outputCoolingRecord.rawMaterial);
+        if(raw){
         response = {...response,...process,rawMaterialName:raw.rawMaterial}
+        }
         }
         response ={...response,...process}
         return process;
