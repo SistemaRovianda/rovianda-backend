@@ -421,7 +421,7 @@ export default class Excel4Node{
 
         //ya que las hojas de calculo son entre comillas "matrices", los datos se deben manejar como tal
 
-        formulationIngredients.forEach((product) => {
+        // formulationIngredients.forEach((product) => {
             worksheet.cell(row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.loteInterno}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
@@ -440,7 +440,7 @@ export default class Excel4Node{
             }
             col = 4;
             row ++; 
-        });
+        // });
 
         worksheet.cell(++row, 4, row, 7,true).string(`Realizo, Nombre:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname} `).style(styleUser);
 

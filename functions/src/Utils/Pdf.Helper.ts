@@ -2035,7 +2035,7 @@ export default class PdfHelper{
                     padding:0;
                 }
                 .cel{
-                    height: 15px;
+                    height: 3px;
                 }
         
                 header{
@@ -2058,8 +2058,8 @@ export default class PdfHelper{
            }
               
               img{
-                  width: 80px;
-                  height:100px;
+                  width: 70px;
+                  height:80px;
                   transform: translateY(50%) translateX(350%);
               }
         
@@ -2080,9 +2080,8 @@ export default class PdfHelper{
                 <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
                 <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
             </div>
-        
             
-            <table border="1" align="center" width="80%">
+            <table border="1" align="center" width="90%" height="50px">
             <tr>
                 <th>
                     <img src="${LOGO.data}" alt=""> 

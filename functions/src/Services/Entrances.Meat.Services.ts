@@ -29,6 +29,8 @@ import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { Inspection } from '../Models/Entity/Inspection';
+import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
+import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -45,6 +47,7 @@ export class EntranceMeatService {
     private formulationRepository:FormulationRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
     private reprocessingRepository:ReprocessingRepository;
+    private revisionsOvenProductsRepository:RevisionsOvenProductsRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
         this.userRepository = new UserRepository();
@@ -60,6 +63,7 @@ export class EntranceMeatService {
         this.formulationRepository = new FormulationRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
+        this.revisionsOvenProductsRepository = new RevisionsOvenProductsRepository();
     }
 
 
@@ -235,7 +239,8 @@ export class EntranceMeatService {
             process.forEach( i => {
                 aProcess.push({
                     processId: i ? i.id : "",
-                    date: i ? i.startDate : "",
+                    startDate: i ? i.startDate : "",
+                    endDate: i ? i.dateEndedProcess : "",
                     description: i ? i.currentProcess : ""
                 })
             })
@@ -245,12 +250,31 @@ export class EntranceMeatService {
             for(let i = 0; i < process.length; i++){
                 let oven:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(process[i].id);
                 if(oven){
-                    oven.forEach( i => {
-                        aOven.push({
-                            ovenId: i ? i.id : "",
-                            entranceDate: i ? i.date : ""
+                    //array de revisiones: hora, tempin,oven,observacoines
+                    // oven.forEach( i => {
+                    //     aOven.push({
+                    //         ovenId: i ? i.id : "",
+                    //         entranceDate: i ? i.date : ""
+                    //     })
+                    // })
+                    for(let a = 0; a < oven.length; a++){
+                        let revisionOven:RevisionsOvenProducts[] = await this.revisionsOvenProductsRepository.getByOven(oven[i]);
+                        let revision:any = [];
+                        revisionOven.forEach(i=>{
+                            revision.push({
+                                hour: i ? i.hour : "",
+                                interTemp: i ? i.interTemp : "",
+                                ovenTemp: i ? i.ovenTemp : "",
+                                humidity: i ? i.humidity : "",
+                                observations: i ? i.observations : ""
+                            })
                         })
-                    })
+                        aOven.push({
+                            ovenId: oven[a] ? oven[a].id : "",
+                            entranceDate: oven[a] ? oven[a].date : "",
+                            revisions: revision
+                        })
+                    }
                 }
             }
         }
@@ -262,10 +286,13 @@ export class EntranceMeatService {
                     for(let e = 0; e < packagin.length; e++){
                         let proPackagin:PropertiesPackaging[] = await this.propertiesPackagingRepository.findPropiertiesPackagings(packagin[e]);
                         let properties:any = [];
+                        //que tipo de presentacion type
+                        //peso
                         proPackagin.forEach( i => {
                             properties.push({
                                 quantity: i ? i.units : "",
-                                presentation: i.presentationId ? i.presentationId.presentation : ""
+                                presentation: i.presentationId ? i.presentationId.presentation + " " + i.presentationId.presentationType : "",
+                                weight: i ? i.weight : ""
                             })
                         });
                         aPackaging.push({
@@ -318,10 +345,14 @@ export class EntranceMeatService {
         console.log("pasa devolucion")
         let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInterno(lotId);
         if(outputs){
+            //agregar observaciones, cantidad, materia prima
             outputs.forEach(i=>{
                 aOutputs.push({
                     outputsCoolingId: i ? i.id : "",
-                    startOutput: i ? i.outputDate : ""
+                    startOutput: i ? i.outputDate : "",
+                    observations: i.observations ? i.observations : "",
+                    rawMaterial: i.rawMaterial ? i.rawMaterial.rawMaterial : "",
+                    quantity: i.quantity ? i.quantity : ""
                 })
             })
         }

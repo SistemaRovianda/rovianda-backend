@@ -214,24 +214,34 @@ export class MaintenanceService{
         if(!dateFin)throw new Error("[400],dateEnd in query is required");
         let response:any = [];
         let manintenance = await this.maintenanceRepository.getMaintenanceByDates(dateIni,dateFin);
-        for(let i = 0; i < manintenance.length; i++){
-            let aDevice:any = [];
-            let storeMa = await this.maintenanceRepository.getMaintenanceByDatesStore(dateIni,dateFin,manintenance[i].store_id);
-            for(let e = 0; e < storeMa.length; e++){
-                let device:Devices = await this.deviceRepository.getDeviceById(+storeMa[e].device_id);
-                aDevice.push({
-                    deviceId: device.id,
-                    name: device.name,
-                    costMaintenance: storeMa[e].cost
-                })
+        console.log(manintenance)
+        if(manintenance[0]){
+            console.log("pasa")
+            for(let i = 0; i < manintenance.length; i++){
+                let aDevice:any = [];
+                if(manintenance[i].store_id){
+                    let storeMa = await this.maintenanceRepository.getMaintenanceByDatesStore(dateIni,dateFin,manintenance[i].store_id);
+                    for(let e = 0; e < storeMa.length; e++){
+                        if(storeMa[e].device_id){
+                            let device:Devices = await this.deviceRepository.getDeviceById(+storeMa[e].device_id);
+                            aDevice.push({
+                                deviceId: device.id,
+                                name: device.name,
+                                costMaintenance: storeMa[e].cost
+                            })
+                        }
+                    }
+                    let store:Store = await this.storeRepository.getStoreById(+manintenance[i].store_id)
+                    response.push({
+                        storeId: store.id,
+                        store: store.name,
+                        devices: aDevice
+                    })
+                }
             }
-            let store:Store = await this.storeRepository.getStoreById(+manintenance[i].store_id)
-            response.push({
-                storeId: store.id,
-                store: store.name,
-                devices: aDevice
-            })
+            return response
+        }else{
+            throw new Error("[409],there is no maintenance on the date range");
         }
-        return response
     }
 }

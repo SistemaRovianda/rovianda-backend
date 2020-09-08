@@ -776,7 +776,7 @@ export class ReportController{
         border: {
             top: "2cm", 
             right: "2cm",
-            bottom: "2cm",
+            bottom: "1cm",
             left: "2cm"
         }
         
