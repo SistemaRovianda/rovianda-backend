@@ -105,9 +105,8 @@ export class ReportController{
 
     async reportDryinById(req: Request, res: Response){
         let { dryingId } = req.params;
-        const user: User = await this.userService.getUserByUid(req.query.uid);
         let drying: DryingLabel = await this.dryingLabelService.getDryngById(+dryingId);
-        let product = await this.productService.getProductById(+drying.productId);
+        let product = await this.productRoviandaService.getById(+drying.productId);
         let report = this.pdfHelper.reportDryingLaberById(product, drying);
         pdf.create(report, {
             format: 'Legal',

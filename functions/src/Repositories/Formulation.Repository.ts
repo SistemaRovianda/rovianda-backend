@@ -60,7 +60,7 @@ export class FormulationRepository{
 
     async getAllFormulationLoteMeat(){
         await this.getConnection();
-        return await this.formulatioRepository.find({status:"TAKED"});
+        return await this.formulatioRepository.find({status:"USED"});
     }
 
     async getByproductRovianda(productId:number){

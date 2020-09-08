@@ -19,8 +19,8 @@ export class InspectionController{
     }
 
     async createInspection(req:Request,res:Response){
-        await this.inspectionService.createInspection(req.body);
-        return res.status(201).send();
+        let id:number=await this.inspectionService.createInspection(req.body);
+        return res.status(201).send({id});
     }
 
     async createInspectionUsers(req:Request,res:Response){

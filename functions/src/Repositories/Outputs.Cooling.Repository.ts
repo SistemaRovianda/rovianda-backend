@@ -23,7 +23,7 @@ export class OutputsCoolingRepository{
 
     async getOutputsCoolingById(id:number){
         await this.getConnection();
-        return await this.outputsCoolingRepository.findOne({id})
+        return await this.outputsCoolingRepository.findOne({id},{relations:["rawMaterial"]})
     }
 
     async getOutputsCoolingByLot(loteInterno:string){

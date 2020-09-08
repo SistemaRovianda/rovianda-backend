@@ -72,7 +72,8 @@ export class InspectionService{
             inspection.colour = inspectionDTO.validations.colour;
             inspection.texture = inspectionDTO.validations.texture;
     
-            await this.inspectionRepository.createInspection(inspection);   
+           let inspectionSaved:Inspection= await this.inspectionRepository.createInspection(inspection);   
+           return inspectionSaved.id;
     }
 
     async createInspectionUsers(inspectionUsersDTO:InspectionUsersDTO,inspectionId:string){
@@ -82,10 +83,10 @@ export class InspectionService{
         if (!inspectionUsersDTO.nameElaborated)  throw new Error("[400],nameElaborated is required");
         if (!inspectionUsersDTO.nameVerify)  throw new Error("[400],nameVerify is required");
 
-        let userElaborated = await this.userRepository.getUserByName(inspectionUsersDTO.nameElaborated);
-        if (!userElaborated)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameElaborated}`);
-        let userVerify = await this.userRepository.getUserByName(inspectionUsersDTO.nameVerify);
-        if (!userVerify)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameVerify}`);
+        // let userElaborated = await this.userRepository.getUserByName(inspectionUsersDTO.nameElaborated);
+        // if (!userElaborated)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameElaborated}`);
+        // let userVerify = await this.userRepository.getUserByName(inspectionUsersDTO.nameVerify);
+        // if (!userVerify)  throw new Error(`[404],No existe usuario ${inspectionUsersDTO.nameVerify}`);
 
             let inspection :Inspection = await this.inspectionRepository.getInspectionById(+inspectionId);
             if(!inspection)  throw new Error("[404],No existe inspection ");

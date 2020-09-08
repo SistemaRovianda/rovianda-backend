@@ -76,14 +76,14 @@ export class ProcessService{
         //if(!formulation) throw new Error("[404], el lote no existe en formulacion");
         let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
         if(!updateoutputCooling) throw new Error("[404], no existe outputId");
-        updateoutputCooling.status = OutputsCoolingStatus.USED;
+        updateoutputCooling.status = "TAKED";
 
         let processEntity:Process = await this.processRepository.findProcessById(process.processId);
         if(!processEntity.loteInterno) processEntity.loteInterno = process.lote.loteId;
 
         //updating formulation used lot
         let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(process.lote.outputId);
-        formulationEn.status="USED";
+        formulationEn.status="TAKED";
         await this.formulationService.updateFormulation(formulationEn);
         //let processEntity:Process = new Process();
         //processEntity.product = productCatalog;
@@ -217,15 +217,14 @@ export class ProcessService{
         let response={};
         let process:Process = await this.processRepository.findProcessByProcessId(processId);
         if(!process) throw new Error("[400], no existe proceso");
-        if(process.outputLotRecordId!=null){
-        let outputCoolingRecord = await this.outputsCoolingRepository.getOutputsCoolingById(process.outputLotRecordId);
-        let raw:Raw = await this.rawService.getRawById(+outputCoolingRecord.rawMaterial);
-        if(raw){
-        response = {...response,...process,rawMaterialName:raw.rawMaterial}
-        }
+        if(process.outputLotRecordId!=null && process.outputLotRecordId!=0){
+            console.log("SE MUESTRA EL OUTPUTS PROCCESS ID",process.outputLotRecordId);
+        let outputCoolingRecord = await this.outputsCoolingRepository.getOutputsCoolingById(+process.outputLotRecordId);
+        console.log("OUTPUTS COOLING",JSON.stringify(outputCoolingRecord));
+        response = {...response,...process,rawMaterialName:outputCoolingRecord.rawMaterial.rawMaterial}
         }
         response ={...response,...process}
-        return process;
+        return response;
     }
 
     async getProcessAllAvailables(){
