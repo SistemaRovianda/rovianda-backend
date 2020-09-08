@@ -415,7 +415,10 @@ export class PackagingService{
             let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(product);
             for(let e = 0; e < aPackaging.length; e++){
                 let process:Process = await this.processRepository.findProcessById(+aPackaging[e].lotId);
-                response2.push(process.loteInterno);
+                response2.push({
+                    processId: process ? process.id : "",
+                    lotId: process ? process.loteInterno : ""
+                });
             }
             response.push({
                 productId: product ? product.id : "",

@@ -214,9 +214,7 @@ export class MaintenanceService{
         if(!dateFin)throw new Error("[400],dateEnd in query is required");
         let response:any = [];
         let manintenance = await this.maintenanceRepository.getMaintenanceByDates(dateIni,dateFin);
-        console.log(manintenance)
         if(manintenance[0]){
-            console.log("pasa")
             for(let i = 0; i < manintenance.length; i++){
                 let aDevice:any = [];
                 if(manintenance[i].store_id){
