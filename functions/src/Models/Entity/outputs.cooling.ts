@@ -12,7 +12,7 @@ export class OutputsCooling{
     // rawMaterial:string;
     @ManyToOne(type=>Raw, raw=>raw.outputsCoolings, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"raw_material_id"})
-    rawMaterial:Raw
+    rawMaterial:Raw;
 
     @Column({name:"output_date"})
     outputDate:string;

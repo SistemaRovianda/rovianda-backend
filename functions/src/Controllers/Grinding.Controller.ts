@@ -8,6 +8,8 @@ import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { GrindingService } from '../Services/Grinding.Service';
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { FormulationService } from '../Services/Formulation.Service';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
 
 
 
@@ -17,11 +19,13 @@ export class GrindingController{
     private grindingService:GrindingService;
     private productRoviandaService:ProductRoviandaService;
     private formulationService:FormulationService;
+    private outputsCoolingService:OutputsCoolingService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.processService = new ProcessService(this.firebaseInstance);
         this.grindingService = new GrindingService();
         this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
         this.formulationService = new FormulationService();
+        this.outputsCoolingService = new OutputsCoolingService();
     }
 
     async createGrinding(req:Request,res:Response){
@@ -60,6 +64,9 @@ export class GrindingController{
                 if(!processObj.loteInterno){ processObj.loteInterno = formulationObj.loteInterno; }
                 if(!processObj.outputLotRecordId){
                     processObj.outputLotRecordId = loteMeat;
+                    let outputCooling:OutputsCooling = await this.outputsCoolingService.getOutputsCoolingById(loteMeat);
+                    outputCooling.status="TAKED";
+                    await this.outputsCoolingService.updateOutputCooling(outputCooling);
                 }
                 processObj.grindingId = objGrinding;
                 

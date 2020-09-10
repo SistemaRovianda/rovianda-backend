@@ -84,7 +84,7 @@ export class FormulationService {
         formulationToSave.make = make;
         formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
-        formulationToSave.status="TAKED";
+        formulationToSave.status="USED";
         formulationToSave.outputCoolingIdRecord = +formulationDTO.lotIdRecordId;
         //formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
         

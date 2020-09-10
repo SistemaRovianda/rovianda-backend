@@ -20,7 +20,6 @@ import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Packaging } from '../Models/Entity/Packaging';
 import { response } from 'express';
 import { DryingLabel } from '../Models/Entity/Dryng.Label';
-import { Product } from '../Models/Entity/Product';
 
 export default class PdfHelper{
 
@@ -201,7 +200,7 @@ export default class PdfHelper{
         return content;
     }
 
-    reportDryingLaberById(product: Product, drying: DryingLabel){
+    reportDryingLaberById(product: ProductRovianda, drying: DryingLabel){
         let html = this.headReportDryingLabelById() + this.bodyReportDryingLabelById(product, drying);
         return html;
     }
@@ -251,7 +250,7 @@ export default class PdfHelper{
         </head>`;
     }
 
-    bodyReportDryingLabelById(product: Product, drying: DryingLabel){
+    bodyReportDryingLabelById(product: ProductRovianda, drying: DryingLabel){
         return  `
             <body>
                 <div id="pageHeader">
@@ -261,7 +260,7 @@ export default class PdfHelper{
                 <table border="1" width="80%" align="center">
                     <tr>
                         <th>Producto</th>
-                        <td colspan="5">${product ? product.description : "" }</td>
+                        <td colspan="5">${product ? product.name : "" }</td>
                     </tr>
                     <tr>
                         <th class="normal">Fecha de entrada</th>
