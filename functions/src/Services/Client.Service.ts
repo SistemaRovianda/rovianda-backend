@@ -34,8 +34,8 @@ export class ClientService {
             throw new Error(`[400], typeClient is required`);
         if (!clientDTO.saleuid)
             throw new Error(`[400], saleuid is required`);
-        if (!clientDTO.daysCredit || clientDTO.daysCredit.length <= 0)
-            throw new Error(`[400], daysCredit is required`);
+        // if (!clientDTO.daysCredit || clientDTO.daysCredit.length <= 0)
+        //     throw new Error(`[400], daysCredit is required`);
         if (!clientDTO.addressClient)
             throw new Error(`[400], addressClient is required`);
         if (!clientDTO.addressClient.state)
@@ -74,11 +74,11 @@ export class ClientService {
         newClient.client = clientDTO.client;
         newClient.typeClient = clientDTO.typeClient.toString();
         newClient.currentCredit = clientDTO.currentCredit;
-        newClient.daysCredit = clientDTO.daysCredit.toLocaleString();
         address = address;
         newClient.credit = clientDTO.currentCredit;
         newClient.rfc = clientDTO.rfc;
         newClient.seller = sellerOwner;
+        if(clientDTO.daysCredit) { newClient.daysCredit = clientDTO.daysCredit.toLocaleString(); }
 
          return await this.clientRepository.saveClient(newClient);        
     }
