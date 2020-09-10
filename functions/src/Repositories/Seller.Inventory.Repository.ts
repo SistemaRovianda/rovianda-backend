@@ -18,7 +18,7 @@ export class SellerInventoryRepository{
 
     async getSellerInventoryBySellerId(sellerUid:string){
         await this.getConnection();
-        return await this.repository.query(`select distinct(selinv.product_id) as productId,
+        return await this.repository.query(`select distinct(selinv.productId) as productId,
         prorov.name,prorov.img_s3
         from seller_inventory as selinv inner join products_rovianda as prorov 
         on selinv.productId = prorov.id where selinv.seller_id="${sellerUid}"`);
@@ -26,7 +26,7 @@ export class SellerInventoryRepository{
 
     async getSellerInventoryProductPresentation(sellerUid:string,productId:number){
         await this.getConnection();
-        return await this.repository.query(`select sellInv.product_id as productId,sellInv.presentation_id as presentationId,sum(sellInv.quantity) as quantity,pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation
+        return await this.repository.query(`select sellInv.productId as productId,sellInv.presentation_id as presentationId,sum(sellInv.quantity) as quantity,pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation
         from seller_inventory as sellInv inner join presentation_products as pp 
         on sellInv.presentation_id = pp.presentation_id where sellInnv.seller_id="${sellerUid}" and sellInv.product_id = ${productId} group by sellInv.product_id,sellInv.presentation_id`);
     }
