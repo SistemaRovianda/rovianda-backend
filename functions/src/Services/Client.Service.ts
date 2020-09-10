@@ -28,9 +28,14 @@ export class ClientService {
             throw new Error(`[400],keyClient is required`);
         if (!clientDTO.rfc)
             throw new Error(`[400], rfc is required`);
-        if (!clientDTO.client)
+        
+        if (!clientDTO.name)
             throw new Error(`[400], client is required`);
-        if (clientDTO.client === null || clientDTO.typeClient === undefined)
+            if (!clientDTO.firstSurname)
+            throw new Error(`[400], firstSurname is required`);
+            if (!clientDTO.lastSurname)
+            throw new Error(`[400], lastSurname is required`);
+        if (clientDTO.name === null || clientDTO.typeClient === undefined)
             throw new Error(`[400], typeClient is required`);
         if (!clientDTO.saleuid)
             throw new Error(`[400], saleuid is required`);
@@ -71,7 +76,9 @@ export class ClientService {
         
         let newClient:Client = new Client();
         newClient.keyClient = clientDTO.keyClient;
-        newClient.client = clientDTO.client;
+        newClient.name = clientDTO.name;
+        newClient.firstSurname = clientDTO.firstSurname;
+        newClient.lastSurname = clientDTO.lastSurname;
         newClient.typeClient = clientDTO.typeClient.toString();
         newClient.currentCredit = clientDTO.currentCredit;
         address = address;
@@ -81,5 +88,9 @@ export class ClientService {
         if(clientDTO.daysCredit) { newClient.daysCredit = clientDTO.daysCredit.toLocaleString(); }
 
          return await this.clientRepository.saveClient(newClient);        
+    }
+
+    async getCurrentCountCustomer(){
+        return await this.clientRepository.getCurrentCountCustomer();
     }
 }

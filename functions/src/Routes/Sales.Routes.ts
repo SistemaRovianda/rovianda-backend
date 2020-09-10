@@ -33,13 +33,13 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getPresentationsOfProductOfOrderSeller"
     },
     {
-        url: "/rovianda/packaging/inventory", // obtencion de inventario de productos disponibles en rovianda
+        url: "/packaging/inventory", // obtencion de inventario de productos disponibles en rovianda
         method: "get",
         controller: SalesRequestController,
         target: "getSellerPackagingInventory"
     },
     {
-        url: "/rovianda/packaging/inventory/product/:productId", // obtencion de presentaciones de productos disponibles en rovianda
+        url: "/rovianda/packaging/product/:productId", // obtencion de presentaciones de productos disponibles en rovianda
         method: "get",
         controller: SalesRequestController,
         target: "getSellerPackagingInventoryProduct"

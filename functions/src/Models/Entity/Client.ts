@@ -4,7 +4,6 @@ import { Address } from "./Address";
 import { Debts } from "./Debts";
 import { Sale } from "./Sales";
 import { User } from "./User";
-import { JoinAttribute } from "typeorm/query-builder/JoinAttribute";
 
 @Entity({name:"clients"})
 export class Client{
@@ -19,7 +18,13 @@ export class Client{
     keyClient:string;
 
     @Column()
-    client:string;
+    name:string;
+
+    @Column({name:"first_surname",nullable:true})
+    firstSurname:string;
+    
+    @Column({name:"last_surname",nullable:true})
+    lastSurname:string;
 
     @Column()
     credit:number;

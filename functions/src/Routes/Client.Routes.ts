@@ -7,5 +7,11 @@ export const clientRoutes: Array<routeInterface> = [
         method: "post",
         controller: ClientController,
         target: "createCustomer"
+    },
+    {
+        url: "/seller/customer-count",
+        method: "get",
+        controller: ClientController,
+        target: "getCustomerCount"
     }
 ]

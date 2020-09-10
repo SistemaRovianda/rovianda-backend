@@ -83,16 +83,17 @@ export class PackagingRepository{
     async getPackagingAvailable(){
         await this.getConnection();
         return await this.packagingRepository.query(
-            `select distinct(pack.product_id) as productId,prorov.name,prorov.img_s3 as imgS3 from packaging as pack inner join products_rovianda as prorov on pack.product_id = prorov.id where active=1 group by pack.product_id`
+            `select distinct(pack.product_id) as productId,prorov.name,prorov.img_s3 as imgS3 from packaging as pack 
+            inner join products_rovianda as prorov on pack.product_id = prorov.id where active=1 group by pack.product_id`
             );
     }
 
     async getPackagingAvailableProduct(productId:number){
         await this.getConnection();
         return await this.packagingRepository.query(
-            `select distinct(pack.product_id) as productId,propack.presentation_id as presentationId,sum(propack.units) as quantity,pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentatation
-             from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id
-            inner join presentations_products as pp on propack.presentation_id = pp.presentation_id where pack.product_id=${productId} group by pack.product_id,propack.presentation_id `
+            `select prop.presentation_id as presentationId,prep.presentation,sum(prop.units) as quantity from properties_packaging as prop 
+            inner join presentation_products as prep on prop.presentation_id=prep.presentation_id inner join packaging pack 
+            on prop.packaging_id= pack.id where pack.product_id=${productId} and pack.active=1 group by prop.presentation_id; `
         );
     }
 

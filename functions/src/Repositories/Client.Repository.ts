@@ -21,9 +21,14 @@ export class ClientRepository{
     async getClientBySeller(sellerUid:string){
         await this.getConnection();
         return await this.clientRepository.query(
-            `select deb.deb_id as debId,cli.client_id as clientId,cli.client as clientName,deb.amount,deb.create_day as createDay,deb.days from clients as cli inner join debts
-             as deb on cli.client_id=deb.client_id where cli.seller_owner="${sellerUid}" and deb.active=1;`
-            ) as Array<ClientsBySeller>;
+            `select deb.deb_id as debId,cli.client_id as clientId,cli.name as name,cli.first_surname as firstSurname,
+            cli.last_surname as lastSurname,deb.amount,deb.create_day as createDay,deb.days from clients as cli 
+            inner join debts as deb on cli.client_id=deb.client_id where cli.seller_owner="${sellerUid}" and deb.active=1;`) as Array<ClientsBySeller>;
+    }
+
+    async getCurrentCountCustomer(){
+        await this.getConnection();
+        return await this.clientRepository.query("SELECT `AUTO_INCREMENT` as noCount FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = rovianda-test-dev AND   TABLE_NAME   = clients");
     }
 
 }

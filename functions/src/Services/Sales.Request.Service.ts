@@ -121,11 +121,8 @@ export class SalesRequestService{
         console.log("DATE",date);
         console.log("DATERECORDS",dateRecord);
         let clientMapped:ClientDTO={
-          amount: client.amount,
-          clientId: client.clientId,
-          clientName: client.clientName,
-          daysPending: this.dateDiffInDays(date,dateRecord),
-          debId: client.debId
+          ...client,
+          daysPending: this.dateDiffInDays(date,dateRecord)
         };
         return clientMapped;
       })
@@ -276,7 +273,7 @@ export class SalesRequestService{
         response3.push({
           numConsecutive: i+1,
           invoice: sale[i].saleId,
-          nameClient: sale[i].client ? sale[i].client.client : "",
+          nameClient: sale[i].client ? sale[i].client.name + " "+sale[i].client.firstSurname+" "+sale[i].client.lastSurname : "",
           client: sale[i].client ? sale[i].client.id : "",
           amountTot: tot,
           sale: response,

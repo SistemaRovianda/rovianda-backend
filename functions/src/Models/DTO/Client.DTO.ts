@@ -1,6 +1,8 @@
 export interface ClientDTO{
     clientId:number;
-    clientName:string;
+    name:string;
+    firstSurname:string;
+    lastSurname:string;
     debId:number;
     amount:number;
     daysPending:number;
@@ -9,7 +11,9 @@ export interface ClientDTO{
 export interface ClientsBySeller{
     debId:number;
     clientId:number;
-    clientName:string;
+    name:string;
+    firstSurname:string;
+    lastSurname:string;
     amount:number;
     createDay:string;
     days:number;
@@ -18,7 +22,9 @@ export interface ClientsBySeller{
 export interface ClientCreation{
     rfc: string;
     keyClient: string;
-    client: string;
+    name: string;
+    firstSurname: string;
+    lastSurname: string;
     typeClient: boolean;
     currentCredit: number;
     saleuid: string;
