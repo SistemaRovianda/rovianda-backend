@@ -64,10 +64,8 @@ export class OutputsCoolingRepository{
         return await this.outputsCoolingRepository.find({loteInterno})
     }
 
-    async getOutputCoolingByRawIdAndStatus(status:string,rawMaterialId:number){
+    async getOutputCoolingByRawAndStatus(status:string,rawMaterial:Raw){
         await this.getConnection();
-        return await this.outputsCoolingRepository.query(`
-        select oc.lote_interno as lotId,oc.quantity,oc.id as outputId from outputs_cooling as oc where oc.status="${status}" and oc.raw_material_id=${rawMaterialId}
-        `);  
+        return await this.outputsCoolingRepository.find({rawMaterial:rawMaterial,status:status});
     }
 }

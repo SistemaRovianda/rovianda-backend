@@ -92,12 +92,12 @@ export class PackagingService{
         let packing = await this.packagingRepository.getLastPackaging();
         for(let e = 0; e<packagingDTO.products.length; e++){
             let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
-            let presentation:PresentationProducts = await this.presentationProductRepository.getPresentatiosProductsById(packagingDTO.products[e].presentationId)
+            let presentation:PresentationProducts= await this.presentationProductRepository.getPresentationProductsById(packagingDTO.products[e].presentationId)
             propertiesPackaging.weight = packagingDTO.products[e].weight;
             propertiesPackaging.observations = packagingDTO.products[e].observations;
             propertiesPackaging.units = packagingDTO.products[e].units;
-            propertiesPackaging.packagingId = packing[0];
-            propertiesPackaging.presentationId = presentation;
+            propertiesPackaging.packaging = packing[0];
+            propertiesPackaging.presentation = presentation;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
         return packing[0].id;
@@ -219,7 +219,7 @@ export class PackagingService{
         let packagingPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPackagingId(packaging.id);
         if(!packagingPropierties) throw new Error("[404], packaging no relacionado a propierties packaging");
 
-        let presentation: PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(packagingAssigned.presentationId);
+        let presentation: PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(packagingAssigned.presentationId);
         if(!presentation) throw new Error("[404], presentation products not found");
         let presentationPropierties = await this.propertiesPackagingRepository.findPropiertiesPackagingByPresentationId(presentation.id);
         if(!presentationPropierties) throw new Error("[404], presentation product no relacionado a propierties packaging");
@@ -252,8 +252,8 @@ export class PackagingService{
         }
 
         let response = {
-            presentation: packaging.presentationId.id,
-            typePresentation: packaging.presentationId.presentationType,
+            presentation: packaging.presentation.id,
+            typePresentation: packaging.presentation.presentationType,
             ids
         }
 
@@ -270,10 +270,10 @@ export class PackagingService{
             let response1 = [];
             for(let j = 0; j< presentations.length; j++){
                 response1.push({
-                    presentationId : `${presentations[j].presentationId.id}`,
-                    presentation : `${presentations[j].presentationId.presentation}`,
-                    typePresentation : `${presentations[j].presentationId.presentationType}`,
-                    pricePresentation : `${presentations[j].presentationId.presentationPrice}`
+                    presentationId : `${presentations[j].presentation.id}`,
+                    presentation : `${presentations[j].presentation.presentation}`,
+                    typePresentation : `${presentations[j].presentation.presentationType}`,
+                    pricePresentation : `${presentations[j].presentation.presentationPrice}`
                 });
             }
             response.push({ 
@@ -310,7 +310,7 @@ export class PackagingService{
                     subOrderMetadata.subOrder=subOrder;
                     subOrderMetadata.outputDate=packagingOutput.dateOutput;
                     await this.subOrderMetadataRepository.saveSubOrderMetadata(subOrderMetadata);
-                    let presentationProducts:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentation.presentationId);
+                    let presentationProducts:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentation.presentationId);
                     if(!presentationProducts) throw new Error(`[404], no existe la presentacion del producto con el id: ${presentation.presentationId}`);
                     let sellerInventory:SellerInventory = new SellerInventory();
                     sellerInventory.loteId = loteItem.lotId;
@@ -320,7 +320,7 @@ export class PackagingService{
                     let productRovianda:ProductRovianda = await this.productRoviandaRepository.getById(product.productId);
                     if(!productRovianda) throw new Error(`[404], no existe el producto de rovianda con el id: ${product.productId}`);
                     sellerInventory.product = productRovianda;
-                    let presetationEntity:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentation.presentationId)
+                    let presetationEntity:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentation.presentationId)
                     if(!presetationEntity) throw new Error(`[404], no existe la presentacion con el id:${presentation.presentationId}`);
                     sellerInventory.presentation= presetationEntity;
                     sellerInventory.seller=orderSeller.user; 
@@ -341,8 +341,8 @@ export class PackagingService{
         if(!updateReprocessingDTO.reprocessingId) throw new Error("[400], reprocessingId is required");
         let reprocessing:Reprocessing = await this.reprocessingRepository.getReprocessingById(updateReprocessingDTO.reprocessingId);
         if(!reprocessing) throw new Error("[404], repocessing not found");
-        let process:Process = await this.processRepository.getProceesByLotInerno(updateReprocessingDTO.loteProcess);
-        if(!process) throw new Error("[404], lote Interno not found");
+        // let process:Process = await this.processRepository.getProceesByLotInerno(updateReprocessingDTO.loteProcess);
+        // if(!process) throw new Error("[404], lote Interno not found");
         reprocessing.lotProcess = updateReprocessingDTO.loteProcess;
         return await this.reprocessingRepository.saveRepocessing(reprocessing);
     }
@@ -417,7 +417,7 @@ export class PackagingService{
                 let process:Process = await this.processRepository.findProcessById(+aPackaging[e].lotId);
                 response2.push({
                     processId: process ? process.id : "",
-                    lotId: process ? process.loteInterno : ""
+                    lotId:"" //process ? process.formulation : ""
                 });
             }
             response.push({

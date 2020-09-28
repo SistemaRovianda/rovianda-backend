@@ -31,15 +31,25 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getPresentationsOfProductOfOrderSeller"
+    },{
+        url: "/rovianda/products-rovianda/catalog",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAllProductRoviandaCatalog"
+    },{
+        url: "/rovianda/products-rovianda/catalog/:productId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAllProductRoviandaCatalogPresentation"
     },
     {
-        url: "/packaging/inventory", // obtencion de inventario de productos disponibles en rovianda
+        url: "/rovianda/packaging/inventory", // obtencion de inventario de productos disponibles en rovianda
         method: "get",
         controller: SalesRequestController,
         target: "getSellerPackagingInventory"
     },
     {
-        url: "/rovianda/packaging/product/:productId", // obtencion de presentaciones de productos disponibles en rovianda
+        url: "/rovianda/packaging/inventory/product/:productId", // obtencion de presentaciones de productos disponibles en rovianda
         method: "get",
         controller: SalesRequestController,
         target: "getSellerPackagingInventoryProduct"
@@ -61,6 +71,11 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getClientPending"
+    },{
+        url: "/rovianda/seller-clients/:sellerUid",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAllClients"
     },
     {
         url: "/rovianda/seller/client/payment/:debId", // servicio para pagar una deuda de un cliente a un vendedor

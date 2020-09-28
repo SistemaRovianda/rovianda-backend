@@ -28,7 +28,7 @@ export class SalesSellerRepository{
 
     async getOrders(uid:string){
         await this.getConnection();
-        return await this.salesSellerRepository.query(`select order_seller_id as orderId,date,urgent from orders_sellers where user_id="${uid}"`);
+        return await this.salesSellerRepository.query(`select order_seller_id as orderId,date,urgent from orders_sellers where user_id="${uid}" and status="ACTIVE";`);
     }
 
     async getOrderById(id:number){

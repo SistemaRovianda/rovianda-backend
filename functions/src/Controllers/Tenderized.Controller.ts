@@ -124,7 +124,7 @@ export class TenderizedController{
     }
     
     async createTenderized(req:Request,res:Response){
-        await this.tenderizedService.createTenderized(req.body,req.params.processId);
+        await this.tenderizedService.createTenderized(req.body,+req.params.processId);
         return res.status(201).send();
     }
 

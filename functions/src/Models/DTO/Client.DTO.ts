@@ -37,7 +37,7 @@ export interface addressClient{
        municipality: string;
        location: string;
        suburb: string;
-       extNumber: number;
+       extNumber: string;
        street: string;
        reference: string;
 }

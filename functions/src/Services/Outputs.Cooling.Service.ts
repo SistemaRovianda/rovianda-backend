@@ -111,8 +111,8 @@ export class OutputsCoolingService{
         return response;
     }
 
-    async getOutputsCoolingByRawIdAndStatus(status:string,rawMaterialId:number){
-        return await this.outputsCoolingRepository.getOutputCoolingByRawIdAndStatus(status,rawMaterialId);
+    async getOutputsCoolingByRawIdAndStatus(status:string,rawMaterial:Raw){
+        return await this.outputsCoolingRepository.getOutputCoolingByRawAndStatus(status,rawMaterial);
     }
 
     async updateOutputCooling(outputCooling:OutputsCooling){

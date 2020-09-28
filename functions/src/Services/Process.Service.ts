@@ -1,47 +1,47 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
-import { Request, Response } from "express";
-import { ProcessUpdateDTO, ProcessDTO, UserProcessDTO } from '../Models/DTO/ProcessDTO';
+import { Request, response } from "express";
+import { ProcessUpdateDTO, UserProcessDTO, DefrostDTO, DefrostFormUpdate } from '../Models/DTO/ProcessDTO';
 import { ProductRoviandaService } from './Product.Rovianda.Service';
-import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
 import { ProcessStatus, ProcessAvailablesToOven, ProcessAvailablesByLots } from '../Models/Enum/ProcessStatus';
 import { FormulationService } from './Formulation.Service';
-import { User } from '../Models/Entity/User';
+
 import { UserRepository } from '../Repositories/User.Repository';
-import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
-import { OutputsCoolingStatus } from '../Models/Enum/OutputsCoolingStatus';
+
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { RawService } from './Raw.Service';
-import { Formulation } from '../Models/Entity/Formulation';
+
 import { FormulationRepository } from '../Repositories/Formulation.Repository';
-import { Raw } from '../Models/Entity/Raw';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { Defrost } from '../Models/Entity/Defrost';
+import { DefrostRepository } from '../Repositories/Defrost.Repository';
+
+
 
 export class ProcessService{
     private processRepository:ProcessRepository;
-    private productRoviandaService:ProductRoviandaService;
-    private outputCoolingService:OutputsCoolingService;
-    private formulationService:FormulationService;
+    
     private userRepository:UserRepository;
-    private productRoviandaRepository:ProductRoviandaRepository;
+    
     private outputsCoolingRepository:OutputsCoolingRepository;
-    private rawService:RawService;
-    private formulationRepository:FormulationRepository;
+    
+    private defrostRepository:DefrostRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
-        this.productRoviandaService= new ProductRoviandaService(this.firebaseHelper);
-        this.outputCoolingService = new OutputsCoolingService();
-        this.formulationService = new FormulationService();
+        
         this.userRepository = new UserRepository();
-        this.productRoviandaRepository = new ProductRoviandaRepository();
+        
         this.outputsCoolingRepository = new OutputsCoolingRepository();
-        this.rawService = new RawService();
-        this.formulationRepository = new FormulationRepository();
+        
+        this.defrostRepository = new DefrostRepository();
     }
 
-    async createProcessInter(){
+     async createProcessInter():Promise<Process>{
         let process:Process = new Process();
         let today = new Date();
         today.setHours(today.getHours()-5)
@@ -53,52 +53,49 @@ export class ProcessService{
         let date = `${yyyy}-${mm}-${dd}`;
         process.status = ProcessStatus.ACTIVE;
         process.createAt = date;
-        await this.processRepository.saveProcess(process);
-        let id:any = await this.processRepository.getLastProcess();
-        return id[0].id;
+        return await this.processRepository.saveProcess(process);
     }
 
-    async createProcess(process:ProcessDTO){
-        if(!process.lote.loteId) throw new Error("[400], falta el parametro loteId");
-        if(!process.lote.outputId) throw new Error("[400], falta el parametro outputId");
-        if(!process.productId) throw new Error("[400], falta el parametro productId");
-        if(!process.processId) throw new Error("[400], falta el parametro processId");
-        //let productCatalog = await this.rawService.getProductRoviandaByIds(process.productId);
-        //if(!productCatalog) throw new Error("[404], el producto a registrar no existe");
-        let outputCooling:OutputsCooling = await this.outputCoolingService.getOutputsCoolingByLot(process.lote.loteId);
-        if(!outputCooling) throw new Error("[404], el lote de carne no existe en salidas de refrigeración"); 
-        if(!process.dateIni || process.dateIni=="") throw new Error("[400], falta el parametro dateIni");
-        if(!process.hourEntrance || process.hourEntrance=="") throw new Error("[400], falta el parametro hourEntrance");
-        if(!process.temperature || process.temperature=="") throw new Error("[400], falta el parametro temperature");
-        if(!process.weight) throw new Error("[400], falta el parametro weigth");
-        if(+process.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
-        //let formulation = await this.formulationService.getbyLoteIdAndProductId(process.lote.loteId,productCatalog);
-        //if(!formulation) throw new Error("[404], el lote no existe en formulacion");
-        let updateoutputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(process.lote.outputId);
-        if(!updateoutputCooling) throw new Error("[404], no existe outputId");
-        updateoutputCooling.status = "TAKED";
-
-        let processEntity:Process = await this.processRepository.findProcessById(process.processId);
-        if(!processEntity.loteInterno) processEntity.loteInterno = process.lote.loteId;
-
-        //updating formulation used lot
-        let formulationEn:Formulation = await this.formulationService.getFormulationOutputCoolingId(process.lote.outputId);
-        formulationEn.status="TAKED";
-        await this.formulationService.updateFormulation(formulationEn);
-        //let processEntity:Process = new Process();
-        //processEntity.product = productCatalog;
-        processEntity.outputLotRecordId = process.lote.outputId;
-        processEntity.entranceHour= process.hourEntrance;
-        processEntity.weigth=+process.weight;
-        processEntity.temperature = process.temperature;
-        processEntity.startDate = process.dateIni;
-        processEntity.status=ProcessStatus.ACTIVE;
-        //processEntity.newLote = formulation.loteInterno;
-        processEntity.currentProcess = "Descongelamiento";
-        await this.outputsCoolingRepository.createOutputsCooling(updateoutputCooling);
-        return await this.processRepository.createProcess(processEntity);
+    async createDefrost(defrostForm:DefrostDTO){
+        if(!defrostForm.dateInit || defrostForm.dateInit=="") throw new Error("[400], falta el parametro dateIni");
+        if(!defrostForm.entranceHour || defrostForm.entranceHour=="") throw new Error("[400], falta el parametro hourEntrance");
+        if(!defrostForm.temp || defrostForm.temp=="") throw new Error("[400], falta el parametro temperature");
+        if(!defrostForm.weight) throw new Error("[400], falta el parametro weigth");
+        if(+defrostForm.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
+        
+        let outputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(defrostForm.outputCoolingId);
+        if(outputCooling.status=="TAKED") throw new Error("[409], la salida de carne ya fue tomada para descongelamiento");
+    
+        let defrost:Defrost = new Defrost();
+        defrost.weigth=defrostForm.weight;
+        defrost.temp = defrostForm.temp;
+        defrost.status ="ACTIVE";
+        defrost.dateInit = defrostForm.dateInit;
+        defrost.entranceHour=defrostForm.entranceHour;
+        return await this.defrostRepository.saveDefrost(defrost);
     }
     
+    async updateDefrost(defrostId:number,defrostFormUpdate:DefrostFormUpdate){ 
+        let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostId);
+        if(!defrost) throw new Error("[404], descongelamiento de carne no encontrado");
+        if(!defrostFormUpdate.dateEnd) throw new Error("[400],dateEnd is required");
+        if(!defrostFormUpdate.outputHour) throw new Error("[400],outputHour is required");
+        defrost.dateEnd = defrostFormUpdate.dateEnd;
+        defrost.outputHour = defrostFormUpdate.outputHour;
+        return await this.defrostRepository.saveDefrost(defrost);
+    }
+
+    async closeDefrostById(defrostId:number){
+        let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostId);
+        if(defrost.status=="INACTIVE") throw new Error("[409], el lote de descongelamiento ya fue cerrado");
+        defrost.status ="INACTIVE";
+        await this.defrostRepository.saveDefrost(defrost);
+    }
+
+    async getAllDefrostActive(){
+        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,defrostId:x.defrostId}));
+    }
+
     async updateProcessProperties(process:Process){
         return await this.processRepository.createProcess(process);
     }
@@ -111,11 +108,9 @@ export class ProcessService{
             response.push({
                 processId:`${i.id}`,
                 productName: `${i.product ? i.product.name : ""}`,
-                lotId: `${i.loteInterno}`,
+                lotes: i.formulation.defrosts.map((x)=>{return {loteId:x.lotMeat,rawMaterial:x.defrost.outputCooling.rawMaterial.rawMaterial,outputId:x.desfrotFormulationId}}),
                 date: `${i.startDate}`,
                 currentProccess: `${i.currentProcess}`,
-                weigth: `${i.weigth}`,
-                temperature: `${i.temperature}`,
                 start_date: `${i.startDate}`,
                 end_date: `${i.endDate}`,
                 entrance_hour: `${i.entranceHour}`,
@@ -138,35 +133,20 @@ export class ProcessService{
         return await this.processRepository.getProcessWithGrindingById(id);
     }
 
-    async updateProcess(req:Request){ 
-        let process:Process = await this.processRepository.findProcessById(+req.params.processId);
-        console.log(process)
-        if(!process) throw new Error("[404], process not found");
-        let updateProcess:ProcessUpdateDTO = req.body;
-        if(!updateProcess.dateFin) throw new Error("[400],dateFin is required");
-        if(!updateProcess.hourExit) throw new Error("[400],hourExit is required");
-        process.endDate = updateProcess.dateFin;
-        process.outputHour = updateProcess.hourExit;
-        return await this.processRepository.createProcess(process);
-    }
+    
 
     async updateStatusProcess(processId:number){
-        let process:Process = await this.processRepository.findProcessById(processId);
-        console.log(process);
+        let process:Process = await this.processRepository.getProcessById(processId);
 
         if(!process) throw new Error("[404], process not found");
        
         if(process.status == ProcessStatus.INACTIVE){
             throw new Error("[403], PROCESO ANTERIORMENTE CERRADO");
         }else{
-            let formulacion:Formulation = await this.formulationRepository.getByFormulationId(process.outputLotRecordId)
-            let outputCooling:OutputsCooling =await this.outputCoolingService.getOutputsCoolingById(process.outputLotRecordId);
-            outputCooling.status="TAKED";
-            this.outputCoolingService.updateOutputCooling(outputCooling);
             process.status = ProcessStatus.INACTIVE;
             let date:Date = new Date();
             date.setHours(date.getHours()-5);
-            process.dateEndedProcess = date.toISOString();
+            process.endDate = date.toISOString();
             await this.processRepository.createProcess(process);
                 return "cerrado";
         }
@@ -214,17 +194,9 @@ export class ProcessService{
     }
 
     async getDefrost(processId:number){
-        let response={};
         let process:Process = await this.processRepository.findProcessByProcessId(processId);
         if(!process) throw new Error("[400], no existe proceso");
-        if(process.outputLotRecordId!=null && process.outputLotRecordId!=0){
-            console.log("SE MUESTRA EL OUTPUTS PROCCESS ID",process.outputLotRecordId);
-        let outputCoolingRecord = await this.outputsCoolingRepository.getOutputsCoolingById(+process.outputLotRecordId);
-        console.log("OUTPUTS COOLING",JSON.stringify(outputCoolingRecord));
-        response = {...response,...process,rawMaterialName:outputCoolingRecord.rawMaterial.rawMaterial}
-        }
-        response ={...response,...process}
-        return response;
+        return process;
     }
 
     async getProcessAllAvailables(){
@@ -247,5 +219,14 @@ export class ProcessService{
         let processAvailablesByLots:ProcessAvailablesByLots[] =[];
         processAvailableMap.forEach((item)=>processAvailablesByLots.push(item))
         return processAvailablesByLots;
+    }
+
+    async getFormulationOfProcess(processId:number){
+        let process:Process = await this.processRepository.getProcessById(processId);
+        if(!process){
+            return -1;
+        }else{
+            return process.formulation.id;
+        }
     }
 }

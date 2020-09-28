@@ -187,7 +187,7 @@ export class EntranceMeatService {
         return meat;
     }
 
-    async getHistoryMeat(lotId:string){
+    /*async getHistoryMeat(lotId:string){
         if(!lotId) throw new Error("[400], lotId is required");
         let response:any = {};
         let aMeat:any = [];
@@ -369,6 +369,6 @@ export class EntranceMeatService {
             outputs: aOutputs ? aOutputs : ""
         }
         return response;
-    }
+    }*/
 
 }

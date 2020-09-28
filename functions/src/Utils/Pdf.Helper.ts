@@ -552,10 +552,10 @@ export default class PdfHelper{
             </tr>
             <tr>
                 <td class="wi">${formulation.productRovianda.name}</td>
-                <td>${formulation.loteInterno}</td>
+                <td>${formulation.lotDay}</td>
                 <td>${formulation.temp}</td>
                 <td>${formulation.waterTemp}</td>
-                <td>${ingredents[0].productId.description}</td>
+                <td>${ingredents[0].product.description}</td>
                 <td>${formulation.date}</td>
             </tr>
         `;
@@ -567,7 +567,7 @@ export default class PdfHelper{
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>${ingredents[i].productId.description}</td>
+                <td>${ingredents[i].product.description}</td>
                 <td></td>
             </tr>
             `;
@@ -1767,10 +1767,10 @@ export default class PdfHelper{
       </tr>
         <tr>
             <td >${formulation.productRovianda.name}</td>
-            <td>${formulation.loteInterno}</td>
+            <td>${formulation.lotDay}</td>
             <td>${formulation.temp ? formulation.temp : ""}</td>
             <td>${formulation.waterTemp ? formulation.waterTemp : ""}</td>
-            <td>${formulation.formulationIngredients.length && formulation.formulationIngredients[0].productId.description ? formulation.formulationIngredients[0].productId.description : "" }</td>
+            <td>${formulation.formulationIngredients.length && formulation.formulationIngredients[0].product.description ? formulation.formulationIngredients[0].product.description : "" }</td>
             <td>${formulation.date ? new Date(formulation.date).toLocaleDateString() : "" }</td>
         </tr>`;
             
@@ -1782,7 +1782,7 @@ export default class PdfHelper{
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>${formulation.formulationIngredients[index].productId.description}</td>
+                    <td>${formulation.formulationIngredients[index].product.description}</td>
                     <td></td>
                 </tr>`;
             }
@@ -1845,9 +1845,9 @@ export default class PdfHelper{
     </header>
     <table border="1" width="90%">
         <tr>
-            <th colspan="2"><img src="${LOGO.data}" height="60px" /></th>
-            <th colspan="2">No.Lote: ${data.loteInterno}</th>
-            <th colspan="3">Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()} </th>
+            <th colspan="2"><img src="{LOGO.data}" height="60px" /></th>
+            <th colspan="2">No.Lote: {data.loteInterno}</th>
+            <th colspan="3">Fecha: {new Date().getFullYear().toString()}-{new Date().getMonth().toString()}-{new Date().getDate().toString()} </th>
         </tr>
         <tr>
             <th>DESCOGELADO</th>
@@ -1862,12 +1862,12 @@ export default class PdfHelper{
             <th colspan="2">HORA DE SALIDA</th>
         </tr>
         <tr>
-        <td class="formacion" >${data.product == null ? "" : data.product.name}</td>
-        <td>${data.startDate ? data.startDate : ""}</td>
-        <td>${data.weigth ? data.weigth : ""}</td>
-        <td>${data.temperature ? data.temperature :""}</td>
-        <td>${data.entranceHour ? data.entranceHour :""}</td>
-        <td colspan="2">${data.outputHour}</td>
+        <td class="formacion" >{data.product == null ? "" : data.product.name}</td>
+        <td>{data.startDate ? data.startDate : ""}</td>
+        <td>{data.weigth ? data.weigth : ""}</td>
+        <td>{data.temperature ? data.temperature :""}</td>
+        <td>{data.entranceHour ? data.entranceHour :""}</td>
+        <td colspan="2">{data.outputHour}</td>
         </tr>
         <tr>
             <th colspan="2">ACONDICIONAMIENTO</th>
@@ -1883,11 +1883,11 @@ export default class PdfHelper{
             <th></th> 
         </tr>
         <tr>
-            <td  class="formacion">${data.conditioningId == null ? "" : data.conditioningId.raw}</td>
-            <td>${data.conditioningId == null ? "" :data.conditioningId.date}</td>
-            <td>${data.conditioningId == null ? "" :data.currentProcess}</td>
-            <td>${data.conditioningId == null ? "" :data.conditioningId.weight}</td>
-            <td>${conditioning.productId == null ? "" :conditioning.productId.name}</td>
+            <td  class="formacion">{data.conditioningId == null ? "" : data.conditioningId.raw}</td>
+            <td>{data.conditioningId == null ? "" :data.conditioningId.date}</td>
+            <td>{data.conditioningId == null ? "" :data.currentProcess}</td>
+            <td>{data.conditioningId == null ? "" :data.conditioningId.weight}</td>
+            <td>{conditioning.productId == null ? "" :conditioning.productId.name}</td>
             <td cellspacing="0">clave</td>
             <td cellspacing="0">Proceso</td>
         </tr>
@@ -1939,12 +1939,12 @@ export default class PdfHelper{
                 <th></th>
             </tr>
             <tr>
-                <th class="formacion">${data.grindingId == null ? "" : data.grindingId.raw}</th>
-                <th>${data.grindingId == null ? "" : data.grindingId.date}</th>
-                <th>${data.grindingId == null ? "" : data.grindingId.process}</th>
-                <th>${data.grindingId == null ? "" : data.grindingId.weight}</th>
-                <th>${data.temperature}</th>
-                <th>${data.product == null ? "" : data.product.name}</th>
+                <th class="formacion">{data.grindingId == null ? "" : data.grindingId.raw}</th>
+                <th>{data.grindingId == null ? "" : data.grindingId.date}</th>
+                <th>{data.grindingId == null ? "" : data.grindingId.process}</th>
+                <th>{data.grindingId == null ? "" : data.grindingId.weight}</th>
+                <th>{data.temperature}</th>
+                <th>{data.product == null ? "" : data.product.name}</th>
                 <th></th>
             </tr>
             <br><br>            
@@ -1962,12 +1962,12 @@ export default class PdfHelper{
                   <th></th>
               </tr>
               <tr>
-                <th class="formacion">${tenderized.productId == null ? "" : tenderized.productId.name}</th>
-                <th>${data.tenderizedId == null ? "" : data.tenderizedId.date}</th>
-                <th>${data.tenderizedId == null ? "" : data.tenderizedId.weight}</th>
-                <th>${data.tenderizedId == null ? "" : data.tenderizedId.temperature}</th>
-                <th>${data.tenderizedId == null ? "" : data.tenderizedId.weightSalmuera}</th>
-                <th>${data.tenderizedId == null ? "" : data.tenderizedId.percentInject}</th>
+                <th class="formacion">{tenderized.productId == null ? "" : tenderized.productId.name}</th>
+                <th>{data.tenderizedId == null ? "" : data.tenderizedId.date}</th>
+                <th>{data.tenderizedId == null ? "" : data.tenderizedId.weight}</th>
+                <th>{data.tenderizedId == null ? "" : data.tenderizedId.temperature}</th>
+                <th>{data.tenderizedId == null ? "" : data.tenderizedId.weightSalmuera}</th>
+                <th>{data.tenderizedId == null ? "" : data.tenderizedId.percentInject}</th>
                 <th></th>
             </tr>
             <tr>
@@ -1984,12 +1984,12 @@ export default class PdfHelper{
                 <th></th>
             </tr>
             <tr>
-              <th class="formacion">${sausaged.productId == null ? "" :sausaged.productId.name}</th>
-              <th>${data.sausageId == null ? "" : data.sausageId.date}</th>
-              <th>${data.sausageId == null ? "" : data.sausageId.temperature}</th>
-              <th>${data.sausageId == null ? "" : data.sausageId.weightIni} (${data.sausageId == null ? "" : data.sausageId.hour1})</th>
-              <th>${data.sausageId == null ? "" : data.sausageId.weightMedium} (${data.sausageId == null ? "" : data.sausageId.hour2})</th>
-              <th>${data.sausageId == null ? "" : data.sausageId.weightExit} (${data.sausageId == null ? "" : data.sausageId.hour3})</th>
+              <th class="formacion">{sausaged.productId == null ? "" :sausaged.productId.name}</th>
+              <th>{data.sausageId == null ? "" : data.sausageId.date}</th>
+              <th>{data.sausageId == null ? "" : data.sausageId.temperature}</th>
+              <th>{data.sausageId == null ? "" : data.sausageId.weightIni} ({data.sausageId == null ? "" : data.sausageId.hour1})</th>
+              <th>{data.sausageId == null ? "" : data.sausageId.weightMedium} ({data.sausageId == null ? "" : data.sausageId.hour2})</th>
+              <th>{data.sausageId == null ? "" : data.sausageId.weightExit} ({data.sausageId == null ? "" : data.sausageId.hour3})</th>
               <th></th>
           </tr>
             <tr>
@@ -1997,15 +1997,15 @@ export default class PdfHelper{
                 <td>F-CAL-RO-07</td>
             </tr>
         <tr>
-            <th colspan="3">Elaboro: ${data.nameElaborated ? data.nameElaborated : ""}  </th>
+            <th colspan="3">Elaboro: {data.nameElaborated ? data.nameElaborated : ""}  </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: ${data.jobElaborated? data.jobElaborated:""}</th>
+            <th colspan="2">Puesto: {data.jobElaborated? data.jobElaborated:""}</th>
         </tr>
         <tr>
           <div id="text">
-            <th colspan="3">Verifico: ${data.nameVerify? data.nameVerify : ""} </th>
+            <th colspan="3">Verifico: {data.nameVerify? data.nameVerify : ""} </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: ${data.jobVerify?data.jobVerify:""}</th>
+            <th colspan="2">Puesto: {data.jobVerify?data.jobVerify:""}</th>
           </div>
         </tr>
     </table>
@@ -2104,7 +2104,7 @@ export default class PdfHelper{
                 <tr>
                 <td class="cel">${data.productId == null ? " " : data.productId.name}</td>
                 <td class="cel">${data.lotId ? data.lotId:" "} (Cad. ${data.expiration})</td>
-                <td class="cel">${!properties ? " " : properties[0].presentationId.presentation}</td>
+                <td class="cel">${!properties ? " " : properties[0].presentation.presentation}</td>
                 <td class="cel">${!properties ? " " : properties[0].units}</td>
                 <td class="cel">${!properties ? " " : properties[0].weight}</td>
                 <td class="cel">${!properties ? " " : properties[0].observations}</td>
@@ -2117,7 +2117,7 @@ export default class PdfHelper{
                     <tr>
                         <td class="cel"></td>
                         <td class="cel"></td>
-                        <td class="cel">${!properties ? " " : properties[i].presentationId.presentation}</td>
+                        <td class="cel">${!properties ? " " : properties[i].presentation.presentation}</td>
                         <td class="cel">${!properties ? " " : properties[i].units}</td>
                         <td class="cel">${!properties ? " " : properties[i].weight}</td>
                         <td class="cel">${!properties ? " " : properties[i].observations}</td>

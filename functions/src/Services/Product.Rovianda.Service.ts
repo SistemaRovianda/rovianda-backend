@@ -126,7 +126,7 @@ export class ProductRoviandaService{
 
     async deletePresentation(presentationId:number){
         if(!presentationId) throw new Error("[400],presentationId is required");
-        let presentation:PresentationProducts = await this.presentationsProductsRepository.getPresentatiosProductsById(presentationId);
+        let presentation:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentationId);
         if(!presentation) throw new Error("[404],Presentation not found");
         if(!presentation.status) throw new Error("[404],Presentation is deleted");
         presentation.status = false;
@@ -274,7 +274,7 @@ export class ProductRoviandaService{
                 if(!productRoviandaDTO.presentation[i].typePresentation) throw new Error("[400],typePresentation is required");
                 let presentationProduct:PresentationProducts = new PresentationProducts();
                 if(productRoviandaDTO.presentation[i].presentationId){
-                    presentationProduct = await this.presentationsProductsRepository.getPresentatiosProductsById(productRoviandaDTO.presentation[i].presentationId);
+                    presentationProduct = await this.presentationsProductsRepository.getPresentationProductsById(productRoviandaDTO.presentation[i].presentationId);
                     let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
                     presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
                     presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
@@ -335,5 +335,14 @@ export class ProductRoviandaService{
 
     async getProductsPresentation(productId:number){
         return await this.productRoviandaRepository.getProductPresentation(productId);
+    }
+
+    async getAllproductsRoviandaCatalog(){
+        return await this.productRoviandaRepository.getAllProductRoviandaCatalog();
+    }
+
+    async getPresentationsByProduct(productId:number){
+        let productsRovianda:ProductRovianda[] = await this.productRoviandaRepository.getProductPresentation(productId);
+        return productsRovianda;
     }
 }

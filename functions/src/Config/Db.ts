@@ -49,6 +49,8 @@ import { Debts } from "../Models/Entity/Debts";
 import { Sale } from "../Models/Entity/Sales";
 import { SellerOperation } from "../Models/Entity/Seller.Operations";
 import { SubSales } from "../Models/Entity/Sub.Sales";
+import { Defrost } from "../Models/Entity/Defrost";
+import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 
 const config: ConnectionOptions = {
 
@@ -107,7 +109,8 @@ const config: ConnectionOptions = {
         SubOrder,
         SubOrderMetadata,
         SellerInventory,
-        Address,Client,Debts,Sale,SellerOperation,SubSales
+        Address,Client,Debts,Sale,SellerOperation,SubSales,
+        Defrost,DefrostFormulation
     ]
 }
 let connection: Connection;

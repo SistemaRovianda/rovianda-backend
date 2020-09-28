@@ -22,7 +22,7 @@ export class PresentationProducts {
     @Column()
     status: boolean;
 
-    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentationId)
+    @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentation)
     propertiesPackaging: PropertiesPackaging[];
 
     @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.presentationProducts)

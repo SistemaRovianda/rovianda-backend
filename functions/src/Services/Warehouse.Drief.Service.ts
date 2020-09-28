@@ -137,7 +137,7 @@ export class WarehouseDriefService{
                     product: outputs[i].product ? outputs[i].product.description :  "",
                     productId: outputs[i].product ? outputs[i].product.id : "",
                     observations: outputs[i].observations ? outputs[i].observations : "",
-                    lot: lotInter ? lotInter.formulationId.loteInterno : ""
+                    lot: lotInter ? lotInter.formulation.lotDay : ""
                 })
             
             }

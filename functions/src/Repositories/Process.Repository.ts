@@ -14,13 +14,13 @@ export class ProcessRepository{
     }
     async findProcessByIdWithTenderized(processId:number){
         await this.getConnection();
-        return await this.processRepository.findOne({id:processId},{relations:["tenderizedId"]});
+        return await this.processRepository.findOne({id:processId},{relations:["tenderized"]});
     }
 
     async findProcessByIdWithSausaged(processId:number){
         await this.getConnection();
         console.log("consulta")
-        return await this.processRepository.findOne({id:processId},{relations:["sausageId"]});
+        return await this.processRepository.findOne({id:processId},{relations:["sausage"]});
     }
     async saveProcess(process:Process){
         await this.getConnection();
@@ -38,7 +38,7 @@ export class ProcessRepository{
         console.log("consulta")
         return await this.processRepository.find({
             where: {status},
-            relations:["product"]
+            relations:["product","meatProcess"]
         });
     }
 
@@ -52,7 +52,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["grindingId","product"]
+            relations:["grinding","product"]
         });
     }
 
@@ -60,7 +60,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["sausageId","product"]
+            relations:["sausage","product"]
         });
     }
 
@@ -68,13 +68,13 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["sausageId","tenderizedId","conditioningId","grindingId","product"]
+            relations:["sausage","tenderized","conditioning","grinding","product"]
         });
     }
 
     async findProcessByProcessId(id:number){
         await this.getConnection();
-        return await this.processRepository.findOne({id},{relations:["product"]})
+        return await this.processRepository.findOne({id},{relations:["product","meatProcess"]})
     }
      
     async getProceesByLot(newLote:string,productId:number){
@@ -99,15 +99,15 @@ export class ProcessRepository{
         return await this.processRepository.query(`SELECT * FROM process WHERE lote_interno = "${loteInterno}"`)
     }
 
-    async getProceesByLotInerno(loteInterno:string){
-        await this.getConnection();
-        return await this.processRepository.findOne({loteInterno})
-    }
+    // async getProceesByLotInerno(loteInterno:string){
+    //     await this.getConnection();
+    //     return await this.processRepository.findOne({loteInterno})
+    // }
 
-    async findProceesByLotInerno(loteInterno:string){
-        await this.getConnection();
-        return await this.processRepository.find({loteInterno})
-    }
+    // async findProceesByLotInerno(loteInterno:string){
+    //     await this.getConnection();
+    //     return await this.processRepository.find({loteInterno})
+    // }
 
     async findProductByProcessId(id:number){
         await this.getConnection();
@@ -121,7 +121,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id: `${id}`},
-            relations:["conditioningId"]
+            relations:["conditioning"]
         });
     }
 
@@ -129,7 +129,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id: `${id}`},
-            relations:["tenderizedId","product"]
+            relations:["tenderized","product"]
         });
     }
 
@@ -170,7 +170,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.find({
             where: {id},
-            relations:["sausageId","tenderizedId","conditioningId","grindingId","product"]
+            relations:["sausage","tenderized","conditioning","grinding","product"]
         });
     }
 }

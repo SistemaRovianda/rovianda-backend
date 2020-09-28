@@ -10,13 +10,13 @@ export class FormulationIngredients {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => Product)
+    @ManyToOne(type => Product,{eager:true})
     @JoinColumn({ name: "product_id" })
-    productId: Product;
+    product: Product;
 
-    @ManyToOne(type => Formulation, formulationId => formulationId.formulationIngredients)
+    @ManyToOne(type => Formulation, formulation => formulation.formulationIngredients)
     @JoinColumn({ name: "formulation_id" })
-    formulationId: Formulation;
+    formulation: Formulation;
 
     @ManyToOne(type => OutputsDrief)
     @JoinColumn({ name: "lot_id" })

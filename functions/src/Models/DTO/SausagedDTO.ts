@@ -1,13 +1,12 @@
 export interface SausagedDTO{
-    productId:number;
     temperature:string;
     date: string;
-    loteMeat:string
     time:
     {
         hour:string;
         weight:number;
-    };
+    },
+    defrostId:number;
 }
 
 export interface SausagedUpdateDTO{

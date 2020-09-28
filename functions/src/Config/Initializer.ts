@@ -70,7 +70,7 @@ export class Initializer {
         this.entranceDriefController = new EntranceDriefController(this.firebaseInstance);
         this.dryngLabelController = new DryngLabelController();
         this.inspectionController = new InspectionController(this.firebaseInstance);
-        this.salesRequestController = new SalesRequestController();
+        this.salesRequestController = new SalesRequestController(this.firebaseInstance);
         this.rawController = new RawController(this.firebaseInstance);
         this.clientController = new ClientController(this.firebaseInstance);
         this.maintenanceController = new MaintenanceController(this.firebaseInstance);

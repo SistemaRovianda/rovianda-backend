@@ -26,7 +26,7 @@ export class SellerInventoryRepository{
 
     async getSellerInventoryProductPresentation(sellerUid:string,productId:number){
         await this.getConnection();
-        return await this.repository.query(`select si.presentation_id as presentationId,prp.presentation,prp.type_presentation as typePresentation,prp.price_presentation as price
+        return await this.repository.query(`select si.presentation_id as presentationId,prp.presentation,prp.type_presentation as typePresentation,prp.price_presentation as pricePresentation
         ,sum(si.quantity) as quantity from seller_inventory as si inner join presentation_products as prp 
         on si.presentation_id = prp.presentation_id where si.productId=${productId} and seller_id="${sellerUid}"
         group by si.presentation_id;`);

@@ -1,22 +1,31 @@
 export interface FormulationDTO {
     productRoviandaId: number,
-    lotIdRecordId: string,
     temperature: string,
     temperatureWater: string,
     verifitId:string,
     date:string,
     makeId:string
-    assignmentLot: {
-        newLotId: string,
-        dateEntry: string
-    },
-    ingredient: [
-        {
-            lotId: string,
-            ingredientId: number,
-            lotRecordId:number
-        }
-    ]
+    lotsDefrost: lotDefrost[],
+    ingredient: formulationIngredients[]
+}
 
+export interface lotDefrost{
+    lotId:string;
+    defrostId:number;
+}
+export interface formulationIngredients{
+    ingredientId:number,
+    lotRecordId:number
+}
+export interface outputCoolingByStatusAndRawId{
+    outputId:number,
+    lotId:string,
+    quantity:number
+}
 
+export interface FomulationByProductRovianda{
+    formulationId:number,
+    productName:string,
+    lotDay:string,
+    createAt:string
 }

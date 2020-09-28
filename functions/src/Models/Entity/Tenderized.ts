@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+import { Process } from "./Process";
 import { Product } from "./Product";
 import { ProductRovianda } from "./Product.Rovianda";
 
@@ -34,7 +35,9 @@ export class Tenderized{
     @Column({name:"lote_meat"})
     loteMeat:string;
 
-
+    @ManyToOne(type=>Process,process=>process.tenderized)
+    @JoinColumn({name:"process_id"})
+    process:Process;
 }
 
 

@@ -1,10 +1,12 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne, OneToMany} from "typeorm";
 import { Grinding } from './Grinding';
 import { Tenderized } from './Tenderized';
 import { Conditioning } from './Conditioning';
 import { Sausaged } from './Sausaged';
 import { ProductRovianda } from "./Product.Rovianda";
 import { User } from "./User";
+import { Formulation } from "./Formulation";
+
 
 @Entity({name:"process"})
 export class Process{
@@ -16,17 +18,8 @@ export class Process{
     @JoinColumn({name:"product_rovianda_id"})
     product:ProductRovianda;
     
-    @Column({name:"lote_interno"})
-    loteInterno:string;
 
-    @Column({name:"new_lote"})
-    newLote:string;
-
-    @Column()
-    weigth:number;
     
-    @Column()
-    temperature:string;
 
     @Column({name:"entrance_hour"})
     entranceHour:string;
@@ -58,21 +51,18 @@ export class Process{
     @Column({name:"job_verify"})
     jobVerify:string;
 
-    @OneToOne(type => Grinding)
-    @JoinColumn({name:"grinding_id"})
-    grindingId:Grinding;
+    
+    @OneToMany(type=>Grinding,grinding=>grinding.process,{cascade:true,nullable:true})
+    grinding:Grinding[];
 
-    @OneToOne(type => Tenderized)
-    @JoinColumn({name:"tenderized_id"})
-    tenderizedId:Tenderized;
+    @OneToMany(type=>Tenderized,tenderized=>tenderized.process,{cascade:true,nullable:true})
+    tenderized:Tenderized[];
 
-    @OneToOne(type => Conditioning)
-    @JoinColumn({name:"conditioning_id"})
-    conditioningId:Conditioning;
+    @OneToMany(type=>Conditioning,conditioning=>conditioning.process,{cascade:true,nullable:true})
+    conditioning:Conditioning[];
 
-    @OneToOne(type => Sausaged)
-    @JoinColumn({name:"sausage_id"})
-    sausageId:Sausaged;
+    @OneToMany(type=>Sausaged,sausaged=>sausaged.sausage,{cascade:true,nullable:true})
+    sausage:Sausaged[];
 
     @OneToOne(type => User)
     @JoinColumn({name:"user_id"})
@@ -81,15 +71,14 @@ export class Process{
     @Column({name:"create_at"})
     createAt:string
 
-
-    @Column({name:"date_ended_process",nullable:true})
-    dateEndedProcess:string;
-
-    @Column()
-    outputLotRecordId:number;
+    @OneToOne(type=>Formulation,{eager:true})
+    @JoinColumn({name:"formulation_id"})
+    formulation:Formulation;
     // @OneToOne(type => Grinding)
     // @JoinColumn({ name: "molienda_id" })
     // moliendaId: Grinding;
+
+    
 }
 
 

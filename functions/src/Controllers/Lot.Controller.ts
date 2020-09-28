@@ -6,6 +6,8 @@ import { WarehouseDriefService } from '../Services/Warehouse.Drief.Service';
 import { WarehousePackingService } from '../Services/Warehouse.Packing.Service';
 import { TYPE, LOTESTATUS, LotMeatOutput } from '../Models/Enum/Type.Lot';
 import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
+import { FormulationService } from '../Services/Formulation.Service';
+import { FomulationByProductRovianda } from '../Models/DTO/FormulationDTO';
 export class LotController{
 
     
@@ -14,12 +16,14 @@ export class LotController{
     private warehouseDriefService:WarehouseDriefService;
     private warehousePackingService:WarehousePackingService
     private outputsCoolingService:OutputsCoolingService;
+    private formulationService:FormulationService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.coolingService = new CoolingService();
         this.outputsDriefServices = new OutputsDriefService();
         this.warehouseDriefService = new WarehouseDriefService();
         this.warehousePackingService = new WarehousePackingService();
         this.outputsCoolingService = new OutputsCoolingService();
+        this.formulationService = new FormulationService();
     }
 
     async getAllLots(req:Request,res:Response){
@@ -73,11 +77,9 @@ export class LotController{
         return res.status(200).send(response);
     }
 
-    async getLotMeatUsedByRawId(req:Request,res:Response){
-        let status = req.query.status;
-        let rawMaterialId = req.query.rawMaterialId;
-        
-        let response:LotMeatOutput[]=await this.outputsCoolingService.getOutputsCoolingByRawIdAndStatus(status,rawMaterialId);
+    async getLotMeatProductRoviandaId(req:Request,res:Response){
+        let productRoviandaId = +req.params.productRoviandaId;
+        let response:Array<FomulationByProductRovianda>= await this.formulationService.getFormulationByProductRovianda(productRoviandaId);
         return res.status(200).send(response);
     }
 

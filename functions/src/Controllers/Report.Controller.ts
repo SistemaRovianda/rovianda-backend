@@ -549,12 +549,12 @@ export class ReportController{
         let sausaged:Sausaged = new Sausaged();
         let tenderized:Tenderized= new Tenderized();
         
-        if(process.conditioningId == null){
+        /*if(process.conditioning == null){
             conditioning;
         }else{
             conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
         }      
-        if(process.sausageId == null){
+        if(process.sausage == null){
             sausaged;
         }else{
             sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
@@ -563,7 +563,7 @@ export class ReportController{
             tenderized;
         }else{
             tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        }                                                                    
+        }        */                                                            
         let report = await this.pdfHelper.reportProcess(process,conditioning,sausaged,tenderized);
         pdf.create(report, {
             format: 'legal',
@@ -591,7 +591,7 @@ export class ReportController{
         let sausaged:Sausaged = new Sausaged();
         let tenderized:Tenderized= new Tenderized();
         
-        if(process.conditioningId == null){
+      /*  if(process.conditioningId == null){
             conditioning = null;
         }else{
             conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
@@ -605,7 +605,7 @@ export class ReportController{
             tenderized = null;
         }else{
             tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        }                                                                    
+        }  */                                                                  
         let workbook = this.excel.generateReportProcess(process, conditioning, sausaged, tenderized); 
         workbook.write(`${tmp}/Reporte-procesos.xlsx`,(err, stats)=>{
             if(err){

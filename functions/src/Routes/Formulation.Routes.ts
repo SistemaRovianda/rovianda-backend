@@ -8,10 +8,10 @@ export const formulationRoutes: Array<routeInterface>=[
         controller: FormulationController,
         target: "createFormulation"
     },{
-        url: "/rovianda/formulation/products",
+        url: "/rovianda/formulation/:rawMaterialId",// "/rovianda/formulation/products"
         method: "get",
         controller: FormulationController,
-        target: "getFormulation"
+        target: "getFormulationByRawMaterial"
     },{
         url: "/rovianda/process/lote/meat",
         method: "get",

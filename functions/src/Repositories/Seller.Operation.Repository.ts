@@ -21,11 +21,15 @@ export class SellerOperationRepository{
         return await this.repository.find();
     }
 
+    async getLastSellerOperation(sellerId:string){
+        await this.getConnection();
+        return await this.repository.query(`select seller_operation_id as sellerOperationId from seller_operations where seller_id="${sellerId}" and eating_time_end='' order by seller_operation_id DESC LIMIT 1;`) as Array<{sellerOperationId:number}>;
+    }
+
     async getSellerOperationById(sellerOperationId:number){
         await this.getConnection();
         return await this.repository.findOne({sellerOperationId});
     }
-
     async getSellerOperationByDateUser(date:string,seller:User){
         await this.getConnection();
         return await this.repository.findOne({seller,date});

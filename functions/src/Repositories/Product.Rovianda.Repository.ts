@@ -99,4 +99,10 @@ export class ProductRoviandaRepository {
         ON products_rovianda_presentation.presentation_id = presentation_products.presentation_id
         WHERE products_rovianda_presentation.product_id = ${ id };`);
     }
+
+    async getAllProductRoviandaCatalog(){
+        await this.getConnection();
+        return await this.repository.find({select:["name","imgS3","id"]});
+    }
+
 }

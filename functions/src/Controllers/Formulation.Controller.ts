@@ -15,15 +15,21 @@ export class FormulationController {
         return res.status(201).send({formulationId: id});
     }
 
-    async getFormulation(req:Request,res:Response){
-        let products = await this.formulationService.getFormulation();   
+    async getFormulationByProductRovianda(req:Request,res:Response){
+        let productRoviandaId:number = +req.params.productRoviandaId;
+        let products = await this.formulationService.getFormulationByProductRovianda(productRoviandaId);   
         return res.status(200).send(products);
     }
 
-    async getAllFormulationLoteMeat(req:Request,res:Response){
-        let loteMeat = await this.formulationService.getAllFormulationLoteMeat();
-        return res.status(200).send(loteMeat);
+    async getFormulationByRawMaterial(req:Request,res:Response){ //Servicio que retorna todos los registros de formulacion activo que tienen la materia prima indicada
+        let rawMaterialId:number = +req.params.rawMaterialId;
+        return res.status(200).send(await this.formulationService.getByRawMaterial(rawMaterialId));
     }
+
+    // async getAllFormulationLoteMeat(req:Request,res:Response){
+    //     let loteMeat = await this.formulationService.getAllFormulationLoteMeat();
+    //     return res.status(200).send(loteMeat);
+    // }
 
     async getAllLotMeatByProductId(req:Request,res:Response){
         let response = await this.formulationService.getAllLotMeatByProductId(+req.query.rawMaterialId,req.query.status)

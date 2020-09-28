@@ -16,7 +16,7 @@ export class OrderSeller{
     date:string
 
     @Column()
-    status:boolean;
+    status:string;
 
     @Column()
     urgent: boolean;

@@ -8,55 +8,77 @@ import { Request } from "express";
 import { SausagedDTO,SausagedUpdateDTO } from "../Models/DTO/SausagedDTO";
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { Formulation } from "../Models/Entity/Formulation";
+import { FormulationRepository } from "../Repositories/Formulation.Repository";
+import { ProcessStatus } from "../Models/Enum/ProcessStatus";
+import { DefrostRepository } from "../Repositories/Defrost.Repository";
+import { Defrost } from "../Models/Entity/Defrost";
 
 export class SausagedService{
     private sausagedRepository:SausagedRepository;
     private processRepository:ProcessRepository;
     private productRepository:ProductRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private formulationRepository:FormulationRepository;
+    private defrostRepository:DefrostRepository;
     constructor(){
         this.sausagedRepository = new SausagedRepository();
         this.processRepository = new ProcessRepository();
         this.productRepository = new ProductRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
+        this.formulationRepository= new FormulationRepository();
+        this.defrostRepository = new DefrostRepository();
     }
 
-    async saveSausaged(sausagedDTO:SausagedDTO,processId:string){
-        if(!sausagedDTO.productId) throw new Error("[400], productId is required");
-        if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
-        if(!sausagedDTO.date) throw new Error("[400], date is required");
-        if(!sausagedDTO.loteMeat) throw new Error("[400], loteMeat is required");
-        if(!sausagedDTO.time.hour) throw new Error("[400], hour1 is required");
-        if(!sausagedDTO.time.weight) throw new Error("[400], weightInitial is required");
-        let sausaged = new Sausaged();
-        let processObj:Process = await this.processRepository.getProcessWithSausagedById(+processId);
-        if(processObj){
-            let product:ProductRovianda = await this.productRoviandaRepository.getById(sausagedDTO.productId);
-            if(processObj.sausageId) throw new Error("[409],el proceso ya tiene embutido registrado");
-            if(product){
-                sausaged.date = sausagedDTO.date;
-                sausaged.hour1 = sausagedDTO.time.hour;
-                sausaged.temperature = sausagedDTO.temperature;
-                sausaged.loteMeat = sausagedDTO.loteMeat
-                sausaged.weightIni = sausagedDTO.time.weight.toString();
-                sausaged.productId = product;
-                let objSausaged:Sausaged = await this.sausagedRepository.saveSausaged(sausaged);
-                if(!processObj.loteInterno) { processObj.loteInterno = sausagedDTO.loteMeat; }
-                
-                processObj.sausageId = objSausaged;
-                if(!processObj.product){
-                    processObj.product=product;
-                }
-                processObj.currentProcess = "Embutido";
-                await this.processRepository.saveProcess(processObj);
+    async createProcessInter():Promise<Process>{
+        let process:Process = new Process();
+        let today = new Date();
+        today.setHours(today.getHours()-5)
+        let dd:any = today.getDate();
+        let mm:any = today.getMonth()+1; 
+        let yyyy:any = today.getFullYear();
+        if(dd<10) { dd='0'+dd; } 
+        if(mm<10) { mm='0'+mm; }
+        let date = `${yyyy}-${mm}-${dd}`;
+        process.status = ProcessStatus.ACTIVE;
+        process.createAt = date;
+        return await this.processRepository.saveProcess(process);
+    }
+
+    async saveSausaged(sausagedsDTO:Array<SausagedDTO>,formulationId:number){
+        for(let sausagedDTO of sausagedsDTO){
+            if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
+            if(!sausagedDTO.date) throw new Error("[400], date is required");
+            if(!sausagedDTO.defrostId) throw new Error("[400], defrostId is required");
+            if(!sausagedDTO.time.hour) throw new Error("[400], hour1 is required");
+            if(!sausagedDTO.time.weight) throw new Error("[400], weightInitial is required");
+            let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
+            let process:Process =null;
+            if(formulation.process){
+                process = formulation.process;
             }else{
-                throw new Error("[404], Product not found");
+                process = await this.createProcessInter();
+                process.formulation  = formulation;
             }
-        }else{
-            throw new Error("[404], Process not found");
+            let defrost:Defrost = await this.defrostRepository.getDefrostById(sausagedDTO.defrostId);
+            let sausaged = new Sausaged();
+            sausaged.date = sausagedDTO.date;
+            sausaged.hour1 = sausagedDTO.time.hour;
+            sausaged.temperature = sausagedDTO.temperature;
+            sausaged.loteMeat = defrost.outputCooling.rawMaterial.rawMaterial;
+            sausaged.weightIni = sausagedDTO.time.weight.toString();
+            sausaged.productId = formulation.productRovianda;
+            let objSausaged:Sausaged = await this.sausagedRepository.saveSausaged(sausaged);
+            
+            if(process.sausage.length){
+                process.sausage.push(objSausaged);
+            }else{
+                process.sausage=[objSausaged];
+            }
+
+            process.currentProcess = "Embutido";
+            await this.processRepository.saveProcess(process);
         }
-
-
         //return await this.sausagedRepository.saveSausaged(sausaged);
     }
 
@@ -73,28 +95,29 @@ export class SausagedService{
         let process:Process = await this.processRepository.getProcessWithSausagedById(+req.params.processId);
         if(!process) throw new Error("[404], process not found");
         console.log(process)
-        if(!process.sausageId) throw new Error("[404], dont have sausage");
-        let sausaged:Sausaged = await this.sausagedRepository.getSausagedById(process.sausageId.id);
-        console.log(sausaged)
-        let response:any = {};
-            response = {
-                sausagedId: `${sausaged.id}`,
+        let response:Array<any>=new Array<any>();
+        for(let sausage of process.sausage){
+            response.push( {
+                sausagedId: `${sausage.id}`,
                 product: {
-                    id: `${sausaged.productId ? sausaged.productId.id : ""}`,
-                    description: `${sausaged.productId? sausaged.productId.name : ""}`
+                    id: `${sausage.productId ? sausage.productId.id : ""}`,
+                    description: `${sausage.productId? sausage.productId.name : ""}`
                 },
-                temperature: `${sausaged.temperature}`,
-                date: `${sausaged.date}`,
+                temperature: `${sausage.temperature}`,
+                date: `${sausage.date}`,
                 time: {
-                    hour1: `${sausaged.hour1}`,
-                    weightInitial: `${sausaged.weightIni}`,
-                    hour2: `${sausaged.hour2}`,
-                    weightMedium: `${sausaged.weightMedium}`,
-                    hour3: `${sausaged.hour3}`,
-                    weightFinal: `${sausaged.weightExit}`
+                    hour1: `${sausage.hour1}`,
+                    weightInitial: `${sausage.weightIni}`,
+                    hour2: `${sausage.hour2}`,
+                    weightMedium: `${sausage.weightMedium}`,
+                    hour3: `${sausage.hour3}`,
+                    weightFinal: `${sausage.weightExit}`
                 },
-                loteMeat: `${sausaged.loteMeat}`
-            };
+                loteMeat: `${sausage.loteMeat}`
+            });
+        }
+        
+            
         return response;
     }
 

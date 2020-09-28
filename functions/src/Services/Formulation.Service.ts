@@ -1,5 +1,5 @@
 import { FormulationRepository } from "../Repositories/Formulation.Repository";
-import { FormulationDTO } from "../Models/DTO/FormulationDTO";
+import { FomulationByProductRovianda, FormulationDTO, outputCoolingByStatusAndRawId } from "../Models/DTO/FormulationDTO";
 import { Request } from "express";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
@@ -17,6 +17,12 @@ import { UserRepository } from "../Repositories/User.Repository";
 import { OutputsCoolingStatus } from "../Models/Enum/OutputsCoolingStatus";
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 
+import { Raw } from "../Models/Entity/Raw";
+import { RawRepository } from "../Repositories/Raw.Repository";
+import { Defrost } from "../Models/Entity/Defrost";
+import { DefrostRepository } from "../Repositories/Defrost.Repository";
+import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
+
 export class FormulationService {
     private formulationRepository: FormulationRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
@@ -26,6 +32,8 @@ export class FormulationService {
     private outputsCooling:OutputsCoolingService;
     private userRepository:UserRepository;
     private outputsCoolingRepository:OutputsCoolingRepository;
+    private rawMaterialRepository:RawRepository;
+    private defrostRepository:DefrostRepository;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -35,6 +43,8 @@ export class FormulationService {
         this.outputsCooling = new OutputsCoolingService();
         this.userRepository = new UserRepository();
         this.outputsCoolingRepository = new OutputsCoolingRepository();
+        this.rawMaterialRepository=new RawRepository();
+        this.defrostRepository = new DefrostRepository();
     }
 
     async createFormulation(req: Request) {
@@ -45,8 +55,8 @@ export class FormulationService {
         let productRovianda: ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+formulationDTO.productRoviandaId);
         if (!productRovianda)
             throw new Error(`[409], Rovianda Product with id ${formulationDTO.productRoviandaId} was not found`)
-        if (!formulationDTO.lotIdRecordId)
-            throw new Error("[400], lotId is required");
+        if (!formulationDTO.ingredient)
+            throw new Error("[400], ingredients is required");
         if (!formulationDTO.temperature)
             throw new Error("[400], lotId is required");
         if (!formulationDTO.date)
@@ -57,91 +67,85 @@ export class FormulationService {
             throw new Error("[400], makeId is required");
         if (!formulationDTO.temperatureWater)
             throw new Error("[400], temperatureWater is required");
-        // if (!formulationDTO.assignmentLot.newLotId)
-        //     throw new Error("[400], assigmentLot is missing newLotId attribute");
-        // if (!formulationDTO.assignmentLot.dateEntry)
-        //     throw new Error("[400], assigmentLot is missing dateEntry attribute");
-        for(let ingredient of formulationDTO.ingredient){
-            if (!ingredient.ingredientId)
-                throw new Error("[400], One of ingredients is missing ingredentId attribute");
-            
-            if (!ingredient.lotRecordId)
-                throw new Error("[400], One of ingredients is missing lotRecordId attribute");
+        let defrostFormulations:DefrostFormulation[] = new Array<DefrostFormulation>();
+        for(let defrostObj of formulationDTO.lotsDefrost){
+            let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostObj.defrostId);
+            if(!defrost) throw new Error("[409], no existe el lote en descongelamiento");
+            if(defrost.status=="TAKED") throw new Error("[409], el lote de descongelamiento ya fue tomado");
+            defrost.status ="TAKED";
+            let defrostFormulation:DefrostFormulation=new DefrostFormulation();
+            defrostFormulation.defrost=defrost;
+            defrostFormulation.lotMeat = defrost.outputCooling.loteInterno;
+            defrostFormulations.push(defrostFormulation);
         }
-        let outputCooling:OutputsCooling = await this.outputsCooling.getOutputsCoolingById(+formulationDTO.lotIdRecordId);
-        outputCooling.status="USED";       
-        if(!outputCooling) throw new Error("[404], no existe salida de este lote");
+
+        let formulationIngredients:Array<FormulationIngredients> = new Array();
+        for(let ingredient of formulationDTO.ingredient){
+            let outputDrief:OutputsDrief = await this.outputsDriedRepository.getOutputsDriefById(ingredient.lotRecordId);
+            if(!outputDrief) throw new Error("[404], no existe la salida de ingredientes");
+            if(outputDrief.status=="USED") throw new Error("[404],  la salida de ingredientes ya ha sido utilizada con el id: "+ingredient);
+            outputDrief.status ="USED";
+            let formulationIngredient:FormulationIngredients=new FormulationIngredients();
+            formulationIngredient.lotId = outputDrief;
+            formulationIngredient.product=outputDrief.product;
+            formulationIngredients.push(formulationIngredient);
+        }
+        
         let verifit:User = await this.userRepository.getUserById(formulationDTO.verifitId);       
         if(!verifit) throw new Error("[404], no existe verifit");
         let make:User = await this.userRepository.getUserById(formulationDTO.makeId);       
         if(!make) throw new Error("[404], no existe make");
+
+        let date:Date = new Date();
         let formulationToSave: Formulation =new Formulation();
         
-        formulationToSave.loteInterno= outputCooling.loteInterno;
+        formulationToSave.defrosts=defrostFormulations;
         formulationToSave.productRovianda= productRovianda;
         formulationToSave.temp= formulationDTO.temperature;
         formulationToSave.verifit = verifit;
         formulationToSave.make = make;
         formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
-        formulationToSave.status="USED";
-        formulationToSave.outputCoolingIdRecord = +formulationDTO.lotIdRecordId;
-        //formulationToSave.newLote=`${formulationDTO.assignmentLot.newLotId} ${formulationDTO.assignmentLot.dateEntry}`
+        formulationToSave.status="UNUSED";
+        formulationToSave.formulationIngredients = formulationIngredients;
+        formulationToSave.lotDay = date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
+        formulationToSave.date = new Date().toISOString()
         
-        try {
-            let formulationSaved = await this.formulationRepository.saveFormulation(formulationToSave);
-        
-            console.log(formulationSaved)
-            for (let i = 0; i < formulationDTO.ingredient.length; i++) {
-
-                let product: Product = await this.productRepository.getProductById(+formulationDTO.ingredient[i].ingredientId);
-                console.log(product)
-                if (product) {
-                    let outputDried: OutputsDrief = await this.outputsDriedRepository.getOutputsDriefById(formulationDTO.ingredient[i].lotRecordId);
-                    console.log(outputDried)
-                    
-                    if (outputDried) {
-                        outputDried.status="USED";
-                        let formulationIngredients: FormulationIngredients = {
-                            id: 0,
-                            formulationId: formulationSaved,
-                            lotId: outputDried,
-                            productId: product
-                        }
-                        console.log("pasa")
-                        await this.formulationIngredientsRepository.saveFormulationIngredients(formulationIngredients);
-                        await this.outputsDriedRepository.createOutputsDrief(outputDried);
-                    }
-                }
-            }
-            this.outputsCoolingRepository.createOutputsCooling(outputCooling);
-            return formulationSaved.id;
-        } catch (err) {
-            throw new Error(`[500], ${err}`);
-        }
+        let formulationSaved:Formulation=await this.formulationRepository.saveFormulation(formulationToSave);
+        return formulationSaved.id;
     }
 
-    async getbyLoteIdAndProductId(loteId:string,productId:ProductRovianda){
-        return await this.formulationRepository.getByLoteId(loteId,productId);
-    }
+    // async getbyLoteIdAndProductId(loteId:string,productId:ProductRovianda){
+    //     return await this.formulationRepository.getByLoteId(loteId,productId);
+    // }
 
-    async getFormulation(){
-        let formulation:any = await this.formulationRepository.getAllFormulationOrderProduct();
-        let response = [];
-        for(let i = 0; i<formulation.length; i++){
-            let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+formulation[i].product_rovianda_id);
-            let lots:Formulation[] = await this.formulationRepository.getFormulationByProductRovianda(product);
-            let response2:any = []
-            lots.forEach(e =>{
-                response2.push(e.loteInterno)
-            })
+    async getFormulationByProductRovianda(productRoviandaId:number){
+        let productRovianda:ProductRovianda= await this.productRoviandaRepository.getById(productRoviandaId);
+        let formulations:Formulation[] = await this.formulationRepository.getFormulationByProductRovianda(productRovianda);
+        let response:Array<FomulationByProductRovianda>=new Array();
+        for(let formulation of formulations){
             response.push({
-                productRoviandaId: `${product.id}`,
-                productRovianda: `${product.name}`,
-                lots: response2
-            })
+                formulationId: formulation.id,
+                productName: formulation.productRovianda.name,
+                lotDay: formulation.lotDay,
+                createAt: formulation.date
+            });
         }
+        
         return response;
+    }
+
+    async getByRawMaterial(rawMaterialId:number){ // servicio para obtener los registros de formulacion en los que se encuentra el tipo de carne buscado
+        let rawMaterial:Raw = await this.rawMaterialRepository.getById(rawMaterialId);
+        if(!rawMaterial) throw new Error("[404],no existe registro en formulacion de la materia prima");
+        let outputsCooling:Array<OutputsCooling> = await this.outputsCooling.getOutputsCoolingByRawIdAndStatus("USED",rawMaterial);
+        let formulations:Array<Formulation>= new Array();
+        for(let outputCooling of outputsCooling){
+            if(outputCooling.formulation){
+                formulations.push(outputCooling.formulation);
+            }
+        }
+        return formulations;
     }
 
     async reportFormulation(formulationId:number){
@@ -172,17 +176,17 @@ export class FormulationService {
         return formulations;
     }
 
-    async getAllFormulationLoteMeat(){
-        let formulation:Formulation[] = await this.formulationRepository.getAllFormulationLoteMeat();
-        let response:any = [];
-        formulation.forEach( i=> {
-            response.push({
-                loteMeat: i.loteInterno,
-                productId: i.productRovianda.id
-            })
-        });
-        return response;
-    }
+    // async getAllFormulationLoteMeat(){
+    //     let formulation:Formulation[] = await this.formulationRepository.getAllFormulationLoteMeat();
+    //     let response:any = [];
+    //     formulation.forEach( i=> {
+    //         response.push({
+                
+    //             productId: i.productRovianda.id
+    //         })
+    //     });
+    //     return response;
+    // }
 
     async getAllLotMeatByProductId(productId:number,status:string){
         if (!productId) throw new Error("[400],ProductId is required"); 
@@ -212,9 +216,9 @@ export class FormulationService {
 
     }
 
-    async getFormulationOutputCoolingId(outputCoolingId:number){
-        return await this.formulationRepository.getFormulationByOutputCoolingId(outputCoolingId);   
-    }
+    // async getFormulationOutputCoolingId(outputCoolingId:number){
+    //     return await this.formulationRepository.getFormulationByOutputCoolingId(outputCoolingId);   
+    // }
 
     async updateFormulation(formulation:Formulation){
         return await this.formulationRepository.saveFormulation(formulation);

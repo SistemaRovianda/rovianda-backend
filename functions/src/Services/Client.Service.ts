@@ -60,7 +60,8 @@ export class ClientService {
 
         let sellerOwner:User = await this.userRepository.getUserById(clientDTO.saleuid);
         if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
-
+        let client:Client = await this.clientRepository.findByClientKey(clientDTO.keyClient);
+        if(client) throw new Error("[409], ya existe un usuario con esa clave");
         let newAddress:Address = new Address();
         newAddress.state = clientDTO.addressClient.state;
         newAddress.municipality = clientDTO.addressClient.municipality;

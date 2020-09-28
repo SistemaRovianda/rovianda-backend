@@ -14,10 +14,31 @@ export const processRoutes: Array<routeInterface> = [
         controller:ProcessController,
         target:"getDefrost"
     },{
-        url:"/rovianda/process",
+        url:"/rovianda/process-formulation/:processId",
+        method: "get",
+        controller: ProcessController,
+        target: "getFormulationOfProcess"
+    },{
+        url:"/rovianda/defrost",
         method:"post",
         controller:ProcessController,
-        target:"createProcess"
+        target:"createDefrost"
+    },
+    {
+        url: "/rovianda/defrost/:defrostId", //rovianda/process/:processId
+        method: "put",  // path to put
+        controller: ProcessController,
+        target: "updateDefrostHourAndDate"
+    },{
+        url: "/rovianda/defrost/getactive",
+        method: "get",
+        controller: ProcessController,
+        target: "getAllDefrostActive"
+    },{
+        url: "/rovianda/defrost/:defrostId",
+        method: "patch",
+        controller: ProcessController,
+        target: "closeDefrost"
     },{
         url:"/rovianda/process",
         method:"get",
@@ -35,10 +56,10 @@ export const processRoutes: Array<routeInterface> = [
         target: "getGrindingByProcessId"
     },
     {
-        url: "/rovianda/process/conditioning/:processId",
+        url: "/rovianda/process/conditioning/:formulationId",
         method: "post",
         controller: ConditioningController,
-        target: "createConditioningByProcessId"
+        target: "createConditioning"
     }, {
         url: "/rovianda/process/injection-tenderized/:processId",
         method: "post",
@@ -50,12 +71,12 @@ export const processRoutes: Array<routeInterface> = [
         controller: TenderizedController,
         target: "getTenderized"
     }, {
-        url: "/rovianda/process/grinding/:processId",
+        url: "/rovianda/process/grinding/:formulationId",
         method: "post",
         controller: GrindingController,
         target: "createGrinding"
     }, {
-        url: "/rovianda/process/sausage/:processId",
+        url: "/rovianda/process/sausage/:formulationId",
         method: "post",
         controller: SausagedController,
         target: "createSausaged"
@@ -69,12 +90,6 @@ export const processRoutes: Array<routeInterface> = [
         method: "post",
         controller: ProcessController,
         target: "createUserProcess"
-    },
-    {
-        url: "/rovianda/process/defrost/:processId",
-        method: "patch",
-        controller: ProcessController,
-        target: "updateProcessHourAndDate"
     },
     {
         url: "/rovianda/process/:processId",

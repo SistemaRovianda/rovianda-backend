@@ -13,15 +13,20 @@ export class FormulationRepository{
             this.formulatioRepository = (await connect()).getRepository(Formulation);
     }
 
+    async getByFormulationIdAndProcess(formulationId:number){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({id:formulationId},{relations:["process"]})
+    }
+
     async saveFormulation(formulation: Formulation){
         await this.getConnection();
         return await this.formulatioRepository.save(formulation);
     }
     
-    async getByLoteId(loteId:string,productId:ProductRovianda){
-        await this.getConnection();
-        return await this.formulatioRepository.findOne({loteInterno:loteId,productRovianda:productId});
-    }
+    // async getByLoteId(loteId:string,productId:ProductRovianda){
+    //     await this.getConnection();
+    //     return await this.formulatioRepository.findOne({loteInterno:loteId,productRovianda:productId});
+    // }
 
     async getLastFormulation(){
         await this.getConnection();
@@ -36,13 +41,13 @@ export class FormulationRepository{
     async getAllFormulationOrderProduct(){
         await this.getConnection();
         return await this.formulatioRepository.query(`
-        SELECT * FROM formulation GROUP BY product_rovianda_id
+        SELECT * FROM formulation where status="UNUSED" order by product_rovianda_id
         `);
     }
 
     async getFormulationByProductRovianda(productRovianda:ProductRovianda){
         await this.getConnection();
-        return await this.formulatioRepository.find({productRovianda});
+        return await this.formulatioRepository.find({productRovianda,status:"UNUSED"});
     }
 
     async getByFormulationId(id:number){
@@ -70,15 +75,15 @@ export class FormulationRepository{
         GROUP BY lote_interno`);
     }
 
-    async getOneFormulationByLote(loteInterno:string){
-        await this.getConnection();
-        return await this.formulatioRepository.findOne({loteInterno});
-    }
+    // async getOneFormulationByLote(loteInterno:string){
+    //     await this.getConnection();
+    //     return await this.formulatioRepository.findOne({loteInterno});
+    // }
 
-    async getOneFormulationsByLote(loteInterno:string){
-        await this.getConnection();
-        return await this.formulatioRepository.find({loteInterno});
-    }
+    // async getOneFormulationsByLote(loteInterno:string){
+    //     await this.getConnection();
+    //     return await this.formulatioRepository.find({loteInterno});
+    // }
 
     async getLotInternalByLotDrief(loteDriefProveedor:string):Promise<Array<LotInternalByLotDrief>>{
         await this.getConnection();
@@ -86,13 +91,13 @@ export class FormulationRepository{
         inner join products_rovianda pr on form.product_rovianda_id=pr.id where fi.lot_id="${loteDriefProveedor}";`) as Array<LotInternalByLotDrief>;
     }
 
-    async getFormulationByOutputCoolingId(outputCoolingId:number){
-        await this.getConnection();
-        return await this.formulatioRepository.findOne({outputCoolingIdRecord:outputCoolingId});
-    }
+    // async getFormulationByOutputCoolingId(outputCoolingId:number){
+    //     await this.getConnection();
+    //     return await this.formulatioRepository.findOne({outputCoolingIdRecord:outputCoolingId});
+    // }
 
-    async getFormulationByLotInterProduct(loteInterno:string,productRovianda:ProductRovianda){
-        await this.getConnection();
-        return await this.formulatioRepository.findOne({loteInterno,productRovianda});
-    }
+    // async getFormulationByLotInterProduct(loteInterno:string,productRovianda:ProductRovianda){
+    //     await this.getConnection();
+    //     return await this.formulatioRepository.findOne({loteInterno,productRovianda});
+    // }
 }

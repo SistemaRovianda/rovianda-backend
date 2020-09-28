@@ -19,7 +19,7 @@ export class Address{
     suburb:string;
 
     @Column({name:"ext_number"})
-    extNumber:number;
+    extNumber:string;
 
     @Column()
     street:string;

@@ -44,8 +44,10 @@ export class SalesRequestRepository{
     async getPresentationOfProductOfOrder(orderId:number,productId:number){
         await this.getConnection();
         return await this.salesRequestRepository.query(
-            `select sub.suborder_id as subOrderId,sub.product_id as productId,sub.units,pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation 
-            from suborders as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id where sub.order_seller_id=${orderId} and sub.product_id=${productId};`
+            `select sub.suborder_id as subOrderId,sub.product_id as productId,sub.units,
+            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation 
+            from suborders as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id
+             where sub.order_seller_id=${orderId} and sub.product_id=${productId};`
             );
     }
 

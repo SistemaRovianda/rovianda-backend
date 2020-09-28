@@ -1,15 +1,18 @@
 import {Request,Response} from 'express';
 import { SalesRequestService } from '../Services/Sales.Request.Service';
-import { times } from 'lodash';
+
+import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
 
 
 export class SalesRequestController{
 
    
     private salesRequestService: SalesRequestService;
-
-    constructor(){
+    private productRoviandaService:ProductRoviandaService;
+    constructor(firebaseHelper:FirebaseHelper){
         this.salesRequestService = new SalesRequestService();
+        this.productRoviandaService = new ProductRoviandaService(firebaseHelper);
     }
     
     async saveOrderSeller(req:Request,res:Response){
@@ -80,7 +83,7 @@ export class SalesRequestController{
     }
 
     async updateHourSellerOperation(req:Request,res:Response){
-        await this.salesRequestService.updateHourSellerOperation(+req.params.sellerUid);
+        await this.salesRequestService.updateHourSellerOperation(req.params.sellerUid);
         return res.status(204).send();
     }
 
@@ -108,6 +111,21 @@ export class SalesRequestController{
 
     async getSellerGuard(req:Request,res:Response){
         return res.status(200).send(await this.salesRequestService.getSellerGuards(req.params.sellerUid));
+    }
+
+    async getAllClients(req:Request,res:Response){
+        let sellerUid:string = req.params.sellerUid;
+        let hint:string = !req.query.hint?"":req.query.hint;
+        return res.status(200).send(await this.salesRequestService.getAllSellerClientsBySellerUid(sellerUid,hint));
+    }
+
+    async getAllProductRoviandaCatalog(req:Request,res:Response){
+        return res.status(200).send(await this.productRoviandaService.getAllproductsRoviandaCatalog());
+    }
+
+    async getAllProductRoviandaCatalogPresentation(req:Request,res:Response){
+        let productId:number = +req.params.productId;
+        return res.status(200).send(await this.productRoviandaService.getPresentationsByProduct(productId));
     }
     
 } 

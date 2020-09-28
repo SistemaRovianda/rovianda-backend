@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 export class PresentationsProductsRepository{
     private presentationsProductsRepository:Repository<PresentationProducts>;
 
@@ -10,9 +11,9 @@ export class PresentationsProductsRepository{
         }
     }
 
-    async getPresentatiosProductsById(id:number){
+    async getPresentationProductsById(presentationId:number){
         await this.getConnection();
-        return await this.presentationsProductsRepository.findOne({id});
+        return await this.presentationsProductsRepository.findOne({id:presentationId});
     }
   
     async savePresentationsProduct(presentation:PresentationProducts){

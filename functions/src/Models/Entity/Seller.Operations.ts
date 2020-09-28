@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from "typeorm";
 import { User } from "./User";
 
 @Entity({name:"seller_operations"})
@@ -8,6 +8,7 @@ export class SellerOperation{
     sellerOperationId:number;
 
     @ManyToOne(type=>User,user=>user)
+    @JoinColumn({name:"seller_id"})
     seller:User;
 
     @Column()

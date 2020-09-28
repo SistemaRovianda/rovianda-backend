@@ -22,7 +22,7 @@ export class ConditioningController{
     }
 
     async createConditioningByProcessId(req:Request, res:Response){
-        await this.conditionigService.createConditioningByProcessId(req.body,req.params.processId);
+        await this.conditionigService.createConditioningByProcessId(req.body,+req.params.formulationId);
         return res.status(201).send();
     }
 

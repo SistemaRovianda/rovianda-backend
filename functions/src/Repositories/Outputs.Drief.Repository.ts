@@ -26,7 +26,7 @@ export class OutputsDriefRepository{
 
     async getOutputsDriefById(id:number){
         await this.getConnection();
-        return await this.outputsDriefRepository.findOne({id})
+        return await this.outputsDriefRepository.findOne({id},{relations:["product"]})
     }
 
     async getOutputsDriefByLot(lot:string){

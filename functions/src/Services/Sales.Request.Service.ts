@@ -62,16 +62,20 @@ export class SalesRequestService{
         //let properties:PackagingProperties[] = await this.packagingRepository.getPackagingWithProperties(request.products);
         let order:OrderSeller = new OrderSeller();
         order.date = request.date;
-        order.status=true;
+        order.status="ACTIVE";
         order.urgent=request.urgent;
         order.user=user;
         
         let subOrderArr:Array<SubOrder> = new Array<SubOrder>();
         for(let suborder of request.products){
+          let product = await this.productRoviandaRepository.getById(suborder.productId);
+          if(!product) throw new Error(`[404], el producto con el id = '${suborder.productId}' no existe`);
+          let presentation = await this.presentationProductsRepository.getPresentationProductsById(suborder.presentationId);
+          if(!presentation) throw new Error(`[404], la presentacion con el id = '${suborder.presentationId}' no existe`);
           let subOrder:SubOrder = new SubOrder();
           subOrder.units= suborder.quantity;
-          subOrder.product = await this.productRoviandaRepository.getById(suborder.productId);;
-          subOrder.presentation = await this.presentationProductsRepository.getPresentatiosProductsById(suborder.presentationId);
+          subOrder.product = product;
+          subOrder.presentation = presentation;
           subOrderArr.push(subOrder);
         }
         order.subOrders = subOrderArr;
@@ -142,17 +146,18 @@ export class SalesRequestService{
       sellerOperation.date = sellerOperationDTO.date;
       sellerOperation.eatingTimeStart = sellerOperationDTO.timeStart;
       sellerOperation.seller = user;
-      return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
+      await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
 
-    async updateHourSellerOperation(sellerUid:number){
-      if(!sellerUid) throw new Error("[400], sellerUid is required");
-      let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationById(sellerUid);
-      if(!sellerOperation) throw new Error("[404], sellerOperation not found");
+    async updateHourSellerOperation(sellerUid:string){
+      let sellerOperationEntity:Array<{sellerOperationId:number}> = await this.sellerOperationRepository.getLastSellerOperation(sellerUid);
+      if(!sellerOperationEntity.length) throw new Error("[409], no existe una actividad de comida actualmente");
       let date = new Date();
-      let horas = 6;
+      let horas = 5;
       let newHour = (date.setHours(date.getHours() + horas) && date.getHours()) + ":" + date.getMinutes();
-      sellerOperation.eatingTimeEnd = newHour;
+      let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationById(sellerOperationEntity[0].sellerOperationId);
+      sellerOperation.eatingTimeEnd=newHour;
+      console.log(JSON.stringify(sellerOperation));
       return await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
 
@@ -362,6 +367,18 @@ export class SalesRequestService{
       }
        return response;
      }
+
+     async getAllSellerClientsBySellerUid(sellerUid:string,hint:string){
+        let seller:User = await this.userRepository.getUserById(sellerUid);
+        if(!seller) throw new Error("[404], no existe el usuario vendedor");
+        if(!hint.length){
+        return await this.clientRepository.getAllClientBySeller(seller);
+        }else{
+          return await this.clientRepository.getAllClientBySellerAndHint(seller,hint);
+        }
+     }
+
+     
   }
 
   

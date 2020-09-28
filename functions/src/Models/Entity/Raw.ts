@@ -1,6 +1,7 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany  } from "typeorm";
 import { OutputsCooling } from './outputs.cooling';
 import { Cooling } from './Cooling';
+import { Grinding } from "./Grinding";
 
 
 @Entity({name:"raw"})
@@ -17,6 +18,9 @@ export class Raw{
 
     @OneToMany(type=> Cooling,cooling=>cooling.rawMaterial,{eager:false})
     coolings: Cooling[];
+
+    @OneToMany(type=>Grinding,grinding=>grinding.raw,{eager:true})
+    grindings:Grinding[];
     
 }
 

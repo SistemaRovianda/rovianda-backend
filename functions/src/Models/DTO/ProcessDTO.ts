@@ -5,17 +5,23 @@ export interface ProcessUpdateDTO{
     status:string;
 }
 
-export interface ProcessDTO{
-    productId: number;
-    lote: {
-        loteId: string;
-        outputId: number;
-    };
+export interface DefrostDTO{
+    outputCoolingId:number;
     weight: string;
-    temperature: string;
-    hourEntrance: string;
-    dateIni: string;
-    processId: number
+    temp: string;
+    entranceHour: string;
+    dateInit: string;
+    
+}
+
+export interface DefrostFormUpdate{
+    dateEnd:string;
+    outputHour:string;
+}
+
+export interface lotesToProcess{
+    loteId:string;
+    outputId:number;
 }
 
 export interface UserProcessDTO{

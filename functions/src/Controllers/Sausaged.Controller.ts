@@ -23,7 +23,7 @@ export class SausagedController{
     }
 
     async createSausaged(req:Request,res:Response){
-        await this.sausagedService.saveSausaged(req.body,req.params.processId);
+        await this.sausagedService.saveSausaged(req.body,+req.params.formulationId);
         return res.status(201).send();
     }
 

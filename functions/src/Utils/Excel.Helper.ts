@@ -138,10 +138,10 @@ export default class Excel4Node{
 
         
             worksheet.cell(++row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.loteInterno}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${"formulation.loteInterno"}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[0] ? formulation.formulationIngredients[0].productId.description : ""}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[0] ? formulation.formulationIngredients[0].product.description : ""}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
             for (let i = 1; i < formulation.formulationIngredients.length; i++) {
                 col = 4;
@@ -150,7 +150,7 @@ export default class Excel4Node{
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
-                worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[i].productId.description}`).style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[i].product.description}`).style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
             }
 
@@ -423,10 +423,10 @@ export default class Excel4Node{
 
         // formulationIngredients.forEach((product) => {
             worksheet.cell(row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.loteInterno}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${"formulation.loteInterno"}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[0].productId.description}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[0].product.description}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
             for (let i = 1; i < formulationIngredients.length; i++) {
                 col = 4;
@@ -435,7 +435,7 @@ export default class Excel4Node{
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
-                worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[i].productId.description}`).style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[i].product.description}`).style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
             }
             col = 4;
@@ -2046,7 +2046,7 @@ export default class Excel4Node{
 
         row = 5;
 
-        worksheet.cell(row, 10).string(`No. lote: ${process.loteInterno}`);
+        worksheet.cell(row, 10).string(`No. lote: ${process.formulation.lotDay}`);
         worksheet.cell(++row, 10).string(`Fecha: ${new Date(process.createAt).toLocaleDateString()}`);
 
         worksheet.cell(++row, 4, row, 6, true).string("DESCONGELADO").style(styleUser);
@@ -2059,7 +2059,7 @@ export default class Excel4Node{
 
         worksheet.cell(++row, 4, row, 5, true).string(`${process.product ? process.product.name : ""}`).style(style);
         worksheet.cell(row, 6).string(`${process.startDate ? process.startDate : ""}`).style(style);
-        worksheet.cell(row, 7).string(`${process.weigth ? process.weigth : ""}`).style(style);
+        //worksheet.cell(row, 7).string(`${process.weigth ? process.weigth : ""}`).style(style);
         worksheet.cell(row, 8, row, 9, true).string(`${process.entranceHour ? process.entranceHour : "" }`).style(style);
         worksheet.cell(row, 10, row, 11, true).string(`${process.outputHour ? process.outputHour : ""}`).style(style);
 
@@ -2071,10 +2071,10 @@ export default class Excel4Node{
         worksheet.cell(row, 8, row, 9, true).string("PESO Kg").style(styleUser);
         worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
 
-        worksheet.cell(++row, 4, row, 5, true).string(`${process.conditioningId ? process.conditioningId.raw : ""}`).style(style);
-        worksheet.cell(row, 6).string(`${process.conditioningId ? process.conditioningId.date : ""}`).style(style);
+        worksheet.cell(++row, 4, row, 5, true).string(`${process.conditioning ? "process.conditioning.raw" : ""}`).style(style);
+        worksheet.cell(row, 6).string(`${process.conditioning ? "process.conditioning.date" : ""}`).style(style);
         worksheet.cell(row, 7).string(`${process.currentProcess ? process.currentProcess : ""}`).style(style);
-        worksheet.cell(row, 8, row, 9, true).string(`${process.conditioningId ? process.conditioningId.weight : "" }`).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(`${process.conditioning ? "process.conditioning.weight" : "" }`).style(style);
         worksheet.cell(row, 10, row, 11, true).string(`${conditioning ? conditioning.productId : ""}`).style(style);
         worksheet.cell(row, 12).string(`clave`).style(styleUser);
         worksheet.cell(row, 13).string(`Proceso`).style(styleUser);
@@ -2122,12 +2122,12 @@ export default class Excel4Node{
         worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
 
         
-        worksheet.cell(++row, 4, row, 5, true).string(`${process.grindingId ? process.grindingId.raw : "" }`).style(styleUser);
-        worksheet.cell(row, 6).string(`${process.grindingId ? new Date(process.grindingId.date).toLocaleDateString() : "" }`).style(styleUser);
-        worksheet.cell(row, 7).string(`${process.grindingId ? process.grindingId.process : "" }`).style(styleUser);
-        worksheet.cell(row, 8).string(`${process.grindingId ? process.grindingId.weight : "" }`).style(styleUser);
-        worksheet.cell(row, 9).string(`${process.temperature ? process.temperature : "" }`).style(styleUser);
-        worksheet.cell(row, 10, row, 11, true).string(`${process.product ? process.product.name : "" }`).style(styleUser);
+        worksheet.cell(++row, 4, row, 5, true).string(`${process.grinding ? "process.grinding.raw" : "" }`).style(styleUser);
+        //worksheet.cell(row, 6).string(`${process.grinding ? "new Date(process.grinding.date").toLocaleDateString() : "" }`).style(styleUser);
+        //worksheet.cell(row, 7).string(`${process.grinding ? "process.grinding.process" : "" }`).style(styleUser);
+        //worksheet.cell(row, 8).string(`${process.grinding ? "process.grinding.weight" : "" }`).style(styleUser);
+        //worksheet.cell(row, 9).string(`${process.temperature ? "process.temperature" : "" }`).style(styleUser);
+        //worksheet.cell(row, 10, row, 11, true).string(`${process.product ? "process.product.name" : "" }`).style(styleUser);
 
         worksheet.cell(++row, 4, row, 6, true).string("INYECCION/TENDERIZADO").style(styleUser);
 
@@ -2140,11 +2140,11 @@ export default class Excel4Node{
 
         
         worksheet.cell(++row, 4, row, 5, true).string(`${tenderized.productId == null ? "" : tenderized.productId.name}`).style(styleUser);
-        worksheet.cell(row, 6).string(`${process.tenderizedId == null ? "" : process.tenderizedId.date}`).style(styleUser);
-        worksheet.cell(row, 7).string(`${process.tenderizedId == null ? "" : process.tenderizedId.weight}`).style(styleUser);
-        worksheet.cell(row, 8).string(`${process.tenderizedId == null ? "" : process.tenderizedId.temperature}`).style(styleUser);
-        worksheet.cell(row, 9, row, 10, true).string(`${process.tenderizedId == null ? "" : process.tenderizedId.weightSalmuera}`).style(styleUser);
-        worksheet.cell(row, 11).string(`${process.tenderizedId == null ? "" : process.tenderizedId.percentInject}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${process.tenderized == null ? "" : "process.tenderized.date"}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${process.tenderized == null ? "" : "process.tenderized.weight"}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${process.tenderized == null ? "" : "process.tenderized.temperature"}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${process.tenderized == null ? "" : "process.tenderized.weightSalmuera"}`).style(styleUser);
+        worksheet.cell(row, 11).string(`${process.tenderized == null ? "" : "process.tenderized.percentInject"}`).style(styleUser);
 
         worksheet.cell(++row, 4, row, 6, true).string("EMBUTIDO").style(styleUser);
 
@@ -2157,11 +2157,11 @@ export default class Excel4Node{
 
         
         worksheet.cell(++row, 4, row, 5, true).string(`${sausaged.productId == null ? "" :sausaged.productId.name}`).style(styleUser);
-        worksheet.cell(row, 6).string(`${process.sausageId == null ? "" : process.sausageId.date}`).style(styleUser);
-        worksheet.cell(row, 7).string(`${process.sausageId == null ? "" : process.sausageId.temperature}`).style(styleUser);
-        worksheet.cell(row, 8).string(`${process.sausageId == null ? "" : process.sausageId.weightIni} (${process.sausageId == null ? "" : process.sausageId.hour1}`).style(styleUser);
-        worksheet.cell(row, 9, row, 10, true).string(`${process.sausageId == null ? "" : process.sausageId.weightMedium} (${process.sausageId == null ? "" : process.sausageId.hour2}`).style(styleUser);
-        worksheet.cell(row, 11).string(`${process.sausageId == null ? "" : process.sausageId.weightExit} (${process.sausageId == null ? "" : process.sausageId.hour3}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${process.sausage == null ? "" : "process.sausage.date"}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${process.sausage == null ? "" : "process.sausage.temperature"}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${process.sausage == null ? "" : "process.sausage.weightIni"} (${process.sausage == null ? "" : "process.sausage.hour1"}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${process.sausage == null ? "" : "process.sausage.weightMedium"} (${process.sausage == null ? "" : "process.sausage.hour2"}`).style(styleUser);
+        worksheet.cell(row, 11).string(`${process.sausage == null ? "" : "process.sausage.weightExit"} (${process.sausage == null ? "" : "process.sausage.hour3"}`).style(styleUser);
 
         worksheet.cell(++row, 11).string(`F-CAL-RO-07`).style(styleUser);
         row+=2;

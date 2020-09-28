@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+import { Process } from "./Process";
 import { Product } from "./Product";
 import { ProductRovianda } from "./Product.Rovianda";
 
@@ -46,6 +47,9 @@ export class Sausaged{
     @ManyToOne(type => ProductRovianda,productId=>productId.sausaged)
     @JoinColumn({name:"product_id"})
     productId:ProductRovianda;
+
+    @ManyToOne(type=>Process,process=>process.sausage)
+    sausage:Sausaged;
 }
 
 

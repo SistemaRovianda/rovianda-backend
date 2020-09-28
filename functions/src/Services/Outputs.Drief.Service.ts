@@ -35,7 +35,7 @@ export class OutputsDriefService {
         outputsDrief.observations = outputsDriefDTO.observations;
         outputsDrief.product = product;
         outputsDrief.warehouseDrief = lote;
-        outputsDrief.status = "NOTUSED";
+        outputsDrief.status = "UNUSED";
         return await this.outputsDriefRepository.createOutputsDrief(outputsDrief);
     }
 

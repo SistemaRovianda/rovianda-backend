@@ -1,9 +1,11 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, JoinTable, ManyToOne, OneToMany } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity,  JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { ProductRovianda } from "./Product.Rovianda";
-import { Product } from "./Product";
-import { OutputsDrief } from "./Outputs.Drief";
+
 import { User } from './User';
 import { FormulationIngredients } from "./Formulation.Ingredients";
+
+import { DefrostFormulation } from "./Defrost.Formulation";
+import { Process } from "./Process";
 
 
 @Entity({ name: "formulation" })
@@ -12,12 +14,9 @@ export class Formulation {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type=>ProductRovianda, productRovianda=>productRovianda.formulation, {eager:true, onDelete:"SET NULL"})
+    @ManyToOne(type=>ProductRovianda, productRovianda=>productRovianda.formulation, {cascade:true,eager:true, onDelete:"SET NULL"})
     @JoinColumn({ name: "product_rovianda_id" })
     productRovianda:ProductRovianda;
-
-    @Column({ name: "lote_interno" })
-    loteInterno: string;
 
     @Column()
     temp: string;
@@ -28,8 +27,6 @@ export class Formulation {
     @Column({ name: "water_temp" })
     waterTemp: string;
 
-    // @Column({ name: "new_lote" })
-    // newLote: string;
 
     @ManyToOne(type=>User, verifit=>verifit.formulationVerifit, {eager:true, onDelete:"SET NULL"})
     verifit:User;
@@ -37,12 +34,19 @@ export class Formulation {
     @ManyToOne(type=>User, make=>make.formulationMake, {eager:true, onDelete:"SET NULL"})
     make:User;
 
-    @OneToMany(type => FormulationIngredients, formulationIngredients => formulationIngredients.formulationId)
+    @OneToMany(type => FormulationIngredients, ingredients => ingredients.formulation,{eager:true,cascade:true})
     formulationIngredients: FormulationIngredients[];
 
     @Column()
     status:string;
 
-    @Column({name:"output_cooling_id_record",nullable:true})
-    outputCoolingIdRecord:number;
+    @OneToMany(type=>DefrostFormulation,defrost=>defrost.formulation,{cascade:true})
+    defrosts:DefrostFormulation[];
+
+    @OneToOne(type=>Process)
+    process:Process;
+
+    @Column({name:"lot_day"})
+    lotDay:string;
+
 }

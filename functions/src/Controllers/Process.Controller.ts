@@ -138,14 +138,25 @@ export class ProcessController {
         let id = await this.processService.createProcessInter();
         return res.status(201).send({processId: id});
     }
-    async createProcess(req: Request, res: Response) {
-        await this.processService.createProcess(req.body);
+    async createDefrost(req: Request, res: Response) {
+        await this.processService.createDefrost(req.body);
         return res.status(201).send();
     }
 
-    async updateProcessHourAndDate(req: Request, res: Response) {
-        await this.processService.updateProcess(req);
+    async updateDefrostHourAndDate(req: Request, res: Response) {
+        let defrostId:number = +req.params.defrostId;
+        await this.processService.updateDefrost(defrostId,req.body);
         return res.status(204).send();
+    }
+
+    async closeDefrost(req:Request,res:Response){
+        let defrostId:number = +req.params.defrostId;
+        await this.processService.closeDefrostById(defrostId);
+        return res.status(204).send();
+    }
+
+    async getAllDefrostActive(req:Request,res:Response){
+        return res.status(200).send(await this.processService.getAllDefrostActive());
     }
 
     async getDefrost(req:Request,res:Response){
@@ -183,7 +194,6 @@ export class ProcessController {
     async getGrindingByProcessId(req:Request, res: Response){
         let response = await this.grindingService.getGrindingByProcessId(req);
         return res.status(200).send(response);
-
     }
 
     // async getProcess(req:Request, res: Response){
@@ -211,4 +221,9 @@ export class ProcessController {
         return res.status(200).send(response);
     }
 
+
+    async getFormulationOfProcess(req:Request,res:Response){
+        let processId:number  = + req.params.processId;
+        return res.status(200).send({formulationId:await this.processService.getFormulationOfProcess(processId)});
+    }
 }

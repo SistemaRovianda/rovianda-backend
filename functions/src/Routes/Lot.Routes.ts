@@ -42,10 +42,10 @@ export const lotRoutes:Array<routeInterface>=[
         target: "getHistoryMeat" 
     },
     {
-        url: "/rovianda/lote/meat/process",
+        url: "/rovianda/lote/formulation-enabled/:productRoviandaId",  // /rovianda/lote/meat/proces
         method: "get",
         controller: LotController,
-        target:"getLotMeatUsedByRawId"
+        target:"getLotMeatProductRoviandaId"
     },
     {
         url: "/rovianda/product/catalog",

@@ -10,7 +10,7 @@ export class PropertiesPackaging {
 
     @ManyToOne(type => Packaging, packaging => packaging.propertiesPackaging)
     @JoinColumn({ name: "packaging_id" })
-    packagingId: Packaging;
+    packaging: Packaging;
   
     // @OneToMany(type => BoxPackaging, boxPackaging => boxPackaging.propertiesId,{eager:true})
     // boxPackaging: BoxPackaging[];
@@ -20,7 +20,7 @@ export class PropertiesPackaging {
 
     @ManyToOne(type => PresentationProducts, presentationProducts => presentationProducts.propertiesPackaging)
     @JoinColumn({ name: "presentation_id" })
-    presentationId: PresentationProducts;
+    presentation: PresentationProducts;
 
     @Column({ name: "weight" })
     weight: number;

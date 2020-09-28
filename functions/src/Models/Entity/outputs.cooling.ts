@@ -1,4 +1,5 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, JoinColumn  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, JoinColumn, OneToOne  } from "typeorm";
+import { Formulation } from "./Formulation";
 import { Raw } from "./Raw";
 
 
@@ -29,5 +30,6 @@ export class OutputsCooling{
     @Column()
     status:string;
     
-    
+    @OneToOne(type=>Formulation,{nullable:true,eager:true})
+    formulation:Formulation;
 }
