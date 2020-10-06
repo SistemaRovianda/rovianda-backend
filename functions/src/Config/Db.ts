@@ -51,6 +51,8 @@ import { SellerOperation } from "../Models/Entity/Seller.Operations";
 import { SubSales } from "../Models/Entity/Sub.Sales";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
+import { CatCFDIUses } from "../Models/Entity/Cat.CFDI.Uses";
+import { CatPaymentTypes } from "../Models/Entity/Cat.Payment.Types";
 
 const config: ConnectionOptions = {
 
@@ -110,7 +112,7 @@ const config: ConnectionOptions = {
         SubOrderMetadata,
         SellerInventory,
         Address,Client,Debts,Sale,SellerOperation,SubSales,
-        Defrost,DefrostFormulation
+        Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes
     ]
 }
 let connection: Connection;
