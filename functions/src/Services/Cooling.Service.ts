@@ -8,15 +8,23 @@ import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { WarehouseCollingDTO } from "../Models/DTO/WarehouseDTO";
 import { CoolingStatus } from '../Models/Enum/CoolingStatus';
 import { response } from "express";
+import { Raw } from "../Models/Entity/Raw";
+import { RawRepository } from "../Repositories/Raw.Repository";
+import { OutputsCoolingRepository } from "../Repositories/Outputs.Cooling.Repository";
+import { OutputsCooling } from "../Models/Entity/outputs.cooling";
+import { OutputsCoolingStatus } from "../Models/Enum/OutputsCoolingStatus";
 
 export class CoolingService{
     private coolingRepository:CoolingRepository;
-    private productRepository:ProductRepository;
+    private outputCooling:OutputsCoolingRepository;
     private fridgeRepository:FridgeRepository;
+    private rawMaterialRepository:RawRepository;
     constructor(){
         this.coolingRepository = new CoolingRepository();
-        this.productRepository = new ProductRepository();
+        this.outputCooling = new OutputsCoolingRepository();
         this.fridgeRepository = new FridgeRepository();
+        this.rawMaterialRepository = new RawRepository();
+        
     }
 
     async updateStatus(coolingDTO:WarehouseCollingDTO){
@@ -60,8 +68,11 @@ export class CoolingService{
     }
 
     
-    async getCoollingByStatus(status:string){
-        return await this.coolingRepository.getCoollingByStatus(status);
+    async getCoollingByStatus(status:string,rawMaterialId:number){
+        let raw:Raw = await this.rawMaterialRepository.getById(rawMaterialId);
+        if(!raw) throw new Error("[404], no existe la materia prima");
+        let result:Array<OutputsCooling>=await this.outputCooling.getOutputCoolingByRawAndStatus(status,raw);
+        return result.map(x=>({loteId:x.loteInterno,recordId:x.id,quantity:x.quantity}));
     }
 
     async getCoollingByFridge(fridgeId:number,status:string){

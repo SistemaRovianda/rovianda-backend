@@ -19,6 +19,9 @@ export class Product {
     description: string;
 
     @Column()
+    type:string;
+
+    @Column()
     mark: string;
 
     @Column()

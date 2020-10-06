@@ -17,7 +17,8 @@ export class UserService{
     }
 
     async createUserF(userDTO:UserDTO, userGeneric:userGeneric){
-        let roles:Roles = await this.rolesRepository.getRole(userDTO.rol);
+        if(!userDTO.rolId) throw new Error("[400], rolId is required");
+        let roles:Roles = await this.rolesRepository.getRoleById(userDTO.rolId);
         console.log(roles)
         //if(!roles[0])  throw new Error("[404],roles not found");
         if(!roles) throw new Error("[404], roles not found");
@@ -26,14 +27,10 @@ export class UserService{
         if(!userDTO.lastName) throw new Error("[400], lastName is required");
         if(!userDTO.email) throw new Error("[400], email is required");
         if(!userDTO.password) throw new Error("[400], password is required");
-        if(!userDTO.rol) throw new Error("[400], rol is required");
-        //console.log(roles[0]);
         let us:User = await this.userRepository.getUserByEmail(userDTO.email);
         if(us) throw new Error("[409], email exist");
         let users:User= new User();
-        users.name = userDTO.name;
-        users.firstSurname = userDTO.firstName;
-        users.lastSurname = userDTO.lastName;
+        users.name = userDTO.name+" "+userDTO.firstName+" "+userDTO.lastName;
         users.email = userDTO.email;
         users.job = userDTO.job;
         users.roles = roles;
@@ -67,8 +64,6 @@ export class UserService{
         response ={
             uuid: `${user.id}`,
             name: `${user.name}`,
-            firstSurname: `${user.firstSurname}`,
-            lastSurname: `${user.lastSurname}`,
             email: `${user.email}`,
             rol: `${user.roles.description}`,
             job: `${user.job}`
@@ -86,7 +81,7 @@ export class UserService{
         users.forEach(i =>{
             response.push({
                 userId: `${i.id}`,
-                fullName: `${i.name} ${i.firstSurname} ${i.lastSurname}`,
+                fullName: `${i.name}`,
                 rol: `${i.roles.description}`,
                 job: `${i.job}`
             })
@@ -103,7 +98,7 @@ export class UserService{
         users.forEach(i =>{
             response.push({
                 userId: `${i.id}`,
-                fullName: `${i.name} ${i.firstSurname} ${i.lastSurname}`,
+                fullName: `${i.name} `,
                 rol: `${i.roles.description}`,
                 job: `${i.job}`
             })

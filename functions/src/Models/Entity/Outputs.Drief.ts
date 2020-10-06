@@ -28,7 +28,7 @@ export class OutputsDrief{
     @Column()
     status:string;
 
-    @ManyToOne(type=>Formulation,formulation=>formulation.formulationIngredients)
+    @ManyToOne(type=>Formulation,formulation=>formulation.ingredients)
     formulation:Formulation;
 
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})

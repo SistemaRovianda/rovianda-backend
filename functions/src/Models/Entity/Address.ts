@@ -7,23 +7,45 @@ export class Address{
     id:number;
 
     @Column()
-    state:string;
+    street:string;
+
+    @Column({name:"ext_number"})
+    extNumber:number;
+
+    @Column({name:"int_number",nullable:false})
+    intNumber:number;
+
+    @Column({name:"intersection_one",nullable:true})
+    intersectionOne:string;
+
+    @Column({name:"intersection_two",nullable:true})
+    intersectionTwo:string;
 
     @Column()
-    municipality:string;
+    suburb:string;
 
     @Column()
     location:string;
 
     @Column()
-    suburb:string;
-
-    @Column({name:"ext_number"})
-    extNumber:string;
-
-    @Column()
-    street:string;
-
-    @Column()
     reference:string;
+
+    @Column()
+    population:string;
+
+    @Column({nullable:false})
+    cp:number;
+
+    @Column()
+    state:string;
+
+    @Column()
+    municipality:string;
+
+
+    @Column({nullable:false})
+    nationality:string;
+
+    
+
 }

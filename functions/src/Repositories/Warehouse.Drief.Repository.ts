@@ -124,9 +124,9 @@ export class WarehouseDriefRepository{
         return await this.warehouseDriefRepository.findOne({loteProveedor})
     }
 
-    async findLotsByProduct(product:Product){
+    async findLotsByProduct(product:Product,status:string){
         await this.getConnection();
-        return await this.warehouseDriefRepository.find({product});
+        return await this.warehouseDriefRepository.find({product,status});
     }
 
     async findWarehouseDriefByProductLot(product:Product,loteProveedor:string){

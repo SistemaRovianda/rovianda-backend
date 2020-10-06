@@ -107,7 +107,7 @@ export class FormulationService {
         formulationToSave.date = formulationDTO.date;
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
         formulationToSave.status="UNUSED";
-        formulationToSave.formulationIngredients = formulationIngredients;
+        formulationToSave.ingredients = formulationIngredients;
         formulationToSave.lotDay = date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
         formulationToSave.date = new Date().toISOString()
         
@@ -222,6 +222,10 @@ export class FormulationService {
 
     async updateFormulation(formulation:Formulation){
         return await this.formulationRepository.saveFormulation(formulation);
+    }
+
+    async getDetails(formulationId:number){
+        return await this.formulationRepository.getByFormulationId(formulationId);
     }
 
 }

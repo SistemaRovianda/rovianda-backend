@@ -1,5 +1,5 @@
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
-import { ProductRoviandaDTO, SaveProductRoviandaDTO, UpdateProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
+import { FileInterface, ProductLineSaeForm, ProductRoviandaDTO, SaveProductRoviandaDTO, UpdateProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Product } from '../Models/Entity/Product';
 import { ProductRepository } from "../Repositories/Product.Repository";
@@ -7,16 +7,20 @@ import { Request, response } from "express";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { PresentationsProductsRepository }  from '../Repositories/Presentation.Products.Repository';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
+import { validateProductLineSae } from "../Utils/Validators/Product.Rovianda.Vlidator";
 
 
 export class ProductRoviandaService{
     private productRoviandaRepository:ProductRoviandaRepository;
     private productRepository:ProductRepository;
     private presentationsProductsRepository:PresentationsProductsRepository;
+    private sqlsRepository:SqlSRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.presentationsProductsRepository= new PresentationsProductsRepository();
+        this.sqlsRepository = new SqlSRepository();
     }
 
 
@@ -133,68 +137,68 @@ export class ProductRoviandaService{
         return await this.presentationsProductsRepository.createPresentation(presentation);
     }
 
-    async createProductRovianda(productRoviandaDTO:SaveProductRoviandaDTO){
-
-        if(!productRoviandaDTO.code) throw new Error("[400],code is required");
-        if(!productRoviandaDTO.image) throw new Error("[400],image is required");
-        if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
-        if(!productRoviandaDTO.ingredients[0]) throw new Error("[400],ingredients is required");
-        if(!productRoviandaDTO.presentations[0]) throw new Error("[400],presentations is required");
+    async createProductRovianda(productRoviandaDTO:any,productImage:any){
+        productRoviandaDTO = JSON.parse(JSON.stringify(productRoviandaDTO));
         
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaCode(productRoviandaDTO.code);
-        if(product) throw new Error("[409],product with that name already exists ");
+        if(!productRoviandaDTO.keyProduct) throw new Error("[400],code is required");
+        if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
+        //if(!productRoviandaDTO.ingredients[) throw new Error("[400],ingredients is required");
+        if(!productRoviandaDTO.presentations.length) throw new Error("[400],presentations is required");
+        
+        let lineProduct = await this.sqlsRepository.getProductLineSaeByKey(productRoviandaDTO.productLine);
+        
+        if(!lineProduct.length) throw new Error("[409], No existe la linea de producto: "+productRoviandaDTO.productLine);
+        let  presentations = JSON.parse(productRoviandaDTO.presentations) as Array<any>
+        for(let i=0;i< presentations.length;i++){
+        let presentation = presentations[i];
+        
+        let productSae = await this.sqlsRepository.getProductSaeByKey(productRoviandaDTO.keyProduct+(i+1));
+        if(productSae.length) throw new Error("[409], ya existe un producto con la clave: "+productRoviandaDTO.keyProduct);
+        let warehouseSae = await this.sqlsRepository.getWarehouseByKey(presentation.warehouseKey);
+        if(!warehouseSae.recordset.length) throw new Error("[404], no existe el almacen con la clave: "+presentation.warehouseKey);
+        }
 
-        let photo = Buffer.from(productRoviandaDTO.image, 'base64');
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.code}/`, photo);
+        await this.sqlsRepository.saveProductRovianda(productRoviandaDTO);
+
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.keyProduct}/`, productImage.buffer);
         
         let productRovianda:ProductRovianda = new ProductRovianda();
-        productRovianda.code = productRoviandaDTO.code;
+        productRovianda.code = productRoviandaDTO.keyProduct;
         productRovianda.name = productRoviandaDTO.nameProduct;
         productRovianda.status = true;
         productRovianda.imgS3 = urlOfImage;
-        await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-
-        for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
-            if(!productRoviandaDTO.ingredients[i].productId) throw new Error("[400],productId is required");
-            if(!productRoviandaDTO.ingredients[i].nameProduct) throw new Error("[400],nameProduct is required");
-            let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].productId);
-            if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].productId} not found`);
-              
-                let productRovianda = await this.productRoviandaRepository.getLastProductRovianda();
-                
-                productRovianda.ingredients = productIngredient[i];
-                await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-
-                productIngredient.productRovianda = productRovianda[0];
-                await this.productRepository.createProduct(productIngredient);
-
-                await this.productRepository.saveIngredients(productRovianda.id,productIngredient.id);
-              
+        productRovianda.ingredients = new Array<Product>(); 
+        productRovianda.presentationProducts = new Array<PresentationProducts>();       
+        let ingredients =JSON.parse(productRoviandaDTO.ingredients) as Array<any>;
+        for (let i = 0; i < ingredients.length; i++) {
+            if(!ingredients[i].productId) throw new Error("[400],productId is required");
+            if(!ingredients[i].nameProduct) throw new Error("[400],nameProduct is required");
+            let productIngredient:Product = await this.productRepository.getProductById(ingredients[i].productId);
+            if(!productIngredient) throw new Error(`[404], product ingredent with id ${ingredients[i].productId} not found`);
+                productRovianda.ingredients.push(productIngredient);  
             }
 
-        for (let i = 0; i < productRoviandaDTO.presentations.length; i++) {
-            if(!productRoviandaDTO.presentations[i].presentation) throw new Error("[400],productId is required");
-            if(!productRoviandaDTO.presentations[i].pricePresentation) throw new Error("[400],productId is required");
-            if(!productRoviandaDTO.presentations[i].typePresentation) throw new Error("[400],productId is required");
             
-            let productRovianda = await this.productRoviandaRepository.getLastProductRovianda();
+        
+        for (let i = 0; i < presentations.length; i++) {
+            if(!presentations[i].presentation) throw new Error("[400],productId is required");
+            if(!presentations[i].pricePresentationPublic) throw new Error("[400],productId is required");
+            if(!presentations[i].typePresentation) throw new Error("[400],productId is required");
+            
+            
 
             let presentationProduct:PresentationProducts = new PresentationProducts();
-            presentationProduct.presentation = productRoviandaDTO.presentations[i].presentation;
-            presentationProduct.presentationPrice = productRoviandaDTO.presentations[i].pricePresentation;
-            presentationProduct.presentationType = productRoviandaDTO.presentations[i].typePresentation;
-            presentationProduct.productsRovianda = productRovianda[0];
+            presentationProduct.presentation = presentations[i].presentation;
+            presentationProduct.presentationPricePublic = presentations[i].pricePresentationPublic;
+            presentationProduct.presentationPriceMin = presentations[i].pricePresentationMin;
+            presentationProduct.presentationPriceLiquidation = presentations[i].pricePresentationLiquidation;
+            presentationProduct.presentationType = presentations[i].typePresentation;
+            presentationProduct.productsRovianda = productRovianda;
 
-            await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
-
-            let productPresentation = await this.presentationsProductsRepository.getLastProductPresentation();
-            
-            productRovianda.presentationProducts = productPresentation[0];
-            
-            await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-
-            await this.presentationsProductsRepository.savePresentationsProducts(productPresentation.id,productRovianda.id);
-        }            
+            productRovianda.presentationProducts.push(presentationProduct);
+        }    
+        await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+        
 }
 
     async getProductsRoviandaByRoviandaId(req: Request) {
@@ -219,94 +223,56 @@ export class ProductRoviandaService{
         return response;
     }
   
-    async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,req: Request) {
-        let id = req.params.roviandaId;
-
-        if(!productRoviandaDTO.code) throw new Error("[400],code is required");
+    async updateProductRovianda(productRoviandaDTO:SaveProductRoviandaDTO,productId: number,imageProduct:any) {
+    
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],nameProduct is required");
-        if(productRoviandaDTO.status == null) throw new Error("[400],status is required");
-        
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
-        if(!product) throw new Error(`[404],product_rovianda with id ${id} not found`);
-        product.code = productRoviandaDTO.code;
-        product.name = productRoviandaDTO.nameProduct;
-        product.status = productRoviandaDTO.status;
-        if(productRoviandaDTO.image){
-            let photo = Buffer.from(productRoviandaDTO.image, 'base64');
-            let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.code}/`, photo);
-            product.imgS3 = urlOfImage;
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
+        if(!productRovianda) throw new Error(`[404],product_rovianda with id ${productId} not found`);
+        let productSae= await this.sqlsRepository.getProductSaeByKey(productRovianda.code);
+        if(!productSae.length) throw new Error("[404], no existe ese producto registrado en SAE");
+        productRovianda.name = productRoviandaDTO.nameProduct;
+        if(imageProduct!=null){
+            await this.firebaseHelper.deleteImagen(productRovianda.imgS3);
+            let photo = imageProduct;
+            let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRovianda.code}/`, photo.buffer);
+            productRovianda.imgS3 = urlOfImage;
         }
-        await this.productRoviandaRepository.saveProductRovianda(product);
+        await this.productRoviandaRepository.saveProductRovianda(productRovianda);
         
-        if (productRoviandaDTO.ingredients.length > 0)
+        if (productRoviandaDTO.ingredients.length)
+            for(let ingredent of productRovianda.ingredients){
+                await this.productRepository.deleteIngredientById(productRovianda.id,ingredent.id);
+            }  
+            productRovianda.ingredients = new Array<Product>();  
             for (let i = 0; i < productRoviandaDTO.ingredients.length; i++) {
-                if(!productRoviandaDTO.ingredients[i].ingredientId) throw new Error("[400],ingredientId is required");
-                if(!productRoviandaDTO.ingredients[i].presentation) throw new Error("[400],Presentation is required");
-                if(!productRoviandaDTO.ingredients[i].variant) throw new Error("[400],Variant is required");
-                if(!productRoviandaDTO.ingredients[i].description) throw new Error("[400],description is required");
-                if(!productRoviandaDTO.ingredients[i].mark) throw new Error("[400],mark is required");
+                if(!productRoviandaDTO.ingredients[i].productId) throw new Error("[400],ingredientId is required");
+                if(!productRoviandaDTO.ingredients[i].nameProduct) throw new Error("[400],Presentation is required");
 
-                let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].ingredientId);
-                if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].ingredientId} not found`);
-
-                let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
-                productRovianda.ingredients = productIngredient[i];
-                await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-
-                productIngredient.presentation = productRoviandaDTO.ingredients[i].presentation;
-                productIngredient.variant = productRoviandaDTO.ingredients[i].variant;
-                productIngredient.description = productRoviandaDTO.ingredients[i].description;
-                productIngredient.mark = productRoviandaDTO.ingredients[i].mark;
-                productIngredient.productRovianda = productRovianda[0];
-
-                await this.productRepository.createProduct(productIngredient);
-
-                // let ingre:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].ingredientId);
-                // product.ingredients = ingre[i];
-                let ingre = await this.productRepository.getIngredients(productRovianda.id,productIngredient.id);
-                if(!ingre.length) {await this.productRepository.saveIngredients(productRovianda.id,productIngredient.id);}
-                
+                let productIngredient:Product = await this.productRepository.getProductById(productRoviandaDTO.ingredients[i].productId);
+                if(!productIngredient) throw new Error(`[404], product ingredent with id ${productRoviandaDTO.ingredients[i].productId} not found`);
+                productRovianda.ingredients.push(productIngredient);
                 }
-        if (productRoviandaDTO.presentation.length)
-            for (let i = 0; i < productRoviandaDTO.presentation.length; i++) {
-                if(!productRoviandaDTO.presentation[i].presentation) throw new Error("[400],presentation is required");
-                if(!productRoviandaDTO.presentation[i].pricePresentation) throw new Error("[400],pricePresentation is required");
-                if(!productRoviandaDTO.presentation[i].typePresentation) throw new Error("[400],typePresentation is required");
-                let presentationProduct:PresentationProducts = new PresentationProducts();
-                if(productRoviandaDTO.presentation[i].presentationId){
-                    presentationProduct = await this.presentationsProductsRepository.getPresentationProductsById(productRoviandaDTO.presentation[i].presentationId);
-                    let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
-                    presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
-                    presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
-                    presentationProduct.presentationType = productRoviandaDTO.presentation[i].typePresentation;
-                    presentationProduct.productsRovianda = productRovianda[0];
-    
-                    await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
-                    
-                    productRovianda.presentationProducts = presentationProduct[i];
-                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-                    let ingre = await this.presentationsProductsRepository.getPresentationsProducts(presentationProduct.id,productRovianda.id);
-                    if(!ingre.length){await this.presentationsProductsRepository.savePresentationsProducts(presentationProduct.id,productRovianda.id);}
-                    
-                }else{
-                    let presentationProduct:PresentationProducts = new PresentationProducts();
-                    let productRovianda = await this.productRoviandaRepository.getProductRoviandaById(+id);
-                    presentationProduct.presentation = productRoviandaDTO.presentation[i].presentation;
-                    presentationProduct.presentationPrice = productRoviandaDTO.presentation[i].pricePresentation;
-                    presentationProduct.presentationType = productRoviandaDTO.presentation[i].typePresentation;
-                    presentationProduct.productsRovianda = productRovianda[0];
-    
-                    await this.presentationsProductsRepository.savePresentationsProduct(presentationProduct);
-                    
-                    productRovianda.presentationProducts = presentationProduct[i];
-                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-                    await this.presentationsProductsRepository.savePresentationsProducts(presentationProduct.id,productRovianda.id);
-                }
-
-                
+            await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+        if (productRoviandaDTO.presentations.length)
+            for(let presentation of productRovianda.presentationProducts){
+                await this.presentationsProductsRepository.deleteById(presentation.id);
             }
-
-        
+            for (let presentation of productRoviandaDTO.presentations) {
+                if(!presentation.presentation) throw new Error("[400],presentation is required");
+                if(!presentation.pricePresentationPublic) throw new Error("[400],pricePresentationPublic is required");
+                if(!presentation.pricePresentationMin) throw new Error("[400],pricePresentationMin is required");
+                if(!presentation.pricePresentationLiquidation) throw new Error("[400],pricePresentationLiquidation is required");
+                if(!presentation.typePresentation) throw new Error("[400],typePresentation is required");
+                let presentationProduct:PresentationProducts = new PresentationProducts();
+                    presentationProduct.presentation = presentation.presentation;
+                    presentationProduct.presentationPricePublic = presentation.pricePresentationPublic;
+                    presentationProduct.presentationPriceMin = presentation.pricePresentationMin;
+                    presentationProduct.presentationPriceLiquidation = presentation.pricePresentationLiquidation;
+                    presentationProduct.presentationType = presentation.typePresentation;
+                    presentationProduct.productsRovianda = productRovianda;
+                    productRovianda.presentationProducts.push(presentationProduct);
+                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+            }        
     }   
 
     async getProductsRoviandaByCode(req: Request) {
@@ -344,5 +310,20 @@ export class ProductRoviandaService{
     async getPresentationsByProduct(productId:number){
         let productsRovianda:ProductRovianda[] = await this.productRoviandaRepository.getProductPresentation(productId);
         return productsRovianda;
+    }
+
+    async getLinesOfProductsSae(){
+        return await this.sqlsRepository.getLinesOfProductsSae();
+    }
+
+    async createProductLineSae(productLineSaeForm:ProductLineSaeForm){
+        validateProductLineSae(productLineSaeForm);
+        let record = await this.sqlsRepository.getProductLineSaeByKey(productLineSaeForm.clave);
+        if(record.length) throw new Error("[409], ya existe una linea de producto con ese nombre");
+        return await this.sqlsRepository.saveProductLineSae(productLineSaeForm);
+    }
+
+    async getAllProductLines(){
+        return await this.sqlsRepository.getLinesOfProductsSae();
     }
 }

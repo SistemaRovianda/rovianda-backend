@@ -39,7 +39,7 @@ export class FirebaseHelper{
         console.log("entra log")
         console.log(user)
         return admin.auth().createUser({
-            displayName:`${user.name} ${user.firstName} ${user.lastName}`,
+            displayName:`${user.name}`,
             email: user.email,
             password: user.password,
             emailVerified: false

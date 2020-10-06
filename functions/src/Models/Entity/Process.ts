@@ -18,9 +18,6 @@ export class Process{
     @JoinColumn({name:"product_rovianda_id"})
     product:ProductRovianda;
     
-
-    
-
     @Column({name:"entrance_hour"})
     entranceHour:string;
 
@@ -65,14 +62,14 @@ export class Process{
     sausage:Sausaged[];
 
     @OneToOne(type => User)
-    @JoinColumn({name:"user_id"})
+    @JoinColumn()
     userId:User;
 
     @Column({name:"create_at"})
     createAt:string
 
-    @OneToOne(type=>Formulation,{eager:true})
-    @JoinColumn({name:"formulation_id"})
+    @OneToOne(type=>Formulation,formulation=>formulation.process,{eager:true})
+    @JoinColumn()
     formulation:Formulation;
     // @OneToOne(type => Grinding)
     // @JoinColumn({ name: "molienda_id" })

@@ -1,5 +1,4 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { DefrostFormulation } from "./Defrost.Formulation";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { OutputsCooling } from "./outputs.cooling";
 
 @Entity({name:"defrost"})
@@ -9,6 +8,7 @@ export class Defrost{
     defrostId:number;
 
     @OneToOne(type=>OutputsCooling,{eager:true})
+    @JoinColumn()
     outputCooling:OutputsCooling;
 
     @Column()

@@ -70,4 +70,9 @@ export class PresentationsProductsRepository{
         return await this.presentationsProductsRepository.query(`select * from products_rovianda_presentation
         where products_rovianda_presentation.presentation_id = ${presentation} and products_rovianda_presentation.product_id = ${product}`)
     }
+
+    async deleteById(presentationProductId:number){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.delete({id:presentationProductId});
+    }
 }

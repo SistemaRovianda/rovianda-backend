@@ -226,4 +226,9 @@ export class ProcessController {
         let processId:number  = + req.params.processId;
         return res.status(200).send({formulationId:await this.processService.getFormulationOfProcess(processId)});
     }
+
+    async getDefrostDetails(req:Request,res:Response){
+        let defrostId:number = +req.params.defrostId;
+        return res.status(200).send(await this.processService.getDefrost(defrostId));
+    }
 }

@@ -4,7 +4,9 @@ import { Product } from '../Models/Entity/Product';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-
+import { FileInterface, SaveProductRoviandaDTO } from '../Models/DTO/ProductRoviandaDTO';
+import {keys} from "ts-transformer-keys";
+import { keysIn } from 'lodash';
 export class ProductController{
 
     private productService:ProductService;
@@ -56,7 +58,16 @@ export class ProductController{
     }
 
     async saveProductRovianda(req:Request,res:Response){
-        await this.productRoviandaService.createProductRovianda(req.body);
+        let imageProduct = req.files?req.files[0]:null;
+        let body={};
+        let entries = keys<SaveProductRoviandaDTO>();
+        
+        for(let entry of entries ){
+            
+            body[entry]=req.body[entry];
+        }
+        console.log("SOLICITANDO",body);
+        await this.productRoviandaService.createProductRovianda(body,imageProduct);
         return res.status(201).send();
     }
 
@@ -97,12 +108,28 @@ export class ProductController{
     }
 
     async updateProductRovianda(req:Request,res:Response){
-        await this.productRoviandaService.updateProductRovianda(req.body,req);
+        let productId:number = +req.params.productId;
+        let imageProduct= (req.files.length)?req.files[0] :null;
+        await this.productRoviandaService.updateProductRovianda(req.body,productId,imageProduct);
         return res.status(201).send();
     }
 
     async getProductRoviandaByCode(req:Request,res:Response){
         let response = await this.productRoviandaService.getProductsRoviandaByCode(req);
         return res.status(200).send(response);
+    }
+
+    async getProductsLines(req:Request,res:Response){
+        return res.status(200).send(await this.productRoviandaService.getLinesOfProductsSae());
+    }
+
+    async createProductLine(req:Request,res:Response){
+        await this.productRoviandaService.createProductLineSae(req.body);
+        return res.status(201).send();
+    }
+
+    async getAllProductsLines(req:Request,res:Response){
+        let result = await this.productRoviandaService.getAllProductLines();
+        return res.status(200).send(result);
     }
 }

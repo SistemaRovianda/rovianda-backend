@@ -11,10 +11,16 @@ export class SalesRequestController{
     private salesRequestService: SalesRequestService;
     private productRoviandaService:ProductRoviandaService;
     constructor(firebaseHelper:FirebaseHelper){
-        this.salesRequestService = new SalesRequestService();
+        this.salesRequestService = new SalesRequestService(firebaseHelper);
         this.productRoviandaService = new ProductRoviandaService(firebaseHelper);
     }
     
+    async createSeller(req:Request,res:Response){
+        await this.salesRequestService.createSeller(req.body);
+        return res.status(201).send();
+    }
+
+
     async saveOrderSeller(req:Request,res:Response){
         let uid = req.params.sellerUid;//req.headers.uid as string;
         if(!uid.length){
@@ -115,7 +121,7 @@ export class SalesRequestController{
 
     async getAllClients(req:Request,res:Response){
         let sellerUid:string = req.params.sellerUid;
-        let hint:string = !req.query.hint?"":req.query.hint;
+        let hint:number = !req.query.hint?0:+req.query.hint;
         return res.status(200).send(await this.salesRequestService.getAllSellerClientsBySellerUid(sellerUid,hint));
     }
 
@@ -128,4 +134,14 @@ export class SalesRequestController{
         return res.status(200).send(await this.productRoviandaService.getPresentationsByProduct(productId));
     }
     
+    async createSaleSae(req:Request,res:Response){
+        await this.salesRequestService.createSaleSae(req.body);
+        return res.status(201).send();
+    }
+
+    async getAllTaxScheme(req:Request,res:Response){
+        let result = await this.salesRequestService.getAllTaxSchemas();
+        return res.status(200).send(result);
+    }
+
 } 

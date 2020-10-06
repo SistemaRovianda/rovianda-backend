@@ -9,10 +9,7 @@ export class OutputsCooling{
     @PrimaryGeneratedColumn()
     id:number;
 
-    // @Column({name:"raw_material"})
-    // rawMaterial:string;
-    @ManyToOne(type=>Raw, raw=>raw.outputsCoolings, {eager:true, onDelete:"SET NULL"})
-    @JoinColumn({name:"raw_material_id"})
+    @ManyToOne(type=>Raw, raw=>raw.outputsCoolings, { onDelete:"SET NULL"})
     rawMaterial:Raw;
 
     @Column({name:"output_date"})
@@ -30,6 +27,6 @@ export class OutputsCooling{
     @Column()
     status:string;
     
-    @OneToOne(type=>Formulation,{nullable:true,eager:true})
+    @OneToOne(type=>Formulation,{nullable:true})
     formulation:Formulation;
 }

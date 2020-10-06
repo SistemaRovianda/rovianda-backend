@@ -24,9 +24,6 @@ export class OutputsCoolingService{
 
     async createOutputsCooling(outputsMeat:OutputMeatDTO){
 
-        let lote:Cooling = await this.coolingRepository.getCoolingByLote(outputsMeat.loteId);
-        if(!lote) throw new Error("[404],no existe el lote");
-
         let colling:Cooling = await this.coolingRepository.getCoolingById(outputsMeat.materialId)
         if(!colling) throw new Error("[404],no existe materialId");
         if(colling.status==WarehouseStatus.CLOSED) throw new Error("[409], el lote esta cerrado");

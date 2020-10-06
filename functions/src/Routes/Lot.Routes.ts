@@ -58,5 +58,11 @@ export const lotRoutes:Array<routeInterface>=[
         method: "get",
         controller: LotController,
         target:"getAllLotsByProduct"
+    },
+    {
+        url: "/rovianda/product/lots/outputs/cooling",
+        method: "get",
+        controller: LotController,
+        target: "getAllLotsCoolingAvailables"
     }
 ];

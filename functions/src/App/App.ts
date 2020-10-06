@@ -1,15 +1,20 @@
 import  * as express from 'express';
 import * as bodyp from 'body-parser';
 import * as functions from 'firebase-functions';
-import { routesToExpress,firebaseMiddleware } from '../Routes/Index';
-import { routeInterface } from '../Models/Route.Interface';
+import { routesToExpress } from '../Routes/Index';
+import { FileRequest, routeInterface } from '../Models/Route.Interface';
 import { ErrorHandler } from '../Utils/Error.Handler';
 import * as fileMiddleware from 'express-multipart-file-parser';
+//const expressF=require("express-formidable");
+
+
 export class App extends ErrorHandler{
     public app: express.Application;
+    //public multer:multer.Multer;
     constructor(){
         super();
         this.app = express();
+        
         this.config();
     }
     config(){
@@ -29,12 +34,12 @@ export class App extends ErrorHandler{
             res.send();
         });
         this.app.use(bodyp.json({limit:"10mb"}));
-        this.app.use(bodyp.urlencoded({extended:false}));
+        this.app.use(bodyp.urlencoded({extended:true}));
         this.app.use(bodyp.raw({limit:"10mb"}));
         routesToExpress.map((route:routeInterface)=>{
-
-            (this.app as express.Application)[route.method](route.url,/*firebaseMiddleware.authentication,*/async (req:express.Request,res:express.Response)=>{
+            (this.app as express.Application)[route.method](route.url,async (req:express.Request,res:express.Response,next)=>{
                 try{
+                //this.mapMulter(route,req,res,next);
                 await (route.controller)[route.target](req,res);
                 }catch(err){
                     this.parser(err.message,res);
@@ -43,6 +48,20 @@ export class App extends ErrorHandler{
             
         })
     }
+
+    // mapMulter(items:routeInterface){
+    //     console.log(items);
+    //     items.files?.forEach(item=>{
+    //         if(item.isArray){
+    //             this.multer.array(item.name,item.size);
+    //         }else{
+    //             this.multer.single(item.name);
+    //         }  
+    //         }) 
+    //     }
+      
+    
 }
+
 
 export const app = functions.https.onRequest( new App().app);

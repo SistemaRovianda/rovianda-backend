@@ -14,7 +14,7 @@ export class FormulationIngredients {
     @JoinColumn({ name: "product_id" })
     product: Product;
 
-    @ManyToOne(type => Formulation, formulation => formulation.formulationIngredients)
+    @ManyToOne(type => Formulation, formulation => formulation.ingredients)
     @JoinColumn({ name: "formulation_id" })
     formulation: Formulation;
 

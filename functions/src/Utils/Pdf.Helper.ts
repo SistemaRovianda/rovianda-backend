@@ -76,7 +76,7 @@ export default class PdfHelper{
         <table border="1" width="80%" align="center">
             <tr>
                 <th colspan="2" rowspan="3"><img src="${LOGO.data}" alt="" ></th>
-                <th class="ta" colspan="2">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                <th class="ta" colspan="2">Nombre: ${user.name} </th>
                 <th></th>
             </tr>
 
@@ -452,7 +452,7 @@ export default class PdfHelper{
          </tr> 
          <tr>
             <th ><font size=1>Inspector de calidad</font></th>
-            <th ><font size=1>${meat.qualityInspector.name} ${meat.qualityInspector.firstSurname} ${meat.qualityInspector.lastSurname}</font> </th>
+            <th ><font size=1>${meat.qualityInspector.name} </font> </th>
             <th colspan="3" ><font size=1>Firma:</font></th>
          </tr>
          <tr>
@@ -532,7 +532,7 @@ export default class PdfHelper{
         </caption>
             <tr>
             <td rowspan="3"><img src="${LOGO.data}" "width=120px" height="100px" ></td>
-            <th colspan="5">Nombre: ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            <th colspan="5">Nombre: ${formulation.make.name}</th>
             </tr>
             <tr>
             <th colspan="5">Firma: </th>
@@ -578,7 +578,7 @@ export default class PdfHelper{
     footerReportFormulation(formulation:Formulation){
         return `
                 <tr>
-                    <td colspan="3">Verifico: ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+                    <td colspan="3">Verifico: ${formulation.verifit.name} </td>
                     <td>Firma:</td>
                     <td colspan="2">Puesto: ${formulation.verifit.job}</td>
                 </tr>
@@ -775,7 +775,7 @@ export default class PdfHelper{
             <img src="${LOGO.data}" alt="" >
         </td>
         <td colspan="4">
-            Nombre: ${packing.make ? packing.make.name+" "+packing.make.firstSurname+" "+packing.make.lastSurname : "" }
+            Nombre: ${packing.make ? packing.make.name : "" }
         </td>
         <td></td>
         </tr>
@@ -852,7 +852,7 @@ export default class PdfHelper{
             <td colspan="2"></td>
         </tr>
         <tr>
-        <td colspan="2"><b>Verifico: ${packing.verifit ? packing.verifit.name+" "+packing.verifit.firstSurname+" "+packing.verifit.lastSurname : "" }</b> </td> 
+        <td colspan="2"><b>Verifico: ${packing.verifit ? packing.verifit.name: "" }</b> </td> 
         <td  colspan="2"> <b> Firma:</b></td>  
         <td  colspan="2"> <b> Puesto: ${packing.verifit ? packing.verifit.job : "" }</b> </td>
         </tr>
@@ -990,17 +990,17 @@ export default class PdfHelper{
     footerReportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts){
         return `
             <tr>
-                <th colspan="3" class="seg"><font size=1>Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Elaboró: ${userElaborated.name} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td colspan="2"><font size=1>Puesto: ${revisionOven.jobElaborated}</font> </td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Revisó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font></th>
+                <th colspan="3" class="seg"><font size=1>Revisó: ${userVerify.name} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td colspan="2"><font size=1><Puesto: ${revisionOven.jobVerify}</font></td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Verificó: ${userVerify.name} ${userVerify.firstSurname} ${userVerify.lastSurname}</font</th>
+                <th colspan="3" class="seg"><font size=1>Verificó: ${userVerify.name} </font</th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td colspan="2"><font size=1>Puesto: ${revisionOven.nameVerify}</font></td>
             </tr>
@@ -1074,7 +1074,7 @@ export default class PdfHelper{
                 <table border="1" align="rigth" width="90%">
                     <tr>
                         <th rowspan="3"><img src="${LOGO.data}" alt="" align="left" ></th> 
-                        <th class="ta" colspan="4">Nombre: ${user.name} ${user.firstSurname} ${user.lastSurname}</th>
+                        <th class="ta" colspan="4">Nombre: ${user.name} </th>
                     </tr>
                     <tr>
                         <th class="ta" colspan="4">Firma: </th>
@@ -1370,7 +1370,7 @@ export default class PdfHelper{
     return `
       <tr>
         <th class="fin" ><font size=1>Realizó:</font></th>
-        <th class="fin"  ><font size=1>${user.name} ${user.firstSurname} ${user.lastSurname}</font> </th>
+        <th class="fin"  ><font size=1>${user.name} </font> </th>
         <th class="fin" colspan="3" ><font size=1>Firma:</font></th>
       </tr>
       <tr>
@@ -1451,7 +1451,7 @@ export default class PdfHelper{
 
         <tr>
             <td rowspan="3"><img src="${LOGO.data}"></td>
-            <th class="ma" colspan="4"><font size=1>Nombre: ${entrancePacking.make.name} ${entrancePacking.make.firstSurname} ${entrancePacking.make.lastSurname}</font></th>
+            <th class="ma" colspan="4"><font size=1>Nombre: ${entrancePacking.make.name} </font></th>
         </tr>
         <tr>
             <th class="ma" colspan="4"><font size=1>Firma: </font></th>
@@ -1522,7 +1522,7 @@ export default class PdfHelper{
     footerReportEntryPacking(entrancePacking:EntrancePacking){
     return `
         <tr>
-            <td colspan="2"><font size=1><b>Verifico: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.name} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.firstSurname} ${entrancePacking.verifit == null ? "": entrancePacking.verifit.lastSurname}</b> </font></td> 
+            <td colspan="2"><font size=1><b>Verifico: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.name} </b> </font></td> 
         <b> <td colspan="2" class="te"> <font size=1><b> Firma: </b></font></td>  
         <b> <td class="te"><font size=1><b> Puesto: ${entrancePacking.verifit == null ? "": entrancePacking.verifit.job}</b></font>  </td>
         </tr> 
@@ -1750,7 +1750,7 @@ export default class PdfHelper{
     formulations.forEach( (formulation,index) => {
      formulationTableInfo += `
             ${index>0? `<tr><th rowspan="3"></th>` : ``}
-            <th colspan="5">Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname}</th>
+            <th colspan="5">Realizo, Nombre:  ${formulation.make.name}</th>
         </tr>
         <tr>
           <th colspan="5">Firma:</th>
@@ -1770,11 +1770,11 @@ export default class PdfHelper{
             <td>${formulation.lotDay}</td>
             <td>${formulation.temp ? formulation.temp : ""}</td>
             <td>${formulation.waterTemp ? formulation.waterTemp : ""}</td>
-            <td>${formulation.formulationIngredients.length && formulation.formulationIngredients[0].product.description ? formulation.formulationIngredients[0].product.description : "" }</td>
+            <td>${formulation.ingredients.length && formulation.ingredients[0].product.description ? formulation.ingredients[0].product.description : "" }</td>
             <td>${formulation.date ? new Date(formulation.date).toLocaleDateString() : "" }</td>
         </tr>`;
             
-            for(let index = 1; index < formulation.formulationIngredients.length; index++){
+            for(let index = 1; index < formulation.ingredients.length; index++){
                 
                 formulationTableInfo+= `
                     <tr>
@@ -1782,14 +1782,14 @@ export default class PdfHelper{
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>${formulation.formulationIngredients[index].product.description}</td>
+                    <td>${formulation.ingredients[index].product.description}</td>
                     <td></td>
                 </tr>`;
             }
       
      formulationTableInfo +=`
         <tr>
-          <td align="left">Verifico:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname}</td>
+          <td align="left">Verifico:  ${formulation.verifit.name} </td>
           <td align="left" colspan="2">Firma:</td>
           <td align="left" colspan="3">Puesto:  ${formulation.verifit.job}</td>
         </tr>
@@ -2108,7 +2108,7 @@ export default class PdfHelper{
                 <td class="cel">${!properties ? " " : properties[0].units}</td>
                 <td class="cel">${!properties ? " " : properties[0].weight}</td>
                 <td class="cel">${!properties ? " " : properties[0].observations}</td>
-                <td class="cel">${!data ? " " : data.userId.name} ${!data ? " " : data.userId.firstSurname} ${!data ? " " : data.userId.lastSurname}</td>
+                <td class="cel">${!data ? " " : data.userId.name}}</td>
                 </tr>
                 `;
                 let content2 = "";

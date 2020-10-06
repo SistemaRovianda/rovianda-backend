@@ -14,13 +14,14 @@ export const productRoutes:Array<routeInterface>=[
         method:"post",
         controller:ProductController,
         target:"createProductCatalog"
-    },
-    {
+    }
+    ,
+    /*{
         url:"/rovianda/product-rovianda",
         method:"post",
         controller: ProductController,
         target:"createProductRovianda"
-    },
+    },*/
     {
         url:"/rovianda/product-rovianda/:productId",
         method:"get",
@@ -55,8 +56,15 @@ export const productRoutes:Array<routeInterface>=[
         url:"/rovianda/product/rovianda",
         method: "post",
         controller: ProductController,
-        target: "saveProductRovianda"
-    },{
+        target: "saveProductRovianda",
+        files:[
+            {
+            name:"productRoviandaImage",
+            isArray:false
+            }
+        ]
+    },
+    {
         url:"/rovianda/add/ingredient",
         method: "post",
         controller: ProductController,
@@ -106,5 +114,23 @@ export const productRoutes:Array<routeInterface>=[
         method: "get",
         controller: ProductController,
         target: "getProductRoviandaByCode"
+    },
+    {
+        url: "/rovianda/sae/get-products/lines",
+        method: "get",
+        controller: ProductController,
+        target: "getProductsLines"
+    },
+    {
+        url: "/rovianda/sae/product/line",
+        method: "post",
+        controller: ProductController,
+        target: "createProductLine"
+    },
+    {
+        url: "/rovianda/sae/product/lines",
+        method: "get",
+        controller: ProductController,
+        target: "getAllProductsLines"
     }
 ];

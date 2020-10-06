@@ -57,21 +57,23 @@ export class ProcessService{
     }
 
     async createDefrost(defrostForm:DefrostDTO){
-        if(!defrostForm.dateInit || defrostForm.dateInit=="") throw new Error("[400], falta el parametro dateIni");
-        if(!defrostForm.entranceHour || defrostForm.entranceHour=="") throw new Error("[400], falta el parametro hourEntrance");
+        if(!defrostForm.dateInit || defrostForm.dateInit=="") throw new Error("[400], falta el parametro dateInit");
+        if(!defrostForm.entranceHour || defrostForm.entranceHour=="") throw new Error("[400], falta el parametro entranceHour");
         if(!defrostForm.temp || defrostForm.temp=="") throw new Error("[400], falta el parametro temperature");
         if(!defrostForm.weight) throw new Error("[400], falta el parametro weigth");
         if(+defrostForm.weight<1) throw new Error("[400],el peso no debe ser menor a 1");
         
         let outputCooling:OutputsCooling = await this.outputsCoolingRepository.getOutputsCoolingById(defrostForm.outputCoolingId);
         if(outputCooling.status=="TAKED") throw new Error("[409], la salida de carne ya fue tomada para descongelamiento");
-    
+        outputCooling.status ="TAKED";
+        await this.outputsCoolingRepository.createOutputsCooling(outputCooling);
         let defrost:Defrost = new Defrost();
         defrost.weigth=defrostForm.weight;
         defrost.temp = defrostForm.temp;
         defrost.status ="ACTIVE";
         defrost.dateInit = defrostForm.dateInit;
         defrost.entranceHour=defrostForm.entranceHour;
+        defrost.outputCooling =outputCooling;
         return await this.defrostRepository.saveDefrost(defrost);
     }
     
@@ -82,6 +84,7 @@ export class ProcessService{
         if(!defrostFormUpdate.outputHour) throw new Error("[400],outputHour is required");
         defrost.dateEnd = defrostFormUpdate.dateEnd;
         defrost.outputHour = defrostFormUpdate.outputHour;
+        defrost.status ="INACTIVE";
         return await this.defrostRepository.saveDefrost(defrost);
     }
 
@@ -93,7 +96,7 @@ export class ProcessService{
     }
 
     async getAllDefrostActive(){
-        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,defrostId:x.defrostId}));
+        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
     }
 
     async updateProcessProperties(process:Process){
@@ -193,10 +196,10 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
-    async getDefrost(processId:number){
-        let process:Process = await this.processRepository.findProcessByProcessId(processId);
-        if(!process) throw new Error("[400], no existe proceso");
-        return process;
+    async getDefrost(defrostId:number){
+        let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostId);
+        if(!defrost) throw new Error("[400], no existe el enfriamiento");
+        return defrost;
     }
 
     async getProcessAllAvailables(){

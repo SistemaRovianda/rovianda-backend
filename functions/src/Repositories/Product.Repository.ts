@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Product } from '../Models/Entity/Product';
+import { TYPE } from '../Models/Enum/Type.Lot';
 
 export class ProductRepository{
     private productRepository:Repository<Product>;
@@ -15,27 +16,22 @@ export class ProductRepository{
         return await this.productRepository.save(product);
     }
 
-    async getAllProductsDrief(type: string){
+    async getAllProductInformative(type:string){
+        await this.getConnection();
+        return await this.productRepository.find({});
+    }
+
+    async getAllProductsDriefPacking(type: string){
         await this.getConnection();
         console.log("consulta")
         return await this.productRepository.query(
             `SELECT product_catalog.id, product_catalog.description 
                 FROM product_catalog 
-                INNER JOIN warehouse_drief ON
-                product_catalog.id = warehouse_drief.productId`
+                where type="${type}"`
             );
     }
 
-    async getAllProductsPacking(type: string){
-        await this.getConnection();
-        console.log("consulta")
-        return await this.productRepository.query(
-            `SELECT product_catalog.id, product_catalog.description 
-                FROM product_catalog 
-                INNER JOIN warehouse_packing ON
-                product_catalog.id = warehouse_packing.productId`
-            );  
-    }
+   
 
     async getProductById(id:number){
         await this.getConnection();
@@ -70,12 +66,12 @@ export class ProductRepository{
         await this.getConnection();
         return await this.productRepository.find({category});
     }
-
+/*
     async saveIngredients(rovianda:number,catalog:number){
         await this.getConnection();
         console.log("consulta")
         return await this.productRepository.query(`INSERT INTO ingredients (productsRoviandaId,productCatalogId) VALUES (${rovianda},${catalog})`)
-    }
+    }*/
 
     async getIngredients(rovianda:number,catalog:number){
         await this.getConnection();
@@ -108,5 +104,12 @@ export class ProductRepository{
         return await this.productRepository.query(`
         select distinct(pc.description),pc.id,pc.mark,pc.variant,pc.presentation,pc.category,pc.state FROM product_catalog  as pc where pc.category="${type}" and pc.state=1
         `) as Array<Product>;
+    }
+
+    async deleteIngredientById(productRoviandaId:number,ingredientId:number){
+        await this.getConnection();
+        return await this.productRepository.query(
+            `delete from  ingredients where productsRoviandaId=${productRoviandaId} and productCatalogId=${ingredientId}`
+        );
     }
 }

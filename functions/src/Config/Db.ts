@@ -59,7 +59,7 @@ const config: ConnectionOptions = {
     port: 3306,
     username: "admin",//"root",
     password: "Holamundo1250",
-    database: "rovianda-test-dev",
+    database: "new_rovianda",//"rovianda-test-dev",
     synchronize: true,
     logging: false,
     entities: [

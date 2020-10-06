@@ -66,6 +66,6 @@ export class OutputsCoolingRepository{
 
     async getOutputCoolingByRawAndStatus(status:string,rawMaterial:Raw){
         await this.getConnection();
-        return await this.outputsCoolingRepository.find({rawMaterial:rawMaterial,status:status});
+        return await this.outputsCoolingRepository.find({rawMaterial:rawMaterial,status});
     }
 }

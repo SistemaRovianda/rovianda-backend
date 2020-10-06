@@ -9,7 +9,7 @@ export const clientRoutes: Array<routeInterface> = [
         target: "createCustomer"
     },
     {
-        url: "/seller/customer-count",
+        url: "/rovianda/customer/customer-count",
         method: "get",
         controller: ClientController,
         target: "getCustomerCount"

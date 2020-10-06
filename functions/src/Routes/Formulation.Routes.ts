@@ -7,7 +7,22 @@ export const formulationRoutes: Array<routeInterface>=[
         method: "post",
         controller: FormulationController,
         target: "createFormulation"
-    },{
+    },
+    {
+        url: "/rovianda/formulation-details/:formulationId",
+        method: "get",
+        controller: FormulationController,
+        target: "getFormulationDetails"
+    }
+    ,
+    {
+        url: "/rovianda/formulation/product-rovianda/:productRoviandaId",
+        method: "get",
+        controller: FormulationController,
+        target: "getFormulationByProductRovianda"
+    }
+    ,
+    {
         url: "/rovianda/formulation/:rawMaterialId",// "/rovianda/formulation/products"
         method: "get",
         controller: FormulationController,

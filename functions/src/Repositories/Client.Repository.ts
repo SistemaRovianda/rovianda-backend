@@ -33,9 +33,9 @@ export class ClientRepository{
         return await this.clientRepository.find({seller});
     }
 
-    async getAllClientBySellerAndHint(seller:User,hint:string){
+    async getAllClientBySellerAndHint(seller:User,keyClient:number){
         await this.getConnection();
-        return await this.clientRepository.find({seller,keyClient:hint});
+        return await (await this.clientRepository.find({seller:seller,keyClient}));
     }
 
     async getCurrentCountCustomer(){
@@ -43,7 +43,7 @@ export class ClientRepository{
         return await this.clientRepository.query("SELECT `AUTO_INCREMENT` as noCount FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = rovianda-test-dev AND   TABLE_NAME   = clients");
     }
     
-    async findByClientKey(keyClient:string){
+    async findByClientKey(keyClient:number){
         await this.getConnection();
         return await this.clientRepository.findOne({keyClient});
     }

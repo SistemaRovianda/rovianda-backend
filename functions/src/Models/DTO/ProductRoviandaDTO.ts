@@ -4,44 +4,85 @@ export interface ProductRoviandaDTO{
 }
 
 export interface SaveProductRoviandaDTO{
-    code: string,
-    nameProduct: string,
-    image: string,
+    keyProduct?: string;
+    nameProduct: string;
+    productLine:string;
     ingredients: [
        {
           productId: number,
           nameProduct: string
        }
-    ],
+    ];
     presentations: [
        {
+          presentationId?:number,
           presentation: number,
           typePresentation: string,
-          pricePresentation: string
+          pricePresentationPublic: number,
+          pricePresentationMin:number,
+          pricePresentationLiquidation:number,
+          unitMeasure:string,
+          unitPackage:string,
+          stockMin:number,
+          stockMax:number,
+          existence:number,
+          keyProductServiceSat:number,
+          keyUnitSat:string,
+          warehouseKey:number
        }
     ]
 }
 
 export interface UpdateProductRoviandaDTO{
-   code: string,
+   keyProduct?: string,
    nameProduct: string,
-   status: boolean,
+   productLine:string,
    image: string,
    ingredients: [
       {
-         ingredientId: number,
-         description: string,
-         mark: string,
-         variant: string,
-         presentation: string
+         productId: number,
+         nameProduct: string
       }
    ],
-   presentation: [
+   presentations: [
       {
-         presentationId: number,
+         presentationId?:number,
          presentation: number,
          typePresentation: string,
-         pricePresentation: string
+         pricePresentationPublic: number,
+         pricePresentationMin:number,
+         pricePresentationLiquidation:number,
+         unitMeasure:string,
+         unitPackage:string,
+         stockMin:number,
+         stockMax:number,
+         existence:number,
+         keyProductServiceSat:number,
+         keyUnitSat:string,
+         warehouseKey:number
       }
    ]
+}
+
+
+export interface ProductLineSae{
+   CVE_LIN: number;
+   DESC_LIN:string;
+   ESUNGPO:string;
+   CUENTA_COI:string;
+   STATUS:string;
+}
+
+export interface ProductLineSaeForm{
+   clave:string;
+   description:string;
+   grupo: string;
+}
+
+export interface FileInterface{
+   fieldname:string;
+   originalname:string;
+   encoding:string;
+   mimetype:string;
+   buffer: Buffer
 }

@@ -2,7 +2,12 @@ import { routeInterface } from "../Models/Route.Interface";
 import { SalesRequestController } from '../Controllers/Sales.Controller';
 
 export const salesRoutes:Array<routeInterface>=[
-
+    {
+        url: "/rovianda/test/seller",
+        method: "post",
+        controller: SalesRequestController,
+        target: "createSeller"
+    },
     {
         url:"/rovianda/packaging",
         method:"get",
@@ -118,5 +123,17 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "reportSales"
+    },
+    {
+        url: "/rovianda/sale",
+        method:"post",
+        controller: SalesRequestController,
+        target: "createSaleSae"
+    },
+    {
+        url: "/rovianda/tax/schema",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAllTaxScheme"
     }
 ];

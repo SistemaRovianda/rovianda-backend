@@ -105,4 +105,5 @@ export class ProductRoviandaRepository {
         return await this.repository.find({select:["name","imgS3","id"]});
     }
 
+
 }

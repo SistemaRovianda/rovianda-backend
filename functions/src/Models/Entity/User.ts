@@ -18,13 +18,10 @@ export class User{
     id:string;
 
     @Column()
+    saeKey:number;
+
+    @Column()
     name:string;
-
-    @Column({name:"first_surname"})
-    firstSurname:string;
-
-    @Column({name:"last_surname"})
-    lastSurname:string;
 
     @Column()
     email:string;

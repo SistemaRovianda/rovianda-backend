@@ -74,9 +74,9 @@ export class WarehousePackingRepository{
         return await this.warehousePackingRepository.save(warehousepacking);
     } 
 
-    async findLotsPackingByProduct(product:Product){
-        await this.getConnection();
-        return await this.warehousePackingRepository.find({product});
+    async findLotsPackingByProduct(product:Product,status:string){
+        await this.getConnection();  
+        return await this.warehousePackingRepository.find({product,status}); // servicio para obtener productos abiertos de un almacen
     }
 
     async findWarehousePackingById(id:number){

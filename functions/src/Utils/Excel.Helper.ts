@@ -119,7 +119,7 @@ export default class Excel4Node{
         let row = 4;
 
         formulationData.forEach(formulation =>{
-            worksheet.cell(row, 5, row, 8, true).string(`Realizo, Nombre:  ${formulation.make? formulation.make.name+" "+formulation.make.firstSurname+" "+formulation.make.lastSurname : ""}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+            worksheet.cell(row, 5, row, 8, true).string(`Realizo, Nombre:  ${formulation.make? formulation.make.name : ""}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
 
         worksheet.cell(++row, 5, row, 8, true).string("Firma:  ").style(styleUser);
 
@@ -141,20 +141,20 @@ export default class Excel4Node{
             worksheet.cell(row, ++col, row, ++col, true).string(`${"formulation.loteInterno"}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[0] ? formulation.formulationIngredients[0].product.description : ""}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.ingredients[0] ? formulation.ingredients[0].product.description : ""}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
-            for (let i = 1; i < formulation.formulationIngredients.length; i++) {
+            for (let i = 1; i < formulation.ingredients.length; i++) {
                 col = 4;
                 row++;
                 worksheet.cell(row, col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
-                worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.formulationIngredients[i].product.description}`).style(style);
+                worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.ingredients[i].product.description}`).style(style);
                 worksheet.cell(row, ++col, row, ++col, true).string("").style(style);
             }
 
-        worksheet.cell(++row, 4, row, 7,true).string(`Verificó, Nombre:  ${formulation.verifit ? formulation.verifit.name+" "+formulation.verifit.firstSurname+" "+formulation.verifit.lastSurname : ""}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 7,true).string(`Verificó, Nombre:  ${formulation.verifit ? formulation.verifit.name : ""}`).style(styleUser);
 
         worksheet.cell(row, 8, row, 9, true).string("Firma:  ").style(styleUser);
 
@@ -259,7 +259,7 @@ export default class Excel4Node{
                 horizontal: 'center',//alineamiento del texto
             }
         });
-        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data[0].make ? data[0].make.name+" "+data[0].make.firstSurname+" "+data[0].make.lastSurname : "" }`).style(styleUser);
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data[0].make ? data[0].make.name: "" }`).style(styleUser);
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
         worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${data[0].make ? data[0].make.job : "" }`).style(styleUser);
 
@@ -305,7 +305,7 @@ export default class Excel4Node{
             row = row + 7;
         }
         //ya que las hojas de calculo son entre comillas "matrices", los datos se deben manejar como tal
-        worksheet.cell(++row, 4, row, 6,true).string(`Verifico:  ${data[0].verifit == null ? "": data[0].verifit.name} ${data[0].verifit == null ? "": data[0].verifit.firstSurname} ${data[0].verifit == null ? "": data[0].verifit.lastSurname}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 6,true).string(`Verifico:  ${data[0].verifit == null ? "": data[0].verifit.name} `).style(styleUser);
         worksheet.cell(row, 7, row, 7, true).string("Firma:  ").style(styleUser);
         worksheet.cell(row, 8, row, 8, true).string(`Puesto: ${data[0].verifit == null ? "": data[0].verifit.job}`).style(styleUser);
 
@@ -403,7 +403,7 @@ export default class Excel4Node{
             }
         });
 
-        worksheet.cell(4, 5, 4, 8, true).string(`Realizo, Nombre:  ${formulation.make.name} ${formulation.make.firstSurname} ${formulation.make.lastSurname} `).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+        worksheet.cell(4, 5, 4, 8, true).string(`Realizo, Nombre:  ${formulation.make.name}  `).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
 
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
 
@@ -442,7 +442,7 @@ export default class Excel4Node{
             row ++; 
         // });
 
-        worksheet.cell(++row, 4, row, 7,true).string(`Realizo, Nombre:  ${formulation.verifit.name} ${formulation.verifit.firstSurname} ${formulation.verifit.lastSurname} `).style(styleUser);
+        worksheet.cell(++row, 4, row, 7,true).string(`Realizo, Nombre:  ${formulation.verifit.name} `).style(styleUser);
 
         worksheet.cell(row, 8, row, 9, true).string("Firma:  ").style(styleUser);
 
@@ -836,7 +836,7 @@ export default class Excel4Node{
                 horizontal: 'center',//alineamiento del texto
             }
         });
-        worksheet.cell(4, 5, 4, 8, true).string(`Nombre:  ${user.name} ${user.firstSurname} ${user.lastSurname}`).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre:  ${user.name} `).style(styleUser);// hereda el estilo de styleUser, añadir otro .style({}) para añadir mas estilos solo para este elemento
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
         worksheet.cell(6, 5, 6, 8, true).string(`Puesto:  ${user.job}`).style(styleUser);
   
@@ -1034,7 +1034,7 @@ export default class Excel4Node{
             row+=2;
        
 
-        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} ${userElaborated.firstSurname}, ${userElaborated.lastSurname}`).style(styleUser);
+        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} `).style(styleUser);
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobElaborated}`).style(style);
 
@@ -1042,7 +1042,7 @@ export default class Excel4Node{
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobCheck ? ovenProduct.jobCheck : " " }`).style(style); 
 
-        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} ${userVerify.firstSurname}, ${userVerify.lastSurname}`).style(styleUser);
+        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} `).style(styleUser);
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.nameVerify}`).style(style); 
 
@@ -1135,7 +1135,7 @@ export default class Excel4Node{
                 horizontal: 'center',
             }
         });
-        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data.make ? data.make.name+" "+data.make.firstSurname+" "+data.make.lastSurname : "" }`).style(styleUser);
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${data.make ? data.make.name: "" }`).style(styleUser);
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
         worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${data.make ? data.make.job : "" }`).style(styleUser);
   
@@ -1177,7 +1177,7 @@ export default class Excel4Node{
             worksheet.cell(row+6, col+5, row+6, col+5, true).string(` ${!data.paking ? "xxx" : ""} `).style(style);
             worksheet.cell(row+6, col+6, row+6, col+7, true).string(`  `).style(style);
 
-           worksheet.cell(row+8, 3, row+8, 5, true).string(`Verifico:  ${data.verifit == null ? "": data.verifit.name} ${data.verifit == null ? "": data.verifit.firstSurname} ${data.verifit == null ? "": data.verifit.lastSurname}`).style(styleUser);
+           worksheet.cell(row+8, 3, row+8, 5, true).string(`Verifico:  ${data.verifit == null ? "": data.verifit.name} `).style(styleUser);
            worksheet.cell(row+8, 6, row+8, 7, true).string("Firma:  ").style(styleUser);
            worksheet.cell(row+8, 8, row+8, 10, true).string(`Puesto:  ${data.verifit == null ? "": data.verifit.job}`).style(styleUser);
            worksheet.cell(row+9, 9, row+9, 10, true).string("F-CAL-RO-03").style(styleUser);
@@ -1354,7 +1354,7 @@ export default class Excel4Node{
         worksheet.cell(26, 3, 26, 10, true).string("Etiqueta").style(style);
         worksheet.cell(27, 3, 37, 10, true).string("").style(style);
 
-        worksheet.cell(38, 3, 38, 7, true).string(`Realizó:  ${user.name} ${user.firstSurname} ${user.lastSurname}`).style(styleUser);
+        worksheet.cell(38, 3, 38, 7, true).string(`Realizó:  ${user.name} `).style(styleUser);
         worksheet.cell(38, 8, 38, 10, true).string("Firma:  ").style(styleUser);
            
         return workbook;
@@ -1448,7 +1448,7 @@ export default class Excel4Node{
                 horizontal: 'center',
             }
         });
-        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${user.name +" "+user.firstSurname+" "+user.lastSurname}`).style(styleUser);
+        worksheet.cell(4, 5, 4, 8, true).string(`Nombre: ${user.name }`).style(styleUser);
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
         worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${user.job }`).style(styleUser);
   

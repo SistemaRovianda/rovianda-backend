@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Cooling } from '../Models/Entity/Cooling';
+import { Raw } from '../Models/Entity/Raw';
 export class CoolingRepository{
     private coolingRepository:Repository<Cooling>;
 
@@ -31,6 +32,8 @@ export class CoolingRepository{
             where: {status: `${status}`},
         });
     }
+
+   
 
     async getCoollingByFridgeGroup(fridgeId:number,status:string){
         await this.getConnection();

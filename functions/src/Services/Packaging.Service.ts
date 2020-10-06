@@ -273,7 +273,7 @@ export class PackagingService{
                     presentationId : `${presentations[j].presentation.id}`,
                     presentation : `${presentations[j].presentation.presentation}`,
                     typePresentation : `${presentations[j].presentation.presentationType}`,
-                    pricePresentation : `${presentations[j].presentation.presentationPrice}`
+                    pricePresentation : `${presentations[j].presentation.presentationPricePublic}`
                 });
             }
             response.push({ 
@@ -397,7 +397,7 @@ export class PackagingService{
                 orderId: `${i.id}`,
                 date: `${i.date}`,
                 userId: `${i.user ? i.user.id : ""}`,
-                vendedor: `${i.user ? i.user.name : ""} ${i.user ? i.user.firstSurname : ""} ${i.user ? i.user.lastSurname : ""}`,
+                vendedor: `${i.user ? i.user.name : ""} `,
                 status: `${i.status}`
             })
         });

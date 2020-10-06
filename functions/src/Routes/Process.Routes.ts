@@ -25,12 +25,19 @@ export const processRoutes: Array<routeInterface> = [
         target:"createDefrost"
     },
     {
+        url:"/rovianda/defrost/:defrostId",
+        method:"get",
+        controller:ProcessController,
+        target:"getDefrostDetails"
+    }
+    ,
+    {
         url: "/rovianda/defrost/:defrostId", //rovianda/process/:processId
         method: "put",  // path to put
         controller: ProcessController,
         target: "updateDefrostHourAndDate"
     },{
-        url: "/rovianda/defrost/getactive",
+        url: "/rovianda/defrost-getactive",
         method: "get",
         controller: ProcessController,
         target: "getAllDefrostActive"

@@ -37,7 +37,7 @@ export class MaintenanceService{
                 description: `${i.description}`,
                 maintenanceId: `${i.id}`,
                 userId: `${i.user.id}`,
-                user: `${i.user.name} ${i.user.firstSurname} ${i.user.lastSurname}`
+                user: `${i.user.name} `
               }
             );
         });
@@ -55,7 +55,7 @@ export class MaintenanceService{
             description: `${maintenance.description}`,
             maintenanceId: `${maintenance.id}`,
             userId: `${maintenance.user.id}`,
-            user: `${maintenance.user.name} ${maintenance.user.firstSurname} ${maintenance.user.lastSurname}`
+            user: `${maintenance.user.name} `
         }
         return response
     }

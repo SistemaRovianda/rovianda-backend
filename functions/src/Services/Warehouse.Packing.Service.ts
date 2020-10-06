@@ -140,12 +140,12 @@ export class WarehousePackingService{
         return response;
     }
 
-    async getLotsPackingByProduct(productId:number){
+    async getLotsPackingByProduct(productId:number,status:string){
         if(!productId) throw new Error(`[400], productId is required`);
         let product:Product = await this.productRepository.getProductById(productId);
         if(!product) throw new Error(`[400], productId is required`);
         let response:any = [];
-        let lot:WarehousePacking[] = await this.warehousePackingRepository.findLotsPackingByProduct(product);
+        let lot:WarehousePacking[] = await this.warehousePackingRepository.findLotsPackingByProduct(product,status);
         lot.forEach( i => {
             response.push({
                 warehouseId: `${i.id}`,

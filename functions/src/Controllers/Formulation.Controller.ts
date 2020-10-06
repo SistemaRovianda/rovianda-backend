@@ -35,4 +35,9 @@ export class FormulationController {
         let response = await this.formulationService.getAllLotMeatByProductId(+req.query.rawMaterialId,req.query.status)
         return res.status(200).send(response);
     }
+
+    async getFormulationDetails(req:Request,res:Response){
+        let formulationId:number = +req.params.formulationId;
+        return res.status(200).send(await this.formulationService.getDetails(formulationId));
+    }
 }

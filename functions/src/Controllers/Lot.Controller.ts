@@ -8,6 +8,7 @@ import { TYPE, LOTESTATUS, LotMeatOutput } from '../Models/Enum/Type.Lot';
 import { OutputsCoolingService } from '../Services/Outputs.Cooling.Service';
 import { FormulationService } from '../Services/Formulation.Service';
 import { FomulationByProductRovianda } from '../Models/DTO/FormulationDTO';
+import { CoolingStatus } from '../Models/Enum/CoolingStatus';
 export class LotController{
 
     
@@ -84,17 +85,25 @@ export class LotController{
     }
 
     async getAllLotsByProduct(req:Request,res:Response){
-        let {type} = req.query;
+        let {type,status} = req.query;
+
         let response = null;
         if(TYPE.DRIEF == type){
-            let wareHouseDriefStatus = await this.warehouseDriefService.getLotsByProduct(+req.params.productId);
+            let wareHouseDriefStatus = await this.warehouseDriefService.getLotsByProduct(+req.params.productId,status);
             response = wareHouseDriefStatus;
         }
         if(TYPE.PACKING == type){
-            let wareHousePackingStatus = await this.warehousePackingService.getLotsPackingByProduct(+req.params.productId);
+            let wareHousePackingStatus = await this.warehousePackingService.getLotsPackingByProduct(+req.params.productId,status);
             response= wareHousePackingStatus;
         }
         return res.status(200).send(response);
+    }
+
+    async getAllLotsCoolingAvailables(req:Request,res:Response){
+        let rawMaterialId:number = req.query.rawMaterialId;
+        let status:string = req.query.status;
+        let result = await this.coolingService.getCoollingByStatus(status,rawMaterialId);
+        return res.status(200).send(result);
     }
 
 }

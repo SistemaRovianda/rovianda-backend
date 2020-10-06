@@ -16,8 +16,14 @@ export class PresentationProducts {
     @Column({ name: "type_presentation" })
     presentationType: string;
 
-    @Column({ name: "price_presentation" })
-    presentationPrice: string;
+    @Column({ name: "price_presentation_public" ,type:"float"})
+    presentationPricePublic: number;
+
+    @Column({ name: "price_presentation_min" ,type:"float"})
+    presentationPriceMin: number;
+
+    @Column({ name: "price_presentation_liquidation" ,type:"float"})
+    presentationPriceLiquidation: number;
 
     @Column()
     status: boolean;
@@ -25,13 +31,8 @@ export class PresentationProducts {
     @OneToMany(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.presentation)
     propertiesPackaging: PropertiesPackaging[];
 
-    @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.presentationProducts)
-    @JoinTable({
-        name: "products_rovianda_presentation",
-        joinColumn: {name: "presentation_id"},
-        inverseJoinColumn: {name: "product_id"}
-    })
-    productsRovianda: ProductRovianda[];
+    @ManyToOne(type => ProductRovianda, productRovianda => productRovianda.presentationProducts)
+    productsRovianda: ProductRovianda;
 
     @OneToMany(type=> SubOrder,subOrder=>subOrder.presentation,{eager:false})
     saleRequest: SubOrder[];

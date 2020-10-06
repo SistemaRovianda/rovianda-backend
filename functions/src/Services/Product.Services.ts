@@ -13,11 +13,8 @@ export class ProductService{
 
     async getAllProducts(type:string){
 
-        if(type==TYPE.DRIEF )
-            return await this.productRepository.getAllProductsDrief(TYPE.DRIEF);
-        
-        if(type == TYPE.PACKING){
-            return await this.productRepository.getAllProductsPacking(TYPE.PACKING);
+        if(type==TYPE.DRIEF || type==TYPE.PACKING){
+            return await this.productRepository.getAllProductsDriefPacking(TYPE.DRIEF);
         }else{
             throw new Error("[400], type parameter has a invalid value")
         }
@@ -33,7 +30,7 @@ export class ProductService{
                 let productToSave = new Product();   
                 console.log("inicio")
                 productToSave.description = description;
-                //productToSave.type = type;
+                productToSave.type = type;
                 console.log("creando")
                 return await this.productRepository.createProduct(productToSave);
             }else{

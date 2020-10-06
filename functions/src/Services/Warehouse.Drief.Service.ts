@@ -175,12 +175,12 @@ export class WarehouseDriefService{
         return await this.warehouseDriefRepository.getWarehouseDriefReport(dateInit,dateEnd);
     }
 
-    async getLotsByProduct(productId:number){
+    async getLotsByProduct(productId:number,status:string){
         if(!productId) throw new Error(`[400], productId is required`);
         let product:Product = await this.productRepository.getProductById(productId);
         if(!product) throw new Error(`[400], productId is required`);
         let response:any = [];
-        let lot:WarehouseDrief[] = await this.warehouseDriefRepository.findLotsByProduct(product);
+        let lot:WarehouseDrief[] = await this.warehouseDriefRepository.findLotsByProduct(product,status);
         lot.forEach( i => {
             response.push({
                 warehouseId: `${i.id}`,

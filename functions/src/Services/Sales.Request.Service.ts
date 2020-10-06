@@ -1,7 +1,7 @@
 import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
-import { OrderSellerRequest, SaleOrderDTO } from '../Models/DTO/Sales.ProductDTO';
+import { OrderSellerRequest, SaleOrderDTO, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
@@ -13,7 +13,7 @@ import { SalesSellerRepository } from '../Repositories/SaleSeller.Repository';
 import {validateOrderSeller} from "../Utils/Validators/OrderSellerValidator";
 import {PackagingRepository} from "../Repositories/Packaging.Repository";
 import {SellerInventoryRepository} from "../Repositories/Seller.Inventory.Repository";
-import { ClientsBySeller, ClientDTO } from '../Models/DTO/Client.DTO';
+import { ClientsBySeller, ClientDTO, ClientSAE } from '../Models/DTO/Client.DTO';
 import { ClientRepository } from '../Repositories/Client.Repository';
 import { DebtsRepository } from '../Repositories/Debts.Repository';
 import { SellerOperation } from '../Models/Entity/Seller.Operations';
@@ -25,6 +25,11 @@ import { SaleRepository } from '../Repositories/Sale.Repository';
 import { times } from 'lodash';
 import { SubSaleRepository } from '../Repositories/SubSale.Repository';
 import { SubSales } from '../Models/Entity/Sub.Sales';
+import { SqlSRepository } from '../Repositories/SqlS.Repositoy';
+import { UserDTO } from '../Models/DTO/UserDTO';
+import { Roles } from '../Models/Entity/Roles';
+import { RolesRepository } from '../Repositories/Roles.Repository';
+import { FirebaseHelper } from '../Utils/Firebase.Helper';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -39,7 +44,9 @@ export class SalesRequestService{
     private sellerOperationRepository:SellerOperationRepository;
     private saleRepository:SaleRepository;
     private subSalesRepository:SubSaleRepository;
-    constructor(){
+    private sqlsRepository:SqlSRepository;
+    private rolesRepository:RolesRepository;
+    constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -52,6 +59,8 @@ export class SalesRequestService{
         this.sellerOperationRepository = new SellerOperationRepository();
         this.saleRepository = new SaleRepository();
         this.subSalesRepository = new SubSaleRepository();
+        this.sqlsRepository = new SqlSRepository();
+        this.rolesRepository = new RolesRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -226,7 +235,7 @@ export class SalesRequestService{
         response.push({
           description: `${subSales[i].product ? subSales[i].product.name : ""}`,
           quantity: subSales[i].quantity,
-          price: subSales[i].presentation ? subSales[i].presentation.presentationPrice : "",
+          price: subSales[i].presentation ? subSales[i].presentation.presentationPricePublic : "",
           amount: subSales[i].amount
         })
       }
@@ -270,7 +279,7 @@ export class SalesRequestService{
           response.push({
             description: `${subSales[c].product ? subSales[c].product.name : ""}`,
             quantity: subSales[c].quantity,
-            price: subSales[c].presentation ? subSales[c].presentation.presentationPrice : "",
+            price: subSales[c].presentation ? subSales[c].presentation.presentationPricePublic : "",
             amount: subSales[c].amount
           })
         }
@@ -278,7 +287,7 @@ export class SalesRequestService{
         response3.push({
           numConsecutive: i+1,
           invoice: sale[i].saleId,
-          nameClient: sale[i].client ? sale[i].client.name + " "+sale[i].client.firstSurname+" "+sale[i].client.lastSurname : "",
+          nameClient: sale[i].client ? sale[i].client.name : "",
           client: sale[i].client ? sale[i].client.id : "",
           amountTot: tot,
           sale: response,
@@ -368,17 +377,53 @@ export class SalesRequestService{
        return response;
      }
 
-     async getAllSellerClientsBySellerUid(sellerUid:string,hint:string){
+     async getAllSellerClientsBySellerUid(sellerUid:string,hint:number){
         let seller:User = await this.userRepository.getUserById(sellerUid);
         if(!seller) throw new Error("[404], no existe el usuario vendedor");
-        if(!hint.length){
+        if(hint>0){
         return await this.clientRepository.getAllClientBySeller(seller);
         }else{
           return await this.clientRepository.getAllClientBySellerAndHint(seller,hint);
         }
      }
 
-     
+     async createSeller(userDTO:UserDTO){
+        let rol:Roles = await this.rolesRepository.getRoleById(userDTO.rolId);
+        let user:User= new User();
+        user.name = userDTO.name;
+        user.email = userDTO.email;
+        user.job = userDTO.job;
+        user.roles = rol;
+        user.saeKey = userDTO.clave;
+        await this.firebaseHelper.createUser(userDTO).then(async(userRecord)=>{
+          user.id= userRecord.uid;
+          await this.userRepository.saveUser(user);
+          return await this.sqlsRepository.createSeller(userDTO);
+        });        
+     }
+    
+    async createSaleSae(saleRequestForm:SaleRequestForm){
+
+      let seller:User = await this.userRepository.getUserById(saleRequestForm.sellerId);
+      let alreadyActive = await this.sqlsRepository.getSellerActive(seller.saeKey);
+      if(!alreadyActive.recordset.length) throw new Error("[409], el vendedor no esta activo en SAE");
+      let client = await this.sqlsRepository.getClientsByKey(saleRequestForm.keyClient);
+      if(!client.recordset.length) throw new Error("[404], no existe el cliente en SAE");
+      let clientSAE:ClientSAE = client.recordset[0] as ClientSAE;
+      
+     for(let sale of saleRequestForm.products){
+        let impu=await this.sqlsRepository.getTaxSchemeById(sale.taxSchema);
+        if(!impu.recordset.length) throw new Error("[404], no existe ese esquema de impuesto");
+     }
+     console.log(seller.saeKey);
+      return await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+
+    }
+
+    async getAllTaxSchemas(){
+      return await this.sqlsRepository.getAllTaxSchemas();
+    }
+
   }
 
   

@@ -34,16 +34,16 @@ export class Formulation {
     @ManyToOne(type=>User, make=>make.formulationMake, {eager:true, onDelete:"SET NULL"})
     make:User;
 
-    @OneToMany(type => FormulationIngredients, ingredients => ingredients.formulation,{eager:true,cascade:true})
-    formulationIngredients: FormulationIngredients[];
+    @OneToMany(type => FormulationIngredients, ingredients => ingredients.formulation,{cascade:true})
+    ingredients: FormulationIngredients[];
 
     @Column()
     status:string;
 
-    @OneToMany(type=>DefrostFormulation,defrost=>defrost.formulation,{cascade:true})
+    @OneToMany(type=>DefrostFormulation,defrost=>defrost.formulation,{eager:true,cascade:true})
     defrosts:DefrostFormulation[];
 
-    @OneToOne(type=>Process)
+    @OneToOne(type=>Process,process=>process.formulation)
     process:Process;
 
     @Column({name:"lot_day"})

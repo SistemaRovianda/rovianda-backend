@@ -28,11 +28,11 @@ export class ProductRovianda {
     @Column()
     status: boolean;
 
-    @ManyToMany(type => Product, product => product.productRovianda)
+    @ManyToMany(type => Product, product => product.productRovianda,{cascade:true})
     @JoinTable({name:"ingredients"})
     ingredients: Product[];
 
-    @ManyToMany(type => PresentationProducts, presentationProducts => presentationProducts.productsRovianda)
+    @OneToMany(type => PresentationProducts, presentationProducts => presentationProducts.productsRovianda,{cascade:true})
     presentationProducts: PresentationProducts[];
 
     @OneToMany(type => Packaging, packaging => packaging.productId)
