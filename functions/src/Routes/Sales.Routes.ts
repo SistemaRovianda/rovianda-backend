@@ -3,10 +3,16 @@ import { SalesRequestController } from '../Controllers/Sales.Controller';
 
 export const salesRoutes:Array<routeInterface>=[
     {
-        url: "/rovianda/test/seller",
+        url: "/rovianda/sae/seller",
         method: "post",
         controller: SalesRequestController,
         target: "createSeller"
+    },
+    {
+        url: "/rovianda/sae/seller-count",
+        method:"get",
+        controller: SalesRequestController,
+        target: "getSellerCountKey"
     },
     {
         url:"/rovianda/packaging",

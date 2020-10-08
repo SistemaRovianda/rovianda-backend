@@ -25,4 +25,9 @@ export class DefrostRepository{
         await this.getConnection();
         return await this.repository.find({status:"ACTIVE"});
     }
+
+    async getAllInactive(){
+        await this.getConnection();
+        return await this.repository.find({status:"INACTIVE"});
+    }
 }

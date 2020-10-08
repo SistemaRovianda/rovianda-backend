@@ -389,4 +389,17 @@ export class SqlSRepository{
         await this.connection.close();
         return result.recordset;
     }
+
+    async getSellerCount(){
+        await this.getConnection();
+        let result = await this.connection.connect().then(
+            pool=>pool.request().query(
+                `
+                select TOP 1 CVE_VEND FROM VEND01 ORDER BY CVE_VEND DESC
+                `
+            )
+        )
+        await this.connection.close();
+        return result.recordset;
+    }
 }

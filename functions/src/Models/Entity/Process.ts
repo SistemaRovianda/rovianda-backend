@@ -14,7 +14,7 @@ export class Process{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @ManyToOne(type => ProductRovianda,productR=>productR.process)
+    @ManyToOne(type => ProductRovianda,productR=>productR.process,{eager:true})
     @JoinColumn({name:"product_rovianda_id"})
     product:ProductRovianda;
     

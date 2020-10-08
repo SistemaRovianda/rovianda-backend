@@ -9,7 +9,7 @@ export class OutputsCooling{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @ManyToOne(type=>Raw, raw=>raw.outputsCoolings, { onDelete:"SET NULL"})
+    @ManyToOne(type=>Raw, raw=>raw.outputsCoolings, {eager:true, onDelete:"SET NULL"})
     rawMaterial:Raw;
 
     @Column({name:"output_date"})

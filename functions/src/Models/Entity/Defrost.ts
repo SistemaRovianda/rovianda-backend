@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { DefrostFormulation } from "./Defrost.Formulation";
 import { OutputsCooling } from "./outputs.cooling";
 
 @Entity({name:"defrost"})
@@ -31,5 +32,8 @@ export class Defrost{
 
     @Column()
     status:string;
+
+    @OneToMany(type=>DefrostFormulation,defrostFormulation=>defrostFormulation.defrost)
+    defrostFormulations:DefrostFormulation[]
 
 }

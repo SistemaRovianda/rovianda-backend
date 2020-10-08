@@ -15,19 +15,21 @@ import { ProcessService } from './Process.Service';
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 import { Defrost } from '../Models/Entity/Defrost';
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
+import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
+import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
 
 
 export class ConditioningService{
     private conditioningRepository:ConditioningRepository;
     private processRepository:ProcessRepository;
-    private defrostRepository:DefrostRepository;
+    private defrostFormulationRepository:DefrostFormulationRepository;
     private formulationService:FormulationService;
     private formulationRepository:FormulationRepository;
     
     constructor(){
         this.conditioningRepository = new ConditioningRepository();
         this.processRepository = new ProcessRepository();
-        this.defrostRepository = new DefrostRepository();
+        this.defrostFormulationRepository = new DefrostFormulationRepository();
         this.formulationService = new FormulationService();
         this.formulationRepository = new FormulationRepository();
     }
@@ -45,7 +47,7 @@ export class ConditioningService{
         process.createAt = date;
         return await this.processRepository.saveProcess(process);
     }
-    async createConditioningByProcessId(conditioningsDTO:Array<ConditioningDTO>, formulationId:number){
+    async createConditioningByFormulationId(conditioningsDTO:Array<ConditioningDTO>, formulationId:number){
     for(let conditioningDTO of conditioningsDTO ){
         if (conditioningDTO.bone == null)  throw new Error("[400],bone is required");
         if (conditioningDTO.clean == null)  throw new Error("[400],clean is required");
@@ -62,14 +64,15 @@ export class ConditioningService{
         }else{
             process = await this.createProcessInter();
             process.formulation = formulation;
+            process.product = formulation.productRovianda;
         }
     
     if(!formulation) throw new Error("[400], no existe esa formulación");
     if(formulation.status=="TAKED") throw new Error("[400], formulacion ya asignada");
     formulation.status="TAKED";
-    let defrost:Defrost = await this.defrostRepository.getDefrostById(conditioningDTO.defrostId);
+    let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(conditioningDTO.defrostId);
     let conditioning :Conditioning = new Conditioning();
-    conditioning.raw = defrost.outputCooling.rawMaterial.rawMaterial;
+    conditioning.raw = defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial;
     conditioning.bone = conditioningDTO.bone;
     conditioning.clean = conditioningDTO.clean;
     conditioning.healthing = conditioningDTO.healthing;
@@ -77,7 +80,7 @@ export class ConditioningService{
     conditioning.temperature = conditioningDTO.temperature;
     conditioning.productId = formulation.productRovianda;
     conditioning.date = conditioningDTO.date;
-    conditioning.lotId  = defrost.outputCooling.loteInterno
+    conditioning.lotId  = defrostFormulation.defrost.outputCooling.loteInterno
             await this.formulationService.updateFormulation(formulation);
             process.currentProcess = "Acondicionamiento ";
             if(process.conditioning && process.conditioning.length){

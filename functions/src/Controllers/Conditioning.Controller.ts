@@ -21,8 +21,8 @@ export class ConditioningController{
         this.productService = new ProductService();
     }
 
-    async createConditioningByProcessId(req:Request, res:Response){
-        await this.conditionigService.createConditioningByProcessId(req.body,+req.params.formulationId);
+    async createConditioningByFormulationId(req:Request, res:Response){
+        await this.conditionigService.createConditioningByFormulationId(req.body,+req.params.formulationId);
         return res.status(201).send();
     }
 

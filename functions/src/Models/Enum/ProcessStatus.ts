@@ -16,7 +16,6 @@ export interface ProcessAvailablesByLots{
 }
 
 export interface LotsAvailablesByProcess{
-    lotId:string;
     dateEndedProcess:string;
     recordId:number;
 }

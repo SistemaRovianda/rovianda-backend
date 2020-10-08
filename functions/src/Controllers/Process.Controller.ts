@@ -231,4 +231,8 @@ export class ProcessController {
         let defrostId:number = +req.params.defrostId;
         return res.status(200).send(await this.processService.getDefrost(defrostId));
     }
+
+    async getAllInactiveDefrost(req:Request,res:Response){
+        return res.status(200).send(await this.processService.getAllDefrostInactive());
+    }
 }

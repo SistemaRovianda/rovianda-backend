@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Defrost } from "./Defrost";
 import { Formulation } from "./Formulation";
 
@@ -7,10 +7,9 @@ import { Formulation } from "./Formulation";
 export class DefrostFormulation{
 
     @PrimaryGeneratedColumn({name:"defrost_formulation_id"})
-    desfrotFormulationId:number;
+    defrostFormulationId:number;
 
-    @OneToOne(type=>Defrost)
-    @JoinColumn({name:"defrost_id"})
+    @ManyToOne(type=>Defrost,{eager:true})
     defrost:Defrost;
 
     @Column({name:"lot_meat"})

@@ -27,12 +27,14 @@ export const formulationRoutes: Array<routeInterface>=[
         method: "get",
         controller: FormulationController,
         target: "getFormulationByRawMaterial"
-    },{
-        url: "/rovianda/process/lote/meat",
-        method: "get",
-        controller: FormulationController,
-        target: "getAllFormulationLoteMeat"
-    },{
+    },
+    // {
+    //     url: "/rovianda/process/lote/meat",
+    //     method: "get",
+    //     controller: FormulationController,
+    //     target: "getAllFormulationLoteMeat"
+    // },
+    {
         url: "/rovianda/lote/meat/process",
         method: "get",
         controller: FormulationController,

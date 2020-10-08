@@ -390,7 +390,7 @@ export class SalesRequestService{
      async createSeller(userDTO:UserDTO){
         let rol:Roles = await this.rolesRepository.getRoleById(userDTO.rolId);
         let user:User= new User();
-        user.name = userDTO.name;
+        user.name = userDTO.name +" "+ userDTO.firstName+" "+userDTO.lastName;
         user.email = userDTO.email;
         user.job = userDTO.job;
         user.roles = rol;
@@ -422,6 +422,15 @@ export class SalesRequestService{
 
     async getAllTaxSchemas(){
       return await this.sqlsRepository.getAllTaxSchemas();
+    }
+
+    async getSellerCount(){
+      let result= await this.sqlsRepository.getSellerCount();
+      if(!result.length){
+        return {count:1}
+      }else{
+        return {count:(+result[0].CVE_VEND)+1}
+      }
     }
 
   }

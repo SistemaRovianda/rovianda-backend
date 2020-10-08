@@ -96,7 +96,10 @@ export class ProcessService{
     }
 
     async getAllDefrostActive(){
-        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
+        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,rawMaterial:x.outputCooling.rawMaterial.rawMaterial,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
+    }
+    async getAllDefrostInactive(){
+        return (await this.defrostRepository.getAllInactive()).map((x)=>({lotId:x.outputCooling.loteInterno,rawMaterial:x.outputCooling.rawMaterial.rawMaterial,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
     }
 
     async updateProcessProperties(process:Process){
@@ -110,8 +113,8 @@ export class ProcessService{
         process.forEach(i => {
             response.push({
                 processId:`${i.id}`,
-                productName: `${i.product ? i.product.name : ""}`,
-                lotes: i.formulation.defrosts.map((x)=>{return {loteId:x.lotMeat,rawMaterial:x.defrost.outputCooling.rawMaterial.rawMaterial,outputId:x.desfrotFormulationId}}),
+                productName: `${i.product.name}`,
+                lotes: i.formulation.defrosts.map((x)=>{return {loteId:x.lotMeat,rawMaterial:x.defrost.outputCooling.rawMaterial.rawMaterial,outputId:x.defrostFormulationId}}),
                 date: `${i.startDate}`,
                 currentProccess: `${i.currentProcess}`,
                 start_date: `${i.startDate}`,
@@ -209,13 +212,13 @@ export class ProcessService{
         for(let process of processAvailables){
             if(processAvailableMap.get(process.productId)==null){
                 processAvailableMap.set(process.productId,{
-                        lots:[{recordId:process.recordId,lotId:process.lotId,dateEndedProcess:process.dateEndedProcess}],
+                        lots:[{recordId:process.recordId,dateEndedProcess:process.dateEndedProcess}],
                         productId: process.productId,
                         productName: process.productName
                 });
             }else{
                 let processMapped = processAvailableMap.get(process.productId);
-                processMapped.lots.push({recordId:process.recordId,lotId:process.lotId,dateEndedProcess:process.dateEndedProcess});
+                processMapped.lots.push({recordId:process.recordId,dateEndedProcess:process.dateEndedProcess});
                 processAvailableMap.set(process.productId,processMapped);
             }
         }
@@ -224,6 +227,7 @@ export class ProcessService{
         return processAvailablesByLots;
     }
 
+  
     async getFormulationOfProcess(processId:number){
         let process:Process = await this.processRepository.getProcessById(processId);
         if(!process){

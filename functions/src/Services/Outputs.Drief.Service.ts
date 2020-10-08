@@ -92,7 +92,7 @@ export class OutputsDriefService {
             //let productOpen:WarehouseDrief[] = await this.warehouseDriefRep.getByProductIdAndStatus(lotsId[i],"OPENED");
             
                 console.log("pasa")
-                let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByProductAndStatus(product,"NOTUSED");
+                let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByProductAndStatus(product,"UNUSED");
                 console.log(outputsDrief)
                 if(outputsDrief[0]){
                     outputsDrief.forEach(e => {

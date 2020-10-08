@@ -41,7 +41,14 @@ export const processRoutes: Array<routeInterface> = [
         method: "get",
         controller: ProcessController,
         target: "getAllDefrostActive"
-    },{
+    },
+    {
+        url: "/rovianda/defrost-getinactive",
+        method: "get",
+        controller: ProcessController,
+        target: "getAllInactiveDefrost"
+    }
+    ,{
         url: "/rovianda/defrost/:defrostId",
         method: "patch",
         controller: ProcessController,
@@ -66,7 +73,7 @@ export const processRoutes: Array<routeInterface> = [
         url: "/rovianda/process/conditioning/:formulationId",
         method: "post",
         controller: ConditioningController,
-        target: "createConditioning"
+        target: "createConditioningByFormulationId"
     }, {
         url: "/rovianda/process/injection-tenderized/:processId",
         method: "post",

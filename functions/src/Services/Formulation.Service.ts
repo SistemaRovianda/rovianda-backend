@@ -73,6 +73,7 @@ export class FormulationService {
             if(!defrost) throw new Error("[409], no existe el lote en descongelamiento");
             if(defrost.status=="TAKED") throw new Error("[409], el lote de descongelamiento ya fue tomado");
             defrost.status ="TAKED";
+            await this.defrostRepository.saveDefrost(defrost);
             let defrostFormulation:DefrostFormulation=new DefrostFormulation();
             defrostFormulation.defrost=defrost;
             defrostFormulation.lotMeat = defrost.outputCooling.loteInterno;
@@ -85,6 +86,7 @@ export class FormulationService {
             if(!outputDrief) throw new Error("[404], no existe la salida de ingredientes");
             if(outputDrief.status=="USED") throw new Error("[404],  la salida de ingredientes ya ha sido utilizada con el id: "+ingredient);
             outputDrief.status ="USED";
+            await this.outputsDriedRepository.createOutputsDrief(outputDrief);
             let formulationIngredient:FormulationIngredients=new FormulationIngredients();
             formulationIngredient.lotId = outputDrief;
             formulationIngredient.product=outputDrief.product;

@@ -140,8 +140,8 @@ export class ProductRoviandaService{
     async createProductRovianda(productRoviandaDTO:any,productImage:any){
         productRoviandaDTO = JSON.parse(JSON.stringify(productRoviandaDTO));
         
-        if(!productRoviandaDTO.keyProduct) throw new Error("[400],code is required");
-        if(!productRoviandaDTO.nameProduct) throw new Error("[400],code is required");
+        if(!productRoviandaDTO.keyProduct) throw new Error("[400],keyProduct is required");
+        if(!productRoviandaDTO.nameProduct) throw new Error("[400],nameProduct is required");
         //if(!productRoviandaDTO.ingredients[) throw new Error("[400],ingredients is required");
         if(!productRoviandaDTO.presentations.length) throw new Error("[400],presentations is required");
         
@@ -181,9 +181,9 @@ export class ProductRoviandaService{
             
         
         for (let i = 0; i < presentations.length; i++) {
-            if(!presentations[i].presentation) throw new Error("[400],productId is required");
+            if(!presentations[i].presentation) throw new Error("[400],presentation is required");
             if(!presentations[i].pricePresentationPublic) throw new Error("[400],productId is required");
-            if(!presentations[i].typePresentation) throw new Error("[400],productId is required");
+            if(!presentations[i].typePresentation) throw new Error("[400],typePresentation is required");
             
             
 

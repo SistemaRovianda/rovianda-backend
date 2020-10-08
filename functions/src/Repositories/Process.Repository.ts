@@ -38,7 +38,7 @@ export class ProcessRepository{
         console.log("consulta")
         return await this.processRepository.find({
             where: {status},
-            relations:["product","meatProcess"]
+            relations:["product"]
         });
     }
 
@@ -155,9 +155,9 @@ export class ProcessRepository{
     async getAllProcessAvailable(){
         await this.getConnection();
         return await this.processRepository.query(`
-        select pro.id as recordId,pro.lote_interno as lotId,pro.product_rovianda_id as productId,pr.name as productName,pro.date_ended_process as dateEndedProcess
+        select pro.id as recordId,pro.product_rovianda_id as productId,pr.name as productName,pro.end_date as dateEndedProcess
          from process as pro inner join products_rovianda as pr on pro.product_rovianda_id = pr.id 
-         where pro.status="INACTIVE" order by pro.lote_interno,pro.product_rovianda_id
+         where pro.status="INACTIVE" order by pro.product_rovianda_id
         `) as ProcessAvailablesToOven[];
     }
 

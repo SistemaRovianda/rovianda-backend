@@ -144,4 +144,8 @@ export class SalesRequestController{
         return res.status(200).send(result);
     }
 
+    async getSellerCountKey(req:Request,res:Response){
+        return res.status(200).send(await this.salesRequestService.getSellerCount());
+    }
+
 } 
