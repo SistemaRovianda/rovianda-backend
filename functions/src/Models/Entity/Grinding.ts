@@ -15,8 +15,8 @@ export class Grinding{
     @JoinColumn({name:"raw_id"})
     raw:Raw;
 
-    @Column()
-    process:string;
+    @ManyToOne(type => Process, process => process.grinding)
+    process:Process;
 
     @Column()
     weight:string;

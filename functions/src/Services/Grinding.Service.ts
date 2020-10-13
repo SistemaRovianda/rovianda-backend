@@ -68,7 +68,7 @@ export class GrindingService{
         let defrost:Defrost = await this.defrostRepository.getDefrostById(grindingForm.defrostId);
         
             let grinding = new Grinding();
-            grinding.process = grindingForm.process;
+            grinding.process = processObj;
             grinding.date = grindingForm.date;
             grinding.raw = defrost.outputCooling.rawMaterial;
             grinding.weight = grindingForm.weight;

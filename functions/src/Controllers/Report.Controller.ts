@@ -301,9 +301,7 @@ export class ReportController{
     async reportOven(req:Request, res:Response){
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
         let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
-        let userElaborated:User= await this.userService.getUserByFullName(revisionOven.nameElaborated);
-        let userVerify:User= await this.userService.getUserByFullName(revisionOven.nameVerify); 
-        let report = await this.pdfHelper.reportOven(userElaborated,userVerify,revisionOven,dataRevision);
+        let report = await this.pdfHelper.reportOven(revisionOven,dataRevision);
         pdf.create(report, {
             format: 'Letter',
             zoomFactor: "0",
@@ -330,10 +328,8 @@ export class ReportController{
         
         let revisionOven:OvenProducts = await this.ovenService.getDataReport(req.params.ovenId);
         let dataRevision:RevisionsOvenProducts[] = await this.revisionOvenProductService.getDataReport(revisionOven.id);
-        let userElaborated:User= await this.userService.getUserByFullName(revisionOven.nameElaborated);
-        let userVerify:User= await this.userService.getUserByFullName(revisionOven.nameVerify); 
     
-        let workbook = this.excel.generateOvenProductsDocumentsById(userElaborated,userVerify,revisionOven,dataRevision); 
+        let workbook = this.excel.generateOvenProductsDocumentsById(revisionOven,dataRevision); 
     
         workbook.write(`${tmp}/Reporte-Horno.xlsx`,(err, stats)=>{ 
             if(err){

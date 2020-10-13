@@ -62,7 +62,7 @@ export class Process{
     sausage:Sausaged[];
 
     @OneToOne(type => User)
-    @JoinColumn()
+    @JoinColumn({name: "user_id"})
     userId:User;
 
     @Column({name:"create_at"})

@@ -130,7 +130,6 @@ export class ProcessService{
     async getProcessById(id:number){
         if(!id) throw new Error("[400], processId is required");
         let process = await this.processRepository.findProcessById(id);
-        process
         if(!process) throw new Error("[404], process not found");
         return process;
     }

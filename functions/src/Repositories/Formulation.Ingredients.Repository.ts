@@ -22,7 +22,7 @@ export class FormulatioIngredientsRepository {
         await this.getConnection();
         return await this.formulationIngredientsRepository.find({
             where: {formulationId:formulationId},
-            relations: ["productId"]
+            relations: ["product"]
         });
     }
 
