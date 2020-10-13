@@ -138,7 +138,7 @@ export default class Excel4Node{
 
         
             worksheet.cell(++row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${"formulation.loteInterno"}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.lotDay}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.ingredients[0] ? formulation.ingredients[0].product.description : ""}`).style(style);
@@ -423,11 +423,11 @@ export default class Excel4Node{
 
         // formulationIngredients.forEach((product) => {
             worksheet.cell(row, col, row, ++col, true).string(`${formulation.productRovianda.name}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${"formulation.loteInterno"}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.lotDay}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.temp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.waterTemp}`).style(style);
             worksheet.cell(row, ++col, row, ++col, true).string(`${formulationIngredients[0].product.description}`).style(style);
-            worksheet.cell(row, ++col, row, ++col, true).string(`${formulation.date}`).style(style);
+            worksheet.cell(row, ++col, row, ++col, true).string(`${new Date(formulation.date).toLocaleDateString()}`).style(style);
             for (let i = 1; i < formulationIngredients.length; i++) {
                 col = 4;
                 row++;
@@ -911,7 +911,7 @@ export default class Excel4Node{
     }
 
 
-    generateOvenProductsDocumentsById(userElaborated:User, userVerify: User, ovenProduct:OvenProducts,revisionOven:RevisionsOvenProducts[]){
+    generateOvenProductsDocumentsById(ovenProduct:OvenProducts,revisionOven:RevisionsOvenProducts[]){
         let tmp = os.tmpdir(); 
         var workbook = new excel.Workbook(); 
 
@@ -1034,7 +1034,7 @@ export default class Excel4Node{
             row+=2;
        
 
-        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${userElaborated.name} `).style(styleUser);
+        worksheet.cell(++row, 4,row, 8, true).string(`Elaboró: ${ovenProduct.nameElaborated} `).style(styleUser);
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobElaborated}`).style(style);
 
@@ -1042,9 +1042,9 @@ export default class Excel4Node{
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
         worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobCheck ? ovenProduct.jobCheck : " " }`).style(style); 
 
-        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${userVerify.name} `).style(styleUser);
+        worksheet.cell(++row, 4,row, 8, true).string(`Verificó: ${ovenProduct.nameVerify} `).style(styleUser);
         worksheet.cell(row, 9,row, 10, true).string(`Firma: `).style(styleUser);
-        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.nameVerify}`).style(style); 
+        worksheet.cell(row, 11,row, 13, true).string(`Puesto: ${ovenProduct.jobVerify}`).style(style); 
 
         return workbook;
     }

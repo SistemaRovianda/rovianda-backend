@@ -93,18 +93,18 @@ export const reportRoutes:Array<routeInterface>=[
         controller:ReportController,
         target:"reportOvenByDates"
     },
-    {
-        url:"/rovianda/report/process/:processId",
-        method:"get",
-        controller:ReportController,
-        target:"reportProcess"
+    /* {
+        url: "/rovianda/report/process/:processId",
+        method: "get",
+        controller: ReportController,
+        target: "reportProcess"
     },
     {
         url:"/rovianda/report/document/process/:processId",
         method:"get",
         controller:ReportController,
         target:"reportDocumentProcess"
-    },
+    }, */
     {
         url: "/rovianda/report/document/formulation/:iniDate/:finDate",
         method: "get",

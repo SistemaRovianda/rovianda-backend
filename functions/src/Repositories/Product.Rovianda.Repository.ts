@@ -89,7 +89,12 @@ export class ProductRoviandaRepository {
         return await this.repository.findOne({id});
     }
 
-    
+    async getProductPresentation(id:number){
+        await this.getConnection();
+        return await this.repository.query(`
+        SELECT * FROM presentation_products
+        WHERE productsRoviandaId = ${ id };`);
+    }
 
     async getAllProductRoviandaCatalog(){
         await this.getConnection();

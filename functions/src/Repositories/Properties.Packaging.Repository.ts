@@ -59,7 +59,7 @@ export class PropertiesPackagingRepository{
     async findPropiertiesPackagings(packagingId: Packaging){
         await this.getConnection();
         return await this.propertiesPackaginRepository.find({
-            relations:["presentationId"],
+            relations:["presentation"],
             where:{ packagingId}
         });
     }

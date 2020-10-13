@@ -556,7 +556,7 @@ export default class PdfHelper{
                 <td>${formulation.temp}</td>
                 <td>${formulation.waterTemp}</td>
                 <td>${ingredents[0].product.description}</td>
-                <td>${formulation.date}</td>
+                <td>${new Date(formulation.date).toLocaleDateString()}</td>
             </tr>
         `;
         let content3 = "";
@@ -987,22 +987,22 @@ export default class PdfHelper{
          return content+content2
      }
 
-    footerReportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts){
+    footerReportOven(revisionOven:OvenProducts){
         return `
             <tr>
-                <th colspan="3" class="seg"><font size=1>Elaboró: ${userElaborated.name} </font></th>
+                <th colspan="3" class="seg"><font size=1>Elaboró: ${revisionOven.nameElaborated} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
                 <td colspan="2"><font size=1>Puesto: ${revisionOven.jobElaborated}</font> </td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Revisó: ${userVerify.name} </font></th>
+                <th colspan="3" class="seg"><font size=1>Revisó: ${revisionOven.nameCheck} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td colspan="2"><font size=1><Puesto: ${revisionOven.jobVerify}</font></td>
+                <td colspan="2"><font size=1><Puesto: ${revisionOven.jobCheck}</font></td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Verificó: ${userVerify.name} </font</th>
+                <th colspan="3" class="seg"><font size=1>Verificó: ${revisionOven.nameVerify} </font</th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td colspan="2"><font size=1>Puesto: ${revisionOven.nameVerify}</font></td>
+                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobVerify}</font></td>
             </tr>
        
              <tr>  
@@ -1016,8 +1016,8 @@ export default class PdfHelper{
         `;
     }
 
-     async reportOven(userElaborated:User,userVerify:User,revisionOven:OvenProducts,data:RevisionsOvenProducts[]){
-        let content = this.headReportOven()+this.bodyReportOven(revisionOven,data)+this.footerReportOven(userElaborated,userVerify,revisionOven);
+     async reportOven(revisionOven:OvenProducts,data:RevisionsOvenProducts[]){
+        let content = this.headReportOven()+this.bodyReportOven(revisionOven,data)+this.footerReportOven(revisionOven);
         return content;
     }
  
