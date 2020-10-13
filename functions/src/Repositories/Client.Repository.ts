@@ -20,12 +20,14 @@ export class ClientRepository{
         return await this.clientRepository.save(client);
     }
 
-    async getClientBySeller(sellerUid:string){
+    async getClientBySeller(seller:User){
         await this.getConnection();
-        return await this.clientRepository.query(
-            `select deb.deb_id as debId,cli.client_id as clientId,cli.name as name,cli.first_surname as firstSurname,
-            cli.last_surname as lastSurname,deb.amount,deb.create_day as createDay,deb.days from clients as cli 
-            inner join debts as deb on cli.client_id=deb.client_id where cli.seller_owner="${sellerUid}" and deb.status="ACTIVE";`) as Array<ClientsBySeller>;
+        return await this.clientRepository.find({seller:seller});
+        /*return await this.clientRepository.query(
+            `select deb.deb_id as debId,cli.client_id as clientId,cli.name as name,
+            deb.amount,deb.create_day as createDay,deb.days from clients as cli 
+            inner join debts as deb on cli.client_id=deb.client_id where cli.seller_owner="${sellerUid}" and deb.status=1;`) as Array<ClientsBySeller>;
+            */
     }
 
     async getAllClientBySeller(seller:User){
@@ -46,5 +48,9 @@ export class ClientRepository{
     async findByClientKey(keyClient:number){
         await this.getConnection();
         return await this.clientRepository.findOne({keyClient});
+    }
+    async getClientBySellerAndDebts(seller:User){
+        await this.getConnection();
+        return await this.clientRepository.find({seller,hasDebts:true});
     }
 }

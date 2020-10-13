@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable, JoinColumn } from "typeorm";
 import { PropertiesPackaging } from "./Properties.Packaging";
 import { ProductRovianda } from "./Product.Rovianda";
 import { SubOrder } from "./SubOrder.Sale.Seller";
@@ -32,7 +32,8 @@ export class PresentationProducts {
     propertiesPackaging: PropertiesPackaging[];
 
     @ManyToOne(type => ProductRovianda, productRovianda => productRovianda.presentationProducts)
-    productsRovianda: ProductRovianda;
+    @JoinColumn({name:"product_rovianda_id"})
+    productRovianda: ProductRovianda;
 
     @OneToMany(type=> SubOrder,subOrder=>subOrder.presentation,{eager:false})
     saleRequest: SubOrder[];
@@ -42,4 +43,7 @@ export class PresentationProducts {
 
     @OneToMany(type=>SubSales,subSale=>subSale.presentation)
     subSales:SubSales[];
+
+    @Column({name:"type_price"})
+    typePrice:string;
 }

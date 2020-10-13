@@ -10,6 +10,7 @@ import { SellerInventory } from "./Seller.Inventory";
 import { Sale } from "./Sales";
 import { SellerOperation } from "./Seller.Operations";
 import { Client } from "./Client";
+import { Debts } from "./Debts";
 
 @Entity({name:"users"})
 export class User{
@@ -29,7 +30,7 @@ export class User{
     @Column()
     job:string;
 
-    @ManyToOne(type=>Roles,roles=>roles.users,{eager:true})
+    @ManyToOne(type=>Roles,roles=>roles.users)
     @JoinColumn({name:"rol"})
     roles:Roles;
 
@@ -68,4 +69,7 @@ export class User{
 
     @OneToMany(type=>Client,client=>client.seller)
     clients?:Client[];
+
+    @OneToMany(type=>Debts,debts=>debts.seller)
+    debts:Debts[];
 }

@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { Debts } from "../Models/Entity/Debts";
 import { connect } from "../Config/Db";
+import { Client } from "../Models/Entity/Client";
 
 export class DebtsRepository{
     private debtsRepository:Repository<Debts>;
@@ -15,9 +16,18 @@ export class DebtsRepository{
         return await this.debtsRepository.save(deb);
     }
 
+    async getDebts(debId:number){
+        await this.getConnection();
+        return await this.debtsRepository.findOne({debId},{relations:["client"]});
+    }
+
     async payDeb(debId:number){
         await this.getConnection();
         await this.debtsRepository.query(`update debts set status=0 where debt_id=${debId}`);
+    }
+    async getActiveByClient(client:Client){
+        await this.getConnection();
+        return await this.debtsRepository.find({client,status:true});
     }
 
 }

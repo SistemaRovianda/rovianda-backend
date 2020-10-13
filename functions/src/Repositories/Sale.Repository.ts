@@ -11,11 +11,14 @@ export class SaleRepository{
             this.saleRepository = (await connect()).getRepository(Sale);
     }
 
+    async saveSale(sale:Sale){
+        await this.getConnection();
+        return await this.saleRepository.save(sale);
+    }
+
     async getSaleById(id: number){
         await this.getConnection();
-        return await this.saleRepository.find({
-            where: { saleId: id }
-        });
+        return await this.saleRepository.findOne({saleId:id});
     }
 
     async getSalleSellerByDateUser(seller:string,date:string){
@@ -40,5 +43,10 @@ export class SaleRepository{
             where:{ sellerUid,date},
             relations:["client"]
         });
+    }
+
+    async getSaleWithDebts(saleId:number){
+        await this.getConnection();
+        return await this.saleRepository.findOne({saleId},{relations:["debts"]});
     }
 }

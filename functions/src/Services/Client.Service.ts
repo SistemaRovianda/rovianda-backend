@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { ClientCreation } from "../Models/DTO/Client.DTO";
+import { ClientCreation, SellerClientCreation } from "../Models/DTO/Client.DTO";
 import { Client } from "../Models/Entity/Client";
 import { Address } from "../Models/Entity/Address";
 import { AddressRepository } from "../Repositories/Address.Repository";
@@ -81,5 +81,48 @@ export class ClientService {
         }else{
             return {count:+result[0].CLAVE}
         }
+    }
+
+    async createSellerCustomer(clientDTO:SellerClientCreation){
+        let records:IResult<any> = await this.sqlSRepository.getClientsByKey(clientDTO.keyClient);
+        
+        if(records.recordset.length){
+            throw new Error('[409], ya existe un cliente con esa clave');
+        }
+        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.saleUid);
+        if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
+    
+        let newAddress:Address = new Address();
+        newAddress.street = clientDTO.addressClient.street;
+        newAddress.extNumber = clientDTO.addressClient.extNumber;
+        newAddress.intNumber = clientDTO.addressClient.intNumber;
+        newAddress.intersectionOne = clientDTO.addressClient.intersectionOne;
+        newAddress.intersectionTwo = clientDTO.addressClient.intersectionTwo;
+        newAddress.suburb = clientDTO.addressClient.suburb;
+        newAddress.location = clientDTO.addressClient.location;
+        newAddress.reference = clientDTO.addressClient.reference;
+        newAddress.population = clientDTO.addressClient.population;
+        newAddress.cp = clientDTO.addressClient.cp;
+        newAddress.state = clientDTO.addressClient.state;
+        newAddress.municipality = clientDTO.addressClient.municipality;
+        newAddress.nationality = "Mexicana";
+        
+        let address:Address = await this.addressRepository.saveAddress(newAddress);
+        
+        let newClient:Client = new Client();
+        newClient.keyClient = clientDTO.keyClient;
+
+        newClient.name = clientDTO.name;
+        
+        newClient.typeClient = "CONTADO";
+        newClient.currentCredit = 0;
+        address = address;
+        newClient.credit = 0;
+        newClient.rfc = clientDTO.rfc;
+        newClient.seller = sellerOwner;
+        newClient.daysCredit=0;
+        
+        await this.clientRepository.saveClient(newClient); 
+        await this.sqlSRepository.saveSellerClient(clientDTO);    
     }
 }

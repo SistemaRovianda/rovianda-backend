@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { Client } from "./Client";
 import { Sale } from "./Sales";
+import { User } from "./User";
 
 @Entity({name:"debts"})
 export class Debts{
@@ -24,7 +25,11 @@ export class Debts{
     @Column()
     days:number;
 
-    @OneToOne(type=>Sale)
+    @ManyToOne(type=>Sale,sale=>sale.debts,{eager:true})
     @JoinColumn({name:"sale_id"})
     sale:Sale;
+
+    @ManyToOne(type=>User,seller=>seller.debts,{eager:true})
+    @JoinColumn({name: "seller_id"})
+    seller:User;
 }

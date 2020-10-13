@@ -16,4 +16,8 @@ export class ClientController{
     async getCustomerCount(req:Request,res:Response){
         return res.status(200).send(await this.clientService.getCurrentCountCustomer());
     }
+
+    async createSellerCustomer(req:Request,res:Response){
+        return res.status(201).send(await this.clientService.createSellerCustomer(req.body));
+    }
 }

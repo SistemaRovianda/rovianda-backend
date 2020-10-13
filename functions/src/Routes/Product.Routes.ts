@@ -56,13 +56,7 @@ export const productRoutes:Array<routeInterface>=[
         url:"/rovianda/product/rovianda",
         method: "post",
         controller: ProductController,
-        target: "saveProductRovianda",
-        files:[
-            {
-            name:"productRoviandaImage",
-            isArray:false
-            }
-        ]
+        target: "saveProductRovianda"
     },
     {
         url:"/rovianda/add/ingredient",

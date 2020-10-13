@@ -14,11 +14,11 @@ export class SubSales{
     @JoinColumn({name:"sale_id"})
     sale:Sale;
 
-    @ManyToOne(type=>ProductRovianda,product=>product.subSales)
+    @ManyToOne(type=>ProductRovianda,product=>product.subSales,{eager:true})
     @JoinColumn({name:"product_id"})
     product:ProductRovianda;
 
-    @ManyToOne(type=>PresentationProducts,pp=>pp.subSales)
+    @ManyToOne(type=>PresentationProducts,pp=>pp.subSales,{eager:true})
     @JoinColumn({name:"presentation_id"})
     presentation:PresentationProducts;
 

@@ -2,6 +2,7 @@ import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, JoinColumn, OneToMan
 import { User } from "./User";
 import { Client } from "./Client";
 import { SubSales } from "./Sub.Sales";
+import { Debts } from "./Debts";
 
 @Entity({name:"sales"})
 export class Sale{
@@ -11,7 +12,7 @@ export class Sale{
 
     @ManyToOne(type=>User,user=>user.sales)
     @JoinColumn({name:"seller_id"})
-    seller:string;
+    seller:User;
 
     @Column()
     date:string;
@@ -25,12 +26,14 @@ export class Sale{
     @Column()
     credit: number;
 
+    @OneToMany(type=>Debts,debts=>debts.sale,{cascade:true})
+    debts:Debts[];
 
     @ManyToOne(type=>Client,client=>client.sales)
     @JoinColumn({name:"client_id"})
     client:Client;
     
-    @OneToMany(type=>SubSales,subSale=>subSale.sale,{cascade:true})
+    @OneToMany(type=>SubSales,subSale=>subSale.sale,{eager:true,cascade:true})
     subSales:SubSales[];
 
 }

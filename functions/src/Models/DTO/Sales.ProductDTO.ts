@@ -43,16 +43,19 @@ export interface SaleOrderDTO {
  export interface SaleRequestForm{
     keyClient:number;
     sellerId:string;
-    products: productSaled[]
+    products: productSaled[],
+    payed:number,
+    days:number
  }
 
  export interface productSaled{
-    productKey:string;
+    presentationId:number,
+    productKey?:string;
     quantity: number;
-    price:number;
-    total:number;
-    taxSchema:number;
-    warehouseKey:number;
+    price?:number;
+    total?:number;
+    taxSchema?:number;
+    warehouseKey?:number;
  }
 
  export interface ImpuSchemaSAE{

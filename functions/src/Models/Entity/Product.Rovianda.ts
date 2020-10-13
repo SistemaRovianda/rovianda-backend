@@ -32,7 +32,7 @@ export class ProductRovianda {
     @JoinTable({name:"ingredients"})
     ingredients: Product[];
 
-    @OneToMany(type => PresentationProducts, presentationProducts => presentationProducts.productsRovianda,{cascade:true})
+    @OneToMany(type => PresentationProducts, presentationProducts => presentationProducts.productRovianda,{cascade:true})
     presentationProducts: PresentationProducts[];
 
     @OneToMany(type => Packaging, packaging => packaging.productId)

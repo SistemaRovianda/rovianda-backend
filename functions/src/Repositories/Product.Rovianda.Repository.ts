@@ -81,9 +81,7 @@ export class ProductRoviandaRepository {
   
     async getProductRoviandaByCode(code:string) {
         await this.getConnection();
-        return await this.repository.find({
-            code: Like(`%${code}%`)
-        });
+        return await this.repository.findOne({code});
     }
 
     async getById(id:number){
@@ -91,19 +89,17 @@ export class ProductRoviandaRepository {
         return await this.repository.findOne({id});
     }
 
-    async getProductPresentation(id:number){
-        await this.getConnection();
-        return await this.repository.query(`
-        SELECT * FROM presentation_products
-        INNER JOIN products_rovianda_presentation
-        ON products_rovianda_presentation.presentation_id = presentation_products.presentation_id
-        WHERE products_rovianda_presentation.product_id = ${ id };`);
-    }
+    
 
     async getAllProductRoviandaCatalog(){
         await this.getConnection();
         return await this.repository.find({select:["name","imgS3","id"]});
     }
 
+
+    async getByIdWithPresentations(id:number){
+        await this.getConnection();
+        return await this.repository.findOne({id},{relations:["presentationProducts"]});
+    }
 
 }

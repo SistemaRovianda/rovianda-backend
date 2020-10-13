@@ -1,7 +1,7 @@
 import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
-import { OrderSellerRequest, SaleOrderDTO, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
+import { OrderSellerRequest, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
@@ -30,6 +30,12 @@ import { UserDTO } from '../Models/DTO/UserDTO';
 import { Roles } from '../Models/Entity/Roles';
 import { RolesRepository } from '../Repositories/Roles.Repository';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { Presentation } from '../Models/DTO/Presentations.DTO';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { Debts } from '../Models/Entity/Debts';
+import { Client } from '../Models/Entity/Client';
+import { DebtsPaymentRequest } from '../Models/DTO/Debts.DTO';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -67,7 +73,8 @@ export class SalesRequestService{
         await validateOrderSeller(request);
         let user:User = await this.userRepository.getUserbyIdWithRol(uid);
         if(!user) throw new Error("[400], Usuario no existe en el sistema");
-        if(user.roles.description!="SALESUSER ") throw new Error("[403], Usuario no autorizado");
+        console.log("ROL: ",user.roles.description);
+        if(user.roles.description!="SALESUSER") throw new Error("[403], Usuario no autorizado");
         //let properties:PackagingProperties[] = await this.packagingRepository.getPackagingWithProperties(request.products);
         let order:OrderSeller = new OrderSeller();
         order.date = request.date;
@@ -85,6 +92,7 @@ export class SalesRequestService{
           subOrder.units= suborder.quantity;
           subOrder.product = product;
           subOrder.presentation = presentation;
+          subOrder.typePrice=presentation.typePrice;
           subOrderArr.push(subOrder);
         }
         order.subOrders = subOrderArr;
@@ -116,32 +124,128 @@ export class SalesRequestService{
       return await this.packagingRepository.getPackagingAvailable();
     }
     async getRoviandaInventoryProduct(productId:number){
-      return await this.packagingRepository.getPackagingAvailableProduct(productId);
+      let product = await this.productRoviandaRepository.getById(productId);
+      let productSae = await this.sqlsRepository.getProductSaeByKey(product.code);
+      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let claveEsq = +productSae[0].CVE_ESQIMPU;
+      let presentations:Array<Presentation> = await this.packagingRepository.getPackagingAvailableProduct(productId);
+      for(let presentation of presentations){
+      switch(claveEsq){
+        case 1:
+          presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
+          presentation.pricePresentationMin +=(presentation.pricePresentationMin*.16);
+          presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+          break;
+          case 2: // sin IVA operaciones no necesarias
+            break;
+            case 3: // IVA EXCENTO
+              break;
+              case 4: // 16 IVA mas 8% de IEPS
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.08)
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.08)
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.08)
+                break;
+                case 5:// 16 IVA mas 25% de IEPS
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.25)
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.25)
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.25)
+                  break;
+                  case 6:// 16 IVA mas 50% de IEPS
+                      presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                      presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.50)
+                      presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                      presentation.pricePresentationMin += (presentation.pricePresentationMin*.50)
+                      presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                      presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.50)
+                    break;
+      }
+    }
+      return presentations; 
     }
 
     async getSellerInventoryProductPresentation(sellerUid:string,productId:number){
-      return await this.sellerInventoryRepository.getSellerInventoryProductPresentation(sellerUid,productId);
-    }
-
-    async getClientsOfSeller(sellerUid:string):Promise<ClientDTO[]>{
-      let clients:Array<ClientsBySeller> = await this.clientRepository.getClientBySeller(sellerUid);
       
-      return clients.map((client:ClientsBySeller)=>{
-        let date = new Date();
-        date.setHours(date.getHours()+6);
-        let dateRecord = new Date(client.createDay);
-        dateRecord.setHours(dateRecord.getHours()+6);
-        console.log("DATE",date);
-        console.log("DATERECORDS",dateRecord);
-        let clientMapped:ClientDTO={
-          ...client,
-          daysPending: this.dateDiffInDays(date,dateRecord)
-        };
-        return clientMapped;
-      })
+      let product = await this.productRoviandaRepository.getById(productId);
+      let productSae = await this.sqlsRepository.getProductSaeByKey(product.code);
+      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let claveEsq = +productSae[0].CVE_ESQIMPU;
+      let presentations:Array<Presentation> = await this.sellerInventoryRepository.getSellerInventoryProductPresentation(sellerUid,productId);
+      for(let presentation of presentations){
+      switch(claveEsq){
+        case 1:
+          presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
+          presentation.pricePresentationMin +=(presentation.pricePresentationMin*.16);
+          presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+          break;
+          case 2: // sin IVA operaciones no necesarias
+            break;
+            case 3: // IVA EXCENTO
+              break;
+              case 4: // 16 IVA mas 8% de IEPS
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.08)
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.08)
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.08)
+                break;
+                case 5:// 16 IVA mas 25% de IEPS
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.25)
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                presentation.pricePresentationMin += (presentation.pricePresentationMin*.25)
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.25)
+                  break;
+                  case 6:// 16 IVA mas 50% de IEPS
+                      presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.16);
+                      presentation.pricePresentationPublic += (presentation.pricePresentationPublic*.50)
+                      presentation.pricePresentationMin += (presentation.pricePresentationMin*.16);
+                      presentation.pricePresentationMin += (presentation.pricePresentationMin*.50)
+                      presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
+                      presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.50)
+                    break;
+      }
+    }
+      return presentations;
     }
 
-    async payDeb(debId:number){
+    async getClientsOfSeller(sellerUid:string){
+      let seller = await this.userRepository.getUserById(sellerUid);
+      if(!seller) throw new Error("[404],no existe ese vendedor");
+      
+      return await this.clientRepository.getClientBySellerAndDebts(seller);
+    }
+
+    async payDeb(debId:number,debtsDTO:DebtsPaymentRequest){
+      let debts:Debts=await this.debRepository.getDebts(debId);
+      if(debts.amount==debtsDTO.amount){
+        let client= debts.client;
+        debts.status=false;
+        await this.debRepository.saveDebts(debts);
+        let debtsPending = await this.debRepository.getActiveByClient(client);
+        if(!debtsPending){
+          client.hasDebts=false;
+          await this.clientRepository.saveClient(client);
+        }
+      }else if(debtsDTO.amount< debts.amount){
+        let debtsNew:Debts = new Debts();
+        debtsNew.client=debts.client;
+        debtsNew.amount=debts.amount-debtsDTO.amount;
+        debtsNew.createDay= new Date().toISOString();
+        debtsNew.days=debtsDTO.days;
+        debtsNew.status=true;
+        debtsNew.seller=debts.seller;
+        let sale:Sale =await this.saleRepository.getSaleWithDebts(debts.sale.saleId);
+        sale.debts.push(debtsNew);
+        await this.saleRepository.saveSale(sale);
+      }
       await this.debRepository.payDeb(debId);
     }
 
@@ -380,7 +484,7 @@ export class SalesRequestService{
      async getAllSellerClientsBySellerUid(sellerUid:string,hint:number){
         let seller:User = await this.userRepository.getUserById(sellerUid);
         if(!seller) throw new Error("[404], no existe el usuario vendedor");
-        if(hint>0){
+        if(hint==0){
         return await this.clientRepository.getAllClientBySeller(seller);
         }else{
           return await this.clientRepository.getAllClientBySellerAndHint(seller,hint);
@@ -403,20 +507,98 @@ export class SalesRequestService{
      }
     
     async createSaleSae(saleRequestForm:SaleRequestForm){
-
+      console.log("iniciando creacin de venta");
       let seller:User = await this.userRepository.getUserById(saleRequestForm.sellerId);
+      console.log("obteniendo vendedor");
       let alreadyActive = await this.sqlsRepository.getSellerActive(seller.saeKey);
+      console.log("obteniendo vendedor de sae");
       if(!alreadyActive.recordset.length) throw new Error("[409], el vendedor no esta activo en SAE");
       let client = await this.sqlsRepository.getClientsByKey(saleRequestForm.keyClient);
+      let clientRovianda = await this.clientRepository.findByClientKey(saleRequestForm.keyClient);
+
+      console.log("obteniendo cliente de sae");
       if(!client.recordset.length) throw new Error("[404], no existe el cliente en SAE");
       let clientSAE:ClientSAE = client.recordset[0] as ClientSAE;
-      
-     for(let sale of saleRequestForm.products){
-        let impu=await this.sqlsRepository.getTaxSchemeById(sale.taxSchema);
-        if(!impu.recordset.length) throw new Error("[404], no existe ese esquema de impuesto");
+      console.log("iniciando recorrido de articulos");
+      let saleGral = new Sale();
+      saleGral.client = clientRovianda;
+      saleGral.seller=seller;
+      let date = new Date();
+      saleGral.date = date.toISOString();
+      saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
+      saleGral.subSales = new Array<SubSales>();
+      for(let sale of saleRequestForm.products){
+       let subSale:SubSales = new SubSales();
+       
+       let presentation:PresentationProducts = await this.presentationProductsRepository.getPresentationProductsById(sale.presentationId);
+       subSale.presentation = presentation;
+       subSale.product = presentation.productRovianda;
+       subSale.quantity=sale.quantity;
+       
+       let exist = await this.sqlsRepository.getProductExist(+presentation.productRovianda.code,sale.quantity);
+       console.log("buscando existencia en stock");
+       if(!presentation) throw new Error("[404], no existe la presentacion del producto en el sistema rovianda");
+       let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.productRovianda.code);
+       console.log("buscando producto en sae");
+       if(!exist.length) throw new Error("[404], no existe el producto o no hay stock completo acorde a la orden");
+        sale.taxSchema = productSae[0].CVE_ESQIMPU;
+        sale.warehouseKey = exist[0].EXISTENCIA;
+        let price =0;
+        if(presentation.typePrice=="PUBLICO"){
+          price = presentation.presentationPricePublic;
+        }else if(presentation.typePrice=="MIN"){
+          price = presentation.presentationPriceMin;
+        }else if(presentation.typePrice=="LIQUIDATION"){
+          price = presentation.presentationPriceLiquidation;
+        }
+        let claveEsq = +productSae[0].CVE_ESQIMPU;
+        switch(claveEsq){
+          case 1:
+            price +=(price*.16);
+            break;
+            case 2: // sin IVA operaciones no necesarias
+              break;
+              case 3: // IVA EXCENTO
+                break;
+                case 4: // 16 IVA mas 8% de IEPS
+                price += (price*.16);
+                price += (price*.08)
+                  
+                  break;
+                  case 5:// 16 IVA mas 25% de IEPS
+                  
+                  price += (price*.16);
+                  price += (price*.25)
+                    break;
+                    case 6:// 16 IVA mas 50% de IEPS
+                    price += (price*.16);
+                    price += (price*.50)
+                      break;
+        }
+        sale.price= price;
+        
+        sale.total = price*sale.quantity;
+
+        subSale.amount = sale.total;
+        subSale.loteId="desconocido";
+        saleGral.subSales.push(subSale);
      }
-     console.log(seller.saeKey);
-      return await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+     saleGral.amount = saleGral.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
+     if(saleRequestForm.payed<saleGral.amount){
+        saleGral.debts= new Array<Debts>();
+       let debs:Debts = new Debts();
+       debs.client=clientRovianda;
+       debs.amount=saleGral.amount-saleRequestForm.payed;
+        debs.createDay= new Date().toISOString();
+        debs.days=saleRequestForm.days;
+        debs.status=true;
+        saleGral.debts.push(debs);
+      clientRovianda.hasDebts=true;
+      await this.clientRepository.saveClient(clientRovianda);
+     }
+     await this.saleRepository.saveSale(saleGral);
+     console.log("iniciando proceso de grabado");
+    return await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
 
     }
 
@@ -433,6 +615,20 @@ export class SalesRequestService{
       }
     }
 
+
+    async getDebtsOfClient(clientId:number){
+      let client:Client = await this.clientRepository.findByClientKey(clientId);
+      let debtsArr:Debts[] = await this.debRepository.getActiveByClient(client);
+      return debtsArr.map((x)=>{
+        let products = x.sale.subSales.map(x1=>{return `${x1.product.name}-${x1.presentation.presentation} ${x1.presentation.presentationType}`})
+        return {
+          debId:x.debId,
+          date: x.createDay,
+          amount: x.amount,
+          products,
+        }
+      })
+    }
   }
 
   

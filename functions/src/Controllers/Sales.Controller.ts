@@ -79,7 +79,7 @@ export class SalesRequestController{
 
     async payDebPending(req:Request,res:Response){
         let debId:number = +req.params.debId;
-        await this.salesRequestService.payDeb(debId);
+        await this.salesRequestService.payDeb(debId,req.body);
         return res.status(204).send();
     }
 
@@ -131,7 +131,7 @@ export class SalesRequestController{
 
     async getAllProductRoviandaCatalogPresentation(req:Request,res:Response){
         let productId:number = +req.params.productId;
-        return res.status(200).send(await this.productRoviandaService.getPresentationsByProduct(productId));
+        return res.status(200).send(await this.productRoviandaService.getProductsPresentation(productId));
     }
     
     async createSaleSae(req:Request,res:Response){
@@ -148,4 +148,12 @@ export class SalesRequestController{
         return res.status(200).send(await this.salesRequestService.getSellerCount());
     }
 
+    async getTaxSchema(req:Request,res:Response){
+        return res.status(200).send(await this.salesRequestService.getAllTaxSchemas());
+    }
+
+    async getClientDebts(req:Request,res:Response){
+        let clientId:number = +req.params.clientId;
+        return res.status(200).send(await this.salesRequestService.getDebtsOfClient(clientId));
+    }
 } 

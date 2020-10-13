@@ -91,7 +91,8 @@ export class PackagingRepository{
     async getPackagingAvailableProduct(productId:number){
         await this.getConnection();
         return await this.packagingRepository.query(
-            `select prop.presentation_id as presentationId,prep.presentation,prep.price_presentation as pricePresentation,sum(prop.units) as quantity from properties_packaging as prop 
+            `select prop.presentation_id as presentationId,prep.presentation,prep.price_presentation_public as pricePresentationPublic
+            ,prep.price_presentation_min as pricePresentationMin,prep.price_presentation_liquidation as pricePresentationLiquidation,prep.type_price as typePrice,sum(prop.units) as quantity from properties_packaging as prop 
             inner join presentation_products as prep on prop.presentation_id=prep.presentation_id inner join packaging pack 
             on prop.packaging_id= pack.id where pack.product_id=${productId} and pack.active=1 group by prop.presentation_id; `
         );

@@ -6,6 +6,7 @@ export interface ClientDTO{
     debId:number;
     amount:number;
     daysPending:number;
+    products:String[];
 }
 
 export interface ClientsBySeller{
@@ -60,7 +61,6 @@ export interface addressClient{
         state: string;
         municipality: string;
         nationality: string;
-        
 }
 
 
@@ -161,4 +161,15 @@ export interface ClientSAE{
     FORMADEPAGOSAT:string,
     ADDENDAG:string,
     ADDENDAE:string
+}
+
+export interface SellerClientCreation{
+    keyClient:number;
+    name: string;
+    rfc: string;
+    curp:string;
+    phone:number;
+    saleUid: string;
+    addressClient: addressClient; 
+    contacts:contactForm[]
 }

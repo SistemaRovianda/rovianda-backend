@@ -13,7 +13,7 @@ export class PresentationsProductsRepository{
 
     async getPresentationProductsById(presentationId:number){
         await this.getConnection();
-        return await this.presentationsProductsRepository.findOne({id:presentationId});
+        return await this.presentationsProductsRepository.findOne({id:presentationId},{relations:["productRovianda"]});
     }
   
     async savePresentationsProduct(presentation:PresentationProducts){

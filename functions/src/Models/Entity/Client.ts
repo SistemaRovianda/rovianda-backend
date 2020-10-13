@@ -66,4 +66,7 @@ export class Client{
     @Column({nullable:true})
     clasification:string;
 
+    @Column({name:"has_debts"})
+    hasDebts:boolean;
+
 }

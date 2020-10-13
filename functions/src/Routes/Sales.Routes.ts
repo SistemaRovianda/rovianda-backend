@@ -82,15 +82,22 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getClientPending"
-    },{
-        url: "/rovianda/seller-clients/:sellerUid",
+    },
+    {
+        url: "/rovianda/seller/clients-debts/:clientId", // obtiene los clientes de un vendedor que tienen deudas con él
+        method: "get",
+        controller: SalesRequestController,
+        target: "getClientDebts"
+    }
+    ,{
+        url: "/rovianda/seller-clients/:sellerUid", // obtiene todos los clientes del vendedor
         method: "get",
         controller: SalesRequestController,
         target: "getAllClients"
     },
     {
         url: "/rovianda/seller/client/payment/:debId", // servicio para pagar una deuda de un cliente a un vendedor
-        method: "patch",
+        method: "post",
         controller: SalesRequestController,
         target: "payDebPending"
     },
@@ -135,7 +142,8 @@ export const salesRoutes:Array<routeInterface>=[
         method:"post",
         controller: SalesRequestController,
         target: "createSaleSae"
-    },
+    }
+    ,
     {
         url: "/rovianda/tax/schema",
         method: "get",

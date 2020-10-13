@@ -193,8 +193,9 @@ export class ProductRoviandaService{
             presentationProduct.presentationPriceMin = presentations[i].pricePresentationMin;
             presentationProduct.presentationPriceLiquidation = presentations[i].pricePresentationLiquidation;
             presentationProduct.presentationType = presentations[i].typePresentation;
-            presentationProduct.productsRovianda = productRovianda;
-
+            presentationProduct.productRovianda = productRovianda;
+            presentationProduct.typePrice = "PUBLICO";
+            presentationProduct.status = true;
             productRovianda.presentationProducts.push(presentationProduct);
         }    
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
@@ -269,7 +270,7 @@ export class ProductRoviandaService{
                     presentationProduct.presentationPriceMin = presentation.pricePresentationMin;
                     presentationProduct.presentationPriceLiquidation = presentation.pricePresentationLiquidation;
                     presentationProduct.presentationType = presentation.typePresentation;
-                    presentationProduct.productsRovianda = productRovianda;
+                    presentationProduct.productRovianda = productRovianda;
                     productRovianda.presentationProducts.push(presentationProduct);
                     await this.productRoviandaRepository.saveProductRovianda(productRovianda);
             }        
@@ -278,19 +279,19 @@ export class ProductRoviandaService{
     async getProductsRoviandaByCode(req: Request) {
         let code = req.query.code;
     
-        let productsRovianda:ProductRovianda[] = await this.productRoviandaRepository.getProductRoviandaByCode(code);
+        let productsRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaByCode(code);
         if (!productsRovianda)  throw new Error(`[400], Product rovianda with code :${code} was not found`);
             
         let response = [];
 
-        for (let i = 0; i < productsRovianda.length; i++) {
-            let presentations = await this.presentationsProductsRepository.getPresentatiosProductsByProductRovianda(productsRovianda[i].id);
+        
+            let presentations = await this.presentationsProductsRepository.getPresentatiosProductsByProductRovianda(productsRovianda.id);
                 response.push({
-                    code: productsRovianda[i].code ? productsRovianda[i].code : null,
-                    nameProduct: productsRovianda[i].name ? productsRovianda[i].name : null,
+                    code: productsRovianda.code,
+                    nameProduct: productsRovianda.name ,
                     presentations: presentations
                 });
-        }
+        
             return response;
     }
 
@@ -300,17 +301,56 @@ export class ProductRoviandaService{
     }
 
     async getProductsPresentation(productId:number){
-        return await this.productRoviandaRepository.getProductPresentation(productId);
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getByIdWithPresentations(productId);
+        let productSae = await this.sqlsRepository.getProductSaeByKey(productRovianda.code);
+        if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let claveEsq = +productSae[0].CVE_ESQIMPU;
+      let presentations:Array<PresentationProducts> = productRovianda.presentationProducts;
+      for(let presentation of presentations){
+      switch(claveEsq){
+        case 1:
+          presentation.presentationPricePublic +=(presentation.presentationPricePublic*.16);
+          presentation.presentationPriceMin +=(presentation.presentationPriceMin*.16);
+          presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
+          break;
+          case 2: // sin IVA operaciones no necesarias
+            break;
+            case 3: // IVA EXCENTO
+              break;
+              case 4: // 16 IVA mas 8% de IEPS
+                presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
+                presentation.presentationPricePublic += (presentation.presentationPricePublic*.08)
+                presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
+                presentation.presentationPriceMin += (presentation.presentationPriceMin*.08)
+                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
+                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.08)
+                break;
+                case 5:// 16 IVA mas 25% de IEPS
+                presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
+                presentation.presentationPricePublic += (presentation.presentationPricePublic*.25)
+                presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
+                presentation.presentationPriceMin += (presentation.presentationPriceMin*.25)
+                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
+                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.25)
+                  break;
+                  case 6:// 16 IVA mas 50% de IEPS
+                      presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
+                      presentation.presentationPricePublic += (presentation.presentationPricePublic*.50)
+                      presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
+                      presentation.presentationPriceMin += (presentation.presentationPriceMin*.50)
+                      presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
+                      presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.50)
+                    break;
+      }
+    }
+        return presentations;
     }
 
     async getAllproductsRoviandaCatalog(){
         return await this.productRoviandaRepository.getAllProductRoviandaCatalog();
     }
 
-    async getPresentationsByProduct(productId:number){
-        let productsRovianda:ProductRovianda[] = await this.productRoviandaRepository.getProductPresentation(productId);
-        return productsRovianda;
-    }
+
 
     async getLinesOfProductsSae(){
         return await this.sqlsRepository.getLinesOfProductsSae();
