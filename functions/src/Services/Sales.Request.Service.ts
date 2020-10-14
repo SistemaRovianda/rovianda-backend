@@ -225,6 +225,8 @@ export class SalesRequestService{
 
     async payDeb(debId:number,debtsDTO:DebtsPaymentRequest){
       let debts:Debts=await this.debRepository.getDebts(debId);
+      if (!debts)
+        throw new Error(`[404],debt with id  ${debId} was not found`);
       if(debts.amount==debtsDTO.amount){
         let client= debts.client;
         debts.status=false;

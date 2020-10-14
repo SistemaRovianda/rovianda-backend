@@ -18,7 +18,12 @@ export class DebtsRepository{
 
     async getDebts(debId:number){
         await this.getConnection();
-        return await this.debtsRepository.findOne({debId},{relations:["client"]});
+        return await this.debtsRepository.createQueryBuilder("debts")
+            .leftJoinAndSelect("debts.client", "client")
+            .leftJoinAndSelect("debts.sale","sale")
+            .leftJoinAndSelect("sale.subSales", "subSales")
+            .where("debts.debId = :debId",{debId:debId})
+            .getOne();
     }
 
     async payDeb(debId:number){
