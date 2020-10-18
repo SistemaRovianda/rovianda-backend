@@ -99,16 +99,12 @@ export class ConditioningService{
 
     async getConditioning(processId:string){
     
-        if (!processId) throw new Error("[400], processId in path is required");
-        let process:Process = await this.processRepository.findProcessById(+processId)
-        if(!process)throw new Error("[404], No existe proceso");
-        console.log(process);
        
-        let conditioning:Process = await this.processRepository.findConditioningByProcessId(+processId);
-        console.log(conditioning)
-        if(conditioning.conditioning==null) throw new Error("[404], no existe acondicionamiento relacionado a este proceso");
-        
-
+       
+        let process:Process = await this.processRepository.findConditioningByProcessId(+processId);
+        console.log(process)
+        if(!process) throw new Error("[404], no existe el proceso");
+        if(process.conditioning==null) throw new Error("[404], no existe acondicionamiento relacionado a este proceso");
         let response:Array<conditioningDetails> = new Array();
         if(process.conditioning && process.conditioning.length){
         for(let conditioning of process.conditioning){
@@ -125,8 +121,11 @@ export class ConditioningService{
                 product:{
                     id: conditioning.productId.id,
                     description: conditioning.productId.name
+                },
+                formulation:{
+                 id:  process.formulation.id,
+                 lotDay: process.formulation.lotDay
                 }
-                
             });
         }}
         

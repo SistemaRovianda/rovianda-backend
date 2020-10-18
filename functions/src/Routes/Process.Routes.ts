@@ -75,7 +75,7 @@ export const processRoutes: Array<routeInterface> = [
         controller: ConditioningController,
         target: "createConditioningByFormulationId"
     }, {
-        url: "/rovianda/process/injection-tenderized/:processId",
+        url: "/rovianda/process/injection-tenderized/:formulationId",
         method: "post",
         controller: TenderizedController,
         target: "createTenderized"

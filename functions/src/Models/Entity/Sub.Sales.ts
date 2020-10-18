@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Code, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from "typeorm";
 import { Sale } from "./Sales";
 import { ProductRovianda } from "./Product.Rovianda";
 import { PresentationProducts } from "./Presentation.Products";
-import { Client } from "./Client";
+
 
 @Entity({name:"sub_sales"})
 export class SubSales{
@@ -14,11 +14,11 @@ export class SubSales{
     @JoinColumn({name:"sale_id"})
     sale:Sale;
 
-    @ManyToOne(type=>ProductRovianda,product=>product.subSales,{eager:true})
+    @ManyToOne(type=>ProductRovianda,product=>product.subSales)
     @JoinColumn({name:"product_id"})
     product:ProductRovianda;
 
-    @ManyToOne(type=>PresentationProducts,pp=>pp.subSales,{eager:true})
+    @ManyToOne(type=>PresentationProducts,pp=>pp.subSales)
     @JoinColumn({name:"presentation_id"})
     presentation:PresentationProducts;
 

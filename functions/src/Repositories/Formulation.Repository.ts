@@ -52,7 +52,7 @@ export class FormulationRepository{
 
     async getByFormulationId(id:number){
         await this.getConnection();
-        return await this.formulatioRepository.findOne({id},{relations:["verifit", "make"]});
+        return await this.formulatioRepository.findOne({id},{relations:["verifit", "make","process"]});
     }
 
     async getFormulationsByDate(initDate: Date, finDate: Date){

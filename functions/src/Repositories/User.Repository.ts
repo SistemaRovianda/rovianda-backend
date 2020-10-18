@@ -19,7 +19,7 @@ export class UserRepository{
 
     async getUserById(userId:string){
         await this.getConnection();
-        return await this.userRepository.findOne({id:userId});
+        return await this.userRepository.findOne({id:userId},{relations:["roles"]});
     }
 
     async getUserbyIdWithRol(id:string){

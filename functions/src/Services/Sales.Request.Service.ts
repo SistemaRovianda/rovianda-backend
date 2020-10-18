@@ -227,6 +227,10 @@ export class SalesRequestService{
       let debts:Debts=await this.debRepository.getDebts(debId);
       if (!debts)
         throw new Error(`[404],debt with id  ${debId} was not found`);
+        let sale:any = await this.debRepository.getSaleIdFromDebtId(debId);
+        console.log("sale",sale);
+        if(!sale.length) throw new Error("[404], no existe la venta");
+        
       if(debts.amount==debtsDTO.amount){
         let client= debts.client;
         debts.status=false;
@@ -244,11 +248,16 @@ export class SalesRequestService{
         debtsNew.days=debtsDTO.days;
         debtsNew.status=true;
         debtsNew.seller=debts.seller;
-        let sale:Sale =await this.saleRepository.getSaleWithDebts(debts.sale.saleId);
-        sale.debts.push(debtsNew);
-        await this.saleRepository.saveSale(sale);
+        let saleEntity:Sale =await this.saleRepository.getSaleWithDebts(sale[0].sale_id);
+        saleEntity.debts.push(debtsNew);
+        await this.saleRepository.saveSale(saleEntity);
       }
       await this.debRepository.payDeb(debId);
+      let debstOfClient = await this.debRepository.getActiveByClient(debts.client);
+      if(!debstOfClient.length){
+         debts.client.hasDebts = false;
+         await this.clientRepository.saveClient(debts.client);
+      }
     }
 
     async saveSellerOperation(sellerOperationDTO:SellerOperationDTO){
@@ -596,7 +605,10 @@ export class SalesRequestService{
         debs.status=true;
         saleGral.debts.push(debs);
       clientRovianda.hasDebts=true;
+      saleGral.status=true;
       await this.clientRepository.saveClient(clientRovianda);
+     }else{
+       saleGral.status=false;
      }
      await this.saleRepository.saveSale(saleGral);
      console.log("iniciando proceso de grabado");
@@ -620,16 +632,22 @@ export class SalesRequestService{
 
     async getDebtsOfClient(clientId:number){
       let client:Client = await this.clientRepository.findByClientKey(clientId);
-      let debtsArr:Debts[] = await this.debRepository.getActiveByClient(client);
-      return debtsArr.map((x)=>{
-        let products = x.sale.subSales.map(x1=>{return `${x1.product.name}-${x1.presentation.presentation} ${x1.presentation.presentationType}`})
-        return {
-          debId:x.debId,
-          date: x.createDay,
-          amount: x.amount,
-          products,
-        }
-      })
+      let salesArr:Sale[] = await this.saleRepository.getSalesPendingByClient(client);
+      let response=[];
+      for(let sale of salesArr){
+        let subSales=await this.subSalesRepository.getSubSalesBySale(sale);
+        let products =subSales.map(x1=>{return `${x1.product.name}-${x1.presentation.presentation} ${x1.presentation.presentationType}`})
+        let debt = sale.debts.filter(x=>x.status==true)[0];
+        if(debt){
+        response.push( {
+          debId:debt.debId,
+          date: debt.createDay,
+          amount: debt.amount,
+          products
+        });
+      }
+      }
+      return response;
     }
   }
 

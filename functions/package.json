@@ -31,7 +31,7 @@
     "reflect-metadata": "^0.1.13",
     "ts-transformer-keys": "^0.4.2",
     "ttypescript": "^1.5.12",
-    "typeorm": "^0.2.24",
+    "typeorm": "^0.2.28",
     "uuid": "^3.3.3"
   },
   "devDependencies": {

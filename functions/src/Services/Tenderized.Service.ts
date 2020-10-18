@@ -41,46 +41,38 @@ export class TenderizedService{
         return await this.processRepository.saveProcess(process);
     }
     
-    async createTenderized(tenderizedDTO:TenderizedDTO, processId:number){
-        
-        
-        if(!processId)throw new Error("[400], processId in path is required");
-        
-        if(!tenderizedDTO.date) throw new Error("[400], falta el parametro date");
-        
-        if(!tenderizedDTO.percentage) throw new Error("[400], falta el parametro percentage");
-        if(!tenderizedDTO.temperature) throw new Error("[400], falta el parametro temperature");
-        if(!tenderizedDTO.weight) throw new Error("[400], falta el parametro weight");
-        if(!tenderizedDTO.weightSalmuera) throw new Error("[400], falta el parametro weightSalmuera");
-
-        let process:Process;
-        if(processId!=-1){
-            process = await this.processRepository.findProcessById(processId);
+    async createTenderized(tenderizedDTO:Array<TenderizedDTO>, formulationId:number){
+        let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
+        if(!formulation) throw new Error("[404], no existe la formulacion");
+        if(formulation.status=="TAKED") throw new Error("[404], la salida de formulacion ya fue tomada");
+        let process:Process=null;
+        if(formulation.process){
+            process = formulation.process;
         }else{
             process = await this.createProcessInter();
+            process.tenderized = new Array<Tenderized>();
+        }
+        for(let tenderizedDto of tenderizedDTO){
+            if(!tenderizedDto.date) throw new Error("[400], falta el parametro date");
+            if(!tenderizedDto.percentage) throw new Error("[400], falta el parametro percentage");
+            if(!tenderizedDto.temperature) throw new Error("[400], falta el parametro temperature");
+            if(!tenderizedDto.weight) throw new Error("[400], falta el parametro weight");
+            if(!tenderizedDto.weightSalmuera) throw new Error("[400], falta el parametro weightSalmuera");
+            if(!tenderizedDto.defrostId) throw new Error("[400], falta el parametro defrostId");
+            if(!tenderizedDto.lotId) throw new Error("[400], falta el parametro lotId");
+            let tenderizedToSave:Tenderized = new Tenderized();
+            tenderizedToSave.date = tenderizedDto.date;
+            tenderizedToSave.loteMeat = tenderizedDto.lotId;
+            tenderizedToSave.percentInject = tenderizedDto.percentage;
+            tenderizedToSave.productId = formulation.productRovianda;
+            tenderizedToSave.temperature = tenderizedDto.temperature;
+            tenderizedToSave.weight = tenderizedDto.weight;
+            tenderizedToSave.weightSalmuera = tenderizedDto.weightSalmuera;
+            process.tenderized.push(tenderizedToSave);
         }
         
-        let formulation:Formulation = await this.formulationRepository.getByFormulationId(tenderizedDTO.formulationId);
-        if(formulation.status=="TAKED") throw new Error("[404], la salida de formulacion ya fue tomada");
         formulation.status="TAKED";
-        
-        let tenderized: Tenderized = new Tenderized();
-
-        tenderized.date = tenderizedDTO.date;
-        tenderized.percentInject = tenderizedDTO.percentage;
-        tenderized.productId = formulation.productRovianda;
-        tenderized.temperature = tenderizedDTO.temperature;
-        tenderized.weight = tenderizedDTO.weight;
-        tenderized.loteMeat = formulation.lotDay;
-        tenderized.weightSalmuera = tenderizedDTO.weightSalmuera;
-        let lastTenderized:Tenderized = await this.tenderizedRepository.createTenderized(tenderized);
-        
-        if(!process.tenderized){
-            process.tenderized.push(lastTenderized);
-        }else{
-            process.tenderized =[lastTenderized];
-        }
-        
+    
         process.currentProcess = "Inyecion-Tenderizado";
         await this.formulationRepository.saveFormulation(formulation);
         return await this.processRepository.saveProcess(process);

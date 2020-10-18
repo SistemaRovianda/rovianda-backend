@@ -21,5 +21,9 @@ export interface conditioningDetails{
         id: number,
         description: string
     },
-    date: string
+    date: string,
+    formulation:{
+        id: number,
+        lotDay: string
+    }
 }

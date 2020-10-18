@@ -2,6 +2,7 @@ import { Sale } from "../Models/Entity/Sales";
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { User } from "../Models/Entity/User";
+import { Client } from "../Models/Entity/Client";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -47,6 +48,11 @@ export class SaleRepository{
 
     async getSaleWithDebts(saleId:number){
         await this.getConnection();
-        return await this.saleRepository.findOne({saleId},{relations:["debts"]});
+        return await this.saleRepository.findOne({saleId});
+    }
+
+    async getSalesPendingByClient(client:Client){
+        await this.getConnection();
+        return await this.saleRepository.find({client,status:true});
     }
 }

@@ -114,7 +114,7 @@ export class ProcessService{
             response.push({
                 processId:`${i.id}`,
                 productName: `${i.product.name}`,
-                lotes: i.formulation.defrosts.map((x)=>{return {loteId:x.lotMeat,rawMaterial:x.defrost.outputCooling.rawMaterial.rawMaterial,outputId:x.defrostFormulationId}}),
+                //lotes: i.formulation.defrosts.map((x)=>{return {loteId:x.lotMeat,rawMaterial:x.defrost.outputCooling.rawMaterial.rawMaterial,outputId:x.defrostFormulationId}}),
                 date: `${i.startDate}`,
                 currentProccess: `${i.currentProcess}`,
                 start_date: `${i.startDate}`,

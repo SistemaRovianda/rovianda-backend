@@ -34,7 +34,7 @@ export class Conditioning{
     // @JoinColumn({name:"product_id"})
     // productId: Product;
 
-    @ManyToOne(type => ProductRovianda,productId=>productId.conditioning)
+    @ManyToOne(type => ProductRovianda,productId=>productId.conditioning,{eager:true})
     @JoinColumn({name:"product_id"})
     productId:ProductRovianda;
 

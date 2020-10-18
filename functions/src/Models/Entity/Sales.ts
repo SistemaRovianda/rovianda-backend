@@ -26,7 +26,7 @@ export class Sale{
     @Column()
     credit: number;
 
-    @OneToMany(type=>Debts,debts=>debts.sale,{cascade:true})
+    @OneToMany(type=>Debts,debts=>debts.sale,{eager:true,cascade:true})
     debts:Debts[];
 
     @ManyToOne(type=>Client,client=>client.sales)
@@ -35,5 +35,8 @@ export class Sale{
     
     @OneToMany(type=>SubSales,subSale=>subSale.sale,{eager:true,cascade:true})
     subSales:SubSales[];
+
+    @Column()
+    status:boolean;
 
 }

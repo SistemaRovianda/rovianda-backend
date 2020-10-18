@@ -1,10 +1,11 @@
 export interface TenderizedDTO{
-    formulationId:number;
-    temperature: string
-    weight: number
-    weightSalmuera: number
-    percentage: number
-    date: string
+    defrostId:number;
+    temperature: string;
+    weight: number;
+    weightSalmuera: number;
+    percentage: number;
+    date: string;
+    lotId:string;
 }
 
 export interface TenderizedDetails{
