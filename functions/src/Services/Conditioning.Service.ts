@@ -61,15 +61,20 @@ export class ConditioningService{
         let process:Process;
         if(formulation.process){
             process = formulation.process;
+            if(process.conditioning && !process.conditioning.length){
+                process.conditioning = new Array();
+            }
         }else{
             process = await this.createProcessInter();
             process.formulation = formulation;
             process.product = formulation.productRovianda;
+            if(formulation.status=="TAKED") throw new Error("[400], formulacion ya asignada");
+            formulation.status="TAKED";
+            await this.formulationRepository.saveFormulation(formulation);
         }
     
-    if(!formulation) throw new Error("[400], no existe esa formulación");
-    if(formulation.status=="TAKED") throw new Error("[400], formulacion ya asignada");
-    formulation.status="TAKED";
+    
+    
     let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(conditioningDTO.defrostId);
     let conditioning :Conditioning = new Conditioning();
     conditioning.raw = defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial;
@@ -78,7 +83,6 @@ export class ConditioningService{
     conditioning.healthing = conditioningDTO.healthing;
     conditioning.weight = conditioningDTO.weight;
     conditioning.temperature = conditioningDTO.temperature;
-    conditioning.productId = formulation.productRovianda;
     conditioning.date = conditioningDTO.date;
     conditioning.lotId  = defrostFormulation.defrost.outputCooling.loteInterno
             await this.formulationService.updateFormulation(formulation);
@@ -98,13 +102,9 @@ export class ConditioningService{
     }
 
     async getConditioning(processId:string){
-    
-       
-       
         let process:Process = await this.processRepository.findConditioningByProcessId(+processId);
         console.log(process)
         if(!process) throw new Error("[404], no existe el proceso");
-        if(process.conditioning==null) throw new Error("[404], no existe acondicionamiento relacionado a este proceso");
         let response:Array<conditioningDetails> = new Array();
         if(process.conditioning && process.conditioning.length){
         for(let conditioning of process.conditioning){
@@ -118,10 +118,6 @@ export class ConditioningService{
                 rawMaterial: conditioning.raw,
                 temperature: conditioning.temperature,
                 weight: conditioning.weight,
-                product:{
-                    id: conditioning.productId.id,
-                    description: conditioning.productId.name
-                },
                 formulation:{
                  id:  process.formulation.id,
                  lotDay: process.formulation.lotDay

@@ -12,7 +12,7 @@ export const processRoutes: Array<routeInterface> = [
         url:"/rovianda/process/:processId",
         method:"get",
         controller:ProcessController,
-        target:"getDefrost"
+        target:"getProcessDetails"
     },{
         url:"/rovianda/process-formulation/:processId",
         method: "get",
@@ -94,7 +94,15 @@ export const processRoutes: Array<routeInterface> = [
         method: "post",
         controller: SausagedController,
         target: "createSausaged"
-    }, {
+    },{
+        
+            url: "/rovianda/process/sausage/:sausageId",
+            method: "put",
+            controller: SausagedController,
+            target: "updateSausageHours"
+        
+    }, 
+    {
         url: "/rovianda/process/sausage/:processId",
         method: "get",
         controller: SausagedController,
@@ -134,5 +142,40 @@ export const processRoutes: Array<routeInterface> = [
         method: "get",
         controller: ProcessController,
         target: "getProcessProductsAvailables"
+    },
+    {
+        url: "/rovianda/process-reprocesing",
+        method: "post",
+        controller: ProcessController,
+        target: "saveReprocesing"
+    },{
+        url: "/rovianda/process/reprocesing/:processId",
+        method: "get",
+        controller: ProcessController,
+        target: "getReprocesingOfProcess"
+    },
+    {
+        url: "/rovianda/process/reprocesing-vinculated/:processId",
+        method: "get",
+        controller: ProcessController,
+        target: "getReprocesingVinculatedToProcess"
+    },
+    {
+        url: "/rovianda/process/use-reprocesing",
+        method: "post",
+        controller: ProcessController,
+        target: "useReprocesingLots"
+    },
+    {
+        url: "/rovianda/process/grinding-reprocesing/:processId",
+        method:"put",
+        controller: ProcessController,
+        target: "setGrindingReprocesing"
+    },
+    {
+        url: "/rovianda/process-reprocesing/getall",
+        method: "get",
+        controller: ProcessController,
+        target: "getAllLotsReprocesing"
     }
 ];

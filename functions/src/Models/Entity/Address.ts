@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Code, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Code, Column, OneToOne } from "typeorm";
+import { Client } from "./Client";
 
 @Entity({name:"address"})
 export class Address{
@@ -46,6 +47,7 @@ export class Address{
     @Column({nullable:false})
     nationality:string;
 
-    
+    @OneToOne(() => Client, client => client.address) // specify inverse side as a second parameter
+    client: Client;
 
 }

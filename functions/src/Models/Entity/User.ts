@@ -31,7 +31,7 @@ export class User{
     job:string;
 
     @ManyToOne(type=>Roles,roles=>roles.users)
-    @JoinColumn({name:"rol"})
+    @JoinColumn({name:"rol_id"})
     roles:Roles;
 
     @OneToMany(type =>EntranceMeat, entrancesMeat => entrancesMeat.qualityInspector)
@@ -59,16 +59,16 @@ export class User{
     packaging:Packaging[];
 
     @OneToMany(type=>SellerInventory,sellerInv=>sellerInv.seller)
-    sellerInventory?:SellerInventory[];
+    sellerInventory:SellerInventory[];
 
     @OneToMany(type=>Sale,sale=>sale.seller)
     sales:Sale[];
 
     @OneToMany(type=>SellerOperation,sellerOp=>sellerOp.seller)
-    sellerOperations?:SellerOperation[];
+    sellerOperations:SellerOperation[];
 
     @OneToMany(type=>Client,client=>client.seller)
-    clients?:Client[];
+    clientsArr:Client[];
 
     @OneToMany(type=>Debts,debts=>debts.seller)
     debts:Debts[];

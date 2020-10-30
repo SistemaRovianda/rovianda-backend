@@ -12,8 +12,8 @@ export class OvenProducts {
     @Column({ name: "estimated_time" })
     stimatedTime: string;
 
-    @ManyToOne(type=> ProductRovianda, productR=>productR.ovenProducts)
-    @JoinColumn({name:"product_id"})
+    @ManyToOne(type=> ProductRovianda, productR=>productR.ovenProducts,{eager:true})
+    @JoinColumn({name:"product_rovianda_id"})
     product:ProductRovianda;
  
     @Column({ name: "new_lote" })

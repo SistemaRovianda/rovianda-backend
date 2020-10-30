@@ -16,8 +16,6 @@ export interface TenderizedDetails{
     weightSalmuera:number,
     percentage: number,
     date: string,
-    product: {
-        id: number,
-        description: string
-    }
+    rawMaterial:string,
+    formulation:string
 }

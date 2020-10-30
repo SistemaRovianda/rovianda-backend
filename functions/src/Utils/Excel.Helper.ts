@@ -2075,7 +2075,7 @@ export default class Excel4Node{
         worksheet.cell(row, 6).string(`${process.conditioning ? "process.conditioning.date" : ""}`).style(style);
         worksheet.cell(row, 7).string(`${process.currentProcess ? process.currentProcess : ""}`).style(style);
         worksheet.cell(row, 8, row, 9, true).string(`${process.conditioning ? "process.conditioning.weight" : "" }`).style(style);
-        worksheet.cell(row, 10, row, 11, true).string(`${conditioning ? conditioning.productId : ""}`).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(`${conditioning ? conditioning.raw : ""}`).style(style);
         worksheet.cell(row, 12).string(`clave`).style(styleUser);
         worksheet.cell(row, 13).string(`Proceso`).style(styleUser);
 
@@ -2139,7 +2139,7 @@ export default class Excel4Node{
         worksheet.cell(row, 11).string("%INYECCION").style(styleUser);
 
         
-        worksheet.cell(++row, 4, row, 5, true).string(`${tenderized.productId == null ? "" : tenderized.productId.name}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 5, true).string(`${tenderized.raw == null ? "" : tenderized.raw}`).style(styleUser);
         worksheet.cell(row, 6).string(`${process.tenderized == null ? "" : "process.tenderized.date"}`).style(styleUser);
         worksheet.cell(row, 7).string(`${process.tenderized == null ? "" : "process.tenderized.weight"}`).style(styleUser);
         worksheet.cell(row, 8).string(`${process.tenderized == null ? "" : "process.tenderized.temperature"}`).style(styleUser);
@@ -2156,7 +2156,7 @@ export default class Excel4Node{
         worksheet.cell(row, 11).string("PESO kg. Fin(Hra)").style(styleUser);
 
         
-        worksheet.cell(++row, 4, row, 5, true).string(`${sausaged.productId == null ? "" :sausaged.productId.name}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 5, true).string(`${sausaged.raw == null ? "" :sausaged.raw}`).style(styleUser);
         worksheet.cell(row, 6).string(`${process.sausage == null ? "" : "process.sausage.date"}`).style(styleUser);
         worksheet.cell(row, 7).string(`${process.sausage == null ? "" : "process.sausage.temperature"}`).style(styleUser);
         worksheet.cell(row, 8).string(`${process.sausage == null ? "" : "process.sausage.weightIni"} (${process.sausage == null ? "" : "process.sausage.hour1"}`).style(styleUser);

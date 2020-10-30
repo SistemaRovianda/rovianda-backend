@@ -24,12 +24,13 @@ export class Grinding{
     @Column()
     date:string;
 
-    @ManyToOne(type => ProductRovianda,productR=>productR.grinding,{eager:true})
-    @JoinColumn({name:"product_rovianda_id"})
-    product:ProductRovianda;
+   
 
     @Column({name:"lot_id"})
     lotId:string;
+
+    @Column({name:"single_process"})
+    singleProcess:string;
 }
 
 

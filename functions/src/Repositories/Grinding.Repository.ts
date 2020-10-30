@@ -32,4 +32,11 @@ export class GrindingRepository{
         return await this.grindingRepository.query(`SELECT * FROM grinding ORDER BY id DESC LIMIT 1`)
     }
 
+    async getGrindingWithRaw(gringindId:number){
+        await this.getConnection();
+        return await this.grindingRepository.findOne({id:gringindId},{
+            relations:["raw"]
+        });
+    }
+
 }

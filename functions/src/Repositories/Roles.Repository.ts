@@ -27,7 +27,7 @@ export class RolesRepository{
 
     async getRolByDescription(description:string){
         await this.getConnection();
-        return await this.rolesRepository.findOne({description});
+        return await this.rolesRepository.findOne({description},{relations:["users"]});
     }
     
 }

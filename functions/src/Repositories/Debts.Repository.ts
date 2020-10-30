@@ -27,17 +27,18 @@ export class DebtsRepository{
             .getOne();*/
     }
 
-    async getSaleIdFromDebtId(debtId:number){
+    async getSaleIdFromDebtId(debId:number){
         await this.getConnection();
-        return await this.debtsRepository.query(`select sale_id from debts_sale where deb_id=${debtId}`);
+        return await this.debtsRepository.findOne({
+            debId
+        },{
+            relations:["sale"]
+        });
     }
     async payDeb(debId:number){
         await this.getConnection();
         await this.debtsRepository.query(`update debts_sale set status=0 where deb_id=${debId}`);
     }
-    async getActiveByClient(client:Client){
-        await this.getConnection();
-        return await this.debtsRepository.find({client,status:true});
-    }
+    
 
 }

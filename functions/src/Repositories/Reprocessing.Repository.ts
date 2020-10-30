@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
+import { Defrost } from '../Models/Entity/Defrost';
 
 
 export class ReprocessingRepository{
@@ -16,20 +17,22 @@ export class ReprocessingRepository{
         return await this.reprocessingRepository.save(reprocessing);
     }
 
-    async getByArea(area:string){
-        await this.getConnection();
-        return await this.reprocessingRepository.find({area});
-    }
 
     async getReprocessingById(id:number){
         await this.getConnection();
         return await this.reprocessingRepository.findOne({id})
     }
 
-    async getReprocessingByLotRepro(lotRepro:string){
+    async getByDefrost(defrost:Defrost){
         await this.getConnection();
-        return await this.reprocessingRepository.find({lotRepro})
+        return await this.reprocessingRepository.find({defrost});
     }
+
+    async getAllReprocesingActive(){
+        await this.getConnection();
+        return await this.reprocessingRepository.find({active:true});
+    }
+
 
 
 }

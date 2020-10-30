@@ -1,7 +1,10 @@
-import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { ProductRovianda } from './Product.Rovianda';
 import { Process } from './Process';
 import { OvenProducts } from './Oven.Products';
+import { Product } from "./Product";
+import { Defrost } from "./Defrost";
+import { Formulation } from "./Formulation";
 
 @Entity({name:"reprocessing"})
 export class Reprocessing{
@@ -12,20 +15,39 @@ export class Reprocessing{
     @Column()
     date:string;
 
-    @Column({name:"product_id"})
-    productId:number;
-
-    @Column({name:"lot_process"})
-    lotProcess:string;
-
-    @Column({name:"lot_repro"})
-    lotRepro:string;
+    @ManyToOne(type=>Defrost,defrost=>defrost.reprocesings,{eager:true,nullable:true})
+    @JoinColumn({name:"defrost_id"})
+    defrost:Defrost;
 
     @Column()
     allergens:string;
 
+    @Column({type:"float"})
+    weigth:number;
+
     @Column()
-    area:string;
-    //
+    active:boolean;
+
+    @Column()
+    used:boolean;
+
+    @ManyToOne(type=>Process,process=>process.reprocesings)
+    @JoinColumn({name:"process_id"})
+    process:Process;
+
+    @Column({name:"process_used"})
+    processUsed:string;
+
+    @Column({name:"weigth_used"})
+    weigthUsed:string;
+
+    @Column({name:"date_used"})
+    dateUsed:string;
+
+    @Column({name:"packaging_product_name",nullable:true})
+    packagingProductName:string;
+
+    @Column({name:"lot_reprocesing_oven",nullable:true})
+    packagingReprocesingOvenLot:string;
 
 }

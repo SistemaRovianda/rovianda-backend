@@ -54,11 +54,8 @@ export class Product {
     @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.ingredients)
     productRovianda: ProductRovianda[];
 
-    @OneToMany(type=> Tenderized,tenderized=>tenderized.productId)
-    tenderized: Tenderized[];
 
-    @OneToMany(type=> Sausaged,sausaged=>sausaged.productId)
-    sausaged: Sausaged[];
+  
 
     // @OneToMany(type=> Conditioning,conditioning=>conditioning.productId)
     // conditioning: Conditioning[];

@@ -32,6 +32,11 @@ export class SausagedController{
         return res.status(200).send(sausaged);
     }
 
+    async updateSausageHours(req:Request,res:Response){
+        let sausageId:number = +req.params.sausageId;
+        return res.status(204).send(await this.sausagedService.updateHours(sausageId,req.body));
+    }
+
     async updateSausaged(req:Request,res:Response){
         await this.sausagedService.updateSausaged(req.body,+req.params.sausageId);
         return res.status(204).send();

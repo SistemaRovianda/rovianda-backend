@@ -28,9 +28,8 @@ export class Tenderized{
     // @JoinColumn({name:"product_id"})
     // productId:Product;
 
-    @ManyToOne(type => ProductRovianda,productId=>productId.tenderized)
-    @JoinColumn({name:"product_id"})
-    productId:ProductRovianda;
+    @Column()
+    raw:string;
 
     @Column({name:"lote_meat"})
     loteMeat:string;

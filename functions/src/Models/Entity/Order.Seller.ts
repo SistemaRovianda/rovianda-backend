@@ -22,5 +22,5 @@ export class OrderSeller{
     urgent: boolean;
 
     @OneToMany(type=> SubOrder,saleRequest=>saleRequest.orderSeller,{cascade:true})
-    subOrders?: SubOrder[];
+    subOrders: SubOrder[];
 }

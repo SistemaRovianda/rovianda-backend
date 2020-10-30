@@ -1,13 +1,28 @@
 export interface ReprocessingDTO{
     date: string,
-    productId :  number,
-    lotId : string,
     weight : number,
-    allergen : string,
-    area : string
+    allergen : string
+    defrostId:number
 }
 
-export interface UpdateReprocessingDTO{
-  loteProcess:string,
-  reprocessingId:number
+export interface ReprocessingOfProcessDTO{
+    reprocesingId:number,
+    date:string;
+    weight:number;
+    allergen:string;
+    lotId:string;
+    productName:string;
+    active:boolean;
+    defrostId:number;
+    used:boolean;
+    process:string;
+    weightUsed:string;
+    dateUsed:string;
+}
+
+export interface UseReprocesingDTO{
+    reprocesingId:number,
+    process:string,
+    weight:string;
+    date:string;
 }

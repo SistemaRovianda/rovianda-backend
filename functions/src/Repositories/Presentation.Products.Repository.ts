@@ -56,12 +56,10 @@ export class PresentationsProductsRepository{
         presentation_products.presentation_id as presentationId,
         presentation_products.presentation,
         presentation_products.type_presentation as typePresentation,
-        presentation_products.price_presentation as pricePresentation
-        from presentation_products
-        left join products_rovianda_presentation
-        on products_rovianda_presentation.product_id = ${product}
-        where products_rovianda_presentation.presentation_id = presentation_products.presentation_id;
-        
+        presentation_products.price_presentation_public as pricePresentationPublic,
+        presentation_products.price_presentation_min as pricePresentationMin,
+        presentation_products.price_presentation_liquidation as pricePresentationLiquidation
+        from presentation_products where product_rovianda_id=${product}
         `)
     }
 

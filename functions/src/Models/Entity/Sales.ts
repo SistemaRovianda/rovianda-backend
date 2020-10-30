@@ -29,7 +29,7 @@ export class Sale{
     @OneToMany(type=>Debts,debts=>debts.sale,{eager:true,cascade:true})
     debts:Debts[];
 
-    @ManyToOne(type=>Client,client=>client.sales)
+    @ManyToOne(type=>Client,client=>client.sales,{eager:true})
     @JoinColumn({name:"client_id"})
     client:Client;
     
@@ -38,5 +38,11 @@ export class Sale{
 
     @Column()
     status:boolean;
+
+    @Column()
+    folio:string;
+
+    @Column({name:"with_debts"})
+    withDebts:boolean;
 
 }

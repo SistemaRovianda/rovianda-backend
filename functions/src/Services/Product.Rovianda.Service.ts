@@ -74,6 +74,8 @@ export class ProductRoviandaService{
         let productRoviandaId:number = +req.params.productId;
         let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productRoviandaId);
         if(!productRovianda) throw new Error("[404],el produto no existe");
+        await this.sqlsRepository.deleteProductRovianda(productRovianda);
+        await this.firebaseHelper.deleteImagen(productRovianda.imgS3);
         await this.productRoviandaRepository.deleteProductRoviandaById(productRoviandaId);
     }
 
@@ -196,7 +198,9 @@ export class ProductRoviandaService{
             presentationProduct.productRovianda = productRovianda;
             presentationProduct.typePrice = "PUBLICO";
             presentationProduct.status = true;
+            presentationProduct.keySae = i;
             productRovianda.presentationProducts.push(presentationProduct);
+
         }    
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
         

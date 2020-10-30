@@ -10,6 +10,8 @@ import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repo
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 import { Formulation } from '../Models/Entity/Formulation';
 import { FormulationRepository } from '../Repositories/Formulation.Repository';
+import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
+import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
 
 
 export class TenderizedService{
@@ -18,12 +20,14 @@ export class TenderizedService{
     private processRepository :ProcessRepository;
     private productRoviandaRepository: ProductRoviandaRepository;
     private formulationRepository:FormulationRepository;
+    private defrostFormulationRepository:DefrostFormulationRepository;
     constructor(){
         this.tenderizedRepository = new TenderizedRepository();
         this.productRepository = new ProductRepository();
         this.processRepository = new ProcessRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.formulationRepository = new FormulationRepository();
+        this.defrostFormulationRepository = new DefrostFormulationRepository();
     }
  
     async createProcessInter():Promise<Process>{
@@ -44,13 +48,21 @@ export class TenderizedService{
     async createTenderized(tenderizedDTO:Array<TenderizedDTO>, formulationId:number){
         let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
         if(!formulation) throw new Error("[404], no existe la formulacion");
-        if(formulation.status=="TAKED") throw new Error("[404], la salida de formulacion ya fue tomada");
+        
         let process:Process=null;
         if(formulation.process){
             process = formulation.process;
+            if(!process.tenderized){
+            process.tenderized = new Array<Tenderized>();
+            }
         }else{
             process = await this.createProcessInter();
             process.tenderized = new Array<Tenderized>();
+            process.product = formulation.productRovianda;
+            process.formulation=formulation;
+            if(formulation.status=="TAKED") throw new Error("[404], la salida de formulacion ya fue tomada");
+            formulation.status ="TAKED";
+            await this.formulationRepository.saveFormulation(formulation);
         }
         for(let tenderizedDto of tenderizedDTO){
             if(!tenderizedDto.date) throw new Error("[400], falta el parametro date");
@@ -61,10 +73,11 @@ export class TenderizedService{
             if(!tenderizedDto.defrostId) throw new Error("[400], falta el parametro defrostId");
             if(!tenderizedDto.lotId) throw new Error("[400], falta el parametro lotId");
             let tenderizedToSave:Tenderized = new Tenderized();
+            let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(tenderizedDto.defrostId);
             tenderizedToSave.date = tenderizedDto.date;
-            tenderizedToSave.loteMeat = tenderizedDto.lotId;
+            tenderizedToSave.loteMeat = defrostFormulation.defrost.outputCooling.loteInterno;
             tenderizedToSave.percentInject = tenderizedDto.percentage;
-            tenderizedToSave.productId = formulation.productRovianda;
+            tenderizedToSave.raw = defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial;
             tenderizedToSave.temperature = tenderizedDto.temperature;
             tenderizedToSave.weight = tenderizedDto.weight;
             tenderizedToSave.weightSalmuera = tenderizedDto.weightSalmuera;
@@ -91,8 +104,6 @@ export class TenderizedService{
         if (!processId) throw new Error("[400], processId in path is required");
         let process:Process = await this.processRepository.findProcessById(+processId)
         if(!process)throw new Error("[404], No existe proceso");
-        console.log(process);
-        
         let response:Array<TenderizedDetails> = new Array();
         if(process.tenderized && process.tenderized.length){
         for(let tenderized of process.tenderized){
@@ -104,10 +115,8 @@ export class TenderizedService{
                 weightSalmuera: tenderized.weightSalmuera,
                 percentage: tenderized.percentInject,
                 date: tenderized.date,
-                product: {
-                    id: tenderized.productId.id,
-                    description: tenderized.productId.name
-                }
+                rawMaterial:tenderized.raw,
+                formulation: process.formulation.lotDay
             });
             }
         }

@@ -43,10 +43,8 @@ export class Sausaged{
     // @ManyToOne(type=>Product, productId=>productId.sausaged, {eager:true, onDelete:"SET NULL"})
     // @JoinColumn({name:"product_id"})
     // productId:Product;
-
-    @ManyToOne(type => ProductRovianda,productId=>productId.sausaged)
-    @JoinColumn({name:"product_id"})
-    productId:ProductRovianda;
+    @Column()
+    raw:string;
 
     @ManyToOne(type=>Process,process=>process.sausage)
     sausage:Sausaged;

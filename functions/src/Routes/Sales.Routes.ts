@@ -1,5 +1,6 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { SalesRequestController } from '../Controllers/Sales.Controller';
+import { Sale } from "../Models/Entity/Sales";
 
 export const salesRoutes:Array<routeInterface>=[
     {
@@ -149,5 +150,11 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getAllTaxScheme"
+    },
+    {
+        url: "/rovianda/sale-ticket/:saleId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getSaleTicket"
     }
 ];

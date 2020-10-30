@@ -46,4 +46,7 @@ export class PresentationProducts {
 
     @Column({name:"type_price"})
     typePrice:string;
+
+    @Column({name:"key_sae"})
+    keySae:number;
 }

@@ -23,6 +23,7 @@ export class RevisionsOvenProducts{
     observations: string;
 
     @ManyToOne(type=>OvenProducts,oven=>oven.revisions)
+    @JoinColumn({name:"oven_product_id"})
     ovenProducts:OvenProducts;
 
     // @ManyToOne(type=>OvenProducts, ovenProducts=>ovenProducts.revisionsOvenProducts, {eager:true, onDelete:"SET NULL"})

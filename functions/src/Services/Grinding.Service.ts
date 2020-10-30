@@ -11,19 +11,21 @@ import { Raw } from "../Models/Entity/Raw";
 import { RawRepository } from "../Repositories/Raw.Repository";
 import { DefrostRepository } from "../Repositories/Defrost.Repository";
 import { Defrost } from "../Models/Entity/Defrost";
+import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
+import { DefrostFormulationRepository } from "../Repositories/DefrostFormulation.Repository";
 
 export class GrindingService{
     private grindingRepository:GrindingRepository;
     private processRepository: ProcessRepository;
     private formulationRepository:FormulationRepository;
     private rawRepository:RawRepository;
-    private defrostRepository:DefrostRepository;
+    private defrostFormulationRepository:DefrostFormulationRepository;
     constructor(){
         this.grindingRepository = new GrindingRepository();
         this.processRepository = new ProcessRepository();
         this.formulationRepository = new FormulationRepository();
         this.rawRepository = new RawRepository();
-        this.defrostRepository = new DefrostRepository();
+        this.defrostFormulationRepository = new DefrostFormulationRepository();
     }
 
     async createProcessInter():Promise<Process>{
@@ -46,65 +48,73 @@ export class GrindingService{
     }
 
     async createGrinding(formulationId:number,grindingsForm:Array<GrindingForm>){
+        let formulation:Formulation = await this.formulationRepository.getByFormulationIdAndProcess(formulationId);
+        if(!formulation) throw new Error("[404],no existe la formulacion indicada");
+        let processObj:Process = null;
+        if(!formulation.process){
+            processObj = await this.createProcessInter();
+            processObj.formulation = formulation;
+            processObj.grinding = new Array<Grinding>();
+            if(formulation.status=="TAKED") throw new Error("[409], formulation already taked");
+            formulation.status="TAKED";
+            await this.formulationRepository.saveFormulation(formulation);
+        }else{
+            processObj = formulation.process;
+            if(!processObj.grinding){
+                processObj.grinding = new Array<Grinding>();
+            }
+        }
+        
         for(let grindingForm of grindingsForm){
             if (!grindingForm.process) throw new Error('[400],process is required');
             if (!grindingForm.weight) throw new Error('[400],weight is required');
             if (!grindingForm.date) throw new Error('[400],date is required');
             if (!grindingForm.defrostId) throw new Error('[400],defrost is required');
 
-            let formulation:Formulation = await this.formulationRepository.getByFormulationIdAndProcess(formulationId);
-        if(!formulation) throw new Error("[404],no existe la formulacion indicada");
-        let processObj:Process = null;
-        if(!formulation.process){
-            processObj = await this.createProcessInter();
-            processObj.formulation = formulation;
-        }else{
-            processObj = formulation.process;
-        }
-        if(formulation.status=="TAKED") throw new Error("[409], formulation already taked");
-        formulation.status="TAKED";
-        await this.formulationRepository.saveFormulation(formulation);
+        
+        
+        
         processObj.product = formulation.productRovianda;
-        let defrost:Defrost = await this.defrostRepository.getDefrostById(grindingForm.defrostId);
+        let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(grindingForm.defrostId);
         
             let grinding = new Grinding();
-            grinding.process = processObj;
+            grinding.singleProcess=grindingForm.process;
             grinding.date = grindingForm.date;
-            grinding.raw = defrost.outputCooling.rawMaterial;
+            grinding.raw = defrostFormulation.defrost.outputCooling.rawMaterial;
             grinding.weight = grindingForm.weight;
-            grinding.product = formulation.productRovianda;
-            grinding.lotId = defrost.outputCooling.loteInterno;
-            let objGrinding:Grinding = await this.grindingRepository.saveGrinding(grinding);
-            if(!processObj.grinding.length){
-                processObj.grinding=[objGrinding];
-            }else{
-                processObj.grinding.push(objGrinding);
-            }
-            processObj.currentProcess = "Molienda";
-            await this.processRepository.saveProcess(processObj);
+            grinding.lotId = defrostFormulation.defrost.outputCooling.loteInterno;
+            
+            processObj.grinding.push(grinding);
+            
         }
+        processObj.currentProcess = "Molienda";
+        await this.processRepository.saveProcess(processObj);
         
     }
 
     async getGrindingByProcessId(req: Request){
         let id = req.params.processId;
         let process: Process = await this.processRepository.getProcessWithGrindingById(+id);
-        if(!process) throw new Error(`[404], Process not found`);
-        if(!process.grinding.length) throw new Error(`[404], not exist grinding in process ${id}`);
+        let response = new Array();
+
         
-        let response:Array<any> =process.grinding.map((x)=> {
-            return {
-            rawMaterial: x.raw.rawMaterial,
-            process: x.process,
-            weight: x.weight,
-            date: x.date,
-            nameProduct: x.product.name,
-            lotMeatId:x.lotId
+        if(process.grinding.length){
+            for(let grinding of process.grinding){
+                let grindingEntity:Grinding = await this.grindingRepository.getGrindingWithRaw(grinding.id);
+                response = process.grinding.map((x)=> {
+                    return {
+                    process: x.singleProcess,
+                    weight: x.weight,
+                    date: x.date,
+                    rawMaterial: grindingEntity.raw.rawMaterial,
+                    formulation: process.formulation.lotDay
+                }
+                });
+            }
+           
         }
-        });
-        return {
-            grindings:[...response]
-            };
+        return response;
+    
     }
 
     async saveGrinding(grinding:Grinding){

@@ -79,13 +79,16 @@ export class OvenRepository{
 
     async getOvenProductsById(id:number){
         await this.getConnection();
-        return await this.ovenRepository.query(`
-        SELECT * 
-        FROM oven_products 
-        INNER JOIN revisions_oven_products ON revisions_oven_products.ovenProductsId = oven_products.id 
-        INNER JOIN products_rovianda ON products_rovianda.id = oven_products.product_id 
-        WHERE oven_products.id = ${id};`
-        );
+        return await this.ovenRepository.findOne({
+            id
+        });
+    }
+
+    async getOvenProductsByIdWithRevisionsWithProduct(id:number){
+        await this.getConnection();
+        return await this.ovenRepository.findOne({
+            id
+        },{relations:["revisions"]});
     }
 
     async ById(id:number){
@@ -122,7 +125,7 @@ export class OvenRepository{
 
     async getOvensByNewLot(newLote:string){
         await this.getConnection();
-        return await this.ovenRepository.find({newLote})
+        return await this.ovenRepository.findOne({newLote})
     }
 
     async getOvenByProcessId(processId:number){

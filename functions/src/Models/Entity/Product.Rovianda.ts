@@ -41,17 +41,7 @@ export class ProductRovianda {
     @OneToMany(type=>Process, process=>process.product)
     process:Process[];
 
-    @OneToMany(type=>Grinding, grinding=>grinding.product)
-    grinding:Grinding[];
 
-    @OneToMany(type=>Conditioning, conditioning=>conditioning.productId)
-    conditioning:Conditioning[];
-
-    @OneToMany(type=>Sausaged, sausaged=>sausaged.productId)
-    sausaged:Sausaged[];
-
-    @OneToMany(type=>Tenderized, tenderized=>tenderized.productId)
-    tenderized:Tenderized[];
 
     @OneToMany(type=> Formulation,formulation=>formulation.productRovianda,{eager:false})
     formulation: Formulation[];
@@ -69,7 +59,7 @@ export class ProductRovianda {
     imgS3:string;
 
     @OneToMany(type=>SellerInventory,sellerInv=>sellerInv.product)
-    sellerInventory?:SellerInventory[];
+    sellerInventory:SellerInventory[];
 
     @OneToMany(type=>SubSales,subSale=>subSale.product)
     subSales:SubSales[];

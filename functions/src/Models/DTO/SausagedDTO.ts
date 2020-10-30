@@ -3,8 +3,8 @@ export interface SausagedDTO{
     date: string;
     time:
     {
-        hour:string;
-        weight:number;
+        hour1:string;
+        weightInitial:number;
     },
     defrostId:number;
 }
@@ -12,4 +12,9 @@ export interface SausagedDTO{
 export interface SausagedUpdateDTO{
     hour:string;
     weight:number;
+}
+export interface SausageHourRequest{
+    hour:number;
+    hourSaved:string;
+    weigthSaved:string;
 }

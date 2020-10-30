@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, ManyToOne, JoinColumn } from "typeorm";
-import { Change } from "firebase-functions";
 import { Address } from "./Address";
 import { Debts } from "./Debts";
 import { Sale } from "./Sales";
@@ -8,7 +7,7 @@ import { User } from "./User";
 @Entity({name:"clients"})
 export class Client{
 
-    @PrimaryGeneratedColumn({name:"client_id"})
+    @PrimaryGeneratedColumn({name:"clients_client_id"})
     id:number;
 
     @Column({name:"id_aspel"})
@@ -44,7 +43,8 @@ export class Client{
     @Column({name:"day_charge",nullable:true})
     dayCharge:number;
 
-    @OneToOne(type=>Address,{cascade:true})
+    @OneToOne(()=>Address,{eager:true,cascade:true})
+    @JoinColumn({name:"address_id"})
     address:Address;
 
     @Column()
@@ -53,13 +53,10 @@ export class Client{
     @Column({nullable:true})
     curp:string;
 
-    @OneToMany(type=>Debts,debs=>debs.client)
-    debs:Debts[];
-
     @OneToMany(type=>Sale,sale=>sale.client)
     sales:Sale[];
 
-    @ManyToOne(type=>User,user=>user.clients,{nullable:true})
+    @ManyToOne(type=>User,user=>user.clientsArr,{nullable:true})
     @JoinColumn({name:"seller_owner"})
     seller:User;
 

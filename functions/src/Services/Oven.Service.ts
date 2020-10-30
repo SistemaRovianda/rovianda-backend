@@ -57,12 +57,12 @@ export class OvenService{
         
     }
 
-    async getOvenProductsByProductId(req:Request){
-        if(!req.params.productId) throw new Error("[400], productId is required");
-        let oven:any = await this.ovenRepository.getOvenProductsById(+req.params.productId);
+    async getOvenProductsById(req:Request){
+        if(!req.params.ovenProductId) throw new Error("[400], ovenProductId is required");
+        
+        let oven:OvenProducts = await this.ovenRepository.getOvenProductsByIdWithRevisionsWithProduct(+req.params.ovenProductId);
         if(!oven) throw new Error("[404], oven not found");
-        let ovencons:OvenProducts = await this.ovenRepository.ById(+req.params.productId);
-        let revision:RevisionsOvenProducts[] = await this.revisionsOvenProductsRepository.getByOven(ovencons);
+        let revision:RevisionsOvenProducts[] = oven.revisions;
         let response2:any = []
         revision.forEach(i=>{
             response2.push({
@@ -76,16 +76,16 @@ export class OvenService{
         console.log(oven)
         let response:any = {};
         response = {
-            ovenProductId: `${oven[0].id}`,
-            estimatedTime: `${oven[0].product_id}`,
-            newLote: `${oven[0].new_lote}`,
-            pcc: `${oven[0].pcc}`,
-            oven: `${oven[0].oven}`,
+            ovenProductId: `${oven.id}`,
+            estimatedTime: `${oven.stimatedTime}`,
+            newLote: `${oven.newLote}`,
+            pcc: `${oven.pcc}`,
+            oven: `${oven.oven}`,
             product: {
-                id: `${oven[0].product_id}`,
-                description: `${oven[0].name}`
+                id: `${oven.product.id}`,
+                description: `${oven.product.name}`
             },
-            date: `${oven[0].date}`,
+            date: `${oven.date}`,
             revisions: response2
         };
 
@@ -180,7 +180,7 @@ export class OvenService{
         if(!product) throw new Error("[400], product not found");
         let oven:OvenProducts = new OvenProducts();
         oven.stimatedTime = ovenDTO.estimatedTime;
-        oven.newLote = ovenDTO.newLote;
+        oven.newLote = ovenDTO.newLote+ovenDTO.date.split("-").join("");
         oven.pcc = ovenDTO.pcc;
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;

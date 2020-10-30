@@ -36,6 +36,7 @@ import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Debts } from '../Models/Entity/Debts';
 import { Client } from '../Models/Entity/Client';
 import { DebtsPaymentRequest } from '../Models/DTO/Debts.DTO';
+import { TicketUtil } from '../Utils/Tickets/Ticket.Util';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -52,6 +53,7 @@ export class SalesRequestService{
     private subSalesRepository:SubSaleRepository;
     private sqlsRepository:SqlSRepository;
     private rolesRepository:RolesRepository;
+    private ticketUtil:TicketUtil;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -67,6 +69,7 @@ export class SalesRequestService{
         this.subSalesRepository = new SubSaleRepository();
         this.sqlsRepository = new SqlSRepository();
         this.rolesRepository = new RolesRepository();
+        this.ticketUtil = new TicketUtil();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -218,31 +221,24 @@ export class SalesRequestService{
 
     async getClientsOfSeller(sellerUid:string){
       let seller = await this.userRepository.getUserById(sellerUid);
+      let client:Client[] = await this.clientRepository.getClientBySellerAndDebts(seller);
       if(!seller) throw new Error("[404],no existe ese vendedor");
-      
-      return await this.clientRepository.getClientBySellerAndDebts(seller);
+      let response:Client[]=seller.clientsArr;
+      return response;
     }
 
     async payDeb(debId:number,debtsDTO:DebtsPaymentRequest){
       let debts:Debts=await this.debRepository.getDebts(debId);
       if (!debts)
         throw new Error(`[404],debt with id  ${debId} was not found`);
-        let sale:any = await this.debRepository.getSaleIdFromDebtId(debId);
-        console.log("sale",sale);
-        if(!sale.length) throw new Error("[404], no existe la venta");
+        let debs:Debts = await this.debRepository.getSaleIdFromDebtId(debId);
+        let sale:Sale = debs.sale;
         
       if(debts.amount==debtsDTO.amount){
-        let client= debts.client;
         debts.status=false;
         await this.debRepository.saveDebts(debts);
-        let debtsPending = await this.debRepository.getActiveByClient(client);
-        if(!debtsPending){
-          client.hasDebts=false;
-          await this.clientRepository.saveClient(client);
-        }
       }else if(debtsDTO.amount< debts.amount){
         let debtsNew:Debts = new Debts();
-        debtsNew.client=debts.client;
         debtsNew.amount=debts.amount-debtsDTO.amount;
         debtsNew.createDay= new Date().toISOString();
         debtsNew.days=debtsDTO.days;
@@ -253,10 +249,10 @@ export class SalesRequestService{
         await this.saleRepository.saveSale(saleEntity);
       }
       await this.debRepository.payDeb(debId);
-      let debstOfClient = await this.debRepository.getActiveByClient(debts.client);
+      let debstOfClient = await this.saleRepository.getAllDebsActive(debs.sale.client);
       if(!debstOfClient.length){
-         debts.client.hasDebts = false;
-         await this.clientRepository.saveClient(debts.client);
+         debs.sale.client.hasDebts = false;
+         await this.clientRepository.saveClient(debts.sale.client);
       }
     }
 
@@ -538,9 +534,11 @@ export class SalesRequestService{
       saleGral.date = date.toISOString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
+      if(saleRequestForm.credit){
+        saleGral.credit = saleRequestForm.credit;
+      }
       for(let sale of saleRequestForm.products){
        let subSale:SubSales = new SubSales();
-       
        let presentation:PresentationProducts = await this.presentationProductsRepository.getPresentationProductsById(sale.presentationId);
        subSale.presentation = presentation;
        subSale.product = presentation.productRovianda;
@@ -598,7 +596,6 @@ export class SalesRequestService{
      if(saleRequestForm.payed<saleGral.amount){
         saleGral.debts= new Array<Debts>();
        let debs:Debts = new Debts();
-       debs.client=clientRovianda;
        debs.amount=saleGral.amount-saleRequestForm.payed;
         debs.createDay= new Date().toISOString();
         debs.days=saleRequestForm.days;
@@ -610,10 +607,11 @@ export class SalesRequestService{
      }else{
        saleGral.status=false;
      }
-     await this.saleRepository.saveSale(saleGral);
+     let folio = await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+     saleGral.folio=folio;
+     let saleSaved:Sale =await this.saleRepository.saveSale(saleGral);
      console.log("iniciando proceso de grabado");
-    return await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
-
+     return saleSaved;
     }
 
     async getAllTaxSchemas(){
@@ -648,6 +646,16 @@ export class SalesRequestService{
       }
       }
       return response;
+    }
+
+    async getTicketOfSale(saleId:number){
+      let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      if(!sale) throw new Error("[404], no existe la venta");
+      
+      let subSales = await this.subSalesRepository.getSubSalesBySale(sale[0]);
+      let ticket:string = await this.ticketUtil.TicketSale(sale[0],subSales);
+      
+      return ticket;
     }
   }
 

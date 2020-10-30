@@ -7,7 +7,7 @@ export class SellerOperation{
     @PrimaryGeneratedColumn({name:"seller_operation_id"})
     sellerOperationId:number;
 
-    @ManyToOne(type=>User,user=>user)
+    @ManyToOne(type=>User,user=>user.sellerOperations)
     @JoinColumn({name:"seller_id"})
     seller:User;
 

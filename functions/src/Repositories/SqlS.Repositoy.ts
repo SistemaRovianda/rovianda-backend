@@ -7,6 +7,8 @@ import { WarehouseForm } from "../Models/DTO/Warehouse.DTO";
 import { ProductLineSae, ProductLineSaeForm, ProductRoviandaDTO, SaveProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
 import { ImpuSchemaSAE, SaleRequestForm } from "../Models/DTO/Sales.ProductDTO";
 import { UserDTO } from "../Models/DTO/UserDTO";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { In } from "typeorm";
 
 export class SqlSRepository{
 
@@ -462,11 +464,15 @@ export class SqlSRepository{
                         `insert into PAR_FACTP_CLIB01(CLAVE_DOC,NUM_PART) values(@CLAVE_DOC,@NUM_PART)`
                     );
                     console.log("inserto venta 5");
+                    
                 }
 
+                return '0'.repeat(10-count.length)+count;
+
             }
-        )
+        );
         await this.connection.close();
+        return result;
     }
 
     async getAllTaxSchemas(){
@@ -513,5 +519,40 @@ export class SqlSRepository{
         );
         await this.connection.close();
         return result.recordset;
+    }
+
+    async deleteProductRovianda(productRovianda:ProductRovianda){
+        await this.getConnection();
+        await this.connection.connect().then(async(pool)=>{
+            for(let presentation of productRovianda.presentationProducts){
+                await pool.request().input('CVE_ART',VarChar,presentation.keySae).query(
+                    `
+                    delete from MINVE01 where =@CVE_ART
+                    `
+                );
+                await pool.request().input('CVE_ART',Int,presentation.keySae)
+            .query(`
+                delete from MULT01 where CVE_ART=@CVE_ART
+            `);
+            
+            await pool.request().input('CVE_ART',VarChar,presentation.keySae)
+                .query(`
+                delete from PRECIO_X_PROD01 where CVE_ART=@CVE_ART
+                `);
+
+                await pool.request().input('CVE_ART',VarChar,presentation.keySae).query(
+                    `
+                    delete from INVE01 where CVE_ART=@CVE_ART
+                    `
+                )
+            
+            await pool.request().input('CVE_PROD',VarChar,)
+            .query(`
+            delete from INVE_CLIB01 where CVE_PROD=@CVE_PROD
+            `);
+ 
+        }
+
+        });
     }
 }

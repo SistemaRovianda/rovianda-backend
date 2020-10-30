@@ -26,8 +26,7 @@ export class SubOrder{
     units:number;
 
     @OneToMany(type=>SubOrderMetadata,metadata=>metadata.subOrder,{eager:true,onDelete:"SET NULL"})
-    @JoinColumn({name:"sub_order_metadata_id"})
-    SubOrderMetadata?:SubOrderMetadata[];
+    subOrderMetadata:SubOrderMetadata[];
 
     @Column({name:"type_price"})
     typePrice:string;

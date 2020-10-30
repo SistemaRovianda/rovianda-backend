@@ -29,8 +29,8 @@ export class GrindingController{
     }
 
     async createGrinding(req:Request,res:Response){
-        let processId:number = +req.params.processId;
-        await this.grindingService.createGrinding(processId,req.body);
+        let formulationId:number = +req.params.formulationId;
+        await this.grindingService.createGrinding(formulationId,req.body);
         return  res.status(200).send();
     }
 }

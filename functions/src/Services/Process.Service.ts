@@ -20,6 +20,11 @@ import { FormulationRepository } from '../Repositories/Formulation.Repository';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { Defrost } from '../Models/Entity/Defrost';
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
+import { ReprocessingDTO, ReprocessingOfProcessDTO, UseReprocesingDTO } from '../Models/DTO/ReprocessingDTO';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
+import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
+import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
+import { Formulation } from '../Models/Entity/Formulation';
 
 
 
@@ -29,8 +34,10 @@ export class ProcessService{
     private userRepository:UserRepository;
     
     private outputsCoolingRepository:OutputsCoolingRepository;
-    
+    private reprocesingRepository:ReprocessingRepository;
     private defrostRepository:DefrostRepository;
+    private formulationRepository:FormulationRepository;
+    
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
         
@@ -39,6 +46,11 @@ export class ProcessService{
         this.outputsCoolingRepository = new OutputsCoolingRepository();
         
         this.defrostRepository = new DefrostRepository();
+
+        this.reprocesingRepository = new ReprocessingRepository();
+
+        this.formulationRepository = new FormulationRepository();
+        
     }
 
      async createProcessInter():Promise<Process>{
@@ -138,6 +150,12 @@ export class ProcessService{
         return await this.processRepository.getProcessWithGrindingById(id);
     }
 
+    async getDefrostDetails(defrostId:number){
+
+        let defrost:Defrost=await this.defrostRepository.getDefrostById(defrostId);
+        if(!defrost) throw new Error("[404], no existe la salida de enfriamiento con el id: "+defrostId);
+        return defrost;
+    }
     
 
     async updateStatusProcess(processId:number){
@@ -179,13 +197,13 @@ export class ProcessService{
         if(!userProcessDTO.nameElaborated) throw new Error("[400], falta el parametro nameElaborated");
         if(!userProcessDTO.nameVerify) throw new Error("[400], falta el parametro nameVerify");
 
-        let cadena = userProcessDTO.nameVerify.split(" ");
-        let userVerify = await this.userRepository.getByFullName(cadena[0],cadena[1],cadena[2])
-        if (!userVerify[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameVerify}`);
+        // let cadena = userProcessDTO.nameVerify.split(" ");
+        // let userVerify = await this.userRepository.getByFullName(cadena[0],cadena[1],cadena[2])
+        // if (!userVerify[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameVerify}`);
 
-        let cadena2 = userProcessDTO.nameElaborated.split(" ");
-        let userElaborated = await this.userRepository.getByFullName(cadena2[0],cadena2[1],cadena2[2])
-        if (!userElaborated[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameElaborated}`);
+        // let cadena2 = userProcessDTO.nameElaborated.split(" ");
+        // let userElaborated = await this.userRepository.getByFullName(cadena2[0],cadena2[1],cadena2[2])
+        // if (!userElaborated[0])  throw new Error(`[400], no existe usuario ${userProcessDTO.nameElaborated}`);
 
         let process: Process = await this.processRepository.findProcessById(+processId);
         if(!process) throw new Error("[400], no existe proceso");
@@ -198,10 +216,20 @@ export class ProcessService{
         return await this.processRepository.createProcess(process);
     }
 
-    async getDefrost(defrostId:number){
-        let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostId);
-        if(!defrost) throw new Error("[400], no existe el enfriamiento");
-        return defrost;
+    async getProcessDetails(processId:number){
+        let process:Process = await this.processRepository.findProcessById(processId);
+        if(!process) throw new Error("[400], no existe el proceso");
+        let response:{processId:number,formulationId:number,productName:string,lotDay:string,sausage:boolean,tenderized:boolean,conditioning:boolean,grinding:boolean}={
+                processId:processId,
+                formulationId: process.formulation.id,
+                productName:process.product.name,
+                lotDay: process.formulation.lotDay,
+                sausage: process.sausage.length?true:false,
+                tenderized: process.tenderized.length?true:false,
+                conditioning: process.conditioning.length?true:false,
+                grinding: process.grinding.length?true:false
+            }
+        return response;
     }
 
     async getProcessAllAvailables(){
@@ -233,6 +261,116 @@ export class ProcessService{
             return -1;
         }else{
             return process.formulation.id;
+        }
+    }
+
+    async saveReprocesing(reprocessingDTO:ReprocessingDTO[]){ // modificacion
+        for(let reprocesing of reprocessingDTO){
+            let defrost:Defrost = await this.defrostRepository.getDefrostById(reprocesing.defrostId);
+            if(!defrost) throw new Error("[404], no existe ese lote de descongelamiento");
+            let reprocesingEntity:Reprocessing = new Reprocessing();
+            reprocesingEntity.allergens = reprocesing.allergen;
+            reprocesingEntity.date=reprocesing.date;
+            reprocesingEntity.weigth = reprocesing.weight;
+            reprocesingEntity.defrost = defrost;
+            reprocesingEntity.active = true;
+            await this.reprocesingRepository.saveRepocessing(reprocesingEntity);
+        }
+    }
+
+    async getReprocesingOfProcess(processId:number){ // modificacion
+        let process:Process = await this.processRepository.findProcessById(processId);
+        if(!process) throw new Error("[404], no existe el proceso");
+        let formulation:Formulation = process.formulation;
+        let response:ReprocessingOfProcessDTO[]=[];
+        for(let defrostFormulation of formulation.defrosts){
+            let reprocesings = await this.reprocesingRepository.getByDefrost(defrostFormulation.defrost);
+            for(let reprocesing of reprocesings){
+                response.push({
+                    allergen: reprocesing.allergens,
+                    date: reprocesing.date,
+                    lotId: defrostFormulation.lotMeat,
+                    productName: defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial,
+                    weight: reprocesing.weigth,
+                    active: reprocesing.active,
+                    defrostId: defrostFormulation.defrost.defrostId,
+                    reprocesingId: reprocesing.id,
+                    used: reprocesing.used,
+                    dateUsed: reprocesing.dateUsed,
+                    process: reprocesing.processUsed,
+                    weightUsed: reprocesing.weigthUsed
+                });
+            }
+        }
+        return response;
+    }
+
+    async getReprocesingsAsignedToProcess(processId:number){ // modificacion
+        let process:Process = await this.processRepository.findProcessByIdWithReprocesings(processId);
+        if(!process) return [];
+        let response:ReprocessingOfProcessDTO[]= process.reprocesings.map((reprocesing)=>({
+            allergen: reprocesing.allergens,
+            date: reprocesing.date,
+            lotId: reprocesing.defrost?reprocesing.defrost.outputCooling.loteInterno:reprocesing.packagingReprocesingOvenLot,
+            productName: reprocesing.defrost?reprocesing.defrost.outputCooling.rawMaterial.rawMaterial:reprocesing.packagingProductName,
+            weight: reprocesing.weigth,
+            active: reprocesing.active,
+            defrostId: reprocesing.defrost?reprocesing.defrost.defrostId:0,
+            reprocesingId: reprocesing.id, 
+            used: reprocesing.used,
+            dateUsed: reprocesing.dateUsed,
+            process: reprocesing.processUsed,
+            weightUsed: reprocesing.weigthUsed
+        }));
+        return response;
+    }
+
+    async setGrindingReprocesingToProcess(processId:number,reprocesings:Array<number>){ // modificacion <pendiente de analisis>
+        let process:Process=await this.processRepository.getProcessById(processId);
+        process.reprocesings=new Array<Reprocessing>();
+        for(let reprocesingId of reprocesings){
+            let reprocesing:Reprocessing = await this.reprocesingRepository.getReprocessingById(reprocesingId);
+            if(!reprocesing) throw new Error("[404], no existe el reproceso");
+            reprocesing.active=false;
+            reprocesing.used=false;
+            process.reprocesings.push(reprocesing);
+        }
+        await this.processRepository.saveProcess(process);
+    }
+
+    async getAllLotsReprocesing(){ // modificacion
+        let reprocesings:Reprocessing[] = await this.reprocesingRepository.getAllReprocesingActive();
+        let response:ReprocessingOfProcessDTO[]=[];
+        for(let reprocesing of reprocesings){
+            response.push({
+                allergen: reprocesing.allergens,
+                date: reprocesing.date,
+                lotId: reprocesing.defrost?reprocesing.defrost.outputCooling.loteInterno:reprocesing.packagingReprocesingOvenLot,
+                productName: reprocesing.defrost?reprocesing.defrost.outputCooling.rawMaterial.rawMaterial:reprocesing.packagingProductName,
+                weight: reprocesing.weigth,
+                active: reprocesing.active,
+                defrostId: reprocesing.defrost?reprocesing.defrost.defrostId:0,
+                reprocesingId: reprocesing.id,
+                used: reprocesing.used,
+                dateUsed: reprocesing.dateUsed,
+                process: reprocesing.processUsed,
+                weightUsed: reprocesing.weigthUsed
+            });
+        }
+        return response;
+    }
+
+
+    async useLotsReprocesing(useReprocesingDTO:UseReprocesingDTO[]){// actualizacion de reproceso record
+        for(let useReprocesing of useReprocesingDTO){
+            let reprocesing:Reprocessing = await this.reprocesingRepository.getReprocessingById(useReprocesing.reprocesingId);
+            if(!reprocesing) throw new Error("[404], no existe el lote de reproceso");
+            if(reprocesing.used==true) throw new Error("[409], el lote de reproceso ya fue utilizado");
+            reprocesing.used=true;
+            reprocesing.processUsed=useReprocesing.process;
+            reprocesing.dateUsed=useReprocesing.date;
+            reprocesing.weigthUsed=useReprocesing.weight;
+            await this.reprocesingRepository.saveRepocessing(reprocesing);
         }
     }
 }

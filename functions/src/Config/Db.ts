@@ -64,6 +64,7 @@ const config: ConnectionOptions = {
     database: "new_rovianda",//"rovianda-test-dev",
     synchronize: true,
     logging: false,
+    debug:false,
     entities: [
         EntranceMeat,
         Roles,
@@ -76,9 +77,7 @@ const config: ConnectionOptions = {
         EntranceStore,
         EntranceDrief,
         EntrancePacking,
-        RevisionsOvenProducts,
         OvenProducts,
-        Product,
         ProductRovianda,
         Formulation,
         FormulationIngredients,
@@ -93,7 +92,6 @@ const config: ConnectionOptions = {
         WarehouseDrief,
         OutputsDrief,
         OutputsPacking,
-        OvenProducts,
         RevisionsOvenProducts,
         Packaging,
         DryingLabel,
@@ -111,8 +109,9 @@ const config: ConnectionOptions = {
         SubOrder,
         SubOrderMetadata,
         SellerInventory,
-        Address,Client,Debts,Sale,SellerOperation,SubSales,
-        Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes
+        Address,Debts,Sale,SellerOperation,SubSales,
+        Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes,
+        Client
     ]
 }
 let connection: Connection;

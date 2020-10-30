@@ -1,7 +1,7 @@
 import { OrderSellerRequest, OrderSellerRequestProduct } from "../../Models/DTO/Sales.ProductDTO";
 
 export async function validateOrderSeller(order:OrderSellerRequest){
-    if(!order.urgent) throw new Error("[400],falta el parametro urgent en el request");
+    if(typeof order.urgent!="boolean") throw new Error("[400],falta el parametro urgent en el request");
     if(!order.products) throw new Error("[400],falta el parametro products en el request");
     if(!order.products.length) throw new Error("[400],el parametro products no puede estar vacio en el request");
     let dateHour = new Date(order.date);

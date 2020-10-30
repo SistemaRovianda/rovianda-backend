@@ -6,6 +6,7 @@ import { Sausaged } from './Sausaged';
 import { ProductRovianda } from "./Product.Rovianda";
 import { User } from "./User";
 import { Formulation } from "./Formulation";
+import { Reprocessing } from "./Reprocessing";
 
 
 @Entity({name:"process"})
@@ -74,8 +75,10 @@ export class Process{
     // @OneToOne(type => Grinding)
     // @JoinColumn({ name: "molienda_id" })
     // moliendaId: Grinding;
-
     
+    @OneToMany(type=>Reprocessing,reprocesing=>reprocesing.process,{cascade:true})
+    reprocesings:Reprocessing[];
+
 }
 
 

@@ -28,15 +28,6 @@ export class Conditioning{
     @Column()
     date:string;
 
-    // //@OneToOne(type => Product)
-    // //@JoinColumn({name:"product_id"})
-    // @ManyToOne(type=>Product, productId=>productId.conditioning, {eager:true, onDelete:"SET NULL"})
-    // @JoinColumn({name:"product_id"})
-    // productId: Product;
-
-    @ManyToOne(type => ProductRovianda,productId=>productId.conditioning,{eager:true})
-    @JoinColumn({name:"product_id"})
-    productId:ProductRovianda;
 
     @Column()
     temperature:string;

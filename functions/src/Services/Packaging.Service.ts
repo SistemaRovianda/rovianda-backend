@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO, PackagingOutput } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO, PackagingOutput, PackagingReprocesingRequest } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -11,7 +11,7 @@ import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
-import { ReprocessingDTO,UpdateReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
+import { ReprocessingDTO } from '../Models/DTO/ReprocessingDTO';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { User } from '../Models/Entity/User';
@@ -30,6 +30,7 @@ import { SubOrderMetadataRepository } from '../Repositories/SubOrder.Metadata.Re
 import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { SellerInventoryRepository } from '../Repositories/Seller.Inventory.Repository';
 import { Process } from '../Models/Entity/Process';
+import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
 
 
 export class PackagingService{
@@ -48,6 +49,7 @@ export class PackagingService{
     private subOrderRepository:SalesRequestRepository;
     private subOrderMetadataRepository:SubOrderMetadataRepository;
     private sellerInventoryRepository:SellerInventoryRepository;
+    
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
@@ -111,76 +113,7 @@ export class PackagingService{
 
     }
 
-    async getReprocessingByArea(area:string){
-        if(!area) throw new Error("[400], area is required");
-        if(area == REPROCESSING.ACONDICIONAMIENTO ||
-            area == REPROCESSING.DESCONGELAMIENTO ||
-           area == REPROCESSING.EMBUTIDO ||
-            area == REPROCESSING.INJECCIONTENDERIZADO ||
-           area == REPROCESSING.MOLIENDA){
-               let reprocessing:Reprocessing[] = await this.reprocessingRepository.getByArea(area);
-               let response:any = [];
-               reprocessing.forEach( i=> {
-                   if(!i.lotProcess){
-                       response.push({
-                           reprocessingId: `${i.id}`,
-                           date: `${i.date}`,
-                           productId: `${i.productId}`,
-                           loteProcess: `${i.lotProcess}`,
-                           loteReprocessing: `${i.lotRepro}`,
-                           allergens: `${i.allergens}`,
-                           area: `${i.area}`
-                       })
-                   }
-               })
-               return response;
-        }else{
-            throw new Error("[404], Area incorret");
-        }
-    }
-        
-    async saveReprocessing(reprocessingDTO:ReprocessingDTO){
-
-        if(!reprocessingDTO.date) throw new Error("[400], date is required");
-        if(!reprocessingDTO.area) throw new Error("[400], area is required");
-        if(!reprocessingDTO.lotId) throw new Error("[400], lotId is required");
-        if(!reprocessingDTO.productId) throw new Error("[400], productId is required");
-        if(!reprocessingDTO.weight) throw new Error("[400], weight is required");
-        
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(reprocessingDTO.productId);
-        console.log("Consulta")
-        if(!product) throw new Error("[404], product not found");
-        console.log("Consulta")
-        let lot:OvenProducts = await this.ovenRepository.getOvenProductByLot(reprocessingDTO.lotId);
-        if(!lot) throw new Error("[404], lot not found");
-        console.log(lot)
-        let process:any = await this.processRepository.getProceesByLot(lot.newLote,reprocessingDTO.productId);
-
-        if(reprocessingDTO.area == REPROCESSING.ACONDICIONAMIENTO ||
-            reprocessingDTO.area == REPROCESSING.DESCONGELAMIENTO ||
-            reprocessingDTO.area == REPROCESSING.EMBUTIDO ||
-            reprocessingDTO.area == REPROCESSING.INJECCIONTENDERIZADO ||
-            reprocessingDTO.area == REPROCESSING.MOLIENDA){
-                let reprocessing:Reprocessing = new Reprocessing();
-                if(reprocessingDTO.allergen) {reprocessing.allergens = reprocessingDTO.allergen;}
-                reprocessing.area = reprocessingDTO.area;
-                reprocessing.date = reprocessingDTO.date;
-                reprocessing.lotRepro = lot.newLote;
-                reprocessing.productId = product.id;
-                //reprocessing.lotProcess = process[0].lote_interno;
-                return await this.reprocessingRepository.saveRepocessing(reprocessing);
-        
-        }else{
-            throw new Error("[404], Status incorret");
-        }
-
-        
-        //servicio que retorne todos los reprosesos pero aquellos que no tengan
-        //lot repro filtrado por area
-    
-        // console.log("hecho")
-        
-    }
+   
   
     async saveUsersPackaging(userPackagingDTO:UserPackaginggDTO, packagingId:string){
 
@@ -336,16 +269,7 @@ export class PackagingService{
 
     }
 
-    async updateReprocessing(updateReprocessingDTO:UpdateReprocessingDTO){
-        if(!updateReprocessingDTO.loteProcess) throw new Error("[400], loteProcess is required");
-        if(!updateReprocessingDTO.reprocessingId) throw new Error("[400], reprocessingId is required");
-        let reprocessing:Reprocessing = await this.reprocessingRepository.getReprocessingById(updateReprocessingDTO.reprocessingId);
-        if(!reprocessing) throw new Error("[404], repocessing not found");
-        // let process:Process = await this.processRepository.getProceesByLotInerno(updateReprocessingDTO.loteProcess);
-        // if(!process) throw new Error("[404], lote Interno not found");
-        reprocessing.lotProcess = updateReprocessingDTO.loteProcess;
-        return await this.reprocessingRepository.saveRepocessing(reprocessing);
-    }
+    
 
     async getPackagingById(packagingId:number){
 
@@ -427,5 +351,19 @@ export class PackagingService{
             })
         }
         return response;
+    }
+
+    async createReprocesing(request:PackagingReprocesingRequest){
+        let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLot(request.lotId);
+        if(!ovenProduct) throw new Error("[404], no existe ese lote en salidas de hornos");
+        let reprocesing:Reprocessing = new Reprocessing();
+        reprocesing.active=true;
+        reprocesing.used=false;
+        reprocesing.allergens=request.allergen;
+        reprocesing.date=request.date;
+        reprocesing.weigth = request.weight;
+        reprocesing.packagingProductName=ovenProduct.product.name;
+        reprocesing.packagingReprocesingOvenLot=request.lotId;
+        await this.reprocessingRepository.saveRepocessing(reprocesing);
     }
 }

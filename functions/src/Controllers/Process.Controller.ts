@@ -159,8 +159,8 @@ export class ProcessController {
         return res.status(200).send(await this.processService.getAllDefrostActive());
     }
 
-    async getDefrost(req:Request,res:Response){
-        let responde = await this.processService.getDefrost(+req.params.processId);
+    async getProcessDetails(req:Request,res:Response){
+        let responde = await this.processService.getProcessDetails(+req.params.processId);
         return res.status(200).send(responde);
     }
 
@@ -229,10 +229,37 @@ export class ProcessController {
 
     async getDefrostDetails(req:Request,res:Response){
         let defrostId:number = +req.params.defrostId;
-        return res.status(200).send(await this.processService.getDefrost(defrostId));
+        return res.status(200).send(await this.processService.getDefrostDetails(defrostId));
     }
 
     async getAllInactiveDefrost(req:Request,res:Response){
         return res.status(200).send(await this.processService.getAllDefrostInactive());
+    }
+
+    async saveReprocesing(req:Request,res:Response){
+        return res.status(201).send(await this.processService.saveReprocesing(req.body));
+    }
+
+    async getReprocesingOfProcess(req:Request,res:Response){
+        let processId:number = +req.params.processId;
+        return res.status(200).send(await this.processService.getReprocesingOfProcess(processId));
+    }
+    async getReprocesingVinculatedToProcess(req:Request,res:Response){
+        let processId:number = +req.params.processId;
+        return res.status(200).send(await this.processService.getReprocesingsAsignedToProcess(processId));
+    }
+
+    async setGrindingReprocesing(req:Request,res:Response){
+        let processId:number = +req.params.processId;
+        await this.processService.setGrindingReprocesingToProcess(processId,req.body);
+        return res.status(201).send();
+    }
+
+    async getAllLotsReprocesing(req:Request,res:Response){
+        return res.status(200).send(await this.processService.getAllLotsReprocesing());
+    }
+
+    async useReprocesingLots(req:Request,res:Response){
+        return res.status(201).send(await this.processService.useLotsReprocesing(req.body));
     }
 }

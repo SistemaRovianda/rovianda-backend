@@ -17,10 +17,6 @@ export interface conditioningDetails{
     weight: number,
     bone: boolean,
     temperature: string,
-    product: {
-        id: number,
-        description: string
-    },
     date: string,
     formulation:{
         id: number,

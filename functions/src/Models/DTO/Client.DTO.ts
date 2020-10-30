@@ -60,7 +60,7 @@ export interface addressClient{
         cp:number;
         state: string;
         municipality: string;
-        nationality: string;
+        nationality?: string;
 }
 
 

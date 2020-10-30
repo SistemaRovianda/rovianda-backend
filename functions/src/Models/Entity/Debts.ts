@@ -9,9 +9,7 @@ export class Debts{
     @PrimaryGeneratedColumn({name:"deb_id"})
     debId:number;
 
-    @ManyToOne(type=>Client,client=>client.debs,{eager:true})
-    @JoinColumn({name:"client_id"})
-    client:Client;
+  
 
     @Column()
     amount:number;

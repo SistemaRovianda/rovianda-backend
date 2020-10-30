@@ -42,6 +42,7 @@ export class App extends ErrorHandler{
                 //this.mapMulter(route,req,res,next);
                 await (route.controller)[route.target](req,res);
                 }catch(err){
+                    console.log(err);
                     this.parser(err.message,res);
                 }
             })

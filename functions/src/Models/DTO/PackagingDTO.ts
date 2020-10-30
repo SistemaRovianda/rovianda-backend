@@ -64,3 +64,10 @@ export interface SubOrdersMetadataDTO{
         
     }]
 }
+
+export interface PackagingReprocesingRequest{
+    date:string;
+    lotId:string;
+    allergen:string;
+    weight:number;
+}

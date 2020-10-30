@@ -16,11 +16,7 @@ export class PackagingController{
         return res.status(201).send({packaging: response});
     }
 
-    async updateReprocessing(req:Request,res:Response){
-        await this.packagingService.updateReprocessing(req.body);
-        return res.status(204).send();
-    }
-
+   
     async getProducts(req:Request,res:Response){
         let products:ProductRovianda[] = await this.packagingService.getProducts();
         return res.status(200).send(products);
@@ -31,15 +27,7 @@ export class PackagingController{
         return res.status(200).send(packaging);
     }
 
-    async saveReprocessing(req:Request,res:Response){
-        await this.packagingService.saveReprocessing(req.body);
-        return res.status(201).send();
-    }
-
-    async getReprocessingByArea(req:Request,res:Response){
-        let response = await this.packagingService.getReprocessingByArea(req.params.area);
-        return res.status(200).send(response);
-    }
+  
   
     async saveUsersPackaging(req:Request,res:Response){
         await this.packagingService.saveUsersPackaging(req.body, req.params.packagingId);
@@ -90,5 +78,9 @@ export class PackagingController{
     async getPackagingLotProduct(req:Request,res:Response){
         let response = await this.packagingService.getPackagingLotProduct();
         return res.status(200).send(response);
+    }
+
+    async createPackagingReprocesing(req:Request,res:Response){
+        return res.status(201).send(await this.packagingService.createReprocesing(req.body));
     }
 }

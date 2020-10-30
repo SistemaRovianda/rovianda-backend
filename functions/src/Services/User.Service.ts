@@ -58,7 +58,7 @@ export class UserService{
 
     async getUserById(req:Request){
         if(!req.params.uuid) throw new Error("[400], uuid is required");
-        let user:User = await this.userRepository.getUserById(req.params.uuid);
+        let user:User = await this.userRepository.getUserbyIdWithRol(req.params.uuid);
         if(!user)  throw new Error("[404],user not found");
         let response = {};
         response ={
@@ -91,18 +91,17 @@ export class UserService{
 
     async getUserByRol(rol:string){
         if(!rol) throw new Error("[400], rol is required");
-        let roles:Roles = await this.rolesRepository.getRolByDescription(rol);
+        let roles:Roles = await this.rolesRepository.getRolByDescription(rol.toUpperCase());
         if(!roles) throw new Error("[404], rol not found");
-        let users:User[] = await this.userRepository.getByRol(roles);
         let response:any = [];
-        users.forEach(i =>{
+        roles.users.forEach(i =>{
             response.push({
                 userId: `${i.id}`,
                 fullName: `${i.name} `,
-                rol: `${i.roles.description}`,
+                rol: `${rol}`,
                 job: `${i.job}`
             })
-        })
+        });
         return response;
     }
 
@@ -110,7 +109,8 @@ export class UserService{
         if(!uid) throw new Error("[400], uid is required");
         let user:User = await this.userRepository.getUserById(uid);
         if(!user) throw new Error("[404], User not found");
-        return user;    }
+        return user;    
+    }
 
     async getUserByFullName(name:string){
         let fullname= name.split(" ");

@@ -13,11 +13,6 @@ export const packagingRoutes:Array<routeInterface>=[
         controller:PackagingController,
         target:"getProducts" 
     },{
-        url:"/rovianda/packaging/reprocessing",
-        method:"post",
-        controller:PackagingController,
-        target:"saveReprocessing" 
-    },{
         url:"/rovianda/packaging/users/:packagingId",
         method:"post",
         controller:PackagingController,
@@ -42,11 +37,6 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "get",
         controller: PackagingController,
         target: "getPackaging"
-    },{
-        url:"/rovianda/packaging/reprocessing/:area",
-        method:"get",
-        controller:PackagingController,
-        target:"getReprocessingByArea" 
     },
     {
         url: "/rovianda/packaging-lots/inventory/product/:productId", // servicio para obtener los productos por presentation y por lote en empaques
@@ -59,12 +49,6 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "post",
         controller: PackagingController,
         target: "savePackagingInventoryLotsProductOutput"
-    },
-    {
-        url:"/rovianda/packaging/reprocessing/lot",
-        method:"patch",
-        controller:PackagingController,
-        target:"updateReprocessing" 
     },
     {
         url:"/rovianda/packaging/outputsProduct",
@@ -83,5 +67,11 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"get",
         controller:PackagingController,
         target:"getPackagingLotProduct" 
+    },
+    {
+        url: "/rovianda/packaging/reprocessing",
+        method:"post",
+        controller: PackagingController,
+        target: "createPackagingReprocesing"
     }
 ];

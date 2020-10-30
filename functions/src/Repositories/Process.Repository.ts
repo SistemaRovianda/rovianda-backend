@@ -68,7 +68,15 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["sausage","tenderized","conditioning","grinding","product"]
+            relations:["sausage","tenderized","conditioning","grinding"]
+        });
+    }
+
+    async findProcessByIdWithReprocesings(processId:number){
+        await this.getConnection();
+        return await this.processRepository.findOne({
+            where: {id:processId},
+            relations:["reprocesings"]
         });
     }
 

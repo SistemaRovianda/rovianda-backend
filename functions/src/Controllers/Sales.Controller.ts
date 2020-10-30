@@ -3,6 +3,7 @@ import { SalesRequestService } from '../Services/Sales.Request.Service';
 
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { Sale } from '../Models/Entity/Sales';
 
 
 export class SalesRequestController{
@@ -135,8 +136,8 @@ export class SalesRequestController{
     }
     
     async createSaleSae(req:Request,res:Response){
-        await this.salesRequestService.createSaleSae(req.body);
-        return res.status(201).send();
+        let sale:Sale =await this.salesRequestService.createSaleSae(req.body);
+        return res.status(200).send({saleId:sale.saleId});
     }
 
     async getAllTaxScheme(req:Request,res:Response){
@@ -156,4 +157,10 @@ export class SalesRequestController{
         let clientId:number = +req.params.clientId;
         return res.status(200).send(await this.salesRequestService.getDebtsOfClient(clientId));
     }
+
+    async getSaleTicket(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        return res.status(200).send(await this.salesRequestService.getTicketOfSale(saleId));
+    }
+
 } 

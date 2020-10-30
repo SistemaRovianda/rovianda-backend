@@ -53,4 +53,6 @@ export class ClientRepository{
         await this.getConnection();
         return await this.clientRepository.find({seller,hasDebts:true});
     }
+
+
 }

@@ -15,10 +15,10 @@ export const ovenRoutes:Array<routeInterface>=[
         target: "updateOvenProduct"
     },
     {
-        url: "/rovianda/oven/product/:productId",
+        url: "/rovianda/oven/product/:ovenProductId",
         method: "get",
         controller: OvenController,
-        target: "getOvenProductsByProductId"
+        target: "getOvenProductsById"
     },
     {
         url: "/rovianda/oven/product",

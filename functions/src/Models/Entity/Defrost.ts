@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { DefrostFormulation } from "./Defrost.Formulation";
 import { OutputsCooling } from "./outputs.cooling";
+import { Reprocessing } from "./Reprocessing";
 
 @Entity({name:"defrost"})
 export class Defrost{
@@ -35,5 +36,8 @@ export class Defrost{
 
     @OneToMany(type=>DefrostFormulation,defrostFormulation=>defrostFormulation.defrost)
     defrostFormulations:DefrostFormulation[]
+
+    @OneToMany(type=>Reprocessing,reprocesing=>reprocesing.defrost)
+    reprocesings:Reprocessing[];
 
 }
