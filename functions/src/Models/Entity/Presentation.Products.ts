@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable, JoinColumn, OneToOne } from "typeorm";
 import { PropertiesPackaging } from "./Properties.Packaging";
 import { ProductRovianda } from "./Product.Rovianda";
 import { SubOrder } from "./SubOrder.Sale.Seller";
 import { SellerInventory } from "./Seller.Inventory";
 import { SubSales } from "./Sub.Sales";
+import { Devolution } from "./Devolution";
 
 @Entity({ name: "presentation_products" })
 export class PresentationProducts {
@@ -48,5 +49,8 @@ export class PresentationProducts {
     typePrice:string;
 
     @Column({name:"key_sae"})
-    keySae:number;
+    keySae:string;
+
+    @OneToMany(type=>Devolution,devolution=>devolution.presentationProduct)
+    devolutions:Devolution[];
 }

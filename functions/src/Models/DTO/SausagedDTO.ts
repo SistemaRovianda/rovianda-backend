@@ -7,6 +7,7 @@ export interface SausagedDTO{
         weightInitial:number;
     },
     defrostId:number;
+    lotId:string;
 }
 
 export interface SausagedUpdateDTO{

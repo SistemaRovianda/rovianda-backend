@@ -156,5 +156,10 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getSaleTicket"
+    },{
+        url: "/rovianda/day-ended/:sellerUid",
+        method:"get",
+        controller:SalesRequestController,
+        target: "endDaySeller"
     }
 ];

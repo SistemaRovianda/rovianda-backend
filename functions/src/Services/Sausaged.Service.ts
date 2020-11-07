@@ -35,7 +35,7 @@ export class SausagedService{
     async createProcessInter():Promise<Process>{
         let process:Process = new Process();
         let today = new Date();
-        today.setHours(today.getHours()-5)
+        today.setHours(today.getHours()-6)
         let dd:any = today.getDate();
         let mm:any = today.getMonth()+1; 
         let yyyy:any = today.getFullYear();
@@ -69,20 +69,17 @@ export class SausagedService{
         for(let sausagedDTO of sausagedsDTO){
             if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
             if(!sausagedDTO.date) throw new Error("[400], date is required");
-            if(!sausagedDTO.defrostId) throw new Error("[400], defrostId is required");
+            
             if(!sausagedDTO.time.hour1) throw new Error("[400], hour1 is required");
             if(!sausagedDTO.time.weightInitial) throw new Error("[400], weightInitial is required");
-            
-            let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(sausagedDTO.defrostId);
-            if(!defrostFormulation) throw new Error("[404], no existe la salida de enfriamiento con id: "+sausagedDTO.defrostId);
-            
+            if(!sausagedDTO.lotId) throw new Error("[400], lotId property required");
             let sausaged = new Sausaged();
             sausaged.date = sausagedDTO.date;
             sausaged.hour1 = sausagedDTO.time.hour1;
             sausaged.temperature = sausagedDTO.temperature;
-            sausaged.loteMeat = defrostFormulation.defrost.outputCooling.loteInterno;
+            sausaged.loteMeat = sausagedDTO.lotId;
             sausaged.weightIni = sausagedDTO.time.weightInitial.toString();
-            sausaged.raw = defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial;
+            sausaged.raw = process.product.name;
             
             process.sausage.push(sausaged);
             

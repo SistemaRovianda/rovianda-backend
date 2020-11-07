@@ -2,13 +2,17 @@ import {Request,Response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { PackagingService } from '../Services/Packaging.Service'
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { Devolution } from '../Models/Entity/Devolution';
+import * as pdf from 'html-pdf';
 
 export class PackagingController{
 
    
     private packagingService: PackagingService;
+    
     constructor(private firebaseInstance:FirebaseHelper){
         this.packagingService = new PackagingService();
+        
     }
 
     async savePackaging(req:Request,res:Response){
@@ -60,8 +64,8 @@ export class PackagingController{
     }
 
     async savePackagingInventoryLotsProductOutput(req:Request,res:Response){
-        let userPackingId:string = req.params.userPackingId;
-        await this.packagingService.savePackagingInventoryLotsProductOutput(req.body,userPackingId)
+        
+        await this.packagingService.savePackagingInventoryLotsProductOutput(req.body)
         return res.status(201).send();
     }
 
@@ -81,6 +85,60 @@ export class PackagingController{
     }
 
     async createPackagingReprocesing(req:Request,res:Response){
-        return res.status(201).send(await this.packagingService.createReprocesing(req.body));
+        let reprocesingId=await this.packagingService.createReprocesing(req.body)
+        return res.status(200).send({reprocesingId});
+    }
+
+    async getPackagingReprocesingReport(req:Request,res:Response){
+        let reprocesingId=+req.params.reprocesingId;
+        let reprocesingReport= await this.packagingService.getReprosessingById(reprocesingId);
+        pdf.create(reprocesingReport, {
+            format: 'Legal',
+            header: {
+                height: "2.5cm"
+            },
+            footer: {
+                height: "2.5cm"
+          },
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=Reproceso.pdf`
+            });
+            stream.pipe(res);
+        }))
+    }
+    async createDevolution(req:Request,res:Response){
+        let devolution:Devolution= await this.packagingService.createDevolution(req.body);
+        return res.status(200).send({devolutionId:devolution.id});
+    }
+
+    async getDevolutionReport(req:Request,res:Response){
+        let devolutionId:number=+req.params.devolutionId;
+        let content:string=await this.packagingService.getDevolutionDetails(devolutionId);
+        pdf.create(content, {
+            format: 'Legal',
+            orientation:`landscape`,
+            header: {
+                height: ".5cm"
+            },
+            footer: {
+                height: ".5cm"
+          },
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=Devolucion.pdf`
+            });
+            stream.pipe(res);
+        }))
+    }
+
+    async closeOrderSeller(req:Request,res:Response){
+        let orderSellerId:number = +req.params.orderSellerId;
+        await this.packagingService.closeOrderSeller(orderSellerId);
+        return res.status(204).send();
     }
 }

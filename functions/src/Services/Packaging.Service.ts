@@ -1,5 +1,5 @@
 import { PackagingRepository } from '../Repositories/Packaging.Repository';
-import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO, PackagingOutput, PackagingReprocesingRequest } from '../Models/DTO/PackagingDTO';
+import { PackagingDTO, UserPackagingDTO, PackagingAssignedDTO, UserPackaginggDTO, PackagingOutput, PackagingReprocesingRequest, DevolutionRequest } from '../Models/DTO/PackagingDTO';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { OvenRepository } from '../Repositories/Oven.Repository';
 import { Packaging } from '../Models/Entity/Packaging';
@@ -31,7 +31,12 @@ import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { SellerInventoryRepository } from '../Repositories/Seller.Inventory.Repository';
 import { Process } from '../Models/Entity/Process';
 import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
-
+import { SqlSRepository } from '../Repositories/SqlS.Repositoy';
+import { Devolution } from '../Models/Entity/Devolution';
+import { DevolutionRepository } from '../Repositories/Devolution.Repository';
+import PdfHelper from '../Utils/Pdf.Helper';
+import { Inspection } from '../Models/Entity/Inspection';
+import { InspectionRepository } from '../Repositories/Inspection.Repository';
 
 export class PackagingService{
 
@@ -49,7 +54,10 @@ export class PackagingService{
     private subOrderRepository:SalesRequestRepository;
     private subOrderMetadataRepository:SubOrderMetadataRepository;
     private sellerInventoryRepository:SellerInventoryRepository;
-    
+    private sqlRepository:SqlSRepository;
+    private devolutionRepository:DevolutionRepository;
+    private pdfHelper:PdfHelper;
+    private inspectionRepository:InspectionRepository;
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
@@ -66,6 +74,10 @@ export class PackagingService{
         this.subOrderRepository = new SalesRequestRepository();
         this.subOrderMetadataRepository = new SubOrderMetadataRepository();
         this.sellerInventoryRepository= new SellerInventoryRepository();
+        this.sqlRepository= new SqlSRepository();
+        this.devolutionRepository=new DevolutionRepository();
+        this.pdfHelper=new PdfHelper();
+        this.inspectionRepository=new InspectionRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO) {
@@ -90,19 +102,23 @@ export class PackagingService{
         packaging.lotId = packagingDTO.lotId;
         packaging.expiration = packagingDTO.expiration;
         packaging.active = true;
-        await this.packagingRepository.savePackaging(packaging);
-        let packing = await this.packagingRepository.getLastPackaging();
+        
+        let packing=await this.packagingRepository.savePackaging(packaging);
+        
         for(let e = 0; e<packagingDTO.products.length; e++){
             let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
             let presentation:PresentationProducts= await this.presentationProductRepository.getPresentationProductsById(packagingDTO.products[e].presentationId)
             propertiesPackaging.weight = packagingDTO.products[e].weight;
             propertiesPackaging.observations = packagingDTO.products[e].observations;
             propertiesPackaging.units = packagingDTO.products[e].units;
-            propertiesPackaging.packaging = packing[0];
+            propertiesPackaging.packaging = packing;
             propertiesPackaging.presentation = presentation;
+            propertiesPackaging.active=true;
+            
+            await this.sqlRepository.updateProductInSae(presentation.keySae,packagingDTO.products[e].units);
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
-        return packing[0].id;
+        return packing.id;
    }
   
     async getProducts() {
@@ -222,51 +238,50 @@ export class PackagingService{
         return await this.packagingRepository.getPackagingAvailableProductLotsPresentation(productId);
     }
 
-    async savePackagingInventoryLotsProductOutput(packagingOutput:PackagingOutput,userPackingId:string){
-        await validPackagingOutput(packagingOutput);
-        let orderSeller:OrderSeller = await this.orderSellerRepository.getOrderById(packagingOutput.orderSellerId);
-        if(!orderSeller) throw new Error("[404], no existe la orden");
-        try{
-            let user:User = await this.userRepository.getUserbyIdWithRol(userPackingId);
-            if(!user) throw new Error("[404], no existe el usuario empacador");
-            if(user.roles.description!="PACKAGING") throw new Error("[401], el usuario no es de empaque");
-        for(let product of packagingOutput.products){
-            for(let presentation of product.presentations){
-                let subOrder:SubOrder = await this.subOrderRepository.getSubOrder(presentation.subOrderId);
-                if(!subOrder) throw new Error(`[404], no existe la subOrden: ${presentation.subOrderId}`);
-                let cantidad = presentation.lots.map(x=>x.quantity).reduce((a,b)=>a+b,0);
-                if(subOrder.units<cantidad) throw new Error(`[409], se requiren mas productos para la subOrden ${presentation.subOrderId}, ${cantidad} de ${subOrder.units}`);
-                for(let loteItem of presentation.lots){
-                    let subOrderMetadata:SubOrderMetadata = new SubOrderMetadata();
-                    subOrderMetadata.loteId=loteItem.lotId;
-                    subOrderMetadata.quantity=loteItem.quantity;
-                    subOrderMetadata.subOrder=subOrder;
-                    subOrderMetadata.outputDate=packagingOutput.dateOutput;
-                    await this.subOrderMetadataRepository.saveSubOrderMetadata(subOrderMetadata);
-                    let presentationProducts:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentation.presentationId);
-                    if(!presentationProducts) throw new Error(`[404], no existe la presentacion del producto con el id: ${presentation.presentationId}`);
-                    let sellerInventory:SellerInventory = new SellerInventory();
-                    sellerInventory.loteId = loteItem.lotId;
-                    sellerInventory.presentation=presentationProducts;
-                    sellerInventory.quantity = loteItem.quantity
-                    sellerInventory.dateEntrance=packagingOutput.dateOutput;
-                    let productRovianda:ProductRovianda = await this.productRoviandaRepository.getById(product.productId);
-                    if(!productRovianda) throw new Error(`[404], no existe el producto de rovianda con el id: ${product.productId}`);
-                    sellerInventory.product = productRovianda;
-                    let presetationEntity:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentation.presentationId)
-                    if(!presetationEntity) throw new Error(`[404], no existe la presentacion con el id:${presentation.presentationId}`);
-                    sellerInventory.presentation= presetationEntity;
-                    sellerInventory.seller=orderSeller.user; 
-                    await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
-                }
-            }
+    async savePackagingInventoryLotsProductOutput(packagingOutput:PackagingOutput[]){
+        for(let pack of packagingOutput){
+        await validPackagingOutput(pack);
         }
-        }catch(err){
-            await this.subOrderRepository.deleteByOrderSeller(packagingOutput.orderSellerId);
-            throw new Error(err.message);
-        }      
-        
-
+        for(let pack of packagingOutput){
+                let subOrder:SubOrder = await this.subOrderRepository.getSubOrderById(pack.subOrderId);
+                if(!subOrder) throw new Error("[404], no existe la subOrder");
+                let presentationProducts:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(pack.presentationId);
+                if(!presentationProducts) throw new Error(`[404], no existe la presentacion del producto con el id: ${pack.presentationId}`);
+                let packaging:Packaging=await this.packagingRepository.getPackagingByLotId(pack.loteId);
+                let propertiesPackagings:PropertiesPackaging=await this.propertiesPackagingRepository.getPropertiesPackagingByPackagingAndPresentationAndCount(packaging,presentationProducts,pack.quantity);
+                if(propertiesPackagings){
+                    propertiesPackagings.units-=pack.quantity;
+                    await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackagings);
+                }
+                    let subOrderMetadata:SubOrderMetadata = new SubOrderMetadata();
+                    subOrderMetadata.loteId=pack.loteId;
+                    subOrderMetadata.quantity=pack.quantity;
+                    subOrderMetadata.weigth=pack.weigth;
+                    subOrderMetadata.subOrder=subOrder;
+                    let date= new Date();
+                    date.setHours(date.getHours()-6)
+                    subOrderMetadata.outputDate=date.toISOString();
+                    if(!subOrder.subOrderMetadata.length){
+                        subOrder.subOrderMetadata=new Array();
+                    }
+                    subOrder.subOrderMetadata.push(subOrderMetadata);
+                    let sellerInventory:SellerInventory = new SellerInventory();
+                    sellerInventory.loteId = pack.loteId;
+                    sellerInventory.presentation=presentationProducts;
+                    sellerInventory.quantity = pack.quantity
+                    sellerInventory.dateEntrance=date.toString();
+                    sellerInventory.product =presentationProducts.productRovianda;
+                    sellerInventory.weigth= pack.weigth;
+                    let order= await this.orderSellerRepository.getOrderById(subOrder.orderSeller.id);
+                    sellerInventory.seller=order.seller;
+                    subOrder.units=subOrder.units-pack.quantity;
+                     
+                    if(subOrder.units==0){
+                    subOrder.active=false;    
+                    }
+                    await this.subOrderRepository.saveSalesProduct(subOrder); 
+                    await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+        }
     }
 
     
@@ -314,17 +329,20 @@ export class PackagingService{
         let bUrgent:boolean;
         if(urgent == "true" || urgent == "True"){ bUrgent = true;}
         if(urgent == "false" || urgent == "False"){ bUrgent = false;} 
-        let orderSeller:OrderSeller[] = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
+        let orderSellers:OrderSeller[] = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
         let response:any = [];
-        orderSeller.forEach( i=> {
+        for(let order of orderSellers){
+            let orderSeller = await this.orderSellerRepository.getOrderById(order.id);
             response.push({
-                orderId: `${i.id}`,
-                date: `${i.date}`,
-                userId: `${i.user ? i.user.id : ""}`,
-                vendedor: `${i.user ? i.user.name : ""} `,
-                status: `${i.status}`
+                orderId: `${orderSeller.id}`,
+                date: `${orderSeller.date}`,
+                userId: `${orderSeller.seller.id}`,
+                vendedor: `${orderSeller.seller.name} `,
+                status: `${orderSeller.status}`
             })
-        });
+        }
+        
+      
         return response;
 
     }
@@ -338,11 +356,14 @@ export class PackagingService{
             let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+packaging[i].product_id);
             let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(product);
             for(let e = 0; e < aPackaging.length; e++){
-                let process:Process = await this.processRepository.findProcessById(+aPackaging[e].lotId);
-                response2.push({
-                    processId: process ? process.id : "",
-                    lotId:"" //process ? process.formulation : ""
-                });
+                let ovenProduct:OvenProducts = await this.ovenRepository.getOvenProductByLot(aPackaging[e].lotId);
+                let inspections:Inspection[]= await this.inspectionRepository.getByProcessId(ovenProduct.processId);
+                if(!inspections.length){
+                    response2.push({
+                        processId: ovenProduct.processId,
+                        lotId: ovenProduct.newLote
+                    });
+                }
             }
             response.push({
                 productId: product ? product.id : "",
@@ -364,6 +385,56 @@ export class PackagingService{
         reprocesing.weigth = request.weight;
         reprocesing.packagingProductName=ovenProduct.product.name;
         reprocesing.packagingReprocesingOvenLot=request.lotId;
-        await this.reprocessingRepository.saveRepocessing(reprocesing);
+        reprocesing.comment=request.comment;
+        let reprocesingEntity=await this.reprocessingRepository.saveRepocessing(reprocesing);
+        return reprocesingEntity.id;
+    }
+
+    async getReprosessingById(reprocesingId:number){
+        let reprocesing:Reprocessing=await this.reprocessingRepository.getReprocessingById(reprocesingId);
+        if(!reprocesing) throw new Error("[404], no existe el reproceso");
+        return await this.pdfHelper.getReprocesingPackagingReport(reprocesing);
+    }
+
+    async createDevolution(devolutionRequest:DevolutionRequest){
+        let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLot(devolutionRequest.lotId);
+        if(!ovenProduct) throw new Error("[404], no existe el lote en salidas de hornos");
+        let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
+        if(!presentation) throw new Error("[404], no existe la presentation de ese producto");
+        ovenProduct.status="CLOSED";
+        let devolution:Devolution = new Devolution();
+        devolution.date=devolutionRequest.date;
+        devolution.lotId=devolutionRequest.lotId;
+        devolution.units=devolutionRequest.units;
+        devolution.presentationProduct=presentation;
+        await this.ovenRepository.saveOvenProduct(ovenProduct);
+        return await this.devolutionRepository.saveDevolution(devolution);
+    }
+
+    async getDevolutionDetails(devolutionId:number){
+        let devolution:Devolution = await this.devolutionRepository.getDevolutionById(devolutionId);
+        if(!devolution) throw new Error("[404], no existe la devolucion");
+        let ovenProduct=await this.ovenRepository.getOvensByNewLot(devolution.lotId);
+        if(!ovenProduct) throw new Error("[409], la devolucion no esta vinculada a un lote de hornos");
+        return await this.pdfHelper.getPackagingDevolution(devolution,ovenProduct.product.name);
+    }
+
+    async closeOrderSeller(orderSellerId:number){
+        let orderSeller:OrderSeller= await this.orderSellerRepository.getOrderById(orderSellerId);
+        orderSeller.status="INACTIVE";
+        await this.orderSellerRepository.saveSalesSeller(orderSeller);
+    }
+
+    async getReportOfDeliveredSeller(orderSellerId:number){
+        let orderSeller:OrderSeller = await this.orderSellerRepository.getOrderByIdWithSuborders(orderSellerId);
+        let mapSubOrderWeigth=new Map<number,number>();
+        for(let subOrder of orderSeller.subOrders){
+            let subOrdersMetadata = await this.subOrderMetadataRepository.getSubOrderMetadataBySubOrder(subOrder);
+            
+            subOrder.units=subOrdersMetadata.map(x=>x.quantity).reduce((a,b)=>a+b,0);
+            let weigth=subOrdersMetadata.map(x=>x.weigth).reduce((a,b)=>a+b,0);
+            mapSubOrderWeigth.set(subOrder.subOrderId,weigth);
+        }
+        return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mapSubOrderWeigth);
     }
 }

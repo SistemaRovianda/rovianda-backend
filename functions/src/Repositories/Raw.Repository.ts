@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Raw } from '../Models/Entity/Raw';
+import { Grinding } from '../Models/Entity/Grinding';
 
 
 export class RawRepository{
@@ -35,6 +36,5 @@ export class RawRepository{
         await this.getConnection();
         return await this.rawRepository.query(`SELECT * FROM raw ORDER BY id DESC LIMIT 1`)
     }
-
 
 }

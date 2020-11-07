@@ -92,7 +92,7 @@ export class PackagingRepository{
         await this.getConnection();
         return await this.packagingRepository.query(
             `select prop.presentation_id as presentationId,prep.presentation,prep.price_presentation_public as pricePresentationPublic
-            ,prep.price_presentation_min as pricePresentationMin,prep.price_presentation_liquidation as pricePresentationLiquidation,prep.type_price as typePrice,sum(prop.units) as quantity from properties_packaging as prop 
+            ,prep.price_presentation_min as pricePresentationMin,prep.price_presentation_liquidation as pricePresentationLiquidation,prep.type_price as typePrice,sum(prop.units) as quantity,prep.key_sae as keySae,prep.type_presentation as typePresentation from properties_packaging as prop
             inner join presentation_products as prep on prop.presentation_id=prep.presentation_id inner join packaging pack 
             on prop.packaging_id= pack.id where pack.product_id=${productId} and pack.active=1 group by prop.presentation_id; `
         );
@@ -102,7 +102,7 @@ export class PackagingRepository{
         await this.getConnection();
         return await this.packagingRepository.query(
             `select pack.product_id as productId,pack.lot_id as loteId,sum(propack.units) as quantity,propack.presentation_id as presentationId,
-            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation
+            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation_public as pricePresentationPublic,pp.price_presentation_min as pricePresentationMin,pp.price_presentation_liquidation as pricePrecentationLiquidation
              from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id inner join presentation_products as pp
              on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and pack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
         ) as Array<PackagingProductPresentationLot>;
@@ -128,7 +128,7 @@ export class PackagingRepository{
     async getPackagingOrdeByProduct(){
         await this.getConnection();
         return await this.packagingRepository.query(`
-        SELECT * FROM packaging  ORDER BY packaging.product_id
+        SELECT distinct(product_id) FROM packaging  ORDER BY packaging.product_id
         `);
     }
 
@@ -136,7 +136,7 @@ export class PackagingRepository{
         await this.getConnection();
         return await this.packagingRepository.find({
             where:{ productId},
-            relations:["productId","userId"]
+            relations:["productId"]
         });
     }
 }

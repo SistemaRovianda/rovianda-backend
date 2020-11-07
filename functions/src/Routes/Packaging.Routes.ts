@@ -8,6 +8,12 @@ export const packagingRoutes:Array<routeInterface>=[
         controller:PackagingController,
         target:"savePackaging"
     },{
+        url:"/rovianda/packaging/:orderSellerId",
+        method:"put",
+        controller:PackagingController,
+        target:"closeOrderSeller"   
+    }
+    ,{
         url:"/rovianda/pack",
         method:"get",
         controller:PackagingController,
@@ -45,7 +51,7 @@ export const packagingRoutes:Array<routeInterface>=[
         target: "getPackagingInventoryLotsProduct"
     },
     {
-        url: "/rovianda/packaging-lots/inventory/product/outputs/:userPackingId",
+        url: "/rovianda/packaging-lots/inventory/product/outputs",
         method: "post",
         controller: PackagingController,
         target: "savePackagingInventoryLotsProductOutput"
@@ -73,5 +79,24 @@ export const packagingRoutes:Array<routeInterface>=[
         method:"post",
         controller: PackagingController,
         target: "createPackagingReprocesing"
+    },
+    {
+        url: "/rovianda/packaging/reprocessing-report/:reprocesingId",
+        method:"get",
+        controller: PackagingController,
+        target: "getPackagingReprocesingReport"
+    }
+    ,
+    {
+        url: "/rovianda/packaging/devolution",
+        method: "post",
+        controller: PackagingController,
+        target: "createDevolution"
+    },
+    {
+        url: "/rovianda/packaging/devolution-report/:devolutionId",
+        method: "get",
+        controller:PackagingController,
+        target: "getDevolutionReport"
     }
 ];

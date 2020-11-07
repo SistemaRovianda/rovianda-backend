@@ -16,7 +16,7 @@ export class SubOrder{
 
     @ManyToOne(type=>ProductRovianda, productRovianda=>productRovianda.subOrdersSeller, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"product_id"})
-    product:ProductRovianda;
+    productRovianda:ProductRovianda;
 
     @ManyToOne(type=>PresentationProducts, presentation=>presentation.saleRequest, {eager:true, onDelete:"SET NULL"})
     @JoinColumn({name:"presentation_id"})
@@ -25,9 +25,12 @@ export class SubOrder{
     @Column()
     units:number;
 
-    @OneToMany(type=>SubOrderMetadata,metadata=>metadata.subOrder,{eager:true,onDelete:"SET NULL"})
+    @OneToMany(type=>SubOrderMetadata,metadata=>metadata.subOrder,{eager:true,cascade:true,onDelete:"SET NULL"})
     subOrderMetadata:SubOrderMetadata[];
 
     @Column({name:"type_price"})
     typePrice:string;
+
+    @Column()
+    active:boolean;
 }

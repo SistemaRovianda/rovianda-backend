@@ -8,6 +8,7 @@ export interface ProcessAvailablesToOven{
     productId:number;
     productName:string;
     dateEndedProcess:string;
+    lotDay:string;
 }
 export interface ProcessAvailablesByLots{
     productId:number;
@@ -18,4 +19,5 @@ export interface ProcessAvailablesByLots{
 export interface LotsAvailablesByProcess{
     dateEndedProcess:string;
     recordId:number;
+    lotDay:string;
 }

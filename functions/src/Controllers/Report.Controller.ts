@@ -39,6 +39,7 @@ import _ = require('lodash');
 import { DryingLabel } from '../Models/Entity/Dryng.Label';
 import { DryngLabelService } from '../Services/Dring.Label.Service';
 import { ProductService } from '../Services/Product.Services';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
 
 export class ReportController{
 
@@ -540,35 +541,16 @@ export class ReportController{
 
     async reportProcess(req:Request, res:Response){
         let process:Process = await this.processService.getProcessById(+req.params.processId);
-
-        let conditioning:Conditioning = new Conditioning();
-        let sausaged:Sausaged = new Sausaged();
-        let tenderized:Tenderized= new Tenderized();
-        
-        /*if(process.conditioning == null){
-            conditioning;
-        }else{
-            conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
-        }      
-        if(process.sausage == null){
-            sausaged;
-        }else{
-            sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
-        }    
-        if(process.tenderizedId == null){
-            tenderized;
-        }else{
-            tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        }        */                                                            
-        let report = await this.pdfHelper.reportProcess(process,conditioning,sausaged,tenderized);
+                    
+        let report = await this.pdfHelper.reportProcess(process);
         pdf.create(report, {
             format: 'legal',
             orientation:`landscape`,
             header: {
-                height: "0px"
+                height: ".5cm"
             },
             footer: {
-                height: "0mm"
+                height: ".5cm"
           },
         }).toStream((function (err, stream) {
             res.writeHead(200, {
@@ -814,5 +796,27 @@ async reportDocumentPackagingById(req:Request,res:Response){
         })
     });
 }
+
+    async getReportPackagingDelivered(req:Request,res:Response){
+        let orderSellerId:number = +req.params.orderSellerId;
+        let report:string = await this.packagingService.getReportOfDeliveredSeller(orderSellerId);
+        pdf.create(report, {
+            format: 'Legal',
+            border: {
+                top: "2cm", 
+                right: "1cm",
+                bottom: "2cm",
+                left: "1cm"
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEmpaquetadoAVendedorPDF.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
 
 }

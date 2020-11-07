@@ -52,7 +52,7 @@ export class ProductRovianda {
     @OneToMany(type=> Inspection,inspection=>inspection.productId,{eager:false})
     inspection: Inspection[];
 
-    @OneToMany(type=>SubOrder,subOrder=>subOrder.product)
+    @OneToMany(type=>SubOrder,subOrder=>subOrder.productRovianda)
     subOrdersSeller:SubOrder[];
 
     @Column({name:"img_s3"})

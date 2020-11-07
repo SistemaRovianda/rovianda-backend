@@ -31,7 +31,7 @@ export class GrindingService{
     async createProcessInter():Promise<Process>{
         let process:Process = new Process();
         let today = new Date();
-        today.setHours(today.getHours()-5)
+        today.setHours(today.getHours()-6)
         let dd:any = today.getDate();
         let mm:any = today.getMonth()+1; 
         let yyyy:any = today.getFullYear();

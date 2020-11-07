@@ -83,7 +83,7 @@ export class SalesRequestService{
         order.date = request.date;
         order.status="ACTIVE";
         order.urgent=request.urgent;
-        order.user=user;
+        order.seller=user;
         
         let subOrderArr:Array<SubOrder> = new Array<SubOrder>();
         for(let suborder of request.products){
@@ -93,9 +93,10 @@ export class SalesRequestService{
           if(!presentation) throw new Error(`[404], la presentacion con el id = '${suborder.presentationId}' no existe`);
           let subOrder:SubOrder = new SubOrder();
           subOrder.units= suborder.quantity;
-          subOrder.product = product;
+          subOrder.productRovianda = product;
           subOrder.presentation = presentation;
           subOrder.typePrice=presentation.typePrice;
+          subOrder.active=true;
           subOrderArr.push(subOrder);
         }
         order.subOrders = subOrderArr;
@@ -128,11 +129,13 @@ export class SalesRequestService{
     }
     async getRoviandaInventoryProduct(productId:number){
       let product = await this.productRoviandaRepository.getById(productId);
-      let productSae = await this.sqlsRepository.getProductSaeByKey(product.code);
-      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-      let claveEsq = +productSae[0].CVE_ESQIMPU;
+      if(!product) throw new Error("[404], producto de rovianda no existe"); 
+      
       let presentations:Array<Presentation> = await this.packagingRepository.getPackagingAvailableProduct(productId);
       for(let presentation of presentations){
+        let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
+        if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+        let claveEsq = +productSae[0].CVE_ESQIMPU;
       switch(claveEsq){
         case 1:
           presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
@@ -175,11 +178,14 @@ export class SalesRequestService{
     async getSellerInventoryProductPresentation(sellerUid:string,productId:number){
       
       let product = await this.productRoviandaRepository.getById(productId);
-      let productSae = await this.sqlsRepository.getProductSaeByKey(product.code);
-      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-      let claveEsq = +productSae[0].CVE_ESQIMPU;
+      if(!product) throw new Error("[404], no existe el producto de rovianda");
+      
+      
       let presentations:Array<Presentation> = await this.sellerInventoryRepository.getSellerInventoryProductPresentation(sellerUid,productId);
       for(let presentation of presentations){
+        let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
+        if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+        let claveEsq = +productSae[0].CVE_ESQIMPU;
       switch(claveEsq){
         case 1:
           presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
@@ -216,14 +222,35 @@ export class SalesRequestService{
                     break;
       }
     }
+  
       return presentations;
     }
 
     async getClientsOfSeller(sellerUid:string){
       let seller = await this.userRepository.getUserById(sellerUid);
-      let client:Client[] = await this.clientRepository.getClientBySellerAndDebts(seller);
       if(!seller) throw new Error("[404],no existe ese vendedor");
-      let response:Client[]=seller.clientsArr;
+      let response=[];
+      for(let client of seller.clientsArr){
+          let salesArr:Sale[] = await this.saleRepository.getSalesPendingByClient(client);
+          for(let sale of salesArr){
+            let subSales=await this.subSalesRepository.getSubSalesBySale(sale);
+            let products =subSales.map(x1=>{return `${x1.product.name}-${x1.presentation.presentation} ${x1.presentation.presentationType}`})
+            let debts = sale.debts.filter(x=>x.status==true);
+            if(debts.length){
+              for(let debt of debts){
+            response.push( {
+              clientName:client.name,
+              debId:debt.debId,
+              date: debt.createDay,
+              dayRest: debt.days,
+              amount: debt.amount,
+              credit: client.credit,
+              products
+            });
+          }
+          }
+          }
+      }
       return response;
     }
 
@@ -240,19 +267,21 @@ export class SalesRequestService{
       }else if(debtsDTO.amount< debts.amount){
         let debtsNew:Debts = new Debts();
         debtsNew.amount=debts.amount-debtsDTO.amount;
-        debtsNew.createDay= new Date().toISOString();
+        let date=new Date();
+        date.setHours(date.getHours()-6);
+        debtsNew.createDay= date.toISOString();
         debtsNew.days=debtsDTO.days;
         debtsNew.status=true;
         debtsNew.seller=debts.seller;
-        let saleEntity:Sale =await this.saleRepository.getSaleWithDebts(sale[0].sale_id);
+        let saleEntity:Sale =await this.saleRepository.getSaleWithDebts(sale.saleId);
         saleEntity.debts.push(debtsNew);
         await this.saleRepository.saveSale(saleEntity);
       }
-      await this.debRepository.payDeb(debId);
+      console.log(debs.sale);
       let debstOfClient = await this.saleRepository.getAllDebsActive(debs.sale.client);
       if(!debstOfClient.length){
          debs.sale.client.hasDebts = false;
-         await this.clientRepository.saveClient(debts.sale.client);
+         await this.clientRepository.saveClient(debs.sale.client);
       }
     }
 
@@ -273,8 +302,8 @@ export class SalesRequestService{
       let sellerOperationEntity:Array<{sellerOperationId:number}> = await this.sellerOperationRepository.getLastSellerOperation(sellerUid);
       if(!sellerOperationEntity.length) throw new Error("[409], no existe una actividad de comida actualmente");
       let date = new Date();
-      let horas = 5;
-      let newHour = (date.setHours(date.getHours() + horas) && date.getHours()) + ":" + date.getMinutes();
+      date.setHours(date.getHours()-6)
+      let newHour = date.getHours() + ":" + date.getMinutes();
       let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationById(sellerOperationEntity[0].sellerOperationId);
       sellerOperation.eatingTimeEnd=newHour;
       console.log(JSON.stringify(sellerOperation));
@@ -286,6 +315,7 @@ export class SalesRequestService{
       let user:User = await this.userRepository.getUserById(sellerUid);
       if(!user) throw new Error("[404], sellerUid not found");
       let today = new Date();
+      today.setHours(today.getHours()-6)
       let dd:any = today.getDate();
       let mm:any = today.getMonth()+1; 
       let yyyy:any = today.getFullYear();
@@ -368,6 +398,7 @@ export class SalesRequestService{
       let sellerUser:User = await this.userRepository.getUserById(sellerUid);
       if(!sellerUser) throw new Error("[404], sellerUid not found");
       let today = new Date();
+      today.setHours(today.getHours()-6)
       let dd:any = today.getDate();
       let mm:any = today.getMonth()+1; 
       let yyyy:any = today.getFullYear();
@@ -531,6 +562,7 @@ export class SalesRequestService{
       saleGral.client = clientRovianda;
       saleGral.seller=seller;
       let date = new Date();
+      date.setHours(date.getHours()-6);
       saleGral.date = date.toISOString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
@@ -597,9 +629,12 @@ export class SalesRequestService{
         saleGral.debts= new Array<Debts>();
        let debs:Debts = new Debts();
        debs.amount=saleGral.amount-saleRequestForm.payed;
-        debs.createDay= new Date().toISOString();
+       let date=new Date();
+        date.setHours(date.getHours()-6)
+        debs.createDay= date.toISOString();
         debs.days=saleRequestForm.days;
         debs.status=true;
+        debs.seller=seller;
         saleGral.debts.push(debs);
       clientRovianda.hasDebts=true;
       saleGral.status=true;
@@ -652,10 +687,35 @@ export class SalesRequestService{
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       if(!sale) throw new Error("[404], no existe la venta");
       
-      let subSales = await this.subSalesRepository.getSubSalesBySale(sale[0]);
-      let ticket:string = await this.ticketUtil.TicketSale(sale[0],subSales);
+      let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+      let ticket:string = await this.ticketUtil.TicketSale(sale,subSales);
       
       return ticket;
+    }
+
+    async endDaySeller(sellerUid:string,date:string){
+      let user:User = await this.userRepository.getUserById(sellerUid);
+      if(!user) throw new Error("[404], vendedor no existe la venta");
+      
+      let dateParsed=new Date(date);
+      dateParsed.setHours(dateParsed.getHours()-6);
+      let month=(dateParsed.getMonth()+1).toString();
+      let day = dateParsed.getDate().toString();
+      if(+month<10){
+        month='0'+month;
+      }
+      if(+day<10){
+        day='0'+day;
+      }
+      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+day;
+      console.log(dateStr);
+      let sales:Sale[]=await this.saleRepository.getSaleByDate(dateStr,user);
+      let tickets:string[]=[];
+      for(let sale of sales){
+        let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+        tickets.push(await this.ticketUtil.TicketSale(sale,subSales,user));
+      }
+      return tickets;
     }
   }
 

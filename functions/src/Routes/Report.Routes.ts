@@ -93,12 +93,12 @@ export const reportRoutes:Array<routeInterface>=[
         controller:ReportController,
         target:"reportOvenByDates"
     },
-    /* {
+     {
         url: "/rovianda/report/process/:processId",
         method: "get",
         controller: ReportController,
         target: "reportProcess"
-    },
+    },/*
     {
         url:"/rovianda/report/document/process/:processId",
         method:"get",
@@ -164,5 +164,11 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportDocumentPackagingById"
+    },
+    {
+        url: "/rovianda/report/packaging-delivered/:orderSellerId",
+        method: "get",
+        controller: ReportController,
+        target: "getReportPackagingDelivered"
     }
 ];

@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+import { Defrost } from "./Defrost";
 import { Process } from "./Process";
 import { Product } from "./Product";
 import { ProductRovianda } from "./Product.Rovianda";
@@ -47,7 +48,12 @@ export class Sausaged{
     raw:string;
 
     @ManyToOne(type=>Process,process=>process.sausage)
-    sausage:Sausaged;
+    @JoinColumn({name:"process_id"})
+    process:Process;
+
+    // @OneToOne(type=>Defrost,defrost=>defrost.sausaged,{eager:true})
+    // @JoinColumn({name:"defrost_id"})
+    // defrost:Defrost;
 }
 
 

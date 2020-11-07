@@ -18,8 +18,7 @@ export class ConditioningRepository{
     async getConditioningById( id:number){
         await this.getConnection();
         return await this.conditioningRepository.findOne({
-            where: {id},
-            relations:["productId"]
+            where: {id}
         });
     }
 
@@ -39,10 +38,10 @@ export class ConditioningRepository{
         });
     }
 
-    async getConditioningByProductId( id:number){
-        await this.getConnection();
-        return await this.conditioningRepository.findOne({
-            where: {productId: `${id}`},
-        });
-    }
+    // async getConditioningByProductId( id:number){
+    //     await this.getConnection();
+    //     return await this.conditioningRepository.findOne({
+    //         where: {productId: `${id}`},
+    //     });
+    // }
 }

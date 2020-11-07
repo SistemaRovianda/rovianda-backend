@@ -29,4 +29,7 @@ export class SellerInventory{
     @ManyToOne(type=>PresentationProducts,pp=>pp.presentation)
     @JoinColumn({name:"presentation_id"})
     presentation:PresentationProducts;
+
+    @Column({type:"float"})
+    weigth:number;
 }

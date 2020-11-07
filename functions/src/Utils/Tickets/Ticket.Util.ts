@@ -1,8 +1,9 @@
 import { Sale } from "../../Models/Entity/Sales";
 import { SubSales } from "../../Models/Entity/Sub.Sales";
+import { User } from "../../Models/Entity/User";
 
 export class TicketUtil{
-    async TicketSale(sale:Sale,subSales:SubSales[]){
+    async TicketSale(sale:Sale,subSales:SubSales[],seller?:User){
         let date=new Date();
         let ticket =`
             ROVIANDA SAPI DE CV 
@@ -18,7 +19,7 @@ export class TicketUtil{
                     Nota No. ${sale.folio}
             Fecha: ${date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()}
 
-            Vendedor: ${sale.seller.name}
+            Vendedor: ${(seller)?seller.name:sale.seller.name}
 
             Cliente: ${sale.client.keyClient}
             ${sale.client.name}

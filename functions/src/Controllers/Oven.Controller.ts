@@ -33,6 +33,12 @@ export class OvenController{
         return res.status(204).send();
     }
 
+    async markUsedOvenProductStatus(req:Request,res:Response){
+        let ovenProductId:number = +req.params.ovenProductId;
+        await this.ovenService.markUsedOvenProductStatus(ovenProductId);
+        return res.status(204).send();
+    }
+
     async saveOvenUser(req:Request,res:Response){
         await this.ovenService.saveOvenUser(+req.params.processId , req.body);
         return res.status(201).send();

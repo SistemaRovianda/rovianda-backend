@@ -57,5 +57,6 @@ export class OvenProducts {
 
     // @Column({ name: "new_lote" })
     // newLote: string;
+    
 
 }

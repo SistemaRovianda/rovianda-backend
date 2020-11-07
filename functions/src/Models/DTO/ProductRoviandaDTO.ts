@@ -18,9 +18,9 @@ export interface SaveProductRoviandaDTO{
           presentationId?:number,
           presentation: number,
           typePresentation: string,
-          pricePresentationPublic: number,
-          pricePresentationMin:number,
-          pricePresentationLiquidation:number,
+          pricePresentation: number,
+          pricePresentationMin?:number,
+          pricePresentationLiquidation?:number,
           unitMeasure:string,
           unitPackage:string,
           stockMin:number,
@@ -28,19 +28,20 @@ export interface SaveProductRoviandaDTO{
           existence:number,
           keyProductServiceSat:number,
           keyUnitSat:string,
-          warehouseKey:number
+          warehouseKey:number,
+          taxSchema?:number
        }
-    ]
+    ],
+    productRoviandaImage:string
 }
 
 export interface UpdateProductRoviandaDTO{
    keyProduct?: string,
    nameProduct: string,
-   productLine:string,
    image: string,
    ingredients: [
       {
-         productId: number,
+         productId?: number,
          nameProduct: string
       }
    ],
@@ -49,16 +50,7 @@ export interface UpdateProductRoviandaDTO{
          presentationId?:number,
          presentation: number,
          typePresentation: string,
-         pricePresentationPublic: number,
-         pricePresentationMin:number,
-         pricePresentationLiquidation:number,
-         unitMeasure:string,
-         unitPackage:string,
-         stockMin:number,
-         stockMax:number,
-         existence:number,
-         keyProductServiceSat:number,
-         keyUnitSat:string,
+         pricePresentation: number,
          warehouseKey:number
       }
    ]

@@ -58,16 +58,7 @@ export class ProductController{
     }
 
     async saveProductRovianda(req:Request,res:Response){
-        let imageProduct = req.files?req.files[0]:null;
-        let body={};
-        let entries = keys<SaveProductRoviandaDTO>();
-        
-        for(let entry of entries ){
-            
-            body[entry]=req.body[entry];
-        }
-        console.log("SOLICITANDO",body);
-        await this.productRoviandaService.createProductRovianda(body,imageProduct);
+        await this.productRoviandaService.createProductRovianda(req.body);
         return res.status(201).send();
     }
 

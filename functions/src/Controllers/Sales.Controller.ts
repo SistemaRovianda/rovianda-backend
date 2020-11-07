@@ -163,4 +163,10 @@ export class SalesRequestController{
         return res.status(200).send(await this.salesRequestService.getTicketOfSale(saleId));
     }
 
+    async endDaySeller(req:Request,res:Response){
+        let sellerUid=req.params.sellerUid;
+        let date=req.query.date;
+        return res.status(200).send(await this.salesRequestService.endDaySeller(sellerUid,date));
+    }
+
 } 

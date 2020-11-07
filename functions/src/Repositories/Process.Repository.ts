@@ -68,7 +68,7 @@ export class ProcessRepository{
         await this.getConnection();
         return await this.processRepository.findOne({
             where: {id},
-            relations:["sausage","tenderized","conditioning","grinding"]
+            relations:["sausage","tenderized","conditioning","grinding","reprocesings"]
         });
     }
 
@@ -163,8 +163,8 @@ export class ProcessRepository{
     async getAllProcessAvailable(){
         await this.getConnection();
         return await this.processRepository.query(`
-        select pro.id as recordId,pro.product_rovianda_id as productId,pr.name as productName,pro.end_date as dateEndedProcess
-         from process as pro inner join products_rovianda as pr on pro.product_rovianda_id = pr.id 
+        select pro.id as recordId,pro.product_rovianda_id as productId,pr.name as productName,pro.end_date as dateEndedProcess,form.lot_day as lotDay
+         from process as pro inner join products_rovianda as pr on pro.product_rovianda_id = pr.id inner join formulation as form on pro.formulationId=form.id
          where pro.status="INACTIVE" order by pro.product_rovianda_id
         `) as ProcessAvailablesToOven[];
     }

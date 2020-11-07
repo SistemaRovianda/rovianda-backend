@@ -65,6 +65,8 @@ export class Inspection{
     @Column({name:"job_verify"})
     jobVerify:string;
 
+    @Column({name:"process_id"})
+    processId:number;
 }
 
 

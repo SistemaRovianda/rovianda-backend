@@ -13,6 +13,11 @@ export const ovenRoutes:Array<routeInterface>=[
         method: "patch",
         controller: OvenController,
         target: "updateOvenProduct"
+    },{
+        url: "/rovianda/oven-close/:ovenProductId",
+        method: "put",
+        controller: OvenController,
+        target: "markUsedOvenProductStatus"
     },
     {
         url: "/rovianda/oven/product/:ovenProductId",

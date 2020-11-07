@@ -52,7 +52,7 @@ export class User{
     @OneToMany(type=> EntrancePacking,entrancePackinMake=>entrancePackinMake.make)
     entrancePackinMake:EntrancePacking[];
 
-    @OneToMany(type=> OrderSeller,orderSeller=>orderSeller.user,{eager:false})
+    @OneToMany(type=> OrderSeller,orderSeller=>orderSeller.seller,{eager:false})
     saleSeller: OrderSeller[];
 
     @OneToMany(type=> Packaging,packaging=>packaging.userId)

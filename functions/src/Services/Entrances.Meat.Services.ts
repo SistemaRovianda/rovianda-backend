@@ -71,7 +71,9 @@ export class EntranceMeatService {
         let entranceMeatDTO: EntranceMeatDTO = req.body;
         //let photo:any= req.files[0];
         console.log("REVISION DE CUERPO DE REQUEST",JSON.stringify(entranceMeatDTO));
-        entranceMeatDTO.createdAt = new Date().toISOString().substring(0,10);
+        let date=new Date();
+        date.setHours(date.getHours()-6)
+        entranceMeatDTO.createdAt = date.toISOString().substring(0,10);
         if (!entranceMeatDTO.lotInternal) throw new Error("[400],Falta la propiedad loteInterno");
         if (!entranceMeatDTO.lotProveedor) throw new Error("[400],Falta la propiedad loteProveedor");
         if (!entranceMeatDTO.proveedor) throw new Error("[400],Falta la propiedad proveedor");

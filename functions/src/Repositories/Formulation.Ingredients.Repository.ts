@@ -18,10 +18,10 @@ export class FormulatioIngredientsRepository {
         return await this.formulationIngredientsRepository.save(formulationIngredients);
     }
 
-    async getByFormulation(formulationId:Formulation){
+    async getByFormulation(formulation:Formulation){
         await this.getConnection();
         return await this.formulationIngredientsRepository.find({
-            where: {formulationId:formulationId},
+            where: {formulation:formulation},
             relations: ["product"]
         });
     }

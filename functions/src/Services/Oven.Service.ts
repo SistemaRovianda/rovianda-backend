@@ -111,6 +111,25 @@ export class OvenService{
         }
     }
 
+    async markUsedOvenProductStatus(id: number) {
+
+        if (isNaN(+id) || +id < 1)
+            throw new Error(`[400],invalid id param value`);
+
+        let ovenProducts: OvenProducts | undefined = await this.ovenRepository.getOvensByNewLot(id.toString());
+
+        if(!ovenProducts)
+            throw new Error(`[404],OvenProduct with id ${id} was not found`);
+
+        ovenProducts.status = OvenProductStatusEnum.USED;
+
+        try {
+            await this.ovenRepository.saveOvenProduct(ovenProducts);
+        } catch (err) {
+            throw new Error(`[500], ${ err.message }`);
+        }
+    }
+
     async saveOvenUser(processId:number , ovenUserDTO:OvenDTO){
 
         if(!ovenUserDTO.nameVerify) throw new Error("[400], nameVerify is required");
@@ -122,21 +141,21 @@ export class OvenService{
         
         let ovenProducts:OvenProducts = await this.ovenRepository.getOvenProductById(processId);
         if(!ovenProducts) throw new Error("[400], process not found");
-        let productId = ovenProducts.product.id;
-        let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
-        if(!product) throw new Error("[400], product not found");
+        //let productId = ovenProducts.product.id;
+        // let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
+        // if(!product) throw new Error("[400], product not found");
 
-        let fullVerifit = ovenUserDTO.nameVerify.split(" ");
-        let userVerifit = await this.userRepository.getByFullNameJob(fullVerifit[0],fullVerifit[1],fullVerifit[2],ovenUserDTO.jobVerify);
-        if (!userVerifit[0])  throw new Error("[404],User Verifit not found");
+        // let fullVerifit = ovenUserDTO.nameVerify.split(" ");
+        // let userVerifit = await this.userRepository.getByFullNameJob(fullVerifit[0],fullVerifit[1],fullVerifit[2],ovenUserDTO.jobVerify);
+        // if (!userVerifit[0])  throw new Error("[404],User Verifit not found");
 
-        let fullElaborated = ovenUserDTO.nameElaborated.split(" ");
-        let userElaborated = await this.userRepository.getByFullNameJob(fullElaborated[0],fullElaborated[1],fullElaborated[2],ovenUserDTO.jobElaborated);
-        if (!userElaborated[0])  throw new Error("[404],User Elaborated not found");
+        // let fullElaborated = ovenUserDTO.nameElaborated.split(" ");
+        // let userElaborated = await this.userRepository.getByFullNameJob(fullElaborated[0],fullElaborated[1],fullElaborated[2],ovenUserDTO.jobElaborated);
+        // if (!userElaborated[0])  throw new Error("[404],User Elaborated not found");
 
-        let fullCheck = ovenUserDTO.nameCheck.split(" ");
-        let userCheck = await this.userRepository.getByFullNameJob(fullCheck[0],fullCheck[1],fullCheck[2],ovenUserDTO.jobCheck);
-        if (!userCheck[0])  throw new Error("[404],User Check not found");
+        // let fullCheck = ovenUserDTO.nameCheck.split(" ");
+        // let userCheck = await this.userRepository.getByFullNameJob(fullCheck[0],fullCheck[1],fullCheck[2],ovenUserDTO.jobCheck);
+        // if (!userCheck[0])  throw new Error("[404],User Check not found");
 
         ovenProducts.nameElaborated = ovenUserDTO.nameElaborated;
         ovenProducts.nameVerify = ovenUserDTO.nameVerify;
@@ -178,9 +197,11 @@ export class OvenService{
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
         console.log("hace0a0ss")
         if(!product) throw new Error("[400], product not found");
+        let dateParsed=new Date(ovenDTO.date);
+        dateParsed.setHours(dateParsed.getHours()-6);
         let oven:OvenProducts = new OvenProducts();
         oven.stimatedTime = ovenDTO.estimatedTime;
-        oven.newLote = ovenDTO.newLote+ovenDTO.date.split("-").join("");
+        oven.newLote = ovenDTO.assignmentLot.newLotId+dateParsed.getDate()+(dateParsed.getMonth()+1)+dateParsed.getFullYear().toString().slice(2,4);
         oven.pcc = ovenDTO.pcc;
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;

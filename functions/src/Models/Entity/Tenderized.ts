@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToOne, JoinColumn, ManyToOne} from "typeorm";
+import { Defrost } from "./Defrost";
 import { Process } from "./Process";
 import { Product } from "./Product";
 import { ProductRovianda } from "./Product.Rovianda";
@@ -37,6 +38,10 @@ export class Tenderized{
     @ManyToOne(type=>Process,process=>process.tenderized)
     @JoinColumn({name:"process_id"})
     process:Process;
+
+    // @OneToOne(type=>Defrost,defrost=>defrost.tenderized)
+    // @JoinColumn({name:"defrost_id"})
+    // defrost:Defrost;
 }
 
 

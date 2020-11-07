@@ -8,9 +8,9 @@ export class OrderSeller{
     @PrimaryGeneratedColumn({name:"order_seller_id"})
     id:number;
 
-    @ManyToOne(type=>User, user=>user.saleSeller, {eager:true, onDelete:"SET NULL"})
-    @JoinColumn({name:"user_id"})
-    user:User;
+    @ManyToOne(type=>User, user=>user.saleSeller, {eager:false, onDelete:"SET NULL"})
+    @JoinColumn({name:"seller_id"})
+    seller:User;
 
     @Column()
     date:string

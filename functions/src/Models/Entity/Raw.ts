@@ -19,7 +19,7 @@ export class Raw{
     @OneToMany(type=> Cooling,cooling=>cooling.rawMaterial,{eager:false})
     coolings: Cooling[];
 
-    @OneToMany(type=>Grinding,grinding=>grinding.raw,{eager:true})
+    @OneToMany(type=>Grinding,grinding=>grinding.raw,{eager:false})
     grindings:Grinding[];
     
 }

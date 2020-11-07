@@ -7,7 +7,7 @@ export class SubOrderMetadata{
     @PrimaryGeneratedColumn({name:"sub_order_metadata_id"})
     subOrderMetadataId:number;
 
-    @ManyToOne(type=>SubOrder,subOrder=>subOrder.subOrderMetadata,{cascade:true})
+    @ManyToOne(type=>SubOrder,subOrder=>subOrder.subOrderMetadata)
     @JoinColumn({name:"sub_order_id"})
     subOrder:SubOrder;
 
@@ -19,5 +19,8 @@ export class SubOrderMetadata{
 
     @Column({nullable:false})
     quantity: number;
+
+    @Column({type:"float"})
+    weigth:number;
 
 }

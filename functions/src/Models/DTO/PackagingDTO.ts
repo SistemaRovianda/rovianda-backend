@@ -41,9 +41,13 @@ export interface PackagingProductPresentationLot{
 }
 
 export interface PackagingOutput{
-    orderSellerId:number;
-    products:PackagingProductOutput[];
-    dateOutput:string;
+    
+        loteId:string,
+        subOrderId:number,
+        quantity:number,
+        weigth:number,
+        presentationId:number
+    
 }
 export interface PackagingProductOutput{
     productId:number;
@@ -70,4 +74,13 @@ export interface PackagingReprocesingRequest{
     lotId:string;
     allergen:string;
     weight:number;
+    comment:string;
+}
+
+export interface DevolutionRequest{
+    lotId:string;
+    date:string;
+    productId:number;
+    presentationId:number;
+    units:number;
 }

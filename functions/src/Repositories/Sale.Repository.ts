@@ -1,8 +1,9 @@
 import { Sale } from "../Models/Entity/Sales";
-import { Repository } from "typeorm";
+import { Between, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 
 import { Client } from "../Models/Entity/Client";
+import { User } from "../Models/Entity/User";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -58,13 +59,20 @@ export class SaleRepository{
 
     async getSaleByIdWithClientAndSeller(saleId:number){
         await this.getConnection();
-        return await this.saleRepository.findOne({saleId});
+        return await this.saleRepository.findOne({saleId},{relations:["seller"]});
     }
 
     async getAllDebsActive(client:Client){
         await this.getConnection();
         return await this.saleRepository.find({
             client,withDebts:true
+        });
+    }
+
+    async getSaleByDate(date:string,seller:User){
+        await this.getConnection();
+        return await this.saleRepository.find({
+            where:{seller,date: Between(date+"T00:00:00",date+"T23:59:00")},
         });
     }
 }

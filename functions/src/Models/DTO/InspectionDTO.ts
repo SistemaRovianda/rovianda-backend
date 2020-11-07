@@ -14,7 +14,8 @@ export interface InspectionDTO{
         odor: boolean,
         colour: boolean,
         texture: boolean
-       }
+       },
+       processId:number
 }
 
 export interface InspectionUsersDTO{

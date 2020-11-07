@@ -22,9 +22,9 @@ export class SalesRequestRepository{
 
     async getSubOrderById(subOrderId:number){
         await this.getConnection();
-        return await this.salesRequestRepository.query(`
-        SELECT * FROM suborders WHERE suborder_id = ${subOrderId}
-        `);
+        return await this.salesRequestRepository.findOne({
+            subOrderId
+        },{relations:["orderSeller"]});
     }
 
     async saveSalesProduct(sale:SubOrder){
@@ -37,15 +37,16 @@ export class SalesRequestRepository{
         return await this.salesRequestRepository.query(
             `select distinct(sub.product_id),prorov.name,prorov.img_s3 as imgS3 
             from suborders as sub left join products_rovianda as prorov
-            on sub.product_id = prorov.id where sub.order_seller_id=${orderId} group by sub.order_seller_id,sub.product_id;`
+            on sub.product_id = prorov.id where sub.order_seller_id=${orderId} and sub.active="1" group by sub.order_seller_id,sub.product_id;`
             );
     }
 
     async getPresentationOfProductOfOrder(orderId:number,productId:number){
         await this.getConnection();
         return await this.salesRequestRepository.query(
-            `select sub.suborder_id as subOrderId,sub.product_id as productId,sub.units,
-            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation as pricePresentation 
+            `select sub.suborder_id as subOrderId,sub.product_id as productId,sub.units,pp.presentation_id as presentationId,
+            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation_public as pricePresentationPublic,
+            pp.price_presentation_min as pricePresentationMin,pp.price_presentation_liquidation as pricePresentationLiquidation
             from suborders as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id
              where sub.order_seller_id=${orderId} and sub.product_id=${productId};`
             );

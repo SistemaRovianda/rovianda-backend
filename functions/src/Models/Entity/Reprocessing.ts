@@ -50,4 +50,7 @@ export class Reprocessing{
     @Column({name:"lot_reprocesing_oven",nullable:true})
     packagingReprocesingOvenLot:string;
 
+    @Column()
+    comment:string;
+
 }

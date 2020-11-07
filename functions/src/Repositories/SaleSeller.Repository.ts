@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
 import { assignWith } from 'lodash';
+import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
 export class SalesSellerRepository{
     private salesSellerRepository:Repository<OrderSeller>;
@@ -33,18 +34,16 @@ export class SalesSellerRepository{
 
     async getOrderById(id:number){
         await this.getConnection();
-        return await this.salesSellerRepository.findOne({id},{relations:["user"]});
+        return await this.salesSellerRepository.findOne({id},{relations:["seller"]});
     }
 
     async getOrderSellerByUrgent(urgent:boolean){
         await this.getConnection();
-        return await this.salesSellerRepository.find({
-            where:{ urgent : urgent},
-            relations:["user"]
-        });
+        return await this.salesSellerRepository.find({urgent,status:"ACTIVE"});
     }
 
-    
-
-
+    async getOrderByIdWithSuborders(subOrderId:number){
+        await this.getConnection();
+        return await this.salesSellerRepository.findOne({id:subOrderId},{relations:["subOrders","seller"]});
+    }
 }

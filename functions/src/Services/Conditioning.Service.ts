@@ -36,7 +36,7 @@ export class ConditioningService{
     async createProcessInter():Promise<Process>{
         let process:Process = new Process();
         let today = new Date();
-        today.setHours(today.getHours()-5)
+        today.setHours(today.getHours()-6)
         let dd:any = today.getDate();
         let mm:any = today.getMonth()+1; 
         let yyyy:any = today.getFullYear();
@@ -48,14 +48,6 @@ export class ConditioningService{
         return await this.processRepository.saveProcess(process);
     }
     async createConditioningByFormulationId(conditioningsDTO:Array<ConditioningDTO>, formulationId:number){
-    for(let conditioningDTO of conditioningsDTO ){
-        if (conditioningDTO.bone == null)  throw new Error("[400],bone is required");
-        if (conditioningDTO.clean == null)  throw new Error("[400],clean is required");
-        if (conditioningDTO.healthing == null)  throw new Error("[400],healthing is required");
-        if (!conditioningDTO.weight)  throw new Error("[400],weight is required");
-        if (conditioningDTO.weight<1) throw new Error("[400],el peso no puede ser menor a 1");
-        if (!conditioningDTO.temperature)  throw new Error("[400],temperature is required");
-        if (!conditioningDTO.date)  throw new Error("[400],date is required");
         let formulation:Formulation = await this.formulationRepository.getByFormulationId(formulationId);
         if(!formulation) throw new Error("[404], formulation record does not exist");
         let process:Process;
@@ -70,9 +62,19 @@ export class ConditioningService{
             process.product = formulation.productRovianda;
             if(formulation.status=="TAKED") throw new Error("[400], formulacion ya asignada");
             formulation.status="TAKED";
+            process.conditioning=new Array();
             await this.formulationRepository.saveFormulation(formulation);
         }
     
+    for(let conditioningDTO of conditioningsDTO ){
+        if (conditioningDTO.bone == null)  throw new Error("[400],bone is required");
+        if (conditioningDTO.clean == null)  throw new Error("[400],clean is required");
+        if (conditioningDTO.healthing == null)  throw new Error("[400],healthing is required");
+        if (!conditioningDTO.weight)  throw new Error("[400],weight is required");
+        if (conditioningDTO.weight<1) throw new Error("[400],el peso no puede ser menor a 1");
+        if (!conditioningDTO.temperature)  throw new Error("[400],temperature is required");
+        if (!conditioningDTO.date)  throw new Error("[400],date is required");
+        
     
     
     let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(conditioningDTO.defrostId);
@@ -84,16 +86,15 @@ export class ConditioningService{
     conditioning.weight = conditioningDTO.weight;
     conditioning.temperature = conditioningDTO.temperature;
     conditioning.date = conditioningDTO.date;
-    conditioning.lotId  = defrostFormulation.defrost.outputCooling.loteInterno
-            await this.formulationService.updateFormulation(formulation);
+    conditioning.lotId  = defrostFormulation.defrost.outputCooling.loteInterno;
             process.currentProcess = "Acondicionamiento ";
             if(process.conditioning && process.conditioning.length){
                 process.conditioning.push(conditioning);
             }else{
                 process.conditioning = [conditioning];
-            }
-            return await this.processRepository.createProcess(process);    
+            }        
         }
+        await this.processRepository.createProcess(process);    
     }
 
 

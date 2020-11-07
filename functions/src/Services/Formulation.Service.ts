@@ -99,6 +99,15 @@ export class FormulationService {
         if(!make) throw new Error("[404], no existe make");
 
         let date:Date = new Date();
+        date.setHours(date.getHours()-6)
+        let day:string = date.getDate().toString();
+        if(+day<10){
+            day='0'+day;
+        }
+        let month=(date.getMonth()+1).toString();
+        if(+month<10){
+            month='0'+month;
+        }
         let formulationToSave: Formulation =new Formulation();
         
         formulationToSave.defrosts=defrostFormulations;
@@ -110,8 +119,8 @@ export class FormulationService {
         formulationToSave.waterTemp=formulationDTO.temperatureWater;
         formulationToSave.status="UNUSED";
         formulationToSave.ingredients = formulationIngredients;
-        formulationToSave.lotDay = date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
-        formulationToSave.date = new Date().toISOString()
+        formulationToSave.lotDay = day+month+date.getFullYear();
+        formulationToSave.date = date.toISOString()
         
         let formulationSaved:Formulation=await this.formulationRepository.saveFormulation(formulationToSave);
         return formulationSaved.id;
@@ -168,9 +177,12 @@ export class FormulationService {
     async getFormulartionByDates(initDate: string, finDate: string){
         if (!Date.parse(initDate)) throw new Error("[400], initDate has not a valid value");
         if (!Date.parse(finDate)) throw new Error("[400], finDate has not a valid value")
-        let parsedInitDate = new Date(initDate);
-        let parsedFinDate = new Date(finDate);
-        let formulations: Formulation[] = await this.formulationRepository.getFormulationsByDate(parsedInitDate, parsedFinDate);
+        let initDateParse = new Date(initDate);
+        initDateParse.setHours(initDateParse.getHours()-6);
+        let endDateParse = new Date(finDate);
+        endDateParse.setHours(endDateParse.getHours()-6)
+        
+        let formulations: Formulation[] = await this.formulationRepository.getFormulationsByDate(initDateParse, endDateParse);
         
         if(!formulations.length)
             throw new Error("[404], No formulations found, can not generate report");

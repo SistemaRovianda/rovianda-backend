@@ -4,15 +4,21 @@ import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repo
 import { DryingLabel } from '../Models/Entity/Dryng.Label';
 import { DringLabelDTO } from "../Models/DTO/DringLabelDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { OvenProducts } from "../Models/Entity/Oven.Products";
+import { RevisionsOvenProductsRepository } from "../Repositories/Revisions.Oven.Products.Repository";
+import { OvenRepository } from "../Repositories/Oven.Repository";
+import { Process } from "../Models/Entity/Process";
 
 export class DryngLabelService{
     private dryngLabelRepository:DryngLabelRepository;
     private processRepository:ProcessRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private ovenProductRepository:OvenRepository;
     constructor(){
         this.dryngLabelRepository = new DryngLabelRepository();
         this.processRepository = new ProcessRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
+        this.ovenProductRepository=new OvenRepository();
     }
 
     async createDringLabel(dryngLabelDTO:DringLabelDTO){
@@ -23,8 +29,10 @@ export class DryngLabelService{
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+dryngLabelDTO.productId)
         let proccessbyProduct = await this.processRepository.getProceesByProductID(product);
         if(!proccessbyProduct) throw new Error("[404],Procces not found");
-        let proccessbylo = await this.processRepository.getProceesByLotIner(dryngLabelDTO.lotId.toString());
-        if(!proccessbylo[0]) throw new Error("[404],Procces not found");
+        let ovenProduct:OvenProducts = await this.ovenProductRepository.getOvenProductByLot(dryngLabelDTO.lotId.toString());
+        
+        let proccessbylo:Process = await this.processRepository.getProcessById(ovenProduct.processId);
+        if(!proccessbylo) throw new Error("[404],Procces not found");
 
         let dryngLabel:DryingLabel = new DryingLabel();
         dryngLabel.productId = +dryngLabelDTO.productId;

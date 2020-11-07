@@ -10,19 +10,25 @@ import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products'
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { EntrancePacking } from '../Models/Entity/Entrances.Packing';
 import { Process } from '../Models/Entity/Process';
-import { Conditioning } from '../Models/Entity/Conditioning';
-import { Sausaged } from '../Models/Entity/Sausaged';
-import { Tenderized } from '../Models/Entity/Tenderized';
-import { productRoutes } from '../Routes/Product.Routes';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
-import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Packaging } from '../Models/Entity/Packaging';
-import { response } from 'express';
 import { DryingLabel } from '../Models/Entity/Dryng.Label';
+import { GrindingRepository } from '../Repositories/Grinding.Repository';
+import { Grinding } from '../Models/Entity/Grinding';
+import { Devolution } from '../Models/Entity/Devolution';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
+import { Reprocessing } from '../Models/Entity/Reprocessing';
+
 
 export default class PdfHelper{
 
+    private grindingRepository:GrindingRepository;
+    
+    constructor(){
+        
+        this.grindingRepository=new GrindingRepository();
+    }
     headReportEntranceDrief(){
         return`
         <!DOCTYPE html>
@@ -1826,28 +1832,32 @@ export default class PdfHelper{
             <title>Index3</title>
             <style>
 
-            .formacion{
-                width: 131px;
-                height: 18px;
-            }
-
+            table{
+                border-spacing:0px;
+                border: 1px solid black;
+                font-size:.5em
+                }
+                
+                
             </style>
         </head>
         `;
     }
 
-    bodyReportProcess(data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
+    async bodyReportProcess(process:Process){
+        let date=new Date();
         let content =` 
         <body bgcolor="">
     <header align="center">
         <b><p>EMPACADORA ROVIANDA S.A.P.I. DE C.V</p></b>
         <p>BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO</p>
     </header>
-    <table border="1" width="90%">
+    <table  border="1" width="100%">
         <tr>
-            <th colspan="2"><img src="{LOGO.data}" height="60px" /></th>
-            <th colspan="2">No.Lote: {data.loteInterno}</th>
-            <th colspan="3">Fecha: {new Date().getFullYear().toString()}-{new Date().getMonth().toString()}-{new Date().getDate().toString()} </th>
+            <th colspan="2"><img src="${LOGO.data}" height="60px" /></th>
+            <th colspan="2">No.Lote: ${process.formulation.lotDay}</th>
+            <th colspan="2">Producto: ${process.product.name}</th>
+            <th colspan="1">Fecha: ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} </th>
         </tr>
         <tr>
             <th>DESCOGELADO</th>
@@ -1860,64 +1870,73 @@ export default class PdfHelper{
             <th>T*C</th>
             <th>HORA DE ENTRADA</th>
             <th colspan="2">HORA DE SALIDA</th>
+        </tr>`;
+        for(let defrost of process.formulation.defrosts){
+            content+=`<tr>
+            <td class="formacion" >${defrost.defrost.outputCooling.rawMaterial.rawMaterial}</td>
+            <td>${defrost.defrost.dateEnd}</td>
+            <td>${defrost.defrost.weigth}</td>
+            <td>${defrost.defrost.temp}</td>
+            <td>${defrost.defrost.entranceHour}</td>
+            <td colspan="2">${defrost.defrost.outputHour}</td>
+            </tr>`
+        }
+        content+=`<tr>
+        <th colspan="2">ACONDICIONAMIENTO</th>
+        <th colspan="5"></th>
         </tr>
         <tr>
-        <td class="formacion" >{data.product == null ? "" : data.product.name}</td>
-        <td>{data.startDate ? data.startDate : ""}</td>
-        <td>{data.weigth ? data.weigth : ""}</td>
-        <td>{data.temperature ? data.temperature :""}</td>
-        <td>{data.entranceHour ? data.entranceHour :""}</td>
-        <td colspan="2">{data.outputHour}</td>
-        </tr>
-        <tr>
-            <th colspan="2">ACONDICIONAMIENTO</th>
-            <th colspan="5"></th>
-        </tr>
-        <tr>
-            <th>MATERIA PRIMA</th>
-            <th>FECHA</th>
-            <th>PROCESO</th>
-            <th>PESO Kg</th>
-            <th>PRODUCTO(s)</th> 
-            <th></th> 
-            <th></th> 
-        </tr>
-        <tr>
-            <td  class="formacion">{data.conditioningId == null ? "" : data.conditioningId.raw}</td>
-            <td>{data.conditioningId == null ? "" :data.conditioningId.date}</td>
-            <td>{data.conditioningId == null ? "" :data.currentProcess}</td>
-            <td>{data.conditioningId == null ? "" :data.conditioningId.weight}</td>
-            <td>{conditioning.productId == null ? "" :conditioning.productId.name}</td>
-            <td cellspacing="0">clave</td>
-            <td cellspacing="0">Proceso</td>
-        </tr>
-        <tr>
+                <th>MATERIA PRIMA</th>
+                <th>FECHA</th>
+                <th>PROCESO</th>
+                <th>PESO Kg</th>
+                <th>Tº C</th> 
+                <th></th> 
+                <th></th> 
+            </tr>`;
+            let arrTd:Array<string>=[
+                "<td>Clave</td><td>Proceso</td>",
+                "<td>D</td><td>Deshuese</td>",
+                "<td>L</td><td>Limpieza</td>",
+                "<td>SC</td><td>Salado y curado</td>"];
+        let sizeConditioningRows=0;
+        
+        for(let i=0;i<process.conditioning.length;i++){
+            let conditioning=process.conditioning[i];
+            let dateParsed = new Date(conditioning.date);
+            dateParsed.setHours(dateParsed.getHours()-6);
+            let month=dateParsed.getMonth()+1;
+            let year = dateParsed.getFullYear().toString();
+            year = year.slice(2,4);
+            content+=`
+            <tr>
+            <td  class="formacion">${conditioning.raw} - ${conditioning.lotId}</td>
+            <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+            <td>${conditioning.clean==true?"L,":""}${conditioning.bone==true?"D":""}${conditioning.healthing==true?(conditioning.bone==true)?",SC":"SC":""}</td>
+            <td>${conditioning.weight}</td>
+            <td>${conditioning.temperature}</td>
+            ${(i<5)?arrTd[i]:"<td></td><td></td>"}
+            </tr>
+            `
+            sizeConditioningRows++;
+        }
+        if(sizeConditioningRows<4){
+            for(let i=sizeConditioningRows;i<4;i++){
+            content+=`
+            <tr>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <td>D</td>
-            <td>Deshuese</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>L</td>
-            <td>Limpieza</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>SC</td>
-            <td>Salado y curado</td>
-        </tr>
+            ${arrTd[i]}
+            </tr>
+            `;
+            }
+        }
+
+        
+       content+= `
         <tr>
             <td class="formacion" ></td>
             <td></td>
@@ -1934,26 +1953,39 @@ export default class PdfHelper{
                 <th>FECHA</th>
                 <th>PROCESO</th>
                 <th>PESO Kg</th>
-                <th>T*C</td>
-                <th>PRODUCTO(s)</th>
+                <th></td>
+                <th></th>
                 <th></th>
             </tr>
-            <tr>
-                <th class="formacion">{data.grindingId == null ? "" : data.grindingId.raw}</th>
-                <th>{data.grindingId == null ? "" : data.grindingId.date}</th>
-                <th>{data.grindingId == null ? "" : data.grindingId.process}</th>
-                <th>{data.grindingId == null ? "" : data.grindingId.weight}</th>
-                <th>{data.temperature}</th>
-                <th>{data.product == null ? "" : data.product.name}</th>
-                <th></th>
-            </tr>
+        `;
+        
+        for(let grinding of process.grinding){
+            let grindingEntity:Grinding= await this.grindingRepository.getGrindingWithRaw(grinding.id);
+            let dateParsed = new Date(grinding.date);
+            dateParsed.setHours(dateParsed.getHours()-6);
+            let month=dateParsed.getMonth()+1;
+            let year = dateParsed.getFullYear().toString();
+            year = year.slice(2,4);
+        content+=    `
+                <tr>
+                    <th class="formacion">${grindingEntity.raw.rawMaterial} - ${grinding.lotId}</th>
+                    <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+                    <th>${grinding.singleProcess}</th>
+                    <th>${grinding.weight}</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            `
+        };
+        content+=`
             <br><br>            
               <tr>
                   <th colspan="2">INYECCION/TENDERIZADO</th>
                   <th colspan="5"></th>
               </tr>
               <tr>
-                  <th>PRODUCTO</th>
+                  <th>MATERIA PRIMA</th>
                   <th>FECHA</th>
                   <th>PESO Kg</th>
                   <th>T*C</th>
@@ -1961,18 +1993,27 @@ export default class PdfHelper{
                   <th>%INYECCION</th>
                   <th></th>
               </tr>
-              <tr>
-                <th class="formacion">{tenderized.productId == null ? "" : tenderized.productId.name}</th>
-                <th>{data.tenderizedId == null ? "" : data.tenderizedId.date}</th>
-                <th>{data.tenderizedId == null ? "" : data.tenderizedId.weight}</th>
-                <th>{data.tenderizedId == null ? "" : data.tenderizedId.temperature}</th>
-                <th>{data.tenderizedId == null ? "" : data.tenderizedId.weightSalmuera}</th>
-                <th>{data.tenderizedId == null ? "" : data.tenderizedId.percentInject}</th>
-                <th></th>
-            </tr>
+              `
+        for(let tenderized of process.tenderized){
+            let dateParsed = new Date(tenderized.date);
+            dateParsed.setHours(dateParsed.getHours()-6);
+            let month=dateParsed.getMonth()+1;
+            let year = dateParsed.getFullYear().toString();
+            year = year.slice(2,4);
+            content+=`<tr>
+            <th class="formacion">${process.product.name}</th>
+            <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+            <th>${tenderized.weight}</th>
+            <th>${tenderized.temperature}</th>
+            <th>${tenderized.weightSalmuera}</th>
+            <th>${tenderized.percentInject}</th>
+            <th></th>
+        </tr>`;
+        }
+        content+=`
             <tr>
-                <th>EMBUTIDO</th>
-                <th colspan="6"></th>
+            <th>EMBUTIDO</th>
+            <th colspan="6"></th>
             </tr>
             <tr>
                 <th>PRODUCTO</th>
@@ -1983,29 +2024,74 @@ export default class PdfHelper{
                 <th>PESO Kg. Fin (Hra)</th>
                 <th></th>
             </tr>
+        `;
+        for(let sausage of process.sausage){
+            let dateParsed = new Date(sausage.date);
+            dateParsed.setHours(dateParsed.getHours()-6);
+            let month=dateParsed.getMonth()+1;
+            let year = dateParsed.getFullYear().toString();
+            year = year.slice(2,4);
+            let hour1=new Date(sausage.hour1);
+            let hour2=new Date(sausage.hour2);
+            let hour3=new Date(sausage.hour3);
+                content+=`
+                <tr>
+                <th class="formacion">${process.product.name}</th>
+                <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+                <th>${sausage.temperature}</th>
+                <th>${sausage.weightIni} (${hour1.getHours()+":"+hour1.getMinutes()})</th>
+                <th>${sausage.weightMedium} (${hour2.getHours()+":"+hour2.getMinutes()})</th>
+                <th>${sausage.weightExit} (${hour3.getHours()+":"+hour3.getMinutes()})</th>
+                <th></th>
+                </tr>
+                `
+        }
+
+        content+=`
             <tr>
-              <th class="formacion">{sausaged.productId == null ? "" :sausaged.productId.name}</th>
-              <th>{data.sausageId == null ? "" : data.sausageId.date}</th>
-              <th>{data.sausageId == null ? "" : data.sausageId.temperature}</th>
-              <th>{data.sausageId == null ? "" : data.sausageId.weightIni} ({data.sausageId == null ? "" : data.sausageId.hour1})</th>
-              <th>{data.sausageId == null ? "" : data.sausageId.weightMedium} ({data.sausageId == null ? "" : data.sausageId.hour2})</th>
-              <th>{data.sausageId == null ? "" : data.sausageId.weightExit} ({data.sausageId == null ? "" : data.sausageId.hour3})</th>
-              <th></th>
-          </tr>
+            <th>REPROCESOS</th>
+            <th colspan="6"></th>
+            </tr>
+            <tr>
+                <th>PRODUCTO</th>
+                <th>LOTE</th>
+                <th>FECHA</th>
+                <th>ALERJENO</th>
+                <th>PESO</th>
+                <th></th>
+                <th></th>
+            </tr>
+        `;
+        for(let reprocesing of process.reprocesings){
+            let dateParsed=new Date(reprocesing.dateUsed);
+            dateParsed.setHours(dateParsed.getHours()-6);
+            content+=`
+            <tr>
+                <th>${reprocesing.defrost?reprocesing.defrost.outputCooling.rawMaterial.rawMaterial:reprocesing.packagingProductName}</th>
+                <th>${reprocesing.defrost?reprocesing.defrost.outputCooling.loteInterno:reprocesing.packagingReprocesingOvenLot}</th>
+                <th>${dateParsed.getDate()+"-"+(dateParsed.getMonth()+1)+"-"+dateParsed.getFullYear()}</th>
+                <th>${reprocesing.allergens}</th>
+                <th>${reprocesing.weigthUsed}</th>
+                <th></th>
+                <th></th>
+            </tr>
+            `;
+        }
+          content+=`
             <tr>
                 <td colspan="6"></td>     
                 <td>F-CAL-RO-07</td>
             </tr>
         <tr>
-            <th colspan="3">Elaboro: {data.nameElaborated ? data.nameElaborated : ""}  </th>
+            <th colspan="3">Elaboro: ${process.nameElaborated}  </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: {data.jobElaborated? data.jobElaborated:""}</th>
+            <th colspan="2">Puesto: ${process.jobElaborated}</th>
         </tr>
         <tr>
           <div id="text">
-            <th colspan="3">Verifico: {data.nameVerify? data.nameVerify : ""} </th>
+            <th colspan="3">Verifico: ${process.nameVerify} </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: {data.jobVerify?data.jobVerify:""}</th>
+            <th colspan="2">Puesto: ${process.jobVerify}</th>
           </div>
         </tr>
     </table>
@@ -2014,8 +2100,8 @@ export default class PdfHelper{
          return content;
      }
     
-     async reportProcess(data:Process,conditioning:Conditioning,sausaged:Sausaged,tenderized:Tenderized){
-        let content = this.headReportProcess()+this.bodyReportProcess(data,conditioning,sausaged,tenderized);
+     async reportProcess(process:Process){
+        let content = this.headReportProcess()+await this.bodyReportProcess(process);
         return content;
     }
 
@@ -2071,6 +2157,7 @@ export default class PdfHelper{
     }
 
     bodyReportPackaging(data:Packaging, properties:PropertiesPackaging[]){
+        let date=new Date();
         let content =` 
         </head>
         <body>
@@ -2087,7 +2174,7 @@ export default class PdfHelper{
                 </th>
                 <th colspan="5"></th>
                 <th>            
-                    <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
+                    <p>Fecha: ${date.getFullYear.toString()}-${date.getMonth()+1}-${date.getDate()}</p>
                 </th>
             </tr>
         
@@ -2104,11 +2191,11 @@ export default class PdfHelper{
                 <tr>
                 <td class="cel">${data.productId == null ? " " : data.productId.name}</td>
                 <td class="cel">${data.lotId ? data.lotId:" "} (Cad. ${data.expiration})</td>
-                <td class="cel">${!properties ? " " : properties[0].presentation.presentation}</td>
+                <td class="cel">${!properties ? " " : properties[0].presentation.presentation+" "+properties[0].presentation.presentationType}</td>
                 <td class="cel">${!properties ? " " : properties[0].units}</td>
                 <td class="cel">${!properties ? " " : properties[0].weight}</td>
                 <td class="cel">${!properties ? " " : properties[0].observations}</td>
-                <td class="cel">${!data ? " " : data.userId.name}}</td>
+                <td class="cel">${!data ? " " : data.userId.name}</td>
                 </tr>
                 `;
                 let content2 = "";
@@ -2117,7 +2204,7 @@ export default class PdfHelper{
                     <tr>
                         <td class="cel"></td>
                         <td class="cel"></td>
-                        <td class="cel">${!properties ? " " : properties[i].presentation.presentation}</td>
+                        <td class="cel">${!properties ? " " : properties[i].presentation.presentation+" "+properties[i].presentation.presentationType}</td>
                         <td class="cel">${!properties ? " " : properties[i].units}</td>
                         <td class="cel">${!properties ? " " : properties[i].weight}</td>
                         <td class="cel">${!properties ? " " : properties[i].observations}</td>
@@ -2141,6 +2228,192 @@ export default class PdfHelper{
 
     async reportPackagingById(data:Packaging,properties: PropertiesPackaging[]){
         let content = this.headReportPackaging()+this.bodyReportPackaging(data,properties);
+        return content;
+    }
+
+    getHeaderReportPackaging(){
+        return `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>R4</title>
+            <style>
+                body{
+                    margin: 0;
+                    padding:0;
+                }
+                .cel{
+                    height: 3px;
+                }
+        
+                header{
+                   text-align: center;
+                    transform: translateY(190%);
+                }
+        
+                #ta{
+                    margin-left: 770px;
+        
+                }
+        
+                #fec{
+                   transform:translateY(450%) translateX(20%);
+                }
+        
+                #mueve{
+                  width: 194px;
+               margin-left: 898px;
+           }
+              
+              img{
+                  width: 70px;
+                  height:80px;
+                  transform: translateY(50%) translateX(350%);
+              }
+        
+              .anch{
+                  width: 314px;
+              }
+            </style>`;
+    }
+
+    async getPackagingDevolution(devolution:Devolution,productName:string){
+        return `
+        ${this.getHeaderReportPackaging()}    
+        </head>
+        <body>
+        
+            <div id="pageHeader" >
+                <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+                <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+            </div>
+            
+            <table border="1" align="center" width="90%" height="50px">
+            <tr>
+                <th>
+                    <img src="${LOGO.data}" alt=""> 
+                </th>
+                <th colspan="5">Devolucion</th>
+                <th>            
+                    <p>Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</p>
+                </th>
+            </tr>
+        
+                <tr>
+                    <th>PRODUCTO</th>
+                    <th>LOTE</th>
+                    <th>PRESENTACION</th>
+                    <th>UNIDADES</th>
+                    <th>FECHA</th>
+                </tr>
+            
+                <tr>
+                <td class="cel">${productName}</td>
+                <td class="cel">${devolution.lotId}</td>
+                <td class="cel">${devolution.presentationProduct.presentation} ${devolution.presentationProduct.presentationType}</td>
+                <td class="cel">${devolution.units}</td>
+                <td class="cel">${devolution.date}</td>
+                
+                </tr>
+                <tr>    
+                    <td colspan="6"></td>
+                    <td>F-CALL-RO-020</td>
+                </tr>
+            </table>
+            
+        </body>
+        </html>`;
+    }
+
+    async getPackagingDeliveredReport(orderSeller:OrderSeller,mapSubOrder:Map<number,number>){
+        let content="";
+        let date=new Date();
+        date.setHours(date.getHours()-6);
+        content+=` 
+        ${this.getHeaderReportPackaging()}   
+        </head>
+        <body>
+        
+            <div id="pageHeader" >
+                <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+                <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+            </div>
+            
+            <table border="1" align="center" width="90%" height="50px">
+            <tr>
+                <th>
+                    <img src="${LOGO.data}" alt=""> 
+                </th>
+                <th colspan="3">Entrega a vendedor: ${orderSeller.seller.name}</th>
+                <th colspan="2">            
+                    <p>Fecha: ${date.getDate()}-${date.getMonth()+ 1}-${date.getFullYear()}</p>
+                </th>
+            </tr>
+        
+                <tr>
+                    <th>ARTICULO</th>
+                    <th>DESCRIPCION</th>
+                    <th>PRESENTACION</th>
+                    <th>CANTIDAD</th>
+                    <th>PESO</th>
+                    <th>PRECIO</th>
+                </tr>
+        `;
+        for(let subOrder of orderSeller.subOrders){
+            
+            content+=`
+            <tr>
+            <td>${subOrder.productRovianda.code}</td>
+            <td>${subOrder.productRovianda.name}</td>
+            <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
+            <td>${subOrder.units}</td>
+            <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
+            <td>${subOrder.presentation.presentationPricePublic}</td>
+            </tr>
+            `;
+        }
+        content+="</table></html>"
+        return content;
+    }
+
+    async getReprocesingPackagingReport(reprocesing:Reprocessing){
+        let content = await this.getHeaderReportPackaging();
+        let date=new Date(reprocesing.date);
+        date.setHours(date.getHours()-6);
+        content+=`
+        </head>
+        <body>
+        <div id="pageHeader" >
+        <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+        <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+    </div>
+    
+        <table border="1" align="center" width="90%" height="50px">
+        <tr>
+            <th>
+                <img src="${LOGO.data}" alt=""> 
+            </th>
+            <th colspan="2">Reproceso de ${reprocesing.packagingProductName}</th>
+            <th>Lote: ${reprocesing.packagingReprocesingOvenLot}</th>
+            <th colspan="2">            
+                <p>Fecha: ${date.getDate()}-${date.getMonth()+ 1}-${date.getFullYear()}</p>
+            </th>
+        </tr>
+        <tr>
+        <th>PESO</th>
+            <th>ALERGENO</th>
+            <th>OBSERVACIONES</th>
+        </tr>
+        <tr>
+            <td>${reprocesing.weigth}</td>
+            <td>${reprocesing.allergens}</td>
+            <td>${reprocesing.comment}</td>
+        </tr>
+        </table>
+        </body>
+        </html>
+        `;
         return content;
     }
 }

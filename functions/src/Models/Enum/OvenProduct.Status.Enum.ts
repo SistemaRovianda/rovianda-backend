@@ -1,4 +1,5 @@
 export enum OvenProductStatusEnum{
     OPENED = "OPENED",
-    CLOSED = "CLOSED"
-}
+    CLOSED = "CLOSED",
+    USED = "USED"
+ }

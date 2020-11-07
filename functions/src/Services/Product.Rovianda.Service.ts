@@ -139,9 +139,8 @@ export class ProductRoviandaService{
         return await this.presentationsProductsRepository.createPresentation(presentation);
     }
 
-    async createProductRovianda(productRoviandaDTO:any,productImage:any){
-        productRoviandaDTO = JSON.parse(JSON.stringify(productRoviandaDTO));
-        
+    async createProductRovianda(productRoviandaDTO:SaveProductRoviandaDTO){
+     
         if(!productRoviandaDTO.keyProduct) throw new Error("[400],keyProduct is required");
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],nameProduct is required");
         //if(!productRoviandaDTO.ingredients[) throw new Error("[400],ingredients is required");
@@ -150,19 +149,19 @@ export class ProductRoviandaService{
         let lineProduct = await this.sqlsRepository.getProductLineSaeByKey(productRoviandaDTO.productLine);
         
         if(!lineProduct.length) throw new Error("[409], No existe la linea de producto: "+productRoviandaDTO.productLine);
-        let  presentations = JSON.parse(productRoviandaDTO.presentations) as Array<any>
-        for(let i=0;i< presentations.length;i++){
-        let presentation = presentations[i];
         
+        for(let i=0;i<productRoviandaDTO.presentations.length;i++){
+        let presentation = productRoviandaDTO.presentations[i];
+        presentation.warehouseKey=1;
         let productSae = await this.sqlsRepository.getProductSaeByKey(productRoviandaDTO.keyProduct+(i+1));
         if(productSae.length) throw new Error("[409], ya existe un producto con la clave: "+productRoviandaDTO.keyProduct);
-        let warehouseSae = await this.sqlsRepository.getWarehouseByKey(presentation.warehouseKey);
-        if(!warehouseSae.recordset.length) throw new Error("[404], no existe el almacen con la clave: "+presentation.warehouseKey);
-        }
+         //let warehouseSae = await this.sqlsRepository.getWarehouseByKey(presentation.warehouseKey);
+         //if(!warehouseSae.recordset.length) throw new Error("[404], no existe el almacen con la clave: "+presentation.warehouseKey);
+         }
 
         await this.sqlsRepository.saveProductRovianda(productRoviandaDTO);
 
-        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.keyProduct}/`, productImage.buffer);
+        let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRoviandaDTO.keyProduct}/`, new Buffer(productRoviandaDTO.productRoviandaImage,'base64'));
         
         let productRovianda:ProductRovianda = new ProductRovianda();
         productRovianda.code = productRoviandaDTO.keyProduct;
@@ -170,37 +169,31 @@ export class ProductRoviandaService{
         productRovianda.status = true;
         productRovianda.imgS3 = urlOfImage;
         productRovianda.ingredients = new Array<Product>(); 
-        productRovianda.presentationProducts = new Array<PresentationProducts>();       
-        let ingredients =JSON.parse(productRoviandaDTO.ingredients) as Array<any>;
-        for (let i = 0; i < ingredients.length; i++) {
-            if(!ingredients[i].productId) throw new Error("[400],productId is required");
-            if(!ingredients[i].nameProduct) throw new Error("[400],nameProduct is required");
-            let productIngredient:Product = await this.productRepository.getProductById(ingredients[i].productId);
-            if(!productIngredient) throw new Error(`[404], product ingredent with id ${ingredients[i].productId} not found`);
+        productRovianda.presentationProducts = new Array<PresentationProducts>();
+        
+        for (let ingredient of productRoviandaDTO.ingredients) {
+            if(!ingredient.productId) throw new Error("[400],productId is required");
+            if(!ingredient.nameProduct) throw new Error("[400],nameProduct is required");
+            let productIngredient:Product = await this.productRepository.getProductById(ingredient.productId);
+            if(!productIngredient) throw new Error(`[404], product ingredent with id ${ingredient.productId} not found`);
                 productRovianda.ingredients.push(productIngredient);  
             }
 
-            
-        
-        for (let i = 0; i < presentations.length; i++) {
-            if(!presentations[i].presentation) throw new Error("[400],presentation is required");
-            if(!presentations[i].pricePresentationPublic) throw new Error("[400],productId is required");
-            if(!presentations[i].typePresentation) throw new Error("[400],typePresentation is required");
-            
-            
-
+        for (let i = 0; i < productRoviandaDTO.presentations.length; i++) {
+            if(!productRoviandaDTO.presentations[i].presentation) throw new Error("[400],presentation is required");
+            if(!productRoviandaDTO.presentations[i].pricePresentation) throw new Error("[400],pricePresentation is required");
+            if(!productRoviandaDTO.presentations[i].typePresentation) throw new Error("[400],typePresentation is required");
             let presentationProduct:PresentationProducts = new PresentationProducts();
-            presentationProduct.presentation = presentations[i].presentation;
-            presentationProduct.presentationPricePublic = presentations[i].pricePresentationPublic;
-            presentationProduct.presentationPriceMin = presentations[i].pricePresentationMin;
-            presentationProduct.presentationPriceLiquidation = presentations[i].pricePresentationLiquidation;
-            presentationProduct.presentationType = presentations[i].typePresentation;
+            presentationProduct.presentation = productRoviandaDTO.presentations[i].presentation;
+            presentationProduct.presentationPricePublic = productRoviandaDTO.presentations[i].pricePresentation;//presentations[i].pricePresentationPublic;
+            presentationProduct.presentationPriceMin = 0;//presentations[i].pricePresentationMin;
+            presentationProduct.presentationPriceLiquidation =0;// presentations[i].pricePresentationLiquidation;
+            presentationProduct.presentationType = productRoviandaDTO.presentations[i].typePresentation;
             presentationProduct.productRovianda = productRovianda;
             presentationProduct.typePrice = "PUBLICO";
             presentationProduct.status = true;
-            presentationProduct.keySae = i;
+            presentationProduct.keySae = (productRoviandaDTO.keyProduct+""+(i+1).toString());
             productRovianda.presentationProducts.push(presentationProduct);
-
         }    
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
         
@@ -228,7 +221,7 @@ export class ProductRoviandaService{
         return response;
     }
   
-    async updateProductRovianda(productRoviandaDTO:SaveProductRoviandaDTO,productId: number,imageProduct:any) {
+    async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,productId: number,imageProduct:any) {
     
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],nameProduct is required");
         let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
@@ -264,15 +257,15 @@ export class ProductRoviandaService{
             }
             for (let presentation of productRoviandaDTO.presentations) {
                 if(!presentation.presentation) throw new Error("[400],presentation is required");
-                if(!presentation.pricePresentationPublic) throw new Error("[400],pricePresentationPublic is required");
-                if(!presentation.pricePresentationMin) throw new Error("[400],pricePresentationMin is required");
-                if(!presentation.pricePresentationLiquidation) throw new Error("[400],pricePresentationLiquidation is required");
+                if(!presentation.pricePresentation) throw new Error("[400],pricePresentationPublic is required");
+                //if(!presentation.pricePresentationMin) throw new Error("[400],pricePresentationMin is required");
+                //if(!presentation.pricePresentationLiquidation) throw new Error("[400],pricePresentationLiquidation is required");
                 if(!presentation.typePresentation) throw new Error("[400],typePresentation is required");
                 let presentationProduct:PresentationProducts = new PresentationProducts();
                     presentationProduct.presentation = presentation.presentation;
-                    presentationProduct.presentationPricePublic = presentation.pricePresentationPublic;
-                    presentationProduct.presentationPriceMin = presentation.pricePresentationMin;
-                    presentationProduct.presentationPriceLiquidation = presentation.pricePresentationLiquidation;
+                    presentationProduct.presentationPricePublic = presentation.pricePresentation;
+                    presentationProduct.presentationPriceMin = 0;//presentation.pricePresentationMin;
+                    presentationProduct.presentationPriceLiquidation = 0;//presentation.pricePresentationLiquidation;
                     presentationProduct.presentationType = presentation.typePresentation;
                     presentationProduct.productRovianda = productRovianda;
                     productRovianda.presentationProducts.push(presentationProduct);
@@ -306,12 +299,16 @@ export class ProductRoviandaService{
 
     async getProductsPresentation(productId:number){
         let productRovianda:ProductRovianda = await this.productRoviandaRepository.getByIdWithPresentations(productId);
-        let productSae = await this.sqlsRepository.getProductSaeByKey(productRovianda.code);
-        if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-      let claveEsq = +productSae[0].CVE_ESQIMPU;
+        
+        if(!productRovianda) throw new Error("[400], producto no existente en SAE");
+      
       let presentations:Array<PresentationProducts> = productRovianda.presentationProducts;
+      
       for(let presentation of presentations){
+        let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
+        let claveEsq = +productSae[0].CVE_ESQIMPU;
       switch(claveEsq){
+        
         case 1:
           presentation.presentationPricePublic +=(presentation.presentationPricePublic*.16);
           presentation.presentationPriceMin +=(presentation.presentationPriceMin*.16);

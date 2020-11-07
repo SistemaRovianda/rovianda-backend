@@ -71,7 +71,7 @@ export class InspectionService{
             inspection.odor = inspectionDTO.validations.odor;
             inspection.colour = inspectionDTO.validations.colour;
             inspection.texture = inspectionDTO.validations.texture;
-    
+            inspection.processId = inspectionDTO.processId;
            let inspectionSaved:Inspection= await this.inspectionRepository.createInspection(inspection);   
            return inspectionSaved.id;
     }

@@ -1,7 +1,8 @@
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { Packaging } from "../Models/Entity/Packaging";
+import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 
 export class PropertiesPackagingRepository{
     private propertiesPackaginRepository: Repository<PropertiesPackaging>;
@@ -56,14 +57,19 @@ export class PropertiesPackagingRepository{
         });
     }
 
-    async findPropiertiesPackagings(packagingId: Packaging){
+    async findPropiertiesPackagings(packaging: Packaging){
         await this.getConnection();
         return await this.propertiesPackaginRepository.find({
             relations:["presentation"],
-            where:{ packagingId}
+            where:{ packaging}
         });
     }
 
-    
+    async getPropertiesPackagingByPackagingAndPresentationAndCount(packaging:Packaging,presentation:PresentationProducts,count:number){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.findOne({
+            where: {packaging,presentation,units:MoreThan(count)} 
+        });
+    }
 }
 

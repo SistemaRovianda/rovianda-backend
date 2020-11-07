@@ -1,5 +1,6 @@
 
 import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { Defrost } from "./Defrost";
 import { Process } from "./Process";
 import { Product } from "./Product";
 import { ProductRovianda } from "./Product.Rovianda";
@@ -38,4 +39,8 @@ export class Conditioning{
 
     @Column()
     lotId:string;
+
+    // @OneToOne(type=>Defrost,defrost=>defrost.conditioning,{eager:true})
+    // @JoinColumn({name:"defrost_id"})
+    // defrost:Defrost;
 }

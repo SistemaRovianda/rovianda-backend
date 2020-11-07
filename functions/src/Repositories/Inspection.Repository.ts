@@ -46,4 +46,11 @@ export class InspectionRepository{
             where: {lotId: `${lot}`}
         });
     }
+
+    async getByProcessId(processId:number){
+        await this.getConnection();
+        return await this.inspectionRepository.find({
+            where:{processId}
+        });
+    }
 }

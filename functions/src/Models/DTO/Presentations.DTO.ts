@@ -4,6 +4,8 @@ export interface Presentation{
     pricePresentationPublic:number,
     pricePresentationMin:number,
     pricePresentationLiquidation:number,
+    typePresentation:string,
     typePrice:number,
-    quantity:number
+    quantity:number,
+    keySae:string
 }

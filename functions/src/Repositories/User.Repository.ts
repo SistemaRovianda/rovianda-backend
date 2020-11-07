@@ -19,7 +19,7 @@ export class UserRepository{
 
     async getUserById(userId:string){
         await this.getConnection();
-        return await this.userRepository.findOne({id:userId});
+        return await this.userRepository.findOne({id:userId},{relations:["clientsArr"]});
     }
 
 
@@ -51,9 +51,7 @@ export class UserRepository{
     async getByFullName(name:string,firstSurname:string,lastSurname:string){
         await this.getConnection();
         return await this.userRepository.query(`
-        SELECT * FROM users WHERE name = "${name}" 
-        AND first_surname = "${firstSurname}" 
-        AND last_surname = "${lastSurname}"`);
+        SELECT * FROM users WHERE name = "${name} ${firstSurname} ${lastSurname}"`);
     }
 
     async getByFullNameJob(name:string,firstSurname:string,lastSurname:string,job:string){

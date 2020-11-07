@@ -56,7 +56,7 @@ export class ProcessService{
      async createProcessInter():Promise<Process>{
         let process:Process = new Process();
         let today = new Date();
-        today.setHours(today.getHours()-5)
+        today.setHours(today.getHours()-6)
         let dd:any = today.getDate();
         let mm:any = today.getMonth()+1; 
         let yyyy:any = today.getFullYear();
@@ -168,7 +168,7 @@ export class ProcessService{
         }else{
             process.status = ProcessStatus.INACTIVE;
             let date:Date = new Date();
-            date.setHours(date.getHours()-5);
+            date.setHours(date.getHours()-6);
             process.endDate = date.toISOString();
             await this.processRepository.createProcess(process);
                 return "cerrado";
@@ -239,13 +239,13 @@ export class ProcessService{
         for(let process of processAvailables){
             if(processAvailableMap.get(process.productId)==null){
                 processAvailableMap.set(process.productId,{
-                        lots:[{recordId:process.recordId,dateEndedProcess:process.dateEndedProcess}],
+                        lots:[{recordId:process.recordId,lotDay:process.lotDay,dateEndedProcess:process.dateEndedProcess}],
                         productId: process.productId,
                         productName: process.productName
                 });
             }else{
                 let processMapped = processAvailableMap.get(process.productId);
-                processMapped.lots.push({recordId:process.recordId,dateEndedProcess:process.dateEndedProcess});
+                processMapped.lots.push({recordId:process.recordId,lotDay:process.lotDay,dateEndedProcess:process.dateEndedProcess});
                 processAvailableMap.set(process.productId,processMapped);
             }
         }

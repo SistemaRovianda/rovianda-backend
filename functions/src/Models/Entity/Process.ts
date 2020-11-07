@@ -59,7 +59,7 @@ export class Process{
     @OneToMany(type=>Conditioning,conditioning=>conditioning.process,{cascade:true,nullable:true})
     conditioning:Conditioning[];
 
-    @OneToMany(type=>Sausaged,sausaged=>sausaged.sausage,{cascade:true,nullable:true})
+    @OneToMany(type=>Sausaged,sausaged=>sausaged.process,{cascade:true,nullable:true})
     sausage:Sausaged[];
 
     @OneToOne(type => User)

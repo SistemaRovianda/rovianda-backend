@@ -53,6 +53,7 @@ import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 import { CatCFDIUses } from "../Models/Entity/Cat.CFDI.Uses";
 import { CatPaymentTypes } from "../Models/Entity/Cat.Payment.Types";
+import { Devolution } from "../Models/Entity/Devolution";
 
 const config: ConnectionOptions = {
 
@@ -111,7 +112,7 @@ const config: ConnectionOptions = {
         SellerInventory,
         Address,Debts,Sale,SellerOperation,SubSales,
         Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes,
-        Client
+        Client,Devolution
     ]
 }
 let connection: Connection;
