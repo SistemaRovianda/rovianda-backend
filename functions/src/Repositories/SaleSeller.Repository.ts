@@ -42,8 +42,26 @@ export class SalesSellerRepository{
         return await this.salesSellerRepository.find({urgent,status:"ACTIVE"});
     }
 
+    async getOrderSellerByUrgentCheese(urgent:boolean){
+        await this.getConnection();
+        return await this.salesSellerRepository.createQueryBuilder()
+        .where("urgent=:urgent && status = :active OR status = :active2", {
+          urgent,
+          active: "ACTIVE",
+          active2: "CHEESE"
+        })
+        .getMany();
+    }
+
     async getOrderByIdWithSuborders(subOrderId:number){
         await this.getConnection();
         return await this.salesSellerRepository.findOne({id:subOrderId},{relations:["subOrders","seller"]});
+    }
+
+    async getAllOrdersSellers(){
+        await this.getConnection();
+        return await this.salesSellerRepository.find({
+            status:"ACTIVE"
+        });
     }
 }

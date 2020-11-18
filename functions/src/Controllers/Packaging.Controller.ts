@@ -75,7 +75,8 @@ export class PackagingController{
     }
 
     async getOrderSellerByUrgent(req:Request,res:Response){
-        let response = await this.packagingService.getOrderSellerByUrgent(req.params.urgent);
+        let mode=req.query.mode;
+        let response = await this.packagingService.getOrderSellerByUrgent(req.params.urgent,mode);
         return res.status(200).send(response);
     }
 

@@ -3,4 +3,5 @@ export interface GrindingForm{
     weight:string,
     date:string,
     defrostId:number;
+    temperature:number;
 }

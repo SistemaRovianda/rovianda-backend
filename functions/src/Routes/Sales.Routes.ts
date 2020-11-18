@@ -33,7 +33,7 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getOrdersOfSeller"
     },
     {
-        url: "/rovianda/seller/orders-products/:orderId", // obtencion de productos de una orden es especifico
+        url: "/rovianda/seller/orders-products/:orderId", // obtencion de productos de una orden es especifico ? mode=cheese
         method: "get",
         controller: SalesRequestController,
         target: "getProductOfOrderSeller"

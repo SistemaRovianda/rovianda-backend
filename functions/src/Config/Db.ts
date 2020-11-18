@@ -54,15 +54,16 @@ import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 import { CatCFDIUses } from "../Models/Entity/Cat.CFDI.Uses";
 import { CatPaymentTypes } from "../Models/Entity/Cat.Payment.Types";
 import { Devolution } from "../Models/Entity/Devolution";
+import { Cheese } from "../Models/Entity/Cheese";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"localhost",//, 
+    host: "rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"localhost",//, "rovisapi.dyndns.tv",//
     port: 3306,
-    username: "admin",//"root",
-    password: "Holamundo1250",
-    database: "new_rovianda",//"rovianda-test-dev",
+    username: "master_rovianda",//"admin",//"root","master_rovianda",//
+    password: "Sistemas2020",//"Holamundo1250",//"Sistemas2020",//
+    database: "bd_rovianda",//"new_rovianda",//"rovianda-test-dev","bd_rovianda",//
     synchronize: true,
     logging: false,
     debug:false,
@@ -112,7 +113,8 @@ const config: ConnectionOptions = {
         SellerInventory,
         Address,Debts,Sale,SellerOperation,SubSales,
         Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes,
-        Client,Devolution
+        Client,Devolution,
+        Cheese
     ]
 }
 let connection: Connection;

@@ -799,7 +799,8 @@ async reportDocumentPackagingById(req:Request,res:Response){
 
     async getReportPackagingDelivered(req:Request,res:Response){
         let orderSellerId:number = +req.params.orderSellerId;
-        let report:string = await this.packagingService.getReportOfDeliveredSeller(orderSellerId);
+        let mode=req.query.mode;
+        let report:string = await this.packagingService.getReportOfDeliveredSeller(orderSellerId,mode);
         pdf.create(report, {
             format: 'Legal',
             border: {

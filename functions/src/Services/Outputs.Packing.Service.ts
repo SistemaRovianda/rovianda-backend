@@ -27,7 +27,7 @@ export class OutputsPackingService{
         if(lote.status==WarehouseStatus.PENDING) throw new Error("[409], el lote no ah sido abierto");
 
         let outputsPacking = new OutputsPacking();
-        outputsPacking.loteProveedor = outputsPackingDTO.loteId;
+        outputsPacking.loteProveedor = lote.loteProveedor;
         outputsPacking.operatorOutlet = outputsPackingDTO.name;
         outputsPacking.product = product;
         outputsPacking.quantity = outputsPackingDTO.quantity;

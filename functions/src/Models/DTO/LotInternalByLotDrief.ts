@@ -1,5 +1,5 @@
 export interface LotInternalByLotDrief{
-    loteInterno:string;
+    lotDay:string;
     date:string;
     productName:string;
 }

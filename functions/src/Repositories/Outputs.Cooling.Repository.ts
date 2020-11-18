@@ -63,7 +63,7 @@ export class OutputsCoolingRepository{
         await this.getConnection();
         return await this.outputsCoolingRepository.find({loteInterno})
     }
-
+  
     async getOutputCoolingByRawAndStatus(status:string,rawMaterial:Raw){
         await this.getConnection();
         return await this.outputsCoolingRepository.find({rawMaterial:rawMaterial,status});

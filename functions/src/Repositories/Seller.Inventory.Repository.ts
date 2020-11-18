@@ -1,7 +1,9 @@
-import { Repository } from "typeorm";
+import { MoreThanOrEqual, Repository } from "typeorm";
 import { SellerInventory } from "../Models/Entity/Seller.Inventory";
 import { connect } from "../Config/Db";
 import { Request } from "express";
+import { PresentationProducts } from "../Models/Entity/Presentation.Products";
+import { User } from "../Models/Entity/User";
 
 export class SellerInventoryRepository{
     private repository:Repository<SellerInventory>;
@@ -47,5 +49,12 @@ export class SellerInventoryRepository{
         from presentation_products as prepro
         inner join seller_inventory as selinv on selinv.presentation_id = prepro.presentation_id
         where selinv.productId = ${productId} and selinv.seller_id = "${sellerUid}"; `);
+    }
+
+    async getInventoyOfProductPresentationId(presentation:PresentationProducts,units:number,seller:User){
+        await this.getConnection();
+        return await this.repository.findOne({
+            where:{presentation,quantity: MoreThanOrEqual(units),seller}
+        });
     }
 }

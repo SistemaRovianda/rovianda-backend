@@ -46,7 +46,8 @@ export interface SaleOrderDTO {
     products: productSaled[],
     payed:number,
     credit?:number,
-    days?:number
+    days?:number,
+    typeSale:string
  }
 
  export interface productSaled{

@@ -116,13 +116,12 @@ export class ClientService {
         
         newClient.typeClient = "CONTADO";
         newClient.currentCredit = 0;
-        address = address;
+        newClient.address = address;
         newClient.credit = 0;
         newClient.rfc = clientDTO.rfc;
         newClient.seller = sellerOwner;
         newClient.daysCredit=0;
-        
-        await this.clientRepository.saveClient(newClient); 
         await this.sqlSRepository.saveSellerClient(clientDTO);    
+        await this.clientRepository.saveClient(newClient); 
     }
 }

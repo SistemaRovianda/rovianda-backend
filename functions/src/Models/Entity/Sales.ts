@@ -26,6 +26,9 @@ export class Sale{
     @Column()
     credit: number;
 
+    @Column({name:"type_sale"})
+    typeSale:string;
+
     @OneToMany(type=>Debts,debts=>debts.sale,{eager:true,cascade:true})
     debts:Debts[];
 

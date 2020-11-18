@@ -10,7 +10,7 @@ export class FormulationIngredients {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => Product,{eager:true})
+    @ManyToOne(type => Product,product=>product.formulationIngredients,{eager:false})
     @JoinColumn({ name: "product_id" })
     product: Product;
 
@@ -18,7 +18,7 @@ export class FormulationIngredients {
     @JoinColumn({ name: "formulation_id" })
     formulation: Formulation;
 
-    @ManyToOne(type => OutputsDrief)
+    @OneToOne(type => OutputsDrief,outputsDrief=>outputsDrief.formulationIngredient,{cascade:true})
     @JoinColumn({ name: "lot_id" })
     lotId: OutputsDrief;
 }

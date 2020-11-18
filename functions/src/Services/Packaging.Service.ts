@@ -6,7 +6,7 @@ import { Packaging } from '../Models/Entity/Packaging';
 import { ProductRoviandaRepository } from '../Repositories/Product.Rovianda.Repository';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { Request, response } from 'express';
-import { isArguments } from 'lodash';
+import { has, isArguments } from 'lodash';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
@@ -37,6 +37,7 @@ import { DevolutionRepository } from '../Repositories/Devolution.Repository';
 import PdfHelper from '../Utils/Pdf.Helper';
 import { Inspection } from '../Models/Entity/Inspection';
 import { InspectionRepository } from '../Repositories/Inspection.Repository';
+import { CheeseRepository } from '../Repositories/Cheese.Repository';
 
 export class PackagingService{
 
@@ -58,6 +59,7 @@ export class PackagingService{
     private devolutionRepository:DevolutionRepository;
     private pdfHelper:PdfHelper;
     private inspectionRepository:InspectionRepository;
+    private cheeseRepository:CheeseRepository;
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
@@ -78,6 +80,7 @@ export class PackagingService{
         this.devolutionRepository=new DevolutionRepository();
         this.pdfHelper=new PdfHelper();
         this.inspectionRepository=new InspectionRepository();
+        this.cheeseRepository = new CheeseRepository();
     }
 
     async savePackaging(packagingDTO:PackagingDTO) {
@@ -324,22 +327,47 @@ export class PackagingService{
         }
     }
 
-    async getOrderSellerByUrgent(urgent:string){
+    async getOrderSellerByUrgent(urgent:string,mode:string){
         if(urgent == null) throw new Error(`[400], urgent is required`);
         let bUrgent:boolean;
         if(urgent == "true" || urgent == "True"){ bUrgent = true;}
-        if(urgent == "false" || urgent == "False"){ bUrgent = false;} 
-        let orderSellers:OrderSeller[] = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
+        if(urgent == "false" || urgent == "False"){ bUrgent = false;}
+        let orderSellers:OrderSeller[]=[];
+        console.log("MODE:"+mode);
+        let cheesesIds = [];
+        let cheeses = await this.cheeseRepository.getAllCheeses();
+        cheesesIds=cheeses.map(x=>x.product.id);
+            
+        if(mode==null || mode==undefined){ 
+            let orderSellers2 = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
+            
+            for(let i=0;i<orderSellers2.length;i++){
+                let subOrders = await this.subOrderRepository.getByOrderSeller(orderSellers2[i]);
+                subOrders = subOrders.filter(x=>!cheesesIds.includes(+x.productRovianda.id));
+                if(subOrders.length){
+                    orderSellers.push(orderSellers2[i]);
+                }
+            }
+        }else if(mode=="cheese"){
+            let orderSellers3 = await this.orderSellerRepository.getOrderSellerByUrgentCheese(bUrgent);
+            for(let i=0;i<orderSellers3.length;i++){
+                let subOrders = await this.subOrderRepository.getByOrderSeller(orderSellers3[i]);
+                subOrders = subOrders.filter(x=>cheesesIds.includes(+x.productRovianda.id));
+                if(subOrders.length){
+                    orderSellers.push(orderSellers3[i]);
+                }
+            }
+        }
         let response:any = [];
         for(let order of orderSellers){
             let orderSeller = await this.orderSellerRepository.getOrderById(order.id);
-            response.push({
-                orderId: `${orderSeller.id}`,
-                date: `${orderSeller.date}`,
-                userId: `${orderSeller.seller.id}`,
-                vendedor: `${orderSeller.seller.name} `,
-                status: `${orderSeller.status}`
-            })
+                response.push({
+                    orderId: `${orderSeller.id}`,
+                    date: `${orderSeller.date}`,
+                    userId: `${orderSeller.seller.id}`,
+                    vendedor: `${orderSeller.seller.name} `,
+                    status: `${orderSeller.status}`
+                })
         }
         
       
@@ -357,12 +385,14 @@ export class PackagingService{
             let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(product);
             for(let e = 0; e < aPackaging.length; e++){
                 let ovenProduct:OvenProducts = await this.ovenRepository.getOvenProductByLot(aPackaging[e].lotId);
+                if(ovenProduct && ovenProduct.processId){
                 let inspections:Inspection[]= await this.inspectionRepository.getByProcessId(ovenProduct.processId);
                 if(!inspections.length){
                     response2.push({
                         processId: ovenProduct.processId,
                         lotId: ovenProduct.newLote
                     });
+                }
                 }
             }
             response.push({
@@ -399,6 +429,9 @@ export class PackagingService{
     async createDevolution(devolutionRequest:DevolutionRequest){
         let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLot(devolutionRequest.lotId);
         if(!ovenProduct) throw new Error("[404], no existe el lote en salidas de hornos");
+        let packaging:Packaging = await this.packagingRepository.getPackagingByLotId(devolutionRequest.lotId);
+        let propertyPackaging:PropertiesPackaging = await this.propertiesPackagingRepository.findByPackagings(packaging,devolutionRequest.units);
+        if(!propertyPackaging) throw new Error("[409], no tienes producto en existencia para devolver");
         let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
         if(!presentation) throw new Error("[404], no existe la presentation de ese producto");
         ovenProduct.status="CLOSED";
@@ -408,6 +441,7 @@ export class PackagingService{
         devolution.units=devolutionRequest.units;
         devolution.presentationProduct=presentation;
         await this.ovenRepository.saveOvenProduct(ovenProduct);
+        await this.sqlRepository.updateProductInSae(propertyPackaging.presentation.keySae,(devolutionRequest.units)*-1);
         return await this.devolutionRepository.saveDevolution(devolution);
     }
 
@@ -421,20 +455,34 @@ export class PackagingService{
 
     async closeOrderSeller(orderSellerId:number){
         let orderSeller:OrderSeller= await this.orderSellerRepository.getOrderById(orderSellerId);
-        orderSeller.status="INACTIVE";
+        let subOrders = await this.subOrderRepository.getByOrderSeller(orderSeller);
+        let hasCheese =false;
+        let cheeses = await this.cheeseRepository.getAllCheeses();
+        let cheeseIds = cheeses.map(x=>x.product.id);
+        for(let sub of subOrders){
+            if(cheeseIds.includes(+sub.presentation.keySae)){
+                hasCheese=true;
+            }
+        }
+        if(hasCheese){
+            orderSeller.status="CHEESE";
+        }else if(orderSeller.status=="CHEESE" || orderSeller.status=="ACTIVE"){
+            orderSeller.status="INACTIVE";
+        }
         await this.orderSellerRepository.saveSalesSeller(orderSeller);
     }
 
-    async getReportOfDeliveredSeller(orderSellerId:number){
+    async getReportOfDeliveredSeller(orderSellerId:number,mode:string){
         let orderSeller:OrderSeller = await this.orderSellerRepository.getOrderByIdWithSuborders(orderSellerId);
         let mapSubOrderWeigth=new Map<number,number>();
-        for(let subOrder of orderSeller.subOrders){
+        let subOrders = await this.subOrderRepository.getByOrderSeller(orderSeller);
+        for(let subOrder of subOrders){
             let subOrdersMetadata = await this.subOrderMetadataRepository.getSubOrderMetadataBySubOrder(subOrder);
             
             subOrder.units=subOrdersMetadata.map(x=>x.quantity).reduce((a,b)=>a+b,0);
             let weigth=subOrdersMetadata.map(x=>x.weigth).reduce((a,b)=>a+b,0);
             mapSubOrderWeigth.set(subOrder.subOrderId,weigth);
         }
-        return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mapSubOrderWeigth);
+        return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mapSubOrderWeigth,mode);
     }
 }

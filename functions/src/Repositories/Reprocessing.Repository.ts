@@ -33,6 +33,9 @@ export class ReprocessingRepository{
         return await this.reprocessingRepository.find({active:true});
     }
 
-
+    async getByNewLote(newLote:string){
+        await this.getConnection();
+        return await this.reprocessingRepository.find({packagingReprocesingOvenLot:newLote});
+    }
 
 }

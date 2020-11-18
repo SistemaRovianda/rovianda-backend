@@ -100,9 +100,8 @@ export class ProductController{
 
     async updateProductRovianda(req:Request,res:Response){
         let productId:number = +req.params.productId;
-        let imageProduct= (req.files.length)?req.files[0] :null;
-        await this.productRoviandaService.updateProductRovianda(req.body,productId,imageProduct);
-        return res.status(201).send();
+        await this.productRoviandaService.updateProductRovianda(req.body,productId);
+        return res.status(204).send();
     }
 
     async getProductRoviandaByCode(req:Request,res:Response){

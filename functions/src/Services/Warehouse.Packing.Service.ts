@@ -108,7 +108,8 @@ export class WarehousePackingService{
                 outputs = warehousePacking[i].outputsPacking.map(output =>{ 
                     return {
                         outputName: output.operatorOutlet,
-                        date: output.date
+                        date: output.date,
+                        quantity: output.quantity
                     }
                 })
             }
@@ -117,6 +118,8 @@ export class WarehousePackingService{
                 receptionDate: warehousePacking[i].date,
                 openingDate: warehousePacking[i].openingDate,
                 closedDate: warehousePacking[i].closingDate,
+                received: warehousePacking[i].quantity,
+                product:warehousePacking[i].product.description,
                 outputs
             })
         }

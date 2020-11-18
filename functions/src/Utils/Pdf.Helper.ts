@@ -19,14 +19,16 @@ import { Grinding } from '../Models/Entity/Grinding';
 import { Devolution } from '../Models/Entity/Devolution';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
+import { CheeseRepository } from '../Repositories/Cheese.Repository';
+import { ceil } from 'lodash';
 
 
 export default class PdfHelper{
 
     private grindingRepository:GrindingRepository;
-    
+    private cheeseRepository:CheeseRepository;
     constructor(){
-        
+        this.cheeseRepository = new CheeseRepository();
         this.grindingRepository=new GrindingRepository();
     }
     headReportEntranceDrief(){
@@ -1953,7 +1955,7 @@ export default class PdfHelper{
                 <th>FECHA</th>
                 <th>PROCESO</th>
                 <th>PESO Kg</th>
-                <th></td>
+                <th>Tº C</td>
                 <th></th>
                 <th></th>
             </tr>
@@ -1972,7 +1974,7 @@ export default class PdfHelper{
                     <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
                     <th>${grinding.singleProcess}</th>
                     <th>${grinding.weight}</th>
-                    <th></th>
+                    <th>${grinding.temperature}</th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -2039,9 +2041,9 @@ export default class PdfHelper{
                 <th class="formacion">${process.product.name}</th>
                 <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
                 <th>${sausage.temperature}</th>
-                <th>${sausage.weightIni} (${hour1.getHours()+":"+hour1.getMinutes()})</th>
-                <th>${sausage.weightMedium} (${hour2.getHours()+":"+hour2.getMinutes()})</th>
-                <th>${sausage.weightExit} (${hour3.getHours()+":"+hour3.getMinutes()})</th>
+                <th>${sausage.weightIni} (${!isNaN(hour1.getHours())?hour1.getHours()+":"+hour1.getMinutes():"No aplica"})</th>
+                <th>${sausage.weightMedium} (${!isNaN(hour2.getHours())?hour2.getHours()+":"+hour2.getMinutes():"No aplica"})</th>
+                <th>${sausage.weightExit} (${!isNaN(hour3.getHours())?hour3.getHours()+":"+hour3.getMinutes():"No aplica"})</th>
                 <th></th>
                 </tr>
                 `
@@ -2326,10 +2328,12 @@ export default class PdfHelper{
         </html>`;
     }
 
-    async getPackagingDeliveredReport(orderSeller:OrderSeller,mapSubOrder:Map<number,number>){
+    async getPackagingDeliveredReport(orderSeller:OrderSeller,mapSubOrder:Map<number,number>,mode:string){
         let content="";
         let date=new Date();
         date.setHours(date.getHours()-6);
+        let cheeses = await this.cheeseRepository.getAllCheeses();
+        let cheesesIds = cheeses.map(x=>x.product.id);
         content+=` 
         ${this.getHeaderReportPackaging()}   
         </head>
@@ -2361,17 +2365,34 @@ export default class PdfHelper{
                 </tr>
         `;
         for(let subOrder of orderSeller.subOrders){
+            if(mode==undefined || mode==null){
+                if(!cheesesIds.includes(subOrder.productRovianda.id)){
+                content+=`
+                <tr>
+                <td>${subOrder.productRovianda.code}</td>
+                <td>${subOrder.productRovianda.name}</td>
+                <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
+                <td>${subOrder.units}</td>
+                <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
+                <td>${subOrder.presentation.presentationPricePublic}</td>
+                </tr>
+                `;
+                }
+            }else{
+                if(cheesesIds.includes(subOrder.productRovianda.id) && mode=="cheese"){
+                    content+=`
+                    <tr>
+                    <td>${subOrder.productRovianda.code}</td>
+                    <td>${subOrder.productRovianda.name}</td>
+                    <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
+                    <td>${subOrder.units}</td>
+                    <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
+                    <td>${subOrder.presentation.presentationPricePublic}</td>
+                    </tr>
+                    `;
+                }
+            }
             
-            content+=`
-            <tr>
-            <td>${subOrder.productRovianda.code}</td>
-            <td>${subOrder.productRovianda.name}</td>
-            <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
-            <td>${subOrder.units}</td>
-            <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
-            <td>${subOrder.presentation.presentationPricePublic}</td>
-            </tr>
-            `;
         }
         content+="</table></html>"
         return content;

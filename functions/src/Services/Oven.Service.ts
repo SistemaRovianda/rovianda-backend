@@ -198,10 +198,9 @@ export class OvenService{
         console.log("hace0a0ss")
         if(!product) throw new Error("[400], product not found");
         let dateParsed=new Date(ovenDTO.date);
-        dateParsed.setHours(dateParsed.getHours()-6);
         let oven:OvenProducts = new OvenProducts();
         oven.stimatedTime = ovenDTO.estimatedTime;
-        oven.newLote = ovenDTO.assignmentLot.newLotId+dateParsed.getDate()+(dateParsed.getMonth()+1)+dateParsed.getFullYear().toString().slice(2,4);
+        oven.newLote = ovenDTO.assignmentLot.newLotId+(dateParsed.getDate()<10?'0'+dateParsed.getDate().toString():dateParsed.getDate())+(dateParsed.getMonth()+1)+dateParsed.getFullYear().toString().slice(2,4);
         oven.pcc = ovenDTO.pcc;
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;

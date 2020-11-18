@@ -66,4 +66,9 @@ export class OutputsDriefRepository{
         await this.getConnection();
         return await this.outputsDriefRepository.find({product,status});
     }
+
+    async getOutputsDriefByIdWithFormulation(id:number){
+        await this.getConnection();
+        return await this.outputsDriefRepository.findOne({ id},{relations:["formulation"]});
+    }
 }

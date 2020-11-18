@@ -11,6 +11,13 @@ export class PresentationsProductsRepository{
         }
     }
 
+    async getPresentationProductByProductRovianda(productRovianda:ProductRovianda){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.findOne({
+            productRovianda
+        });
+    }
+
     async getPresentationProductsById(presentationId:number){
         await this.getConnection();
         return await this.presentationsProductsRepository.findOne({id:presentationId},{relations:["productRovianda"]});
@@ -55,7 +62,7 @@ export class PresentationsProductsRepository{
         return await this.presentationsProductsRepository.query(`select 
         presentation_products.presentation_id as presentationId,
         presentation_products.presentation,
-        presentation_products.type_presentation as typePresentation,
+        presentation_products.type_presentation as typePresentation,presentation_products.key_sae as keySae,
         presentation_products.price_presentation_public as pricePresentationPublic,
         presentation_products.price_presentation_min as pricePresentationMin,
         presentation_products.price_presentation_liquidation as pricePresentationLiquidation

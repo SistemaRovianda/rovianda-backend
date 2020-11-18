@@ -129,25 +129,27 @@ export class WarehouseDriefService{
             let entranceDrief:EntranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProveedorProduct(warehouseDrief[e].loteProveedor,warehouseDrief[e].product)
             let response2:any = [];
             let outputs:OutputsDrief[] = warehouseDrief[e].outputDriefs;
-            let aplications:Array<LotInternalByLotDrief> = await this.formulationRepository.getLotInternalByLotDrief(lotIdProveedor);
+            //let aplications:Array<LotInternalByLotDrief> = await this.formulationRepository.getLotInternalByLotDrief(lotIdProveedor);
             for(let i = 0; i < outputs.length; i++){
-                let lotInter:FormulationIngredients = await this.formulationIngredentsRepository.getFormulationIngredentByLotProduct(outputs[i].product,outputs[i]);
+                let formulationIngredients:FormulationIngredients = await this.formulationIngredentsRepository.getByOutputsDrief(outputs[i]);
+                if(formulationIngredients){
                 response2.push({
                     outputDate: outputs[i].date,
                     product: outputs[i].product ? outputs[i].product.description :  "",
                     productId: outputs[i].product ? outputs[i].product.id : "",
                     observations: outputs[i].observations ? outputs[i].observations : "",
-                    lot: lotInter ? lotInter.formulation.lotDay : ""
+                    lot: formulationIngredients.formulation?formulationIngredients.formulation.lotDay:null,
+                    productRovianda: formulationIngredients.formulation?formulationIngredients.formulation.productRovianda.name:null
                 })
             
+                }
             }
             response.push({
                 entranceDriefId: entranceDrief ? entranceDrief.id : "",
                 receptionDate: warehouseDrief[e].date,
                 openingDate: warehouseDrief[e].openingDate,
                 closedDate: warehouseDrief[e].closingDate,
-                outputs: response2,
-                aplications
+                outputs: response2
             })
         }
         

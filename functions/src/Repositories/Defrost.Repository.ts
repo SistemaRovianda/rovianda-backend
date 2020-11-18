@@ -1,6 +1,7 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { Defrost } from "../Models/Entity/Defrost";
+import { OutputsCooling } from "../Models/Entity/outputs.cooling";
 
 export class DefrostRepository{
     private repository:Repository<Defrost>;
@@ -29,5 +30,11 @@ export class DefrostRepository{
     async getAllInactive(){
         await this.getConnection();
         return await this.repository.find({status:"INACTIVE"});
+    }
+    async getByOutputsCooling(outputsCooling:OutputsCooling){
+        await this.getConnection();
+        return await this.repository.find({
+            outputCooling: outputsCooling
+        });
     }
 }

@@ -25,6 +25,7 @@ import { ReportController } from '../Controllers/Report.Controller';
 import { ClientController } from '../Controllers/Client.Controller';
 import { WarehouseController } from '../Controllers/Warehouse.Controller';
 import { CatalogsController } from '../Controllers/Catalogs.Controller';
+import { CheeseController } from '../Controllers/Cheese.Controller';
 
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
@@ -53,6 +54,7 @@ export class Initializer {
     private clientController: ClientController;
     private warehouseSQLSController:WarehouseController;
     private catalogsController: CatalogsController;
+    private cheeseController:CheeseController;
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
         this.pinController = new PinController(this.firebaseInstance);
@@ -80,6 +82,7 @@ export class Initializer {
         this.reportController = new ReportController(this.firebaseInstance);
         this.warehouseSQLSController = new WarehouseController();
         this.catalogsController = new CatalogsController();
+        this.cheeseController= new CheeseController();
     }
 
     getController(prototype: string) {
@@ -159,6 +162,9 @@ export class Initializer {
                 break;
             case CatalogsController.name:
                 return this.catalogsController;
+                break;
+            case CheeseController.name:
+                return this.cheeseController;
                 break;
             default:
                 return null;

@@ -9,7 +9,7 @@ export class DefrostFormulation{
     @PrimaryGeneratedColumn({name:"defrost_formulation_id"})
     defrostFormulationId:number;
 
-    @ManyToOne(type=>Defrost,{eager:true})
+    @ManyToOne(type=>Defrost,defrost=>defrost.defrostFormulations,{eager:true})
     defrost:Defrost;
 
     @Column({name:"lot_meat"})

@@ -194,6 +194,7 @@ export class ProductRoviandaService{
             presentationProduct.status = true;
             presentationProduct.keySae = (productRoviandaDTO.keyProduct+""+(i+1).toString());
             productRovianda.presentationProducts.push(presentationProduct);
+            
         }    
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
         
@@ -209,30 +210,35 @@ export class ProductRoviandaService{
 
         let ingredients = await this.productRepository.getIngredientsByProduct(productRovianda.id);
         let presentations = await this.presentationsProductsRepository.getPresentatiosProductsByProductRovianda(productRovianda.id);
-
+        let descrLin:string="";
+        let linesArray = await this.sqlsRepository.getProductLinePresentation(presentations[0].keySae);
+        if(linesArray.length){
+        let lineDescrip = await this.sqlsRepository.getProductLineSaeByKey(linesArray[0].LIN_PROD);
+        if(lineDescrip.length){
+            descrLin=lineDescrip[0].DESC_LIN;
+        }
+        }
         response = {
             code: productRovianda.code ? productRovianda.code : null,
             nameProduct: productRovianda.name ? productRovianda.name : null,
             status: productRovianda.status ? productRovianda.status : null,
             image: productRovianda.imgS3,
             ingredents: ingredients,
-            presentations: presentations
+            presentations: presentations,
+            lineProduct:descrLin
           }
         return response;
     }
   
-    async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,productId: number,imageProduct:any) {
+    async updateProductRovianda(productRoviandaDTO:UpdateProductRoviandaDTO,productId: number) {
     
         if(!productRoviandaDTO.nameProduct) throw new Error("[400],nameProduct is required");
         let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
         if(!productRovianda) throw new Error(`[404],product_rovianda with id ${productId} not found`);
-        let productSae= await this.sqlsRepository.getProductSaeByKey(productRovianda.code);
-        if(!productSae.length) throw new Error("[404], no existe ese producto registrado en SAE");
         productRovianda.name = productRoviandaDTO.nameProduct;
-        if(imageProduct!=null){
-            await this.firebaseHelper.deleteImagen(productRovianda.imgS3);
-            let photo = imageProduct;
-            let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRovianda.code}/`, photo.buffer);
+        if(productRoviandaDTO.image!=null){
+            await this.firebaseHelper.deleteImagen(productRovianda.imgS3.split(".appspot.com/")[1]);
+            let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRovianda.code}/`, new Buffer(productRoviandaDTO.image,'base64'));
             productRovianda.imgS3 = urlOfImage;
         }
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
@@ -251,16 +257,41 @@ export class ProductRoviandaService{
                 productRovianda.ingredients.push(productIngredient);
                 }
             await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-        if (productRoviandaDTO.presentations.length)
-            for(let presentation of productRovianda.presentationProducts){
-                await this.presentationsProductsRepository.deleteById(presentation.id);
+        if (productRoviandaDTO.presentations.length){
+            let presentationModified = productRoviandaDTO.presentations.filter(x=>x.presentationId!=null);
+            let productLinePresentation:string=null;
+            for(let presentationModify of presentationModified){
+                let presentation:PresentationProducts = await this.presentationsProductsRepository.getPresentationProductsById(presentationModify.presentationId);
+                if(presentation.presentation!=presentationModify.presentation){
+                    presentation.presentation = presentationModify.presentation;
+                }
+                if(presentation.presentationType!=presentationModify.typePresentation){
+                    presentation.presentationType=presentationModify.typePresentation;
+                }
+                if(presentation.presentationPricePublic!=presentationModify.pricePresentation){
+                    presentation.presentationPricePublic=presentationModify.pricePresentation;
+                }
+                if(productLinePresentation==null){
+                    productLinePresentation=presentation.keySae;
+                }
+                await this.sqlsRepository.updateProductSaeProperties(presentation.keySae,productRovianda.name,presentationModify);
+                await this.presentationsProductsRepository.savePresentationsProduct(presentation);
             }
-            for (let presentation of productRoviandaDTO.presentations) {
+            if(productLinePresentation==null){
+                productLinePresentation=productRovianda.presentationProducts[0].keySae;
+            }
+            let productLineQuery = await this.sqlsRepository.getProductLinePresentation(productLinePresentation);
+            if(!productLineQuery.length) throw new Error("[409], no existe linea de producto para esta linea de productos");
+            let productLineStr = productLineQuery[0].LIN_PROD;
+            let presentationsAdded=productRoviandaDTO.presentations.filter(x=>x.presentationId==null);
+            
+            for(let i=0;i< presentationsAdded.length;i++){
+                let presentation = presentationsAdded[i];
                 if(!presentation.presentation) throw new Error("[400],presentation is required");
                 if(!presentation.pricePresentation) throw new Error("[400],pricePresentationPublic is required");
-                //if(!presentation.pricePresentationMin) throw new Error("[400],pricePresentationMin is required");
-                //if(!presentation.pricePresentationLiquidation) throw new Error("[400],pricePresentationLiquidation is required");
                 if(!presentation.typePresentation) throw new Error("[400],typePresentation is required");
+                if(!presentation.taxSchema) throw new Error("[400],taxSchema is required");
+                if(!presentation.warehouseKey) throw new Error("[400],warehouseKey is required");
                 let presentationProduct:PresentationProducts = new PresentationProducts();
                     presentationProduct.presentation = presentation.presentation;
                     presentationProduct.presentationPricePublic = presentation.pricePresentation;
@@ -269,8 +300,11 @@ export class ProductRoviandaService{
                     presentationProduct.presentationType = presentation.typePresentation;
                     presentationProduct.productRovianda = productRovianda;
                     productRovianda.presentationProducts.push(presentationProduct);
-                    await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-            }        
+                    presentationProduct.keySae=(productRovianda.presentationProducts.length+(i+1)).toString();
+                    await this.sqlsRepository.addPresentationProductSae(productRovianda.code,productLineStr,(productRovianda.presentationProducts.length+(i+1)).toString(),productRovianda.name,productRoviandaDTO.presentations[i]);
+            }
+            await this.productRoviandaRepository.saveProductRovianda(productRovianda);
+        }
     }   
 
     async getProductsRoviandaByCode(req: Request) {

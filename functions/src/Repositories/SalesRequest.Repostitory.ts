@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 import { reduce } from 'lodash';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
 
 export class SalesRequestRepository{
     private salesRequestRepository:Repository<SubOrder>;
@@ -30,6 +31,13 @@ export class SalesRequestRepository{
     async saveSalesProduct(sale:SubOrder){
         await this.getConnection();
         return await this.salesRequestRepository.save(sale);
+    }
+
+    async getByOrderSeller(orderSeller:OrderSeller){
+        await this.getConnection();
+        return await this.salesRequestRepository.find({
+            orderSeller
+        });
     }
 
     async getProductsOfOrder(orderId:number){

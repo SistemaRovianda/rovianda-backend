@@ -4,7 +4,7 @@ import {Int,VarChar,DateTime,} from "mssql";
 import {v4} from "uuid";
 import { ClientCreation, ClientSAE, SellerClientCreation, typeContact } from "../Models/DTO/Client.DTO";
 import { WarehouseForm } from "../Models/DTO/Warehouse.DTO";
-import { ProductLineSae, ProductLineSaeForm, ProductRoviandaDTO, SaveProductRoviandaDTO } from "../Models/DTO/ProductRoviandaDTO";
+import { ProductLineSae, ProductLineSaeForm, ProductRoviandaDTO, SaveProductRoviandaDTO, UpdatePresentation } from "../Models/DTO/ProductRoviandaDTO";
 import { ImpuSchemaSAE, SaleRequestForm } from "../Models/DTO/Sales.ProductDTO";
 import { UserDTO } from "../Models/DTO/UserDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
@@ -233,6 +233,7 @@ export class SqlSRepository{
         return result.recordset as Array<ProductLineSae>;
     }
 
+
     async saveProductLineSae(productLineSaeForm:ProductLineSaeForm){
         await this.getConnection();
         let result = await this.connection.connect().then(pool=>{
@@ -251,6 +252,17 @@ export class SqlSRepository{
         let result = await this.connection.connect().then(pool=>{
             return pool.request().input('CVE_LIN',VarChar,clave).query(
                 `select * from CLIN01 where CVE_LIN=@CVE_LIN`
+                )
+        });
+        await this.connection.close();
+        return result.recordset as Array<ProductLineSae>;
+    }
+
+    async getProductLinePresentation(clave:string){
+        await this.getConnection();
+        let result = await this.connection.connect().then(pool=>{
+            return pool.request().input('CVE_ART',VarChar,clave).query(
+                `select LIN_PROD from INVE01 where CVE_ART=@CVE_ART`
                 )
         });
         await this.connection.close();
@@ -325,7 +337,7 @@ export class SqlSRepository{
                 `);
             }
             
-            await pool.request().input('CVE_ART',VarChar,productRoviandaDTO.keyProduct+(i+1)).input('CVE_ALM',Int,1)
+            await pool.request().input('CVE_ART',VarChar,productRoviandaDTO.keyProduct+(i+1)).input('CVE_ALM',Int,productPresentation.warehouseKey)
             .input('STATUS',VarChar,'A').input('CTRL_ALM',VarChar,'').input('EXIST',Float,0).input('STOCK_MIN',Float,1)
             .input('STOCK_MAX',Float,0).input('COMP_X_REC',Float,0).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse)
             .query(`
@@ -333,7 +345,7 @@ export class SqlSRepository{
                 values(@CVE_ART,@CVE_ALM,@STATUS,@CTRL_ALM,@EXIST,@STOCK_MIN,@STOCK_MAX,@COMP_X_REC,@UUID,@VERSION_SINC)
             `);
             let numMov =  (await pool.request().query(`select * from MINVE01`)).recordset.length+1;
-            await pool.request().input('CVE_ART',VarChar,productRoviandaDTO.keyProduct+(i+1)).input('ALMACEN',Int,1).input('NUM_MOV',Int,numMov)
+            await pool.request().input('CVE_ART',VarChar,productRoviandaDTO.keyProduct+(i+1)).input('ALMACEN',Int,productPresentation.warehouseKey).input('NUM_MOV',Int,numMov)
             .input('CVE_CPTO',Int,6).input('FECHA_DOCU',DateTime,dateParse).input('TIPO_DOC',VarChar,'M').input('REFER',VarChar,'IF-041020').input('CLAVE_CLPV',VarChar,null)
             .input('VEND',VarChar,null).input('CANT',Float,0).input('CANT_COST',Float,0).input('PRECIO',Float,null).input('COSTO',Float,0).input('AFEC_COI',VarChar,null)
             .input('CVE_OBS',Int,null).input('REG_SERIE',Int,0).input('UNI_VENTA',VarChar,'pz').input('E_LTPD',Int,0).input('EXIST_G',Float,0)
@@ -350,6 +362,108 @@ export class SqlSRepository{
             }
         });
         await this.connection.close();
+        return result;
+    }
+
+    async updateProductSaeProperties(codeSae:string,productName:string,presentation:UpdatePresentation){
+        await this.getConnection();
+        let result = await this.connection.connect().then(async(pool)=>{
+            await pool.request().input('CVE_ART',VarChar,codeSae).input('DESCR',VarChar,productName+"-"+presentation.presentation+" "+presentation.typePresentation)
+            .input('CVE_ESQIMPU',Int,presentation.taxSchema).query(
+                `update INVE01 set DESCR=@DESCR,CVE_ESQIMPU=@CVE_ESQIMPU where CVE_ART=@CVE_ART`
+            );
+
+            await pool.request().input('CVE_ART',VarChar,codeSae).input('CVE_PRECIO',VarChar,1)
+            .input('PRECIO',Float,presentation.pricePresentation).query(
+                `update PRECIO_X_PROD01 set PRECIO=@PRECIO  where CVE_ART=@CVE_ART and CVE_PRECIO=@CVE_PRECIO`
+            );
+
+            await pool.request().input('CVE_ART',VarChar,codeSae).input('CVE_ALM',Int,presentation.warehouseKey)
+            .query(
+                `update MULT01 set CVE_ALM=@CVE_ALM where CVE_ART=@CVE_ART`
+            );
+
+            await pool.request().input('CVE_ART',VarChar,codeSae).input('ALMACEN',Int,presentation.warehouseKey)
+            .query(
+                `update MINVE01 set ALMACEN=@ALMACEN where CVE_ART=@CVE_ART`
+            );
+        });
+        return result;
+    }
+
+    async addPresentationProductSae(productSaeKey:string,productLine:string,index:string,productName:string,presentation:UpdatePresentation){
+        await this.getConnection();
+        let result = await this.connection.connect().then(async(pool)=>{
+                
+                let dateParse = new Date().toISOString().slice(0, 19).replace('T', ' ')
+                await pool.request().input('CVE_PROD',VarChar,productSaeKey+""+index).input('CAMPLIB1',VarChar,null)
+                .input('CAMPLIB2',VarChar,null).input('CAMPLIB3',VarChar,null).input('CAMPLIB4',Int,null).input('CAMPLIB5',Float,null).input('CAMPLIB6',Float,null)
+                .query(`
+                insert into INVE_CLIB01(CVE_PROD,CAMPLIB1,CAMPLIB2,CAMPLIB3,CAMPLIB4,CAMPLIB5,CAMPLIB6) 
+                VALUES(@CVE_PROD,@CAMPLIB1,@CAMPLIB2,@CAMPLIB3,@CAMPLIB4,@CAMPLIB5,@CAMPLIB6)
+                `);
+
+
+
+                await pool.request().input('CVE_ART',VarChar,productSaeKey+""+index).input('DESCR',VarChar,productName+"-"+presentation.presentation+" "+presentation.typePresentation)
+                .input('LIN_PROD',VarChar,productLine).input('CON_SERIE',VarChar,'N').input('UNI_MED',VarChar,null)
+                .input('UNI_EMP',Float,null).input('CTRL_ALM',VarChar,'').input('TIEM_SURT',Int,0)
+                .input('STOCK_MIN',Float,1).input('STOCK_MAX',Float,0).input('TIP_COSTEO',VarChar,'P')
+                .input('NUM_MON',Int,1).input('FCH_ULTCOM',DateTime,null).input('COMP_X_REC',Float,0).input('FCH_ULTVTA',DateTime,null)
+                .input('PEND_SURT',Float,0).input('EXIST',Float,0).input('COSTO_PROM',Float,0).input('ULT_COSTO',Float,0)
+                .input('CVE_OBS',Int,0).input('TIPO_ELE',VarChar,'P').input('UNI_ALT',VarChar,'pz').input('FAC_CONV',Float,1).input('APART',Float,0)
+                .input('CON_LOTE',VarChar,'N').input('CON_PEDIMENTO',VarChar,'N').input('PESO',Float,1).input('VOLUMEN',Float,1).input('CVE_ESQIMPU',Int,presentation.taxSchema)
+                .input('CVE_BITA',Int,0).input('VTAS_ANL_C',Float,0).input('VTAS_ANL_M',Float,0).input('COMP_ANL_C',Float,0).input('COMP_ANL_M',Float,0)
+                .input('PREFIJO',VarChar,null).input('TALLA',VarChar,null).input('COLOR',VarChar,null).input('CUENT_CONT',VarChar,null)
+                .input('CVE_IMAGEN',VarChar,"").input('BLK_CST_EXT',VarChar,'N').input('STATUS',VarChar,'A').input('MAN_IEPS',VarChar,'N').input('APL_MAN_IMP',Int,1)
+                .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse)
+                .input('VERSION_SINC_FECHA_IMG',DateTime,dateParse).input('CVE_PRODSERV',VarChar,"50112000")
+                .input('CVE_UNIDAD',VarChar,"H87").query(
+                    `
+                    insert into INVE01(CVE_ART,DESCR,LIN_PROD,CON_SERIE,UNI_MED,UNI_EMP,CTRL_ALM,TIEM_SURT,STOCK_MIN,STOCK_MAX,TIP_COSTEO,
+                        NUM_MON,FCH_ULTCOM,COMP_X_REC,FCH_ULTVTA,PEND_SURT,EXIST,COSTO_PROM,ULT_COSTO,CVE_OBS,TIPO_ELE,UNI_ALT,FAC_CONV,APART,
+                        CON_LOTE,CON_PEDIMENTO,PESO,VOLUMEN,CVE_ESQIMPU,CVE_BITA,VTAS_ANL_C,VTAS_ANL_M,COMP_ANL_C,COMP_ANL_M,PREFIJO,TALLA,COLOR,
+                        CUENT_CONT,CVE_IMAGEN,BLK_CST_EXT,STATUS,MAN_IEPS,APL_MAN_IMP,CUOTA_IEPS,APL_MAN_IEPS,UUID,VERSION_SINC,
+                        VERSION_SINC_FECHA_IMG,CVE_PRODSERV,CVE_UNIDAD) VALUES(@CVE_ART,@DESCR,@LIN_PROD,@CON_SERIE,@UNI_MED,@UNI_EMP,@CTRL_ALM,@TIEM_SURT,@STOCK_MIN,@STOCK_MAX,@TIP_COSTEO,
+                            @NUM_MON,@FCH_ULTCOM,@COMP_X_REC,@FCH_ULTVTA,@PEND_SURT,@EXIST,@COSTO_PROM,@ULT_COSTO,@CVE_OBS,@TIPO_ELE,@UNI_ALT,@FAC_CONV,@APART,
+                            @CON_LOTE,@CON_PEDIMENTO,@PESO,@VOLUMEN,@CVE_ESQIMPU,@CVE_BITA,@VTAS_ANL_C,@VTAS_ANL_M,@COMP_ANL_C,@COMP_ANL_M,@PREFIJO,@TALLA,@COLOR,
+                            @CUENT_CONT,@CVE_IMAGEN,@BLK_CST_EXT,@STATUS,@MAN_IEPS,@APL_MAN_IMP,@CUOTA_IEPS,@APL_MAN_IEPS,@UUID,@VERSION_SINC,
+                            @VERSION_SINC_FECHA_IMG,@CVE_PRODSERV,@CVE_UNIDAD)
+                    `
+                )
+                for(let h=0;h<3;h++){
+                    let precio = (h==0)?presentation.pricePresentation:(h==1)?0:0;
+                    await pool.request().input('CVE_ART',VarChar,productSaeKey+""+index).input('CVE_PRECIO',VarChar,(h+1))
+                    .input('PRECIO',VarChar,precio).input('UUID',VarChar,v4()).input('VERSION_SINC',VarChar,dateParse)
+                    .query(`
+                    insert into PRECIO_X_PROD01(CVE_ART,CVE_PRECIO,PRECIO,UUID,VERSION_SINC) 
+                    VALUES(@CVE_ART,@CVE_PRECIO,@PRECIO,@UUID,@VERSION_SINC) 
+                    `);
+                }
+                
+                await pool.request().input('CVE_ART',VarChar,productSaeKey+""+index).input('CVE_ALM',Int,presentation.warehouseKey)
+                .input('STATUS',VarChar,'A').input('CTRL_ALM',VarChar,'').input('EXIST',Float,0).input('STOCK_MIN',Float,1)
+                .input('STOCK_MAX',Float,0).input('COMP_X_REC',Float,0).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse)
+                .query(`
+                    insert into MULT01(CVE_ART,CVE_ALM,STATUS,CTRL_ALM,EXIST,STOCK_MIN,STOCK_MAX,COMP_X_REC,UUID,VERSION_SINC)
+                    values(@CVE_ART,@CVE_ALM,@STATUS,@CTRL_ALM,@EXIST,@STOCK_MIN,@STOCK_MAX,@COMP_X_REC,@UUID,@VERSION_SINC)
+                `);
+                let numMov =  (await pool.request().query(`select * from MINVE01`)).recordset.length+1;
+                await pool.request().input('CVE_ART',VarChar,productSaeKey+""+index).input('ALMACEN',Int,presentation.warehouseKey).input('NUM_MOV',Int,numMov)
+                .input('CVE_CPTO',Int,6).input('FECHA_DOCU',DateTime,dateParse).input('TIPO_DOC',VarChar,'M').input('REFER',VarChar,'IF-041020').input('CLAVE_CLPV',VarChar,null)
+                .input('VEND',VarChar,null).input('CANT',Float,0).input('CANT_COST',Float,0).input('PRECIO',Float,null).input('COSTO',Float,0).input('AFEC_COI',VarChar,null)
+                .input('CVE_OBS',Int,null).input('REG_SERIE',Int,0).input('UNI_VENTA',VarChar,'pz').input('E_LTPD',Int,0).input('EXIST_G',Float,0)
+                .input('EXISTENCIA',Float,0).input('TIPO_PROD',VarChar,'P').input('FACTOR_CON',Float,1).input('FECHAELAB',DateTime,dateParse).input('CTLPOL',Int,0)
+                .input('CVE_FOLIO',VarChar,'4').input('SIGNO',Int,1).input('COSTEADO',VarChar,'S').input('COSTO_PROM_INI',Float,0).input('COSTO_PROM_FIN',Float,0).input('COSTO_PROM_GRAL',Float,0)
+                .input('DESDE_INVE',VarChar,'S').input('MOV_ENLAZADO',Int,0).query(
+                    `
+                    INSERT INTO MINVE01(CVE_ART,ALMACEN,NUM_MOV,CVE_CPTO,FECHA_DOCU,TIPO_DOC,REFER,CLAVE_CLPV,VEND,CANT,CANT_COST,PRECIO,COSTO,AFEC_COI,CVE_OBS,REG_SERIE,UNI_VENTA,E_LTPD,EXIST_G,EXISTENCIA,
+                        TIPO_PROD,FACTOR_CON,FECHAELAB,CTLPOL,CVE_FOLIO,SIGNO,COSTEADO,COSTO_PROM_INI,COSTO_PROM_FIN,COSTO_PROM_GRAL,DESDE_INVE,MOV_ENLAZADO)
+                        values (@CVE_ART,@ALMACEN,@NUM_MOV,@CVE_CPTO,@FECHA_DOCU,@TIPO_DOC,@REFER,@CLAVE_CLPV,@VEND,@CANT,@CANT_COST,@PRECIO,@COSTO,@AFEC_COI,@CVE_OBS,@REG_SERIE,@UNI_VENTA,@E_LTPD,@EXIST_G,@EXISTENCIA,
+                            @TIPO_PROD,@FACTOR_CON,@FECHAELAB,@CTLPOL,@CVE_FOLIO,@SIGNO,@COSTEADO,@COSTO_PROM_INI,@COSTO_PROM_FIN,@COSTO_PROM_GRAL,@DESDE_INVE,@MOV_ENLAZADO)
+                    `
+                );
+        });
         return result;
     }
 
@@ -391,7 +505,8 @@ export class SqlSRepository{
                     select top 1 * from BITA01 ORDER BY CVE_BITA DESC
                     `
             );
-                let foliocount = (folios.recordset.length)?folios.recordset[0].CLAVE_DOC:1
+                let newFolio=+folios.recordset[0].CLAVE_DOC+1;
+                let foliocount = (folios.recordset.length)?'0'.repeat(10-newFolio.toString().length)+newFolio.toString():('0'.repeat(9)+'1');
                 let foliocountBita = (foliosBita.recordset.length)?foliosBita.recordset[0].CVE_BITA:1
                 console.log("FOLIOS",+foliocount);
                 console.log("FOLIOBITA",foliocountBita);
@@ -467,7 +582,7 @@ export class SqlSRepository{
                     
                 }
 
-                return '0'.repeat(10-count.length)+count;
+                return foliocount;
 
             }
         );
@@ -510,7 +625,7 @@ export class SqlSRepository{
         return result.recordset;
     }
 
-    async getProductExist(productKey:number,quantity:number){
+    async getProductExist(productKey:string,quantity:number){
         await this.getConnection();
         let result = await this.connection.connect().then((pool)=>
             pool.request().query(`
@@ -603,7 +718,7 @@ export class SqlSRepository{
 
                 let result3 = await pool.request().input('CVE_ART',VarChar,aspelProductKey).query(
                     `
-                    select EXIST FROM INVE01 WHERE CVE_ART=@CVE_ART
+                    select EXIST,STOCK_MIN,STOCK_MAX FROM INVE01 WHERE CVE_ART=@CVE_ART
                     `
                 );
                 
@@ -615,7 +730,14 @@ export class SqlSRepository{
                             UPDATE INVE01 SET EXIST=@EXIST where CVE_ART=@CVE_ART
                             `
                         )
-                    
+                    if(+record.STOCK_MAX+units< +record.EXIST+units ){
+                        await pool.request().input('CVE_ART',VarChar,aspelProductKey)
+                        .input('STOCK_MAX',Float,record.EXIST+units).query(
+                            `
+                            UPDATE INVE01 SET STOCK_MAX=@STOCK_MAX where CVE_ART=@CVE_ART
+                            `
+                        )
+                    }
                 }
                 //INVE01 STOCK_MAX EXIST
                 

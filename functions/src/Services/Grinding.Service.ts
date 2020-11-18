@@ -83,7 +83,7 @@ export class GrindingService{
             grinding.raw = defrostFormulation.defrost.outputCooling.rawMaterial;
             grinding.weight = grindingForm.weight;
             grinding.lotId = defrostFormulation.defrost.outputCooling.loteInterno;
-            
+            grinding.temperature= grindingForm.temperature;
             processObj.grinding.push(grinding);
             
         }
@@ -107,7 +107,8 @@ export class GrindingService{
                     weight: x.weight,
                     date: x.date,
                     rawMaterial: grindingEntity.raw.rawMaterial,
-                    formulation: process.formulation.lotDay
+                    formulation: process.formulation.lotDay,
+                    temperature: x.temperature
                 }
                 });
             }

@@ -38,12 +38,21 @@ export class PackagingRepository{
             where: {lotId: `${lotId}`}
         });
     }
+
+    async getPackagingByLotIdAndPropertiesPackaging(lotId:string){
+        await this.getConnection();
+        return await this.packagingRepository.findOne({
+            lotId: `${lotId}`
+        },
+        {relations:["propertiesPackaging"]}
+        );
+    }
   
     async findPackagingById(id:number){
         await this.getConnection();
         return await this.packagingRepository.findOne({
             where:{id:`${id}`},
-            relations:["productId","userId"]
+            relations:["productId"]
         });
     }
 
@@ -58,6 +67,16 @@ export class PackagingRepository{
             relations:["productId","propertiesPackaging"]
          }
         );
+    }
+
+    async getAllPackagingByLotId(lotId:string){
+        await this.getConnection();
+        return await this.packagingRepository.find({lotId});
+    }
+
+    async getPackagingWithPropertiesPackaging(id){
+        await this.getConnection()
+        return await this.packagingRepository.findOne({id},{relations:["propertiesPackaging"]});
     }
 
     async findPropiertiesPackagingById(id:number){

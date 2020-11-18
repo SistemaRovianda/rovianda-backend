@@ -30,6 +30,7 @@ export class MaintenanceService{
         let maintenance:Maintenance[] = await this.maintenanceRepository.getAllMaintenance();
         let response = [];
         maintenance.forEach(i => {
+            if(i.status!="CLOSED"){
             response.push({
                 titleFailure: `${i.title}`,
                 date: `${i.date}`,
@@ -40,6 +41,7 @@ export class MaintenanceService{
                 user: `${i.user.name} `
               }
             );
+            }
         });
         return response;
     }
@@ -225,7 +227,8 @@ export class MaintenanceService{
                             aDevice.push({
                                 deviceId: device.id,
                                 name: device.name,
-                                costMaintenance: storeMa[e].cost
+                                costMaintenance: storeMa[e].cost,
+                                date: storeMa[e].date
                             })
                         }
                     }

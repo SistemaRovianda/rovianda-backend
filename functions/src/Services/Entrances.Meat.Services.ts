@@ -31,6 +31,11 @@ import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository'
 import { Inspection } from '../Models/Entity/Inspection';
 import { RevisionsOvenProductsRepository } from '../Repositories/Revisions.Oven.Products.Repository';
 import { RevisionsOvenProducts } from '../Models/Entity/Revisions.Oven.Products';
+import { DefrostRepository } from '../Repositories/Defrost.Repository';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { Defrost } from '../Models/Entity/Defrost';
+import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
+import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
 
 export class EntranceMeatService {
     private entrancesMeatRepository: EntranceMeatRepository;
@@ -48,6 +53,8 @@ export class EntranceMeatService {
     private propertiesPackagingRepository:PropertiesPackagingRepository;
     private reprocessingRepository:ReprocessingRepository;
     private revisionsOvenProductsRepository:RevisionsOvenProductsRepository;
+    private defrostRepository:DefrostRepository;
+    private defrostFormulation:DefrostFormulationRepository;
     constructor(private firebaseHelper: FirebaseHelper) {
         this.entrancesMeatRepository = new EntranceMeatRepository();
         this.userRepository = new UserRepository();
@@ -64,6 +71,8 @@ export class EntranceMeatService {
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.reprocessingRepository = new ReprocessingRepository();
         this.revisionsOvenProductsRepository = new RevisionsOvenProductsRepository();
+        this.defrostRepository=new DefrostRepository();
+        this.defrostFormulation=new DefrostFormulationRepository();
     }
 
 
@@ -189,7 +198,7 @@ export class EntranceMeatService {
         return meat;
     }
 
-    /*async getHistoryMeat(lotId:string){
+    async getHistoryMeat(lotId:string){
         if(!lotId) throw new Error("[400], lotId is required");
         let response:any = {};
         let aMeat:any = [];
@@ -201,17 +210,20 @@ export class EntranceMeatService {
         let aInspection:any = [];
         let aOutputs:any = [];
         let aDevolution:any = [];
-
+        console.log("paso 1");
         let meat:EntranceMeat[] = await this.entrancesMeatRepository.getEntranceMeatByLotInter(lotId);
         if(meat){
             meat.forEach( i => {
                 aMeat.push({
                     receptionDate: i ? i.createdAt : "",
-                    entranceMeatId: i ? i.id : ""
+                    entranceMeatId: i ? i.id : "",
+                    weight: i.weight,
+                    inspector:i.qualityInspector
                 })
             })
         }
         let cooling:Cooling[] = await this.coolingRepository.getCoolingByLotInter(lotId);
+        console.log("paso 2");
         if(cooling){
             cooling.forEach( i => {
                 aCooling.push({
@@ -221,46 +233,52 @@ export class EntranceMeatService {
                 })
             })
         }
-        let formulation:Formulation[] = await this.formulationRepository.getOneFormulationsByLote(lotId);
+        let outputsCoolings:OutputsCooling[] = await this.outputsCoolingRepository.getOutputsCoolingByLotInterno(lotId);
+        console.log("paso 3");
+        for(let outputsCooling of outputsCoolings){
+        let defrostOfOutputsCooling:Defrost[]= await this.defrostRepository.getByOutputsCooling(outputsCooling);
+        console.log("paso 4");
+        for(let defrost of defrostOfOutputsCooling){
+        let defrostFormulation = await this.defrostFormulation.getDefrostFormulationByDefrostWithFormulation(defrost);
+        console.log("paso intermerdio 5");
+        if(defrostFormulation && defrostFormulation.formulation){
+        let formulation:Formulation = defrostFormulation.formulation;
+        console.log("paso 5");
         if(formulation){
-            for(let i = 0; i < formulation.length; i++){
-                let ingredents:FormulationIngredients[] = await this.formulatioIngredientsRepository.getByFormulation(formulation[i]);
+            
+                let ingredents:FormulationIngredients[] = await this.formulatioIngredientsRepository.getByFormulation(formulation);
+                console.log("paso 6");
                 let ingreden:any = []
                 ingredents.forEach( i=> {
-                    ingreden.push(i.productId.description)
+                    ingreden.push(i.product.description)
                 })
                 aFormulation.push({
-                    formulationId: formulation[i] ? formulation[i].id : "",
-                    providerId: formulation[i].make ? formulation[i].make.name + " " + formulation[i].make.firstSurname + " " + formulation[i].make.lastSurname : "",
-                    ingredient: ingreden
+                    formulationId: formulation ? formulation.id : "",
+                    providerId: formulation.make ? formulation.make.name  : "",
+                    ingredient: ingreden,
+                    lotDay: formulation.lotDay,
+                    date: formulation.date,
+                    temp: formulation.temp,
+                    verify: formulation.verifit,
+                    product: formulation.productRovianda.name
                 })
-            }
-        }
-        let process:Process[] = await this.processRepository.findProceesByLotInerno(lotId);
-        if(process){
-            process.forEach( i => {
-                aProcess.push({
-                    processId: i ? i.id : "",
-                    startDate: i ? i.startDate : "",
-                    endDate: i ? i.dateEndedProcess : "",
-                    description: i ? i.currentProcess : ""
-                })
-            })
-        }
-        console.log("pasa proceso")
-        if(process){
-            for(let i = 0; i < process.length; i++){
-                let oven:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(process[i].id);
-                if(oven){
-                    //array de revisiones: hora, tempin,oven,observacoines
-                    // oven.forEach( i => {
-                    //     aOven.push({
-                    //         ovenId: i ? i.id : "",
-                    //         entranceDate: i ? i.date : ""
-                    //     })
-                    // })
-                    for(let a = 0; a < oven.length; a++){
-                        let revisionOven:RevisionsOvenProducts[] = await this.revisionsOvenProductsRepository.getByOven(oven[i]);
+                let formulationWithProcess = await this.formulationRepository.getByFormulationIdAndProcess(formulation.id);
+                if(formulationWithProcess && formulationWithProcess.process!=null){
+                console.log("paso 7");
+                    aProcess.push({
+                        processId:  formulationWithProcess.process.id,
+                        startDate:  formulationWithProcess.date,
+                        endDate: formulationWithProcess.process.endDate,
+                        description: formulationWithProcess.process.currentProcess,
+                        product: formulationWithProcess.productRovianda.name,
+                        lotDay: formulationWithProcess.lotDay
+                    })
+                
+                let ovenEntities:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(formulationWithProcess.process.id);
+                console.log("paso 8");
+                for(let oven of ovenEntities){
+                let revisionOven:RevisionsOvenProducts[] = await this.revisionsOvenProductsRepository.getByOven(oven);
+                console.log("paso 9");
                         let revision:any = [];
                         revisionOven.forEach(i=>{
                             revision.push({
@@ -272,83 +290,79 @@ export class EntranceMeatService {
                             })
                         })
                         aOven.push({
-                            ovenId: oven[a] ? oven[a].id : "",
-                            entranceDate: oven[a] ? oven[a].date : "",
-                            revisions: revision
-                        })
-                    }
-                }
-            }
-        }
-        console.log("pasa hornos")
-        if(process){
-            for(let i = 0; i < process.length; i++){
-                let packagin:Packaging[] = await this.packagingRepository.getPackagingByProcessId(process[i].id.toString());
-                if(packagin){
-                    for(let e = 0; e < packagin.length; e++){
-                        let proPackagin:PropertiesPackaging[] = await this.propertiesPackagingRepository.findPropiertiesPackagings(packagin[e]);
+                            ovenId: oven.id,
+                            time: oven.stimatedTime,
+                            revisions: revision,
+                            newLot: oven.newLote,
+                            oven: oven.oven,
+                            lotDay: formulationWithProcess.lotDay,
+                            product: oven.product.name
+                        });
+                    let packagin:Packaging[] = await this.packagingRepository.getPackagingByProcessId(oven.newLote); 
+                    console.log("paso 10");
+                    if(packagin.length){
+                        for(let pack of packagin){
+                        let proPackagin:PropertiesPackaging[] = await this.propertiesPackagingRepository.findPropiertiesPackagings(pack);
+                        console.log("paso 11");
                         let properties:any = [];
                         //que tipo de presentacion type
                         //peso
+                        let packEntity = await this.packagingRepository.findPackagingById(pack.id)
                         proPackagin.forEach( i => {
                             properties.push({
                                 quantity: i ? i.units : "",
-                                presentation: i.presentationId ? i.presentationId.presentation + " " + i.presentationId.presentationType : "",
-                                weight: i ? i.weight : ""
+                                presentation: i.presentation ? i.presentation.presentation + " " + i.presentation.presentationType : "",
+                                weight: i ? i.weight : "",
+                                product: packEntity.productId.name
                             })
                         });
                         aPackaging.push({
-                            packaginId: packagin[i] ? packagin[i].id : "",
-                            date: packagin[i] ? packagin[i].registerDate : "",
-                            properties: properties
+                            packaginId: pack ? pack.id : "",
+                            date: pack ? pack.registerDate : "",
+                            properties: properties,
+                            newLot: pack.lotId
                         })
-                    }
-                }
-            }
-        }
-        console.log("pasa empaquetado")
-        if(process){
-            for(let i = 0; i < process.length; i++){
-                let oven:OvenProducts[] = await this.ovenRepository.getOvenByProcessId(process[i].id);
-                if(oven){
-                    for(let e = 0; e < oven.length; e++){
-                        let reprocessing:Reprocessing[] = await this.reprocessingRepository.getReprocessingByLotRepro(oven[e].newLote);
-                        if(reprocessing){
-                            reprocessing.forEach(i=>{
-                                aDevolution.push({
-                                    reprocessingId: i ? i.id : "",
-                                    date: i ? i.date : "",
-                                    lotProcess: i.lotProcess ? i.lotProcess : ""
-                                })
-                            })
                         }
                     }
-                }
-            }
-        }
-        console.log("pasa reproceso")
-        if(process){
-            for(let i = 0; i < process.length; i++){
-                let packagin:Packaging[] = await this.packagingRepository.getPackagingByProcessId(process[i].id.toString());
-                if(packagin){
-                    for(let e = 0; e < packagin.length; e++){
-                        let inspection:Inspection[] = await this.inspectionRepository.getInspectionsByLot(packagin[i].lotId);
+
+                    let reprocessing:Reprocessing[] = await this.reprocessingRepository.getByNewLote(oven.newLote);
+                    console.log("paso 12");
+                    if(reprocessing){
+                        reprocessing.forEach(i=>{
+                            aDevolution.push({
+                                reprocessingId: i ? i.id : "",
+                                date: i ? i.date : "",
+                                lotProcess: i.packagingReprocesingOvenLot ? i.packagingReprocesingOvenLot : "",
+                                allergen: i.allergens,
+                                used: i.used,
+                                dateUsed: i.dateUsed,
+                                product: i.packagingProductName?i.packagingProductName:i.defrost.outputCooling.rawMaterial.rawMaterial
+                            })
+                        })
+                    }
+                    let inspection:Inspection[] = await this.inspectionRepository.getInspectionsByLot(oven.newLote);
+                    console.log("paso 13");
                         if(inspection){
                             inspection.forEach(i=>{
                                 aInspection.push({
-                                    InspectionDate: i ? i.expirationDate : ""
+                                    InspectionDate: i ? i.expirationDate : "",
+                                    newLot: i.lotId,
+                                    verify: i.nameVerify,
+                                    elaborate: i.nameElaborated
                                 })
                             })
                         }
-                    }
                 }
-            }
+                }
         }
-        console.log("pasa devolucion")
+       
         let outputs = await this.outputsCoolingRepository.getOutputsCoolingByLotInterno(lotId);
+        console.log("paso 14");
         if(outputs){
             //agregar observaciones, cantidad, materia prima
+            let already = aOutputs.map(x=>x.outputsCoolingId);
             outputs.forEach(i=>{
+                if(!already.includes(i.id)){
                 aOutputs.push({
                     outputsCoolingId: i ? i.id : "",
                     startOutput: i ? i.outputDate : "",
@@ -356,21 +370,25 @@ export class EntranceMeatService {
                     rawMaterial: i.rawMaterial ? i.rawMaterial.rawMaterial : "",
                     quantity: i.quantity ? i.quantity : ""
                 })
+            }
             })
         }
-        
-        response = {
-            entranceMeat: aMeat ? aMeat : "",
-            fridge: aCooling ? aCooling : "",
-            formulation: aFormulation ? aFormulation : "",
-            process: aProcess ? aProcess : "",
-            oven: aOven ? aOven : "",
-            packingDate: aPackaging ? aPackaging : "",
-            devolutions: aDevolution ? aDevolution : "",
-            InspectionDate: aInspection ? aInspection : "",
-            outputs: aOutputs ? aOutputs : ""
         }
+    }
+        
+    }
+    response = {
+        entranceMeat: aMeat ? aMeat : "",
+        fridge: aCooling ? aCooling : "",
+        formulation: aFormulation ? aFormulation : "",
+        process: aProcess ? aProcess : "",
+        oven: aOven ? aOven : "",
+        packingDate: aPackaging ? aPackaging : "",
+        devolutions: aDevolution ? aDevolution : "",
+        InspectionDate: aInspection ? aInspection : "",
+        outputs: aOutputs ? aOutputs : ""
+    }
         return response;
-    }*/
+    }
 
 }

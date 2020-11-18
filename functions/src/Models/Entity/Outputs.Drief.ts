@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinTable, ManyToMany  } from "typeorm";
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, OneToMany, JoinTable, ManyToMany, JoinColumn, OneToOne  } from "typeorm";
 import { Formulation } from "./Formulation";
+import { FormulationIngredients } from "./Formulation.Ingredients";
 import { Product } from './Product';
 import { WarehouseDrief } from "./Warehouse.Drief";
 
@@ -28,9 +29,9 @@ export class OutputsDrief{
     @Column()
     status:string;
 
-    @ManyToOne(type=>Formulation,formulation=>formulation.ingredients)
-    formulation:Formulation;
-
+    
+    @OneToOne(type=>FormulationIngredients,formulationI=>formulationI.lotId)
+    formulationIngredient:FormulationIngredients;
     //@ManyToOne(type=>Product,product=>product.productSale, {eager:true, onDelete:"SET NULL"})
     //product:Product;
 

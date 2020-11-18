@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
+import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 
 export class DefrostFormulationRepository{
@@ -13,5 +14,14 @@ export class DefrostFormulationRepository{
     async getDefrostFormulation(defrostFormulationId:number){
         await this.getConnection();
         return await this.repository.findOne({defrostFormulationId})
+    }
+
+    async getDefrostFormulationByDefrost(defrost:Defrost){
+        await this.getConnection();
+        return await this.repository.findOne({defrost});
+    }
+    async getDefrostFormulationByDefrostWithFormulation(defrost:Defrost){
+        await this.getConnection();
+        return await this.repository.findOne({defrost},{relations:["formulation"]});
     }
 }

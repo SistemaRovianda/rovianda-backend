@@ -42,7 +42,8 @@ export class SalesRequestController{
 
     async getProductOfOrderSeller(req:Request,res:Response){
         let orderId:number = +req.params.orderId;
-        return res.status(200).send(await this.salesRequestService.getProductsOfOrderSeller(orderId));
+        let mode=req.query.mode;
+        return res.status(200).send(await this.salesRequestService.getProductsOfOrderSeller(orderId,mode));
     }
 
     async getPresentationsOfProductOfOrderSeller(req:Request,res:Response){
@@ -110,11 +111,11 @@ export class SalesRequestController{
     }
 
     
-    // async getSalesRequest(req:Request, res:Response){ 
+    async getSalesRequest(req:Request, res:Response){ 
              
-    //     let sales_request = await this.salesRequestService.getSales(); 
-    //     return res.status(200).send(sales_request);
-    // }
+        let ordersRequest = await this.salesRequestService.getOrdersSellers(); 
+        return res.status(200).send(ordersRequest);
+    }
 
     async getSellerGuard(req:Request,res:Response){
         return res.status(200).send(await this.salesRequestService.getSellerGuards(req.params.sellerUid));

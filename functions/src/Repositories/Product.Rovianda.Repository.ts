@@ -28,7 +28,7 @@ export class ProductRoviandaRepository {
         await this.getConnection();
         return await this.repository.findOne({
             where: {id},
-            relations: ["presentationProducts"]
+            relations: ["ingredients","presentationProducts"]
         });
     }
 

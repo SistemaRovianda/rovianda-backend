@@ -37,6 +37,7 @@ import { Debts } from '../Models/Entity/Debts';
 import { Client } from '../Models/Entity/Client';
 import { DebtsPaymentRequest } from '../Models/DTO/Debts.DTO';
 import { TicketUtil } from '../Utils/Tickets/Ticket.Util';
+import { CheeseRepository } from '../Repositories/Cheese.Repository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -54,6 +55,8 @@ export class SalesRequestService{
     private sqlsRepository:SqlSRepository;
     private rolesRepository:RolesRepository;
     private ticketUtil:TicketUtil;
+    private cheeseRepository:CheeseRepository;
+    
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -70,6 +73,7 @@ export class SalesRequestService{
         this.sqlsRepository = new SqlSRepository();
         this.rolesRepository = new RolesRepository();
         this.ticketUtil = new TicketUtil();
+        this.cheeseRepository = new CheeseRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -108,8 +112,19 @@ export class SalesRequestService{
         return await this.saleSellerRepository.getOrders(uid);
     }
 
-    async getProductsOfOrderSeller(orderId:number){
-        return await this.salesRequestRepository.getProductsOfOrder(orderId);
+    async getProductsOfOrderSeller(orderId:number,mode:string){
+        let result=[];
+        let cheesesIds = [];
+        let cheeses = await this.cheeseRepository.getAllCheeses();
+        cheesesIds=cheeses.map(x=>x.product.id);
+        if(mode==null || mode==undefined){
+          result = await this.salesRequestRepository.getProductsOfOrder(orderId);
+          result = result.filter(x=>!cheesesIds.includes(x.product_id));
+        }else if(mode=="cheese"){
+          result = await this.salesRequestRepository.getProductsOfOrder(orderId);
+          result=result.filter(x=>cheesesIds.includes(x.product_id));
+        }
+        return result;
     }
 
     async getPresentationsOfProductOfOrder(orderId:number,productId:number){
@@ -238,11 +253,17 @@ export class SalesRequestService{
             let debts = sale.debts.filter(x=>x.status==true);
             if(debts.length){
               for(let debt of debts){
+                let date=new Date(debt.createDay);
+                date.setHours(date.getHours()-6);
+                let date2=new Date();
+                date2.setHours(date2.getHours()-6);
+                const diffTime = Math.abs(date2.getDate() - date.getDate());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
             response.push( {
               clientName:client.name,
               debId:debt.debId,
               date: debt.createDay,
-              dayRest: debt.days,
+              dayRest: debt.days-diffDays,
               amount: debt.amount,
               credit: client.credit,
               products
@@ -263,6 +284,9 @@ export class SalesRequestService{
         
       if(debts.amount==debtsDTO.amount){
         debts.status=false;
+        let saleWithClient = await this.saleRepository.getSaleByIdWithClientAndSeller(sale.saleId);
+        saleWithClient.client.credit+=debts.amount;
+        await this.clientRepository.saveClient(saleWithClient.client);
         await this.debRepository.saveDebts(debts);
       }else if(debtsDTO.amount< debts.amount){
         let debtsNew:Debts = new Debts();
@@ -292,8 +316,11 @@ export class SalesRequestService{
       let user:User = await this.userRepository.getUserById(sellerOperationDTO.sellerUid);
       if(!user) throw new Error("[404], user not found");
       let sellerOperation:SellerOperation = new SellerOperation();
+      let date = new Date();
+      date.setHours(date.getHours()-6)
+      let newHour = date.getHours() + ":" + date.getMinutes()+":"+date.getSeconds();
       sellerOperation.date = sellerOperationDTO.date;
-      sellerOperation.eatingTimeStart = sellerOperationDTO.timeStart;
+      sellerOperation.eatingTimeStart = newHour;
       sellerOperation.seller = user;
       await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
     }
@@ -303,7 +330,7 @@ export class SalesRequestService{
       if(!sellerOperationEntity.length) throw new Error("[409], no existe una actividad de comida actualmente");
       let date = new Date();
       date.setHours(date.getHours()-6)
-      let newHour = date.getHours() + ":" + date.getMinutes();
+      let newHour = date.getHours() + ":" + date.getMinutes()+":"+date.getSeconds();
       let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationById(sellerOperationEntity[0].sellerOperationId);
       sellerOperation.eatingTimeEnd=newHour;
       console.log(JSON.stringify(sellerOperation));
@@ -567,7 +594,13 @@ export class SalesRequestService{
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
       if(saleRequestForm.credit){
+        if(clientRovianda.credit<saleRequestForm.credit) throw new Error("[409], ya no tienes credito disponible");
         saleGral.credit = saleRequestForm.credit;
+        clientRovianda.credit-=saleRequestForm.credit;
+        saleGral.typeSale="CREDITO";
+        await this.clientRepository.saveClient(clientRovianda);
+      }else{
+        saleGral.typeSale=saleRequestForm.typeSale;
       }
       for(let sale of saleRequestForm.products){
        let subSale:SubSales = new SubSales();
@@ -576,10 +609,10 @@ export class SalesRequestService{
        subSale.product = presentation.productRovianda;
        subSale.quantity=sale.quantity;
        
-       let exist = await this.sqlsRepository.getProductExist(+presentation.productRovianda.code,sale.quantity);
+       let exist = await this.sqlsRepository.getProductExist(presentation.keySae,sale.quantity);
        console.log("buscando existencia en stock");
        if(!presentation) throw new Error("[404], no existe la presentacion del producto en el sistema rovianda");
-       let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.productRovianda.code);
+       let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
        console.log("buscando producto en sae");
        if(!exist.length) throw new Error("[404], no existe el producto o no hay stock completo acorde a la orden");
         sale.taxSchema = productSae[0].CVE_ESQIMPU;
@@ -623,8 +656,16 @@ export class SalesRequestService{
         subSale.amount = sale.total;
         subSale.loteId="desconocido";
         saleGral.subSales.push(subSale);
+        let sellerInventory=await this.sellerInventoryRepository.getInventoyOfProductPresentationId(presentation,sale.quantity,seller);
+        sellerInventory.quantity-=sale.quantity;
+        await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
      }
      saleGral.amount = saleGral.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
+     console.log("SaleGral: "+saleGral.amount);
+     if(saleRequestForm.credit){
+       saleRequestForm.payed=saleGral.amount-saleGral.credit;
+     }
+     console.log("SaleGral: "+saleGral.credit);
      if(saleRequestForm.payed<saleGral.amount){
         saleGral.debts= new Array<Debts>();
        let debs:Debts = new Debts();
@@ -643,7 +684,7 @@ export class SalesRequestService{
        saleGral.status=false;
      }
      let folio = await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
-     saleGral.folio=folio;
+     saleGral.folio=folio.toString();
      let saleSaved:Sale =await this.saleRepository.saveSale(saleGral);
      console.log("iniciando proceso de grabado");
      return saleSaved;
@@ -698,24 +739,49 @@ export class SalesRequestService{
       if(!user) throw new Error("[404], vendedor no existe la venta");
       
       let dateParsed=new Date(date);
+      let dayNumber=dateParsed.getDate().toString();
       dateParsed.setHours(dateParsed.getHours()-6);
       let month=(dateParsed.getMonth()+1).toString();
       let day = dateParsed.getDate().toString();
+      if(+dayNumber==+day){
+        dayNumber=(+dayNumber-1).toString();
+      }
       if(+month<10){
         month='0'+month;
       }
-      if(+day<10){
-        day='0'+day;
+      if(+dayNumber<10){
+        dayNumber='0'+dayNumber;
       }
-      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+day;
+      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+dayNumber;
       console.log(dateStr);
       let sales:Sale[]=await this.saleRepository.getSaleByDate(dateStr,user);
-      let tickets:string[]=[];
+      
       for(let sale of sales){
         let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-        tickets.push(await this.ticketUtil.TicketSale(sale,subSales,user));
+        sale.subSales=subSales;
       }
-      return tickets;
+      let sellerOperations:SellerOperation = await this.sellerOperationRepository.getSellerOperationByDateUser(dateStr,user);
+      let ticket=await this.ticketUtil.TickedEndDate(sales,user,sellerOperations);
+      return ticket;
+    }
+    async getOrdersSellers(){
+      let orders:OrderSeller[]= await this.saleSellerRepository.getAllOrdersSellers();
+      let response:OrderSeller[]=[];
+      let cheesesIds = [];
+        let cheeses = await this.cheeseRepository.getAllCheeses();
+        cheesesIds=cheeses.map(x=>x.product.id);
+      for(let order of orders){
+        let orderSeller=await this.saleSellerRepository.getOrderByIdWithSuborders(order.id);
+            for(let i=0;i<orders.length;i++){
+                let subOrders = await this.salesRequestRepository.getByOrderSeller(orders[i]);
+                subOrders = subOrders.filter(x=>cheesesIds.includes(+x.productRovianda.id));
+                if(!subOrders.length){
+                  response.push(orderSeller);
+                }
+            }
+        
+      }
+      return response;
     }
   }
 

@@ -1,4 +1,4 @@
-import { MoreThan, Repository } from "typeorm";
+import { In, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { Packaging } from "../Models/Entity/Packaging";
@@ -70,6 +70,19 @@ export class PropertiesPackagingRepository{
         return await this.propertiesPackaginRepository.findOne({
             where: {packaging,presentation,units:MoreThan(count)} 
         });
+    }
+
+    async findByPackagings(packagings:Packaging,units:number){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.findOne({
+            packaging: packagings,
+            units: MoreThanOrEqual(units)
+        },{relations:["presentation"]});
+    }
+
+    async getPropertiesPackagingOfPackaging(packaging:Packaging){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.find({packaging});
     }
 }
 

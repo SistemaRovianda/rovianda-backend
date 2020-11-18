@@ -8,6 +8,7 @@ import { ProductRovianda } from "./Product.Rovianda";
 import { Tenderized } from "./Tenderized";
 import { Sausaged } from "./Sausaged";
 import { Conditioning } from "./Conditioning";
+import { FormulationIngredients } from "./Formulation.Ingredients";
 
 @Entity({ name: "product_catalog" })
 export class Product {
@@ -54,8 +55,8 @@ export class Product {
     @ManyToMany(type => ProductRovianda, productRovianda => productRovianda.ingredients)
     productRovianda: ProductRovianda[];
 
-
-  
+    @OneToMany(type=>FormulationIngredients,formulationIngredients=>formulationIngredients.product)
+    formulationIngredients:FormulationIngredients[];
 
     // @OneToMany(type=> Conditioning,conditioning=>conditioning.productId)
     // conditioning: Conditioning[];

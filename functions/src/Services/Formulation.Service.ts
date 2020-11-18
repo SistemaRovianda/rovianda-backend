@@ -86,6 +86,7 @@ export class FormulationService {
             if(!outputDrief) throw new Error("[404], no existe la salida de ingredientes");
             if(outputDrief.status=="USED") throw new Error("[404],  la salida de ingredientes ya ha sido utilizada con el id: "+ingredient);
             outputDrief.status ="USED";
+            
             await this.outputsDriedRepository.createOutputsDrief(outputDrief);
             let formulationIngredient:FormulationIngredients=new FormulationIngredients();
             formulationIngredient.lotId = outputDrief;

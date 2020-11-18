@@ -46,6 +46,13 @@ export class FormulatioIngredientsRepository {
 
     async getFormulationIngredentByLotProduct(product:Product,lotId:OutputsDrief){
         await this.getConnection();
-        return await this.formulationIngredientsRepository.findOne({product,lotId},{relations: ["formulationId"]})
+        return await this.formulationIngredientsRepository.findOne({product,lotId},{relations: ["formulation"]})
+    }
+
+    async getByOutputsDrief(outputsDrief:OutputsDrief){
+        await this.getConnection();
+        return await this.formulationIngredientsRepository.findOne({
+            lotId:outputsDrief
+        },{relations:["formulation"]});
     }
 }

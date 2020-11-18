@@ -24,7 +24,8 @@ export class Grinding{
     @Column()
     date:string;
 
-   
+   @Column({type:"float"})
+   temperature:number;
 
     @Column({name:"lot_id"})
     lotId:string;

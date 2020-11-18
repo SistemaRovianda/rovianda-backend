@@ -99,7 +99,7 @@ export const productRoutes:Array<routeInterface>=[
         controller: ProductController,
         target: "getProductRoviandaByRoviandaId"
     },{
-        url:"/rovianda/product/rovianda/:roviandaId",
+        url:"/rovianda/product/rovianda/:productId",
         method: "put",
         controller: ProductController,
         target: "updateProductRovianda"

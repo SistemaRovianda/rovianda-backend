@@ -7,6 +7,7 @@ import { FormulationIngredients } from "./Formulation.Ingredients";
 import { DefrostFormulation } from "./Defrost.Formulation";
 import { Process } from "./Process";
 import { Reprocessing } from "./Reprocessing";
+import { OutputsDrief } from "./Outputs.Drief";
 
 
 @Entity({ name: "formulation" })
@@ -50,5 +51,6 @@ export class Formulation {
     @Column({name:"lot_day"})
     lotDay:string;
 
+    
 
 }

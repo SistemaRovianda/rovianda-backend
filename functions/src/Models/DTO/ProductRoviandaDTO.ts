@@ -45,16 +45,17 @@ export interface UpdateProductRoviandaDTO{
          nameProduct: string
       }
    ],
-   presentations: [
-      {
-         presentationId?:number,
-         presentation: number,
-         typePresentation: string,
-         pricePresentation: number,
-         warehouseKey:number
-      }
-   ]
+   presentations: UpdatePresentation[]
 }
+export interface UpdatePresentation
+   {
+      presentationId?:number,
+      presentation: number,
+      typePresentation: string,
+      pricePresentation: number,
+      warehouseKey:number,
+      taxSchema:number
+   }
 
 
 export interface ProductLineSae{
