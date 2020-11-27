@@ -9,6 +9,8 @@ import { PresentationsProductsRepository }  from '../Repositories/Presentation.P
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
 import { validateProductLineSae } from "../Utils/Validators/Product.Rovianda.Vlidator";
+import { CheeseService } from "./Cheese.Service";
+import { Cheese } from "../Models/Entity/Cheese";
 
 
 export class ProductRoviandaService{
@@ -16,11 +18,13 @@ export class ProductRoviandaService{
     private productRepository:ProductRepository;
     private presentationsProductsRepository:PresentationsProductsRepository;
     private sqlsRepository:SqlSRepository;
+    private cheeseService:CheeseService;
     constructor(private firebaseHelper: FirebaseHelper){
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.presentationsProductsRepository= new PresentationsProductsRepository();
         this.sqlsRepository = new SqlSRepository();
+        this.cheeseService=new CheeseService();
     }
 
 
@@ -184,6 +188,7 @@ export class ProductRoviandaService{
             if(!productRoviandaDTO.presentations[i].pricePresentation) throw new Error("[400],pricePresentation is required");
             if(!productRoviandaDTO.presentations[i].typePresentation) throw new Error("[400],typePresentation is required");
             let presentationProduct:PresentationProducts = new PresentationProducts();
+            
             presentationProduct.presentation = productRoviandaDTO.presentations[i].presentation;
             presentationProduct.presentationPricePublic = productRoviandaDTO.presentations[i].pricePresentation;//presentations[i].pricePresentationPublic;
             presentationProduct.presentationPriceMin = 0;//presentations[i].pricePresentationMin;
@@ -192,12 +197,18 @@ export class ProductRoviandaService{
             presentationProduct.productRovianda = productRovianda;
             presentationProduct.typePrice = "PUBLICO";
             presentationProduct.status = true;
+            if(productRoviandaDTO.presentations[i].codePresentation!=null){
+                presentationProduct.keySae=productRoviandaDTO.presentations[i].codePresentation;
+            }else{
             presentationProduct.keySae = (productRoviandaDTO.keyProduct+""+(i+1).toString());
+            }
             productRovianda.presentationProducts.push(presentationProduct);
             
         }    
         await this.productRoviandaRepository.saveProductRovianda(productRovianda);
-        
+        if(productRoviandaDTO.distLine=="CHEESE_LINE"){
+            await this.cheeseService.createCheese({code:productRoviandaDTO.keyProduct});
+        }
 }
 
     async getProductsRoviandaByRoviandaId(req: Request) {
@@ -218,9 +229,15 @@ export class ProductRoviandaService{
             descrLin=lineDescrip[0].DESC_LIN;
         }
         }
+        let cheese:Cheese =await this.cheeseService.getCheeseByProductRovianda(productRovianda);
+        let distLine:string="NORMAL";
+        if(cheese){
+            distLine="CHEESE_LINE";
+        }
         response = {
             code: productRovianda.code ? productRovianda.code : null,
             nameProduct: productRovianda.name ? productRovianda.name : null,
+            distLine,
             status: productRovianda.status ? productRovianda.status : null,
             image: productRovianda.imgS3,
             ingredents: ingredients,
@@ -337,11 +354,12 @@ export class ProductRoviandaService{
         if(!productRovianda) throw new Error("[400], producto no existente en SAE");
       
       let presentations:Array<PresentationProducts> = productRovianda.presentationProducts;
-      
-      for(let presentation of presentations){
-        let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
-        let claveEsq = +productSae[0].CVE_ESQIMPU;
-      switch(claveEsq){
+      let presentations2:Array<any>=[];
+      for(let presentationEntity of presentations){
+        let productSae = await this.sqlsRepository.getProductSaeByKey(presentationEntity.keySae);
+        let presentation:any={};
+        //let claveEsq = +productSae[0].CVE_ESQIMPU;
+      /*switch(claveEsq){
         
         case 1:
           presentation.presentationPricePublic +=(presentation.presentationPricePublic*.16);
@@ -376,9 +394,29 @@ export class ProductRoviandaService{
                       presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
                       presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.50)
                     break;
-      }
+      }*/
+      console.log("PRESENTATION ENTITY",presentationEntity);
+      console.log("PRODUCT SAE",productSae[0]);
+      let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+      presentation={...presentationEntity};
+        if(uniMed=="kg"){
+          presentation.isPz=false;
+          
+          let hasKg=(presentation.presentationType as string).toLowerCase().includes("kg");
+          let kagNumber =0;
+          if(hasKg){
+            let kgNumber:string =((presentation.presentationType.split('(')[1]).split(')')[0]).toLowerCase();
+            kgNumber=kgNumber.slice(0,kgNumber.indexOf('kg'));
+            kagNumber =  +kgNumber;
+            presentation.presentationPricePublic=presentation.presentationPricePublic*kagNumber;
+          }
+          
+        }else if(uniMed=="pz"){
+          presentation.isPz=true;
+        }
+        presentations2.push(presentation);
     }
-        return presentations;
+        return presentations2;
     }
 
     async getAllproductsRoviandaCatalog(){

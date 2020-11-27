@@ -33,4 +33,7 @@ export class SubOrder{
 
     @Column()
     active:boolean;
+
+    @Column({type:"float"})
+    weight:number;
 }

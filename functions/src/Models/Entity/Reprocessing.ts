@@ -28,20 +28,20 @@ export class Reprocessing{
     @Column()
     active:boolean;
 
-    @Column()
+    @Column({nullable:true})
     used:boolean;
 
     @ManyToOne(type=>Process,process=>process.reprocesings)
     @JoinColumn({name:"process_id"})
     process:Process;
 
-    @Column({name:"process_used"})
+    @Column({name:"process_used",nullable:true})
     processUsed:string;
 
-    @Column({name:"weigth_used"})
+    @Column({name:"weigth_used",nullable:true})
     weigthUsed:string;
 
-    @Column({name:"date_used"})
+    @Column({name:"date_used",nullable:true})
     dateUsed:string;
 
     @Column({name:"packaging_product_name",nullable:true})
@@ -50,7 +50,7 @@ export class Reprocessing{
     @Column({name:"lot_reprocesing_oven",nullable:true})
     packagingReprocesingOvenLot:string;
 
-    @Column()
+    @Column({nullable:true})
     comment:string;
 
 }

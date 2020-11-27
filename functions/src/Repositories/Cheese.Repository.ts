@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { Cheese } from "../Models/Entity/Cheese";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 
 export class CheeseRepository{
 
@@ -23,6 +24,11 @@ export class CheeseRepository{
     async getCheeseByCode(code:string){
         await this.getConnection();
         return await this.cheeseRepository.findOne({code});
+    }
+
+    async getByProductRovianda(productRovianda:ProductRovianda){
+        await this.getConnection();
+        return await this.cheeseRepository.findOne({product:productRovianda});
     }
 
 }

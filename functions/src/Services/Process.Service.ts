@@ -274,6 +274,7 @@ export class ProcessService{
             reprocesingEntity.weigth = reprocesing.weight;
             reprocesingEntity.defrost = defrost;
             reprocesingEntity.active = true;
+            reprocesingEntity.used=false;
             await this.reprocesingRepository.saveRepocessing(reprocesingEntity);
         }
     }

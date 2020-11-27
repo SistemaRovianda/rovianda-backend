@@ -25,10 +25,10 @@ export class Maintenance {
     @Column()
     status:string;
 
-    @Column({ name: "description_end"})
+    @Column({ name: "description_end",nullable:true})
     descriptionEnd:string;
 
-    @Column()
+    @Column({nullable:true})
     cost: string;
 
     @ManyToOne(type=>Store, store=>store.maintenance, {eager:true, onDelete:"SET NULL"})

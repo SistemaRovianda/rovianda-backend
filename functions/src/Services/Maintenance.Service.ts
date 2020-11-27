@@ -117,11 +117,11 @@ export class MaintenanceService{
 
     }
     async uppdateMaintenance(maintenanceId:number,maintenanceUpdateDTO:MaintenanceUpdateDTO){
-        if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
+        
         if (!maintenanceUpdateDTO.image)  throw new Error("[400],image is required");
         if (!maintenanceUpdateDTO.storeId)  throw new Error("[400],storeId is required");
         if (!maintenanceUpdateDTO.cost)  throw new Error("[400],cost is required");
-        if (!maintenanceUpdateDTO.description)  throw new Error("[400],description is required");
+        
         if (!maintenanceUpdateDTO.deviceId)  throw new Error("[400],deviceId is required");
         if (!maintenanceId)  throw new Error("[400],maintenanceId is required");;
         let store:Store = await this.storeRepository.getStoreById(maintenanceUpdateDTO.storeId);

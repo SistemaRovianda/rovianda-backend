@@ -8,4 +8,5 @@ export interface UserDTO{
     password:string;
     rolId: number;
     job:string;
+    warehouse:string;
 }

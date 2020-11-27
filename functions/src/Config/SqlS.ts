@@ -2,7 +2,7 @@ import {config,ConnectionPool} from "mssql";
 
 const configoptions:config ={
     server: "aspeldemo.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"192.168.1.67",
-    database: "SAE70Empre01",
+    database: "SAE8",//"SAE70Empre01",
     password: "Holamundo1250",
     user:"AspelAdmin",
     options:{

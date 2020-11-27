@@ -18,7 +18,7 @@ export class Cooling{
     @Column()
     quantity:string;
 
-    @Column({name:"userId"})
+    @Column({name:"userId",nullable:true})
     userId:string;
 
     @ManyToOne(type=>Fridge, fridge=>fridge.coolings, {eager:true, onDelete:"SET NULL"})

@@ -45,7 +45,7 @@ export interface PackagingOutput{
         loteId:string,
         subOrderId:number,
         quantity:number,
-        weigth:number,
+        weight:number,
         presentationId:number
     
 }

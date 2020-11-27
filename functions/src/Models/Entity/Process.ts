@@ -19,34 +19,34 @@ export class Process{
     @JoinColumn({name:"product_rovianda_id"})
     product:ProductRovianda;
     
-    @Column({name:"entrance_hour"})
+    @Column({name:"entrance_hour",nullable:true})
     entranceHour:string;
 
-    @Column({name:"output_hour"})
+    @Column({name:"output_hour",nullable:true})
     outputHour:string;
 
-    @Column({name:"end_date"})
+    @Column({name:"end_date",nullable:true})
     endDate:string;
 
-    @Column({name:"start_date"})
+    @Column({name:"start_date",nullable:true})
     startDate:string;
 
     @Column()
     status:string;
 
-    @Column({name:"current_process"})
+    @Column({name:"current_process",nullable:true})
     currentProcess:string;
     
-    @Column({name:"name_elaborated"})
+    @Column({name:"name_elaborated",nullable:true})
     nameElaborated:string;
 
-    @Column({name:"job_elaborated"})
+    @Column({name:"job_elaborated",nullable:true})
     jobElaborated:string;
 
-    @Column({name:"name_verify"})
+    @Column({name:"name_verify",nullable:true})
     nameVerify:string;
 
-    @Column({name:"job_verify"})
+    @Column({name:"job_verify",nullable:true})
     jobVerify:string;
 
     

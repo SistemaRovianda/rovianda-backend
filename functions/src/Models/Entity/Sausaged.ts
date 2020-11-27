@@ -22,16 +22,16 @@ export class Sausaged{
     @Column()
     hour1:string;
 
-    @Column({name:"weight_medium"})
+    @Column({name:"weight_medium",nullable:true})
     weightMedium:string;
 
-    @Column()
+    @Column({nullable:true})
     hour2:string;
 
-    @Column({name:"weight_exit"})
+    @Column({name:"weight_exit",nullable:true})
     weightExit:string;
 
-    @Column()
+    @Column({nullable:true})
     hour3:string;
 
     @Column({name:"lote_meat"})

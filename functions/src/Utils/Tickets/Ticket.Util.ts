@@ -2,10 +2,18 @@ import { Sale } from "../../Models/Entity/Sales";
 import { SellerOperation } from "../../Models/Entity/Seller.Operations";
 import { SubSales } from "../../Models/Entity/Sub.Sales";
 import { User } from "../../Models/Entity/User";
+import { SqlSRepository } from "../../Repositories/SqlS.Repositoy";
 
 export class TicketUtil{
+
+    private sqlServer:SqlSRepository;
+    constructor(){
+        this.sqlServer=new SqlSRepository();
+    }
+
     async TicketSale(sale:Sale,subSales:SubSales[],seller?:User){
         let date=new Date();
+        date.setHours(date.getHours()-6);
         let ticket =`
             ROVIANDA SAPI DE CV 
             AV.1 #5 Esquina Calle 1
@@ -34,16 +42,17 @@ export class TicketUtil{
         let total=0;
         let pieces =0;
         for(let saleItem of subSales){
+            let productSae = await this.sqlServer.getProductSaeByKey(saleItem.presentation.keySae);
             ticket+=`
             ${saleItem.product.code+saleItem.presentation.keySae} ${saleItem.product.name} ${saleItem.presentation.presentation + saleItem.presentation.presentationType} 
-            ${saleItem.quantity} ${saleItem.amount}
+            ${saleItem.quantity} ${(productSae[0].UNI_MED as string).toUpperCase()} $${this.pipeNumber(saleItem.amount)}
             `;
             total+=saleItem.amount;
             pieces+=saleItem.quantity;
         }
         ticket+=`
             --------------------------------
-                        TOTAL: ${total}
+                        TOTAL: $ ${this.pipeNumber(total)}
 
             Piezas: ${pieces}
 
@@ -51,6 +60,11 @@ export class TicketUtil{
         `;
         return ticket;
     }
+
+    pipeNumber(x:number){
+        var parts=x.toString().split(".");
+        return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+      }
 
     async TickedEndDate(sales:Sale[],seller:User,sellerOperations:SellerOperation){
         let date=new Date();
@@ -71,8 +85,9 @@ export class TicketUtil{
         `;
         for(let venta of sales){
             for(let subOrder of venta.subSales){
+                let productSae = await this.sqlServer.getProductSaeByKey(subOrder.presentation.keySae);
             ticket+=`
-            ${subOrder.product.code}    ${subOrder.product.name} ${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}    ${subOrder.quantity}    $${subOrder.amount}
+            ${subOrder.product.code}    ${subOrder.product.name} ${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}    ${subOrder.quantity} ${(productSae[0].UNI_MED as string).toUpperCase()}    $${this.pipeNumber(subOrder.amount)}
             `;
             if(venta.credit==0){
             amountContado+=venta.amount;
@@ -80,17 +95,17 @@ export class TicketUtil{
             amountCredito+=venta.amount;
             }
             clients+=`
-            ${venta.folio}  ${venta.client.name}    ${venta.amount}
+            ${venta.folio}  ${venta.client.name}    $ ${this.pipeNumber(venta.amount)}
             `;
             }
         }
         ticket+=clients;
             ticket+=`
             Ventas por concepto
-            EFECTIVO        $ ${amountContado}
-            CREDITO         $ ${amountCredito}
+            EFECTIVO        $ ${this.pipeNumber(amountContado)}
+            CREDITO         $ ${this.pipeNumber(amountCredito)}
                         -----------------
-                            ${amountContado+amountCredito}
+                            $${this.pipeNumber(amountContado+amountCredito)}
             `;
         if(sellerOperations){
             let date:any=  new Date(sellerOperations.date+'T'+sellerOperations.eatingTimeStart);
@@ -105,5 +120,38 @@ export class TicketUtil{
             `;
         }
         return ticket;
+    }
+
+    async getAllDeletesTickets(sales:Sale[]){
+        let body=`<html>
+        <body>
+        <table style="width:80%" border="1" align="center">
+        <tr>
+            <th>No.</th>
+            <th>Folio</th>
+            <th>Monto</th>
+            </tr>
+        `;
+        let amount=0;
+        for(let i=0;i<sales.length;i++){
+            let sale=sales[i];
+            body+=`
+            <tr>
+            <td>${i+1}</td>
+            <td>${sale.folio}</td>
+            <td>${sale.amount}</td>
+            </tr>
+            `;
+            amount+=sale.amount;
+        }
+        body+=`
+        <tr>
+        <td style="text-align:left" colspan="2">Total a retirar: </td>
+        <td>$${amount}</td>
+        </tr>
+        </table>
+        </body>
+        </html>`;
+        return body;
     }
 }

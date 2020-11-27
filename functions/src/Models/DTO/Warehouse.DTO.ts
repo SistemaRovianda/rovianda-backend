@@ -1,5 +1,4 @@
 export interface WarehouseForm{
-        
         description:string;
         address:string;
         admin:string;

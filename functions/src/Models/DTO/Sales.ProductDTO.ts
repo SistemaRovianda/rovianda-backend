@@ -1,3 +1,5 @@
+import { Sale } from "../Entity/Sales";
+
 export interface SalesProductDTO{
     userId: string,
     urgent: boolean,
@@ -58,6 +60,7 @@ export interface SaleOrderDTO {
     total?:number;
     taxSchema?:number;
     warehouseKey?:number;
+    weight:number;
  }
 
  export interface ImpuSchemaSAE{
@@ -74,4 +77,10 @@ export interface SaleOrderDTO {
     STATUS:string;
     UUID:string;
     VERSION_SINC:string;
+ }
+
+
+ export interface SalesToSuperAdmin{
+   sales:Sale[],
+   totalCount:number
  }

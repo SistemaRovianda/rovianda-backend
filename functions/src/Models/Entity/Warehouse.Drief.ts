@@ -36,7 +36,7 @@ export class WarehouseDrief{
     @Column({name:"closing_date",nullable:true})
     closingDate:string;
 
-    @Column({name:"user_id"})
+    @Column({name:"user_id",nullable:true})
     userId:string;
 
     @OneToMany(type=> OutputsDrief, outputsDrief => outputsDrief.warehouseDrief)

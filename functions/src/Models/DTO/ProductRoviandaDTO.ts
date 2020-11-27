@@ -7,6 +7,7 @@ export interface SaveProductRoviandaDTO{
     keyProduct?: string;
     nameProduct: string;
     productLine:string;
+    distLine:string;
     ingredients: [
        {
           productId: number,
@@ -15,6 +16,8 @@ export interface SaveProductRoviandaDTO{
     ];
     presentations: [
        {
+          uniMed:string,
+          codePresentation?:string,
           presentationId?:number,
           presentation: number,
           typePresentation: string,

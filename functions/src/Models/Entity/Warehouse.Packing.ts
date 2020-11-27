@@ -24,7 +24,7 @@ export class WarehousePacking{
     @Column({name:"is_pz"})
     isPz: boolean;
 
-    @Column({name:"user_id"})
+    @Column({name:"user_id",nullable:true})
     userId: string;
 
     @Column()

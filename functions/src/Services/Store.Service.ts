@@ -1,11 +1,16 @@
 import { StoreRepository } from "../Repositories/Store.Repository";
 import { Store } from "../Models/Entity/Store";
 import { StoreDTO } from "../Models/DTO/StoreDTO";
+import { DeviceRepository } from "../Repositories/Device.Repository";
+import { MaintenanceRepository } from "../Repositories/Maintenance.Repository";
+import { Maintenance } from "../Models/Entity/Maintenance";
 
 export class StoreService{
     private storeRepository:StoreRepository;
+    private maintenanceRepository:MaintenanceRepository;
     constructor(){
         this.storeRepository = new StoreRepository();;
+        this.maintenanceRepository= new MaintenanceRepository();
     }
 
     async saveStore(storeDTO:StoreDTO){
@@ -26,14 +31,28 @@ export class StoreService{
     async getStores(){
         let stores:Store[] = await this.storeRepository.getStores();
         let response:any = [];
-        stores.forEach(i=> {
+        for(let store of stores){
+            let maintenances:Maintenance[] = await this.maintenanceRepository.getMaintenanceByStore(store);
+            let devices=[];
+            let devicesNames = [];
+            for(let main of maintenances){
+                if(!devicesNames.includes(main.devices.name)){
+                devices.push({
+                    deviceId:main.devices.id,
+                    name: main.devices.name
+                });
+                devicesNames.push(main.devices.name);
+            }
+            }
             response.push({
-                storeId: i.id,
-                name: i.name,
-                location: i.location,
-                reference: i.reference
+                storeId: store.id,
+                name: store.name,
+                location: store.location,
+                reference: store.reference,
+                devices
             });
-        });
+        
+        }
         return response;
     }
 

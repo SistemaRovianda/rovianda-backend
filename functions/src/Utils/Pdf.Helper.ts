@@ -2176,7 +2176,7 @@ export default class PdfHelper{
                 </th>
                 <th colspan="5"></th>
                 <th>            
-                    <p>Fecha: ${date.getFullYear.toString()}-${date.getMonth()+1}-${date.getDate()}</p>
+                    <p>Fecha: ${date.getFullYear().toString()}-${date.getMonth()+1}-${date.getDate()}</p>
                 </th>
             </tr>
         
@@ -2210,7 +2210,7 @@ export default class PdfHelper{
                         <td class="cel">${!properties ? " " : properties[i].units}</td>
                         <td class="cel">${!properties ? " " : properties[i].weight}</td>
                         <td class="cel">${!properties ? " " : properties[i].observations}</td>
-                        <td class="cel"></td>
+                        <td class="cel">${!data?"":data.userId.name}</td>
                     </tr>
                     `;
                 }

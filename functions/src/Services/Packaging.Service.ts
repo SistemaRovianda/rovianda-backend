@@ -60,6 +60,7 @@ export class PackagingService{
     private pdfHelper:PdfHelper;
     private inspectionRepository:InspectionRepository;
     private cheeseRepository:CheeseRepository;
+    
     constructor() {
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.ovenRepository = new OvenRepository();
@@ -81,6 +82,7 @@ export class PackagingService{
         this.pdfHelper=new PdfHelper();
         this.inspectionRepository=new InspectionRepository();
         this.cheeseRepository = new CheeseRepository();
+        
     }
 
     async savePackaging(packagingDTO:PackagingDTO) {
@@ -111,6 +113,8 @@ export class PackagingService{
         for(let e = 0; e<packagingDTO.products.length; e++){
             let propertiesPackaging:PropertiesPackaging = new PropertiesPackaging();
             let presentation:PresentationProducts= await this.presentationProductRepository.getPresentationProductsById(packagingDTO.products[e].presentationId)
+            let productSae = await this.sqlRepository.getProductSaeByKey(presentation.keySae);
+
             propertiesPackaging.weight = packagingDTO.products[e].weight;
             propertiesPackaging.observations = packagingDTO.products[e].observations;
             propertiesPackaging.units = packagingDTO.products[e].units;
@@ -118,7 +122,6 @@ export class PackagingService{
             propertiesPackaging.presentation = presentation;
             propertiesPackaging.active=true;
             
-            await this.sqlRepository.updateProductInSae(presentation.keySae,packagingDTO.products[e].units);
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
         }
         return packing.id;
@@ -259,7 +262,7 @@ export class PackagingService{
                     let subOrderMetadata:SubOrderMetadata = new SubOrderMetadata();
                     subOrderMetadata.loteId=pack.loteId;
                     subOrderMetadata.quantity=pack.quantity;
-                    subOrderMetadata.weigth=pack.weigth;
+                    subOrderMetadata.weigth=pack.weight;
                     subOrderMetadata.subOrder=subOrder;
                     let date= new Date();
                     date.setHours(date.getHours()-6)
@@ -274,16 +277,25 @@ export class PackagingService{
                     sellerInventory.quantity = pack.quantity
                     sellerInventory.dateEntrance=date.toString();
                     sellerInventory.product =presentationProducts.productRovianda;
-                    sellerInventory.weigth= pack.weigth;
+                    sellerInventory.weigth= pack.weight;
                     let order= await this.orderSellerRepository.getOrderById(subOrder.orderSeller.id);
                     sellerInventory.seller=order.seller;
-                    subOrder.units=subOrder.units-pack.quantity;
-                     
-                    if(subOrder.units==0){
-                    subOrder.active=false;    
+                    subOrder.active=false;  
+                    subOrder.weight=pack.weight;  
+                    let productSae = await this.sqlRepository.getProductSaeByKey(presentationProducts.keySae);
+                    if(!productSae.length) throw new Error("[409], no existe el producto en aspel sae");
+                    let uniMed=(productSae[0].UNI_MED as string).toLowerCase();
+                    let valueToSave =0;
+                    if(uniMed=="pz"){
+                        valueToSave=pack.quantity;
+                    }else{
+                        valueToSave=pack.weight;
                     }
+                    await this.sqlRepository.updateProductInSaeBySellerWarehouse(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
                     await this.subOrderRepository.saveSalesProduct(subOrder); 
                     await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+                    
+                    
         }
     }
 
@@ -336,8 +348,9 @@ export class PackagingService{
         console.log("MODE:"+mode);
         let cheesesIds = [];
         let cheeses = await this.cheeseRepository.getAllCheeses();
+        if(cheeses.length){
         cheesesIds=cheeses.map(x=>x.product.id);
-            
+        }
         if(mode==null || mode==undefined){ 
             let orderSellers2 = await this.orderSellerRepository.getOrderSellerByUrgent(bUrgent);
             
@@ -441,7 +454,7 @@ export class PackagingService{
         devolution.units=devolutionRequest.units;
         devolution.presentationProduct=presentation;
         await this.ovenRepository.saveOvenProduct(ovenProduct);
-        await this.sqlRepository.updateProductInSae(propertyPackaging.presentation.keySae,(devolutionRequest.units)*-1);
+        await this.sqlRepository.updateInventoryGeneralAspeSaeByProduct(propertyPackaging.presentation.keySae,(devolutionRequest.units)*-1);
         return await this.devolutionRepository.saveDevolution(devolution);
     }
 

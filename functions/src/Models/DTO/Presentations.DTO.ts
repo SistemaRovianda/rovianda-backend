@@ -7,5 +7,6 @@ export interface Presentation{
     typePresentation:string,
     typePrice:number,
     quantity:number,
-    keySae:string
+    keySae:string,
+    isPz:boolean
 }

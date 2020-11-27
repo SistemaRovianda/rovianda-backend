@@ -161,5 +161,35 @@ export const salesRoutes:Array<routeInterface>=[
         method:"get",
         controller:SalesRequestController,
         target: "endDaySeller"
+    },
+    {
+        url: "/rovianda/ticket-sale-deb/:debId",
+        method:"get",
+        controller:SalesRequestController,
+        target: "ticketDebSeller"
+    },
+    {
+        url: "/rovianda/sales-superadmin/sales",
+        method:"post",
+        controller: SalesRequestController,
+        target: "getAllSalesSuperadmin"
+    },
+    {
+        url:"/rovianda/sales-superadmin/del",
+        method:"post",
+        controller:SalesRequestController,
+        target:"delSalesBySuperAdmin"
+    },
+    {
+        url:"/rovianda/sales-superadmin/report-deleted",
+        method:"post",
+        controller:SalesRequestController,
+        target:"getDelSalesBySuperAdmin"
+    },
+    {
+        url:"/rovianda/sales-superadmin/super-sales",
+        method:"post",
+        controller:SalesRequestController,
+        target:"tranfersSalesToSaes"
     }
 ];

@@ -9,7 +9,7 @@ export class FirebaseHelper{
         let credential:any = credentials;
         admin.initializeApp({
             credential: admin.credential.cert(credential),
-            storageBucket: "gs://rovianda-88249.appspot.com"
+            storageBucket: "gs://sistema-rovianda.appspot.com"
         });
     }
 

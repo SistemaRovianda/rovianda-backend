@@ -53,16 +53,16 @@ export class Inspection{
     @Column()
     texture:boolean;
 
-    @Column({name:"name_elaborated"})
+    @Column({name:"name_elaborated",nullable:true})
     nameElaborated:string;
 
-    @Column({name:"job_elaborated"})
+    @Column({name:"job_elaborated",nullable:true})
     jobElaborated:string;
 
-    @Column({name:"name_verify"})
+    @Column({name:"name_verify",nullable:true})
     nameVerify:string;
 
-    @Column({name:"job_verify"})
+    @Column({name:"job_verify",nullable:true})
     jobVerify:string;
 
     @Column({name:"process_id"})

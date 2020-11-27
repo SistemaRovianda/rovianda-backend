@@ -18,7 +18,7 @@ export class User{
     @PrimaryColumn()
     id:string;
 
-    @Column()
+    @Column({default:0})
     saeKey:number;
 
     @Column()
@@ -72,4 +72,7 @@ export class User{
 
     @OneToMany(type=>Debts,debts=>debts.seller)
     debts:Debts[];
+
+    @Column({nullable:true,name:"warehouse_key_sae"})
+    warehouseKeySae:string;
 }

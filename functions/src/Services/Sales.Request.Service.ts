@@ -150,8 +150,22 @@ export class SalesRequestService{
       for(let presentation of presentations){
         let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
         if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-        let claveEsq = +productSae[0].CVE_ESQIMPU;
-      switch(claveEsq){
+        let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();;
+        if(uniMed=="kg"){
+          presentation.isPz=false;
+          let hasKg=(presentation.typePresentation as string).toLowerCase().includes("kg");
+          let kagNumber =0;
+          if(hasKg){
+            let kgNumber:string =((presentation.typePresentation.split('(')[1]).split(')')[0]).toLowerCase();
+            kgNumber=kgNumber.slice(0,kgNumber.indexOf('kg'));
+            kagNumber =  +kgNumber;
+            presentation.pricePresentationPublic=presentation.pricePresentationPublic*kagNumber;
+          }
+        }else if(uniMed=="pz"){
+          presentation.isPz=true;
+        }
+        //let claveEsq = +productSae[0].CVE_ESQIMPU;
+      /*switch(claveEsq){
         case 1:
           presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
           presentation.pricePresentationMin +=(presentation.pricePresentationMin*.16);
@@ -185,7 +199,7 @@ export class SalesRequestService{
                       presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
                       presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.50)
                     break;
-      }
+      }*/
     }
       return presentations; 
     }
@@ -200,8 +214,22 @@ export class SalesRequestService{
       for(let presentation of presentations){
         let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
         if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-        let claveEsq = +productSae[0].CVE_ESQIMPU;
-      switch(claveEsq){
+        //let claveEsq = +productSae[0].CVE_ESQIMPU;
+        let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();;
+        if(uniMed=="kg"){
+          presentation.isPz=false;
+          // let hasKg=(presentation.typePresentation as string).toLowerCase().includes("kg");
+          // let kagNumber =0;
+          // if(hasKg){
+          //   let kgNumber:string =((presentation.typePresentation.split('(')[1]).split(')')[0]).toLowerCase();
+          //   kgNumber=kgNumber.slice(0,kgNumber.indexOf('kg'));
+          //   kagNumber =  +kgNumber;
+          //   presentation.pricePresentationPublic=presentation.pricePresentationPublic*kagNumber;
+          // }
+        }else if(uniMed=="pz"){
+          presentation.isPz=true;
+        }
+      /*switch(claveEsq){
         case 1:
           presentation.pricePresentationPublic +=(presentation.pricePresentationPublic*.16);
           presentation.pricePresentationMin +=(presentation.pricePresentationMin*.16);
@@ -235,7 +263,7 @@ export class SalesRequestService{
                       presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.16);
                       presentation.pricePresentationLiquidation += (presentation.pricePresentationLiquidation*.50)
                     break;
-      }
+      }*/
     }
   
       return presentations;
@@ -557,6 +585,7 @@ export class SalesRequestService{
      }
 
      async createSeller(userDTO:UserDTO){
+       console.log("seller dto",userDTO);
         let rol:Roles = await this.rolesRepository.getRoleById(userDTO.rolId);
         let user:User= new User();
         user.name = userDTO.name +" "+ userDTO.firstName+" "+userDTO.lastName;
@@ -564,14 +593,18 @@ export class SalesRequestService{
         user.job = userDTO.job;
         user.roles = rol;
         user.saeKey = userDTO.clave;
+        user.warehouseKeySae=userDTO.warehouse;
         await this.firebaseHelper.createUser(userDTO).then(async(userRecord)=>{
           user.id= userRecord.uid;
           await this.userRepository.saveUser(user);
-          return await this.sqlsRepository.createSeller(userDTO);
+          
+           await this.sqlsRepository.createSeller(userDTO);
+          await this.sqlsRepository.updateWarehouse(userDTO.warehouse,user.name);
         });        
      }
     
     async createSaleSae(saleRequestForm:SaleRequestForm){
+      console.log("SALE REQUEST FORM: ",JSON.stringify(saleRequestForm));
       console.log("iniciando creacin de venta");
       let seller:User = await this.userRepository.getUserById(saleRequestForm.sellerId);
       console.log("obteniendo vendedor");
@@ -583,7 +616,7 @@ export class SalesRequestService{
 
       console.log("obteniendo cliente de sae");
       if(!client.recordset.length) throw new Error("[404], no existe el cliente en SAE");
-      let clientSAE:ClientSAE = client.recordset[0] as ClientSAE;
+      
       console.log("iniciando recorrido de articulos");
       let saleGral = new Sale();
       saleGral.client = clientRovianda;
@@ -593,7 +626,7 @@ export class SalesRequestService{
       saleGral.date = date.toISOString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
-      if(saleRequestForm.credit){
+      if(saleRequestForm.credit && saleRequestForm.typeSale=="CREDITO"){
         if(clientRovianda.credit<saleRequestForm.credit) throw new Error("[409], ya no tienes credito disponible");
         saleGral.credit = saleRequestForm.credit;
         clientRovianda.credit-=saleRequestForm.credit;
@@ -618,14 +651,14 @@ export class SalesRequestService{
         sale.taxSchema = productSae[0].CVE_ESQIMPU;
         sale.warehouseKey = exist[0].EXISTENCIA;
         let price =0;
-        if(presentation.typePrice=="PUBLICO"){
+        if(presentation.typePrice=="PUBLIC"){
           price = presentation.presentationPricePublic;
         }else if(presentation.typePrice=="MIN"){
           price = presentation.presentationPriceMin;
         }else if(presentation.typePrice=="LIQUIDATION"){
           price = presentation.presentationPriceLiquidation;
         }
-        let claveEsq = +productSae[0].CVE_ESQIMPU;
+        /*let claveEsq = +productSae[0].CVE_ESQIMPU;
         switch(claveEsq){
           case 1:
             price +=(price*.16);
@@ -648,16 +681,20 @@ export class SalesRequestService{
                     price += (price*.16);
                     price += (price*.50)
                       break;
-        }
+        }*/
         sale.price= price;
-        
-        sale.total = price*sale.quantity;
-
+        if((productSae[0].UNI_MED as string).toLowerCase()=="pz"){
+          sale.total = price*sale.quantity;
+        }else{
+          sale.total = price*sale.weight;
+          subSale.quantity=sale.weight;
+        }
         subSale.amount = sale.total;
         subSale.loteId="desconocido";
         saleGral.subSales.push(subSale);
         let sellerInventory=await this.sellerInventoryRepository.getInventoyOfProductPresentationId(presentation,sale.quantity,seller);
         sellerInventory.quantity-=sale.quantity;
+        
         await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
      }
      saleGral.amount = saleGral.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
@@ -683,8 +720,17 @@ export class SalesRequestService{
      }else{
        saleGral.status=false;
      }
-     let folio = await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+     let lastSale =await this.saleRepository.getLastSale();//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+      let folio ="";
+      if(lastSale){
+       folio=(+lastSale.folio+1).toString();
+       folio = '0'.repeat(10-folio.length)+folio;
+      }else{
+        folio='0000000001';
+      }
      saleGral.folio=folio.toString();
+     console.log("VENTA A HACER: ",JSON.stringify(saleGral));
+     console.log("SALE REQUEST FORM: ",JSON.stringify(saleRequestForm));
      let saleSaved:Sale =await this.saleRepository.saveSale(saleGral);
      console.log("iniciando proceso de grabado");
      return saleSaved;
@@ -739,20 +785,14 @@ export class SalesRequestService{
       if(!user) throw new Error("[404], vendedor no existe la venta");
       
       let dateParsed=new Date(date);
-      let dayNumber=dateParsed.getDate().toString();
-      dateParsed.setHours(dateParsed.getHours()-6);
+      dateParsed.setHours(dateParsed.getHours()-24);
       let month=(dateParsed.getMonth()+1).toString();
       let day = dateParsed.getDate().toString();
-      if(+dayNumber==+day){
-        dayNumber=(+dayNumber-1).toString();
-      }
       if(+month<10){
         month='0'+month;
       }
-      if(+dayNumber<10){
-        dayNumber='0'+dayNumber;
-      }
-      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+dayNumber;
+      
+      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+day;
       console.log(dateStr);
       let sales:Sale[]=await this.saleRepository.getSaleByDate(dateStr,user);
       
@@ -782,6 +822,50 @@ export class SalesRequestService{
         
       }
       return response;
+    }
+    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string){
+        return await this.saleRepository.getAllSalesForSuperAdmin(page,peerPage,salesIds,date);
+    }
+
+    async deleteSalesBySuperAdmin(salesIds:Array<number>,date:string){
+      if(!salesIds.length) throw new Error("[400], el arreglo de ventas no puede venir vacio");
+      let sales:Sale[]=[];
+      if(salesIds.length>1){
+        let salesOrders = salesIds.sort((a,b)=>a-b);
+       sales= await this.saleRepository.getSalesBetweenIds(salesOrders[0],date);
+      }else{
+        sales=await this.saleRepository.getSalesBetweenIds(salesIds[0],date);
+      }
+      if(sales.length){
+      let folioInit=+sales[0].folio;
+      
+      //sales = sales.filter(x=>!salesIds.includes(x.saleId));
+
+      for(let sale of sales){
+        if(!salesIds.includes(sale.saleId)){
+        sale.folio='0'.repeat(10-folioInit.toString().length)+''+folioInit;
+        folioInit++;
+        }else{
+          sale.typeSale="DELETED";
+        }
+        await this.saleRepository.saveSale(sale);
+      }
+      
+      }
+
+    }
+
+    async getDelSalesReport(date:string){
+       let sales = await this.saleRepository.getAlldeletedByDate(date);
+       console.log(sales,date);
+       return await this.ticketUtil.getAllDeletesTickets(sales);
+    }
+
+    async transferAllSalesAutorized(saleId:number){
+      let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+      sale.subSales=subSales;
+      return await this.sqlsRepository.createSaleSae(sale);
     }
   }
 

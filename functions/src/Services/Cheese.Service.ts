@@ -1,6 +1,7 @@
 import { UpdateCheeseInventory } from "../Models/DTO/Cheese.DTO";
 import { Cheese } from "../Models/Entity/Cheese";
 import { Packaging } from "../Models/Entity/Packaging";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { CheeseRepository } from "../Repositories/Cheese.Repository";
 import { PackagingRepository } from "../Repositories/Packaging.Repository";
@@ -38,6 +39,10 @@ export class CheeseService{
         await this.cheeseRepository.saveCheese(cheese);
     }
 
+    async getCheeseByProductRovianda(product:ProductRovianda){
+        return await this.cheeseRepository.getByProductRovianda(product);
+    }
+
     async getAllCheeses(){
         let cheeses:Cheese[] = await this.cheeseRepository.getAllCheeses();
         let response:{code:string,name:string,quantity:number}[]=[];
@@ -70,7 +75,7 @@ export class CheeseService{
 
             let props = packaging.propertiesPackaging[0];
             let presentationProducts = await this.presentationProductsRepository.getPresentationProductByProductRovianda(cheese.product);
-            await this.sqlSRepository.updateProductInSae(presentationProducts.keySae,+updateCheeseInventory.quantity);
+            await this.sqlSRepository.updateInventoryGeneralAspeSaeByProduct(presentationProducts.keySae,+updateCheeseInventory.quantity);
             props.units+=+updateCheeseInventory.quantity;
             if(props.active==false) props.active=true;
         }
@@ -92,7 +97,7 @@ export class CheeseService{
             let presentationProducts = await this.presentationProductsRepository.getPresentationProductByProductRovianda(cheese.product);
             propertiesPackaging.presentation=presentationProducts;
             packaging.propertiesPackaging=new Array();
-            await this.sqlSRepository.updateProductInSae(presentationProducts.keySae,+updateCheeseInventory.quantity);
+            await this.sqlSRepository.updateInventoryGeneralAspeSaeByProduct(presentationProducts.keySae,+updateCheeseInventory.quantity);
             packaging.propertiesPackaging.push(propertiesPackaging);
         }
         await this.packagingRepository.savePackaging(packaging);

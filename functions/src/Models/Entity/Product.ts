@@ -19,7 +19,7 @@ export class Product {
     @Column()
     description: string;
 
-    @Column()
+    @Column({nullable:true})
     type:string;
 
     @Column()

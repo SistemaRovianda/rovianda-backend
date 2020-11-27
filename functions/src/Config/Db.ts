@@ -59,12 +59,12 @@ import { Cheese } from "../Models/Entity/Cheese";
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"localhost",//, "rovisapi.dyndns.tv",//
+    host:  "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"rovisapi.dyndns.tv",//"localhost",//,//
     port: 3306,
-    username: "master_rovianda",//"admin",//"root","master_rovianda",//
-    password: "Sistemas2020",//"Holamundo1250",//"Sistemas2020",//
-    database: "bd_rovianda",//"new_rovianda",//"rovianda-test-dev","bd_rovianda",//
-    synchronize: true,
+    username: "admin",//"root",//"master_rovianda",//
+    password: "Holamundo1250",//"Sistemas2020",//
+    database: "new_rovianda",//"rovianda-test-dev","bd_rovianda",//
+    synchronize: false,
     logging: false,
     debug:false,
     entities: [

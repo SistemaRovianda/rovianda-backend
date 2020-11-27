@@ -26,13 +26,13 @@ export class Defrost{
     @Column({name:"entrance_hour"})
     entranceHour:string;
 
-    @Column({name:"output_hour"})
+    @Column({name:"output_hour",nullable:true})
     outputHour:string;
 
     @Column({name:"date_init"})
     dateInit:string;
 
-    @Column({name:"date_end"})
+    @Column({name:"date_end",nullable:true})
     dateEnd:string;
 
     @Column()

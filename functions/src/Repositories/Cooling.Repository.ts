@@ -38,8 +38,9 @@ export class CoolingRepository{
     async getCoollingByFridgeGroup(fridgeId:number,status:string){
         await this.getConnection();
         return await this.coolingRepository.query(`
-        SELECT * FROM cooling WHERE cooling.fridgeFridgeId = ${fridgeId} 
-        AND cooling.status = "${status}" GROUP BY cooling.lote_interno`);
+        SELECT lote_interno,id,lote_proveedor,quantity,userId,status,opening_date,closing_date,fridgeFridgeId,raw_material_id 
+        FROM cooling WHERE fridgeFridgeId = ${fridgeId} 
+        AND status = "${status}"`);
     }
 
     async getCoollingByFridge(loteInterno:string,fridgeId:number,status:string){

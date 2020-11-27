@@ -1,9 +1,11 @@
 import { Sale } from "../Models/Entity/Sales";
-import { Between, Repository } from "typeorm";
+import { Between, Equal, MoreThanOrEqual, Not, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 
 import { Client } from "../Models/Entity/Client";
 import { User } from "../Models/Entity/User";
+import { SalesToSuperAdmin } from "../Models/DTO/Sales.ProductDTO";
+import { isEqual } from "lodash";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -72,7 +74,53 @@ export class SaleRepository{
     async getSaleByDate(date:string,seller:User){
         await this.getConnection();
         return await this.saleRepository.find({
-            where:{seller,date: Between(date+"T00:00:00",date+"T23:59:00")},
+            where:{seller,date: Between(date+"T00:00:00",date+"T23:59:00"),status: Not(Equal("DELETED"))},
         });
     }
+
+    async getLastSale(){
+        await this.getConnection();
+        return await this.saleRepository.createQueryBuilder('sale')
+        .orderBy('sale.folio', 'DESC').limit(1)
+        .getOne();
+    }
+
+    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string){
+        
+        if(!salesIds.length){
+            salesIds=[0];
+        }
+        let date1=date+"T00:00:00";
+        let date2=date+"T23:59:59";
+        await this.getConnection();
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+        let salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+        let response:SalesToSuperAdmin={
+            sales,
+            totalCount:salesTotal.length
+        };
+        return response;
+    }
+
+
+    async getSalesBetweenIds(saleId:number,date:string){
+        await this.getConnection();
+        let dateInit=date+'T00:00:00';
+        let dateEnd=date+'T23:59:59';
+        return await this.saleRepository.find({
+            saleId:MoreThanOrEqual(saleId),
+            date:Between(dateInit,dateEnd)
+        });
+    }
+
+    async getAlldeletedByDate(date:string){
+        await this.getConnection();
+        let dateInit=date+'T00:00:00';
+        let dateEnd=date+'T23:59:59';
+        return await this.saleRepository.find({
+            typeSale:"DELETED",
+            date:Between(dateInit,dateEnd)
+        });
+    }
+
 }

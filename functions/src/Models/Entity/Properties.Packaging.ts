@@ -22,7 +22,7 @@ export class PropertiesPackaging {
     @JoinColumn({ name: "presentation_id" })
     presentation: PresentationProducts;
 
-    @Column({ name: "weight" })
+    @Column({ name: "weight" ,type:"float"})
     weight: number;
 
     @Column({ name: "observations" , nullable: true})

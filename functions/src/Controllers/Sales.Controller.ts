@@ -4,16 +4,20 @@ import { SalesRequestService } from '../Services/Sales.Request.Service';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Sale } from '../Models/Entity/Sales';
-
+import { SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
+import PdfHelper from '../Utils/Pdf.Helper';
+import * as pdf from 'html-pdf';
 
 export class SalesRequestController{
 
    
     private salesRequestService: SalesRequestService;
     private productRoviandaService:ProductRoviandaService;
+    private pdfHelper:PdfHelper;
     constructor(firebaseHelper:FirebaseHelper){
         this.salesRequestService = new SalesRequestService(firebaseHelper);
         this.productRoviandaService = new ProductRoviandaService(firebaseHelper);
+        
     }
     
     async createSeller(req:Request,res:Response){
@@ -168,6 +172,55 @@ export class SalesRequestController{
         let sellerUid=req.params.sellerUid;
         let date=req.query.date;
         return res.status(200).send(await this.salesRequestService.endDaySeller(sellerUid,date));
+    }
+
+    async getAllSalesSuperadmin(req:Request,res:Response){
+        let page=req.query.page;
+        let peerPage=req.query.peerPage;
+        let salesIds=req.body.sales;
+        let date=req.query.date;
+        let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date);
+        res.header('Access-Control-Expose-Headers','x-total-count');
+        res.setHeader('x-total-count',response.totalCount);
+        return res.status(200).send(response.sales);
+    }
+
+    async delSalesBySuperAdmin(req:Request,res:Response){
+        let salesIds:Array<number>=req.body;
+        let date:string = req.query.date;
+        await this.salesRequestService.deleteSalesBySuperAdmin(salesIds,date);
+        return res.status(204).send();
+    }
+
+    async ticketDebSeller(req:Request,res:Response){
+        return res.status(200).send("MUCHO TEXTO");
+    }
+
+    async getDelSalesBySuperAdmin(req:Request,res:Response){
+        let date:string = req.query.date;
+        let report:string = await this.salesRequestService.getDelSalesReport(date);
+        pdf.create(report, {
+            format: 'Letter',
+            border: {
+                top: "1cm", 
+                right: "1cm",
+                bottom: "1cm",
+                left: "1cm"
+            }
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=deleted.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async tranfersSalesToSaes(req:Request,res:Response){
+        let saleId:number = +req.query.saleId;
+        await this.salesRequestService.transferAllSalesAutorized(saleId);
+        res.status(204).send();
     }
 
 } 
