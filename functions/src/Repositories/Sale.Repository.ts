@@ -123,4 +123,14 @@ export class SaleRepository{
         });
     }
 
+    async getSalesBetweenDates(date:string){
+        await this.getConnection();
+        let dateInit=date+'T00:00:00';
+        let dateEnd=date+'T23:59:59';
+
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{dateInit,dateEnd,typeSale:"CREDITO",typeSale2:"DELETED"})
+        .leftJoinAndSelect("sale.seller","seller").leftJoinAndSelect("sale.client","client").getMany();
+        return sales;
+    }
+
 }

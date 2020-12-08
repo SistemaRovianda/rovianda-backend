@@ -64,7 +64,7 @@ const config: ConnectionOptions = {
     username: "admin",//"root",//"master_rovianda",//
     password: "Holamundo1250",//"Sistemas2020",//
     database: "new_rovianda",//"rovianda-test-dev","bd_rovianda",//
-    synchronize: false,
+    synchronize: true,
     logging: false,
     debug:false,
     entities: [

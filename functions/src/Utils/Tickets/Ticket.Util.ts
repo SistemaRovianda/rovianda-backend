@@ -34,6 +34,7 @@ export class TicketUtil{
             ${sale.client.name}
             Colonia: ${sale.client.address.suburb}
             Cp: ${sale.client.address.cp}
+            Tipo de venta: ${sale.typeSale}
             --------------------------------
             DESCR   CANT    PRECIO  IMPORTE
             --------------------------------
@@ -57,7 +58,17 @@ export class TicketUtil{
             Piezas: ${pieces}
 
             *** GRACIAS POR SU COMPRA ***
+            \n
+            \n
+            \n
+            \n
+            \n
+            \n
+            \n
+            \n
         `;
+
+        ticket+=ticket;
         return ticket;
     }
 

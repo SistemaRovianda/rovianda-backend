@@ -219,7 +219,7 @@ export class SalesRequestController{
 
     async tranfersSalesToSaes(req:Request,res:Response){
         let saleId:number = +req.query.saleId;
-        await this.salesRequestService.transferAllSalesAutorized(saleId);
+        await this.salesRequestService.transferAllSalesAutorized();
         res.status(204).send();
     }
 

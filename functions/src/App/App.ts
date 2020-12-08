@@ -5,6 +5,8 @@ import { routesToExpress } from '../Routes/Index';
 import { FileRequest, routeInterface } from '../Models/Route.Interface';
 import { ErrorHandler } from '../Utils/Error.Handler';
 import * as fileMiddleware from 'express-multipart-file-parser';
+import { SalesRequestController } from '../Controllers/Sales.Controller';
+import { SalesRequestService } from '../Services/Sales.Request.Service';
 //const expressF=require("express-formidable");
 
 
@@ -66,3 +68,12 @@ export class App extends ErrorHandler{
 
 
 export const app = functions.https.onRequest( new App().app);
+
+//export const appCron = functions.pubsub.schedule('10 0 * * *')
+export const appCron = functions.pubsub.schedule('51 14 * * *')
+.timeZone('America/New_York').onRun(async (context)=>{
+   console.log("Se programo una cloud function a las 11 10 pm");
+    
+    let saleService:SalesRequestService = new SalesRequestService(null);
+    await saleService.transferAllSalesAutorized();
+})

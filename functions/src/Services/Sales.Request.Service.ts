@@ -623,7 +623,7 @@ export class SalesRequestService{
       saleGral.seller=seller;
       let date = new Date();
       date.setHours(date.getHours()-6);
-      saleGral.date = date.toISOString();
+      saleGral.date = date.toLocaleString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
       if(saleRequestForm.credit && saleRequestForm.typeSale=="CREDITO"){
@@ -642,7 +642,7 @@ export class SalesRequestService{
        subSale.product = presentation.productRovianda;
        subSale.quantity=sale.quantity;
        
-       let exist = await this.sqlsRepository.getProductExist(presentation.keySae,sale.quantity);
+       let exist = await this.sqlsRepository.getProductExist(presentation.keySae,sale.quantity,seller.warehouseKeySae);
        console.log("buscando existencia en stock");
        if(!presentation) throw new Error("[404], no existe la presentacion del producto en el sistema rovianda");
        let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
@@ -683,7 +683,8 @@ export class SalesRequestService{
                       break;
         }*/
         sale.price= price;
-        if((productSae[0].UNI_MED as string).toLowerCase()=="pz"){
+        let unidMed=(productSae[0].UNI_MED as string).toLowerCase();
+        if(unidMed=="pz"){
           sale.total = price*sale.quantity;
         }else{
           sale.total = price*sale.weight;
@@ -696,6 +697,7 @@ export class SalesRequestService{
         sellerInventory.quantity-=sale.quantity;
         
         await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+        
      }
      saleGral.amount = saleGral.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
      console.log("SaleGral: "+saleGral.amount);
@@ -703,24 +705,28 @@ export class SalesRequestService{
        saleRequestForm.payed=saleGral.amount-saleGral.credit;
      }
      console.log("SaleGral: "+saleGral.credit);
-     if(saleRequestForm.payed<saleGral.amount){
-        saleGral.debts= new Array<Debts>();
-       let debs:Debts = new Debts();
-       debs.amount=saleGral.amount-saleRequestForm.payed;
-       let date=new Date();
-        date.setHours(date.getHours()-6)
-        debs.createDay= date.toISOString();
-        debs.days=saleRequestForm.days;
-        debs.status=true;
-        debs.seller=seller;
-        saleGral.debts.push(debs);
-      clientRovianda.hasDebts=true;
-      saleGral.status=true;
-      await this.clientRepository.saveClient(clientRovianda);
-     }else{
+    //  if(saleRequestForm.payed<saleGral.amount){
+    //     saleGral.debts= new Array<Debts>();
+    //    let debs:Debts = new Debts();
+    //    debs.amount=saleGral.amount-saleRequestForm.payed;
+    //    let date=new Date();
+    //     date.setHours(date.getHours()-6)
+    //     debs.createDay= date.toISOString();
+    //     debs.days=saleRequestForm.days;
+    //     debs.status=true;
+    //     debs.seller=seller;
+    //     saleGral.debts.push(debs);
+    //   clientRovianda.hasDebts=true;
+    //   saleGral.status=true;
+    //   await this.clientRepository.saveClient(clientRovianda);
+    //  }else{
        saleGral.status=false;
+    // }
+     let lastSale =null;
+     lastSale= await this.saleRepository.getLastSale();//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+     if(!lastSale){
+      lastSale = await this.sqlsRepository.getLastFolioCount();
      }
-     let lastSale =await this.saleRepository.getLastSale();//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
       let folio ="";
       if(lastSale){
        folio=(+lastSale.folio+1).toString();
@@ -733,6 +739,7 @@ export class SalesRequestService{
      console.log("SALE REQUEST FORM: ",JSON.stringify(saleRequestForm));
      let saleSaved:Sale =await this.saleRepository.saveSale(saleGral);
      console.log("iniciando proceso de grabado");
+     
      return saleSaved;
     }
 
@@ -847,6 +854,9 @@ export class SalesRequestService{
         folioInit++;
         }else{
           sale.typeSale="DELETED";
+          let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+          sale.subSales=subSales;
+          await this.sqlsRepository.updateProductInSaeBySellerWarehouses(sale);
         }
         await this.saleRepository.saveSale(sale);
       }
@@ -861,11 +871,24 @@ export class SalesRequestService{
        return await this.ticketUtil.getAllDeletesTickets(sales);
     }
 
-    async transferAllSalesAutorized(saleId:number){
-      let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
-      let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-      sale.subSales=subSales;
-      return await this.sqlsRepository.createSaleSae(sale);
+    async transferAllSalesAutorized(){
+      let date=new Date();
+      date.setHours(date.getHours()-6);
+
+      let year = date.getFullYear();
+      let month= ((date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1).toString());
+      let day = date.getDate()<10?('0'+date.getDate()):date.getDate();
+      console.log(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
+      console.log(date.getHours()+"-"+date.getMinutes());
+      let sales:Sale[] =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
+
+      // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      for(let sale of sales){
+        let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+        sale.subSales=subSales;
+        await this.sqlsRepository.createSaleSae(sale);
+      }
+      
     }
   }
 

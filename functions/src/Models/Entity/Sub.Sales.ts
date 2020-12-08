@@ -22,7 +22,7 @@ export class SubSales{
     @JoinColumn({name:"presentation_id"})
     presentation:PresentationProducts;
 
-    @Column()
+    @Column({type:"float"})
     quantity:number;
 
     @Column({name:"lote_id"})
@@ -30,5 +30,6 @@ export class SubSales{
 
     @Column()
     amount:number;
+
 
 }
