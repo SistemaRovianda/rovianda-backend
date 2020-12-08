@@ -291,7 +291,7 @@ export class PackagingService{
                     }else{
                         valueToSave=pack.weight;
                     }
-                    await this.sqlRepository.updateProductInSaeBySellerWarehouse(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
+                    await this.sqlRepository.updateProductInSaeBySellerWarehouseStock(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
                     await this.subOrderRepository.saveSalesProduct(subOrder); 
                     await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
                     

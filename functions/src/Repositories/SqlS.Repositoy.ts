@@ -1078,4 +1078,88 @@ export class SqlSRepository{
         });
         await this.connection.close();
     }
+
+    async updateProductInSaeBySellerWarehouseStock(warehouseId:number,productKeySae:string,units:number,sellerKeySae:string,uniMed:string){
+        await this.getConnection();
+        await this.connection.connect().then(async(pool)=>{
+            
+                let warehouseSeller = await pool.request()
+                .input('CVE_ALM',Int,warehouseId).input('CVE_ART',VarChar,productKeySae).input('STATUS',VarChar,'A')
+                .query(
+                    `
+                     select CVE_ART,CVE_ALM,EXIST,STOCK_MAX FROM MULT01 WHERE CVE_ART=@CVE_ART AND CVE_ALM=@CVE_ALM AND STATUS=@STATUS
+                    `
+                );
+                let dateParse = new Date()
+                dateParse.setHours(dateParse.getHours()-6)
+                let dateStr=dateParse.toISOString().slice(0, 19).replace('T', ' ')
+                if(warehouseSeller.recordset.length){
+                    let warehouse:any = warehouseSeller.recordset[0];
+                    if(warehouse.EXIST+units>warehouse.STOCK_MAX){
+                        await pool.request().input('CVE_ART',VarChar,productKeySae)
+                        .input('CVE_ALM',Int,warehouseId).input('STOCK_MAX',Float,warehouse.EXIST+units)
+                        .input('EXIST',Float,warehouse.EXIST+units).query(
+                            `UPDATE MULT01 SET STOCK_MAX=@STOCK_MAX,EXIST=@EXIST where CVE_ART=@CVE_ART AND CVE_ALM=@CVE_ALM`
+                        );
+                    }else{
+                        await pool.request().input('CVE_ART',VarChar,productKeySae)
+                        .input('CVE_ALM',Int,warehouseId)
+                        .input('EXIST',Float,warehouse.EXIST+units).query(
+                            `UPDATE MULT01 SET EXIST=@EXIST where CVE_ART=@CVE_ART AND CVE_ALM=@CVE_ALM`
+                        );
+                       
+                    }
+                    await this.updateInventoryGeneralAspeSaeByProduct(productKeySae,units)
+                    await pool.connect();
+                }else{
+                    await pool.request().input('CVE_ART',VarChar,productKeySae).input('CVE_ALM',Int,warehouseId)
+                    .input('STATUS',VarChar,'A').input('CTRL_ALM',VarChar,null).input('EXIST',Float,units).input('STOCK_MIN',Float,0)
+                    .input('STOCK_MAX',Float,units).input('COMP_X_REC',Float,0).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateStr)
+                    .query(
+                        `INSERT INTO MULT01(CVE_ART,CVE_ALM,STATUS,CTRL_ALM,EXIST,STOCK_MIN,STOCK_MAX,COMP_X_REC,UUID,VERSION_SINC)
+                        VALUE(@CVE_ART,@CVE_ALM,@STATUS,@CTRL_ALM,@EXIST,@STOCK_MIN,@STOCK_MAX,@COMP_X_REC,@UUID,@VERSION_SINC)`
+                    );
+    
+                    await this.updateInventoryGeneralAspeSaeByProduct(productKeySae,units);
+                    await pool.connect();
+                }
+                let counts = await pool.request().query(`
+                    SELECT COUNT(*) AS CANTIDAD FROM MINVE01
+                `);
+                let day = dateParse.getDate().toString();
+                if(+day<10){
+                    day='0'+day;
+                }
+                let month = (dateParse.getMonth()+1).toString();
+                if(+month<10){
+                    month='0'+month;
+                }
+                let year = dateParse.getFullYear().toString().slice(2,4);
+                let inve01 = await pool.request().input('CVE_ART',VarChar,productKeySae).input('ALMACEN',Int,warehouseId).query(`
+                SELECT EXIST FROM INVE01 WHERE CVE_ART=@CVE_ART AND ALMACEN=@ALMACEN
+                `)
+                if(counts.recordset.length && inve01.recordset.length){
+                    let count:number = +counts.recordset[0].CANTIDAD;
+                        
+                        await pool.request().input('CVE_ART',VarChar,productKeySae).input('ALMACEN',Int,warehouseId)
+                        .input('NUM_MOV',Int,+count+1).input('CVE_CPTO',Int,6).input('FECHA_DOCU',DateTime,dateParse)
+                        .input('TIPO_DOC',VarChar,'M').input('REFER',VarChar,`IF-${day}${month}${year}`).input('CLAVE_CLPV',VarChar,null)
+                        .input('VEND',VarChar,sellerKeySae).input('CANT',Float,units).input('CANT_COST',Float,0).input('PRECIO',Float,null)
+                        .input('COSTO',Float,0).input('AFEC_COI',VarChar,null).input('CVE_OBS',Int,null).input('REG_SERIE',Int,0)
+                        .input('UNI_VENTA',VarChar,uniMed).input('E_LTPD',Int,0).input('EXIST_G',Float,inve01[0].EXIST).input('EXISTENCIA',Float,units)
+                        .input('TIPO_PROD',VarChar,'P').input('FACTOR_CON',Int,1).input('FECHAELAB',DateTime,dateStr).input('CTL_POL',Int,null)
+                        .input('CVE_FOLIO',VarChar,count.toString()).input('SIGNO',Int,1).input('COSTEADO',VarChar,'S').input('COSTO_PROM_INI',Float,0)
+                        .input('COSTO_PROM_FIN',Float,0).input('COSTO_PROM_GRAL',Float,0).input('DESDE_INVE',VarChar,'S').input('MOV_ENLAZADO',Int,0)
+                        .query(`
+                                INSERT INTO MINVE01(CVE_ART,ALMACEN,NUM_MOV,CVE_CPTO,FECHA_DOCU,TIPO_DOC,REFER,CLAVE_CLPV,VEND,CANT,CANT_COST,PRECIO,COSTO,AFEC_COI,CVE_OBS,
+                                    REG_SERIE,UNI_VENTA,E_LTPD,EXIST_G,EXISTENCIA,TIPO_PROD,FACTOR_CON,FECHAELAB,CTLPOL,CVE_FOLIO,SIGNO,COSTEADO,COST_PROM_INI,
+                                    COSTO_PROM_FIN,COSTO_PROM_GRAL,DESDE_INVE,MOV_ENLAZADO) VALUES(@CVE_ART,@ALMACEN,@NUM_MOV,@CVE_CPTO,@FECHA_DOCU,@TIPO_DOC,@REFER,@CLAVE_CLPV,@VEND,@CANT,@CANT_COST,@PRECIO,@COSTO,@AFEC_COI,@CVE_OBS,
+                                        @REG_SERIE,@UNI_VENTA,@E_LTPD,@EXIST_G,@EXISTENCIA,@TIPO_PROD,@FACTOR_CON,@FECHAELAB,@CTLPOL,@CVE_FOLIO,@SIGNO,@COSTEADO,@COST_PROM_INI,
+                                        @COSTO_PROM_FIN,@COSTO_PROM_GRAL,@DESDE_INVE,@MOV_ENLAZADO)
+                        `);
+                    
+                }
+        });
+        await this.connection.close();
+    }
 }
