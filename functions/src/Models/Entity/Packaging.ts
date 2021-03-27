@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { OvenProducts } from './Oven.Products';
 import { ProductRovianda } from './Product.Rovianda';
 import { PropertiesPackaging } from './Properties.Packaging';
 import { User } from './User';
@@ -30,6 +31,10 @@ export class Packaging{
 
     @Column()
     active:boolean;
+
+    @ManyToOne(type=>OvenProducts,ovenP=>ovenP.packagings,{nullable:true})
+    @JoinColumn({name:"oven_product_id"})
+    ovenProduct:OvenProducts;
 
 }
 

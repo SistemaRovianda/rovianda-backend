@@ -1,11 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Conditioning } from "./Conditioning";
 import { DefrostFormulation } from "./Defrost.Formulation";
-import { Grinding } from "./Grinding";
 import { OutputsCooling } from "./outputs.cooling";
 import { Reprocessing } from "./Reprocessing";
-import { Sausaged } from "./Sausaged";
-import { Tenderized } from "./Tenderized";
 
 @Entity({name:"defrost"})
 export class Defrost{
@@ -13,10 +9,14 @@ export class Defrost{
     @PrimaryGeneratedColumn({name:"defrost_id"})
     defrostId:number;
 
-    @OneToOne(type=>OutputsCooling,{eager:true})
-    @JoinColumn()
-    outputCooling:OutputsCooling;
+    // @OneToOne(type=>OutputsCooling,out=>out.defrostE,{cascade:true})
+    // @JoinColumn()
+    // outputCooling:OutputsCooling;
 
+    @OneToOne(type=>OutputsCooling,output=>output.defrost)
+    @JoinColumn({name:"output_cooling"})
+    outputCooling:OutputsCooling;
+    
     @Column()
     weigth:string;
 

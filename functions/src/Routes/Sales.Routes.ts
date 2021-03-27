@@ -1,6 +1,6 @@
 import { routeInterface } from "../Models/Route.Interface";
 import { SalesRequestController } from '../Controllers/Sales.Controller';
-import { Sale } from "../Models/Entity/Sales";
+
 
 export const salesRoutes:Array<routeInterface>=[
     {
@@ -42,8 +42,27 @@ export const salesRoutes:Array<routeInterface>=[
         url: "/rovianda/seller/order/:orderId/product/:productId", // obtencion de presentaciones de un producto de una orden en especifico
         method: "get",
         controller: SalesRequestController,
+        target: "getPresentationsOfProductOfOrderSellerApp"
+    },
+    {
+        url: "/rovianda/seller/order/:orderId/products", // obtencion de presentaciones de un producto de una orden en especifico
+        method: "get",
+        controller: SalesRequestController,
         target: "getPresentationsOfProductOfOrderSeller"
-    },{
+    },
+    {
+        url: "/rovianda/order-details/:orderId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getDetailsOfOrderSeller"
+    },
+    {
+        url: "/rovianda/order-update/:orderId",
+        method: "put",
+        controller: SalesRequestController,
+        target: "updateDetailsOfOrderSeller"
+    }
+    ,{
         url: "/rovianda/products-rovianda/catalog",
         method: "get",
         controller: SalesRequestController,
@@ -109,6 +128,12 @@ export const salesRoutes:Array<routeInterface>=[
         target: "saveSellerOperation"
     },
     {
+        url: "/rovianda/seller/eat/time/:sellerUid",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getCurrentTime"
+    },
+    {
         url: "/rovianda/seller/eat/:sellerUid", 
         method: "patch",
         controller: SalesRequestController,
@@ -143,6 +168,12 @@ export const salesRoutes:Array<routeInterface>=[
         method:"post",
         controller: SalesRequestController,
         target: "createSaleSae"
+    },
+    {
+        url: "/rovianda/cancel-sale/:saleId",
+        method: "put",
+        controller: SalesRequestController,
+        target: "cancelSale"
     }
     ,
     {
@@ -175,6 +206,12 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getAllSalesSuperadmin"
     },
     {
+        url: "/rovianda/sales-history/:sellerUid",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAllSalesOfDayOfSeller"
+    },
+    {
         url:"/rovianda/sales-superadmin/del",
         method:"post",
         controller:SalesRequestController,
@@ -191,5 +228,29 @@ export const salesRoutes:Array<routeInterface>=[
         method:"post",
         controller:SalesRequestController,
         target:"tranfersSalesToSaes"
+    },
+    {
+        url: "/rovianda/sales-product/:sellerUid/:key",
+        method:"get",
+        controller:SalesRequestController,
+        target:"getProductByKeyToSale"
+    },
+    {
+        url: "/rovianda/inve-product/:key",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getProductsInfoOfInventStock"
+    },
+    {
+        url: "/rovianda/sellers-list",
+        method: "get",
+        controller: SalesRequestController,
+        target:"getListOfSellers"
+    },
+    {
+        url: "/rovianda/seller-resguarded/:sellerUid",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getResguardedOfSeller"
     }
 ];

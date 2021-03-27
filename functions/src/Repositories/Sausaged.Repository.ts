@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Sausaged } from '../Models/Entity/Sausaged';
+import { Process } from '../Models/Entity/Process';
 export class SausagedRepository{
     private sausagedRepository:Repository<Sausaged>;
 
@@ -37,5 +38,10 @@ export class SausagedRepository{
         INNER JOIN products_rovianda ON sausaged.product_id = products_rovianda.id
         INNER JOIN process ON sausaged.id = process.sausage_id
         WHERE process.id= ${processid};`)
+    }
+
+    async getSausagesByProcessEntity(process:Process){
+        await this.getConnection();
+        return await this.sausagedRepository.find({process});
     }
 }

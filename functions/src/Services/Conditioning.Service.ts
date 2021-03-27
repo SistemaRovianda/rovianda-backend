@@ -17,6 +17,7 @@ import { Defrost } from '../Models/Entity/Defrost';
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
 import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
 import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 
 
 export class ConditioningService{
@@ -25,13 +26,14 @@ export class ConditioningService{
     private defrostFormulationRepository:DefrostFormulationRepository;
     private formulationService:FormulationService;
     private formulationRepository:FormulationRepository;
-    
+    private defrostRepository:DefrostRepository
     constructor(){
         this.conditioningRepository = new ConditioningRepository();
         this.processRepository = new ProcessRepository();
         this.defrostFormulationRepository = new DefrostFormulationRepository();
         this.formulationService = new FormulationService();
         this.formulationRepository = new FormulationRepository();
+        this.defrostRepository = new DefrostRepository();
     }
     async createProcessInter():Promise<Process>{
         let process:Process = new Process();
@@ -65,7 +67,10 @@ export class ConditioningService{
             process.conditioning=new Array();
             await this.formulationRepository.saveFormulation(formulation);
         }
-    
+        process.typeProcess = formulation.typeFormulation;
+        if(formulation.ingredientsIds!=null){
+            process.ingredientsIds=formulation.ingredientsIds;
+        }
     for(let conditioningDTO of conditioningsDTO ){
         if (conditioningDTO.bone == null)  throw new Error("[400],bone is required");
         if (conditioningDTO.clean == null)  throw new Error("[400],clean is required");
@@ -74,11 +79,10 @@ export class ConditioningService{
         if (conditioningDTO.weight<1) throw new Error("[400],el peso no puede ser menor a 1");
         if (!conditioningDTO.temperature)  throw new Error("[400],temperature is required");
         if (!conditioningDTO.date)  throw new Error("[400],date is required");
-        
-    
-    
     let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(conditioningDTO.defrostId);
     let conditioning :Conditioning = new Conditioning();
+    let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostFormulation.defrost.defrostId);
+    defrostFormulation.defrost=defrost;
     conditioning.raw = defrostFormulation.defrost.outputCooling.rawMaterial.rawMaterial;
     conditioning.bone = conditioningDTO.bone;
     conditioning.clean = conditioningDTO.clean;

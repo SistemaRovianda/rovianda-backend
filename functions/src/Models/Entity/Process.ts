@@ -79,6 +79,12 @@ export class Process{
     @OneToMany(type=>Reprocessing,reprocesing=>reprocesing.process,{cascade:true})
     reprocesings:Reprocessing[];
 
+    @Column({name:"type_process",default:"PRODUCT"})
+    typeProcess:string;
+
+    @Column({name:"ingredients_process_ids",nullable:true})
+    ingredientsIds:string;
+
 }
 
 

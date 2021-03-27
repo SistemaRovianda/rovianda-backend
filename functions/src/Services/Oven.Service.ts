@@ -32,6 +32,14 @@ export class OvenService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
+    async getByProcessIds(processIds:number[]){
+        return await this.ovenRepository.findByProcessIds(processIds);
+    }
+
+    async getByProcessIdsAndStatus(processIds:number[],status:string){
+        return await this.ovenRepository.findByProcessIdsAndStatus(processIds,status);
+    }
+
     async getOvenProducts(status) {
         if(!status) throw new Error("[400], status is required");
         if(status == OvenProductStatusEnum.CLOSED || status == OvenProductStatusEnum.OPENED){
@@ -92,8 +100,8 @@ export class OvenService{
         return response;
     }
 
-    async updateOvenProductStatus(id: number) {
-
+    async updateOvenProductStatus(id: number,observations:string) {
+        
         if (isNaN(+id) || +id < 1)
             throw new Error(`[400],invalid id param value`);
 
@@ -103,7 +111,9 @@ export class OvenService{
             throw new Error(`[404],OvenProduct with id ${id} was not found`);
 
         ovenProducts.status = OvenProductStatusEnum.CLOSED;
-
+        if(observations){
+        ovenProducts.observations = observations;
+        }
         try {
             await this.ovenRepository.saveOvenProduct(ovenProducts);
         } catch (err) {
@@ -111,12 +121,9 @@ export class OvenService{
         }
     }
 
-    async markUsedOvenProductStatus(id: number) {
+    async markUsedOvenProductStatus(id: string) {
 
-        if (isNaN(+id) || +id < 1)
-            throw new Error(`[400],invalid id param value`);
-
-        let ovenProducts: OvenProducts | undefined = await this.ovenRepository.getOvensByNewLot(id.toString());
+        let ovenProducts: OvenProducts | undefined = await this.ovenRepository.getOvenProductById(+id);
 
         if(!ovenProducts)
             throw new Error(`[404],OvenProduct with id ${id} was not found`);
@@ -197,10 +204,20 @@ export class OvenService{
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
         console.log("hace0a0ss")
         if(!product) throw new Error("[400], product not found");
-        let dateParsed=new Date(ovenDTO.date);
+        let dateParsed=new Date(ovenDTO.assignmentLot.dateEntry);
+        let day = dateParsed.getDate().toString();
+        let month = (dateParsed.getMonth()+1).toString();
+        let year = (dateParsed.getFullYear()).toString().slice(2,4);; 
+        if(+day<10){
+            day='0'+day;
+        }
+        if(+month<10){
+            month='0'+month;
+        }
+        
         let oven:OvenProducts = new OvenProducts();
         oven.stimatedTime = ovenDTO.estimatedTime;
-        oven.newLote = ovenDTO.assignmentLot.newLotId+(dateParsed.getDate()<10?'0'+dateParsed.getDate().toString():dateParsed.getDate())+(dateParsed.getMonth()+1)+dateParsed.getFullYear().toString().slice(2,4);
+        oven.newLote = ovenDTO.assignmentLot.newLotId+(day)+(month)+(year);
         oven.pcc = ovenDTO.pcc;
         oven.oven = ovenDTO.oven;
         oven.date = ovenDTO.date;
@@ -246,7 +263,9 @@ export class OvenService{
             return {
                 productId: ovenClosed.product.id,
                 name: ovenClosed.product.name,
-                lot: ovenClosed.newLote
+                lot: ovenClosed.newLote,
+                observations: ovenClosed.observations,
+                ovenId: ovenClosed.id
             }
         })
         return result;

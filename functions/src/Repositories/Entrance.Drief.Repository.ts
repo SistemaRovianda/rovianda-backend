@@ -1,4 +1,4 @@
-import { Repository, Between } from "typeorm";
+import { Repository, Between, MoreThanOrEqual } from "typeorm";
 import { EntranceDrief } from "../Models/Entity/Entrances.Drief";
 import { connect } from "../Config/Db";
 import { Product } from "../Models/Entity/Product";
@@ -24,7 +24,7 @@ export class EntranceDriefRepository{
 
     async getEntranceDriefById(id:number){
         await this.getConnection();
-        return await this.repository.findOne({id}, {relations:["product"]});
+        return await this.repository.findOne({id}, {relations:["product","warehouseDrief"]});
     }
 
     async deleteEntranceDrief(entranceDriefId:number){
@@ -63,6 +63,12 @@ export class EntranceDriefRepository{
         return await this.repository.query(`
         SELECT * FROM entrances_drief WHERE productId = ${productId}
         `);
+    }
+
+    async findByLotId(loteId:string,date:string,page:number,peerPage:number){
+        let skip = page*peerPage;
+        await this.getConnection();
+        return await this.repository.find({select:["id","proveedor","loteProveedor","date","quantity"],where:{loteProveedor:loteId,date:MoreThanOrEqual(date)},relations:["product"],take:peerPage,skip});
     }
 
 }

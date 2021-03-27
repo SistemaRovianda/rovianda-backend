@@ -15,9 +15,39 @@ export const clientRoutes: Array<routeInterface> = [
         target: "createSellerCustomer"
     },
     {
+        url: "/rovianda/seller/customer/schedule",
+        method: "get",
+        controller: ClientController,
+        target: "getScheduleCustomerBySeller"
+    },
+    {
+        url: "/rovianda/seller/customer/schedule/:clientId",
+        method: "post",
+        controller: ClientController,
+        target: "createVisitToClient"    
+    },
+    {
+        url: "/rovianda/seller/customer/schedule/:clientId",
+        method: "put",
+        controller: ClientController,
+        target: "endVisitToClient"
+    },
+    {
         url: "/rovianda/customer/customer-count",
         method: "get",
         controller: ClientController,
         target: "getCustomerCount"
+    },
+    {
+        url:"/rovianda/customer/client-key/:key",
+        method:"get",
+        controller: ClientController,
+        target: "getClientByKey"
+    },
+    {
+        url: "/rovianda/customer/delete-client/:id",
+        method: "delete",
+        controller: ClientController,
+        target: "deleteClient"
     }
 ]

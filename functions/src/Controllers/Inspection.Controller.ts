@@ -31,4 +31,10 @@ export class InspectionController{
             return res.status(201).send();
     }
 
+    async setEndedInspection(req:Request,res:Response){
+        let ovenProductId:number = +req.params.ovenProductId;
+            await this.inspectionService.endedInspection(ovenProductId);
+        return res.status(204).send();
+    }
+
 }

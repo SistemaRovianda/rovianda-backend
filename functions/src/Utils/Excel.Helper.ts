@@ -16,12 +16,30 @@ import { Packaging } from '../Models/Entity/Packaging';
 import { PropertiesPackaging } from '../Models/Entity/Properties.Packaging';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Process } from "../Models/Entity/Process";
-import { Conditioning } from "../Models/Entity/Conditioning";
-import { Sausaged } from "../Models/Entity/Sausaged";
-import { Tenderized } from "../Models/Entity/Tenderized";
+
+import { Inspection } from "../Models/Entity/Inspection";
+import { UserRepository } from "../Repositories/User.Repository";
+import { PresentationsProductsRepository } from "../Repositories/Presentation.Products.Repository";
+import { SalesRequestRepository } from "../Repositories/SalesRequest.Repostitory";
+import { SubOrderMetadataRepository } from "../Repositories/SubOrder.Metadata.Repository";
+import { SalesSellerRepository } from "../Repositories/SaleSeller.Repository";
+import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata";
+import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from "../Models/DTO/PackagingDTO";
 
 
 export default class Excel4Node{
+    private userRepository:UserRepository;
+    private presentationProductRepository:PresentationsProductsRepository;
+    private subOrdersRepository:SalesRequestRepository;
+    private subOrdersMetadataRepository:SubOrderMetadataRepository;
+    private orderSellerRepository:SalesSellerRepository;
+    constructor(){
+        this.userRepository = new UserRepository();
+        this.presentationProductRepository = new PresentationsProductsRepository();
+        this.subOrdersRepository = new SalesRequestRepository();
+        this.subOrdersMetadataRepository = new SubOrderMetadataRepository();
+        this.orderSellerRepository = new SalesSellerRepository();
+    }
 
     generateFormulationDocumentByDates(formulationData: Formulation[]){
         console.log(formulationData);
@@ -167,6 +185,193 @@ export default class Excel4Node{
         return workbook;//se retorna el workbook
     }
   
+    async generateEndedProductReportDocument(items:{ovenProduct:OvenProducts,inspection:Inspection[]}[]){
+        let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
+        var workbook = new excel.Workbook(); 
+
+        let worksheet = workbook.addWorksheet('Producto Terminado'); //Se añade una hoja de calculo y se pasa el nombre por parametro
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');// Se convierte a buffer el base64 (solo el base64 no la informacion de tipo de archivo)
+
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);//Se crea el archivo imagen en la carpeta temporal
+
+        worksheet.addImage({ //comando para añadir una imagen
+            path: `${tmp}/imageTmp.png`,//path de la imagen
+            name: 'logo', // nombre no es obligatorio
+            type: 'picture', // el tipo de archivo
+            position: { // existen diferentes posiciones
+                type: 'twoCellAnchor', //oneCellAnchor para respetar tamaño de imagen y solo se manda from
+                //twoCellAnchor para modificar el tamaño de imagen y se manda from y to
+                from: { //
+                  col: 1,//columna donde empieza la esquina superior izquierda
+                  colOff: '1in', //margen
+                  row: 1, // fila donde empieza la esquina superior izquierda
+                  rowOff: '0.1in', // margen 
+                },
+                to: {
+                    col: 3, // columna donde termina la esquina inferior derecha
+                    colOff: '1in',
+                    row: 8, // fila donde termina la esquina inferior derecha
+                    rowOff: '0.1in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({ // se crea un nuevo estilo
+            font: {
+              color: '#000000',//colo formato html hexadecimal
+              size: 12, //tamaño de la fuente
+            },
+            border: { //configuracion de bordes
+                top: {
+                    style:'double' //stilo de borde
+                    //colo: #FFFFFF color de borde
+                },
+                bottom: {
+                    style:'double'//existen mas estilos de borde, consultar documentacion
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { //alineacion de columnas
+                wrapText: true //alinear en base al texto
+            }
+        });
+
+        let styleUser = workbook.createStyle({//se puede crear mas de un estilo
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        })
+        //worksheet.cell(n,m).string("HOLA MUNDO") crea una celda en la fila n, columna m con el texto "HOLA MUNDO"
+        //worksheet.cell(n,m,o,p,false).string("NA") llena las celdas del rango de la fila n columna m, hasta fila o columna p, con el texto "NA"
+        //worsheet.cell(n,m,o,p, true).string("BIG PUPPA") Crea una mega celda con el rango de la fila n columna m, hasta la fila o columna p
+        worksheet.cell(2, 5, 2, 11, true).string("BITACORA DE CONTROL DE PRODUCTO TERMINADO").style({//se crea una nueva celda 
+            font: {
+                bold: true
+            },
+            alignment: {
+                wrapText: true,
+                horizontal: 'center',//alineamiento del texto
+            }
+        });
+
+        
+
+        let row = 9;
+        let col = 4;
+
+        for (let i = 0; i < items.length; i++) {
+            for(let inspection of items[i].inspection){
+                let totalLot:number = +inspection.numberPackages;
+                let userInspector:User = await this.userRepository.getUserById(inspection.userIspector);
+                let presentationProduct  = await this.presentationProductRepository.getPresentationProductsById(inspection.presentationId);
+                console.log(inspection.productId.name,inspection.productId.id,presentationProduct.presentationType,presentationProduct.id);
+                let subOrders =  await this.subOrdersRepository.getByProductAndPresentation(inspection.productId,presentationProduct,false);
+                console.log("Suborders: "+subOrders.length);
+                let subOrdersIds = subOrders.map(x=>x.subOrderId);
+                let subOrdersMetadata:SubOrderMetadata[] = await this.subOrdersMetadataRepository.findBySubOrdersIdsAndLotId(subOrdersIds,inspection.lotId);
+                for(let subOrderM of subOrdersMetadata){
+                    let subOrder = await this.subOrdersRepository.getSubOrderById(subOrderM.subOrder.subOrderId);
+                    subOrderM.subOrder = subOrder;
+                    let orderSeller = await this.orderSellerRepository.getOrderById(subOrder.orderSeller.id);
+                    subOrderM.subOrder.orderSeller = orderSeller;
+                }
+            worksheet.cell(row, col, row, col+2, true).string(`Nombre: ${ userInspector.name }`).style(styleUser);
+            worksheet.cell(row+1, col, row+1, col+2, true).string("Firma:  ").style(styleUser);
+            worksheet.cell(row+2, col, row+2, col+2, true).string(`Puesto: ${userInspector.job }`).style(styleUser);
+    
+            
+            worksheet.cell(row+3, col, row+3, col+2, true).string(`Producto: ${inspection.productId.name} ${presentationProduct.presentationType} `).style(style);
+            worksheet.cell(row+3, col+1, row+3, col+1, true).string(`Lote y caducidad: `).style(style);
+            worksheet.cell(row+3, col+2, row+3, col+2, true).string(`Fecha de ingreso: ${inspection.expirationDate}`).style(style);
+            worksheet.cell(row+4, col,  row+4, col,   true).string("Número de paquetes o piezas: "+inspection.numberPackages).style(style);
+    
+            worksheet.cell(row+5, col,   row+5, col,   true).string("Control").style(style);
+            worksheet.cell(row+5, col+1, row+5, col+1, true).string("Estandar").style(style);
+            worksheet.cell(row+5, col+2, row+5, col+2, true).string("Aceptado").style(style);
+            worksheet.cell(row+5, col+3, row+5, col+3, true).string("Rechazado").style(style);
+            worksheet.cell(row+5, col+4, row+5, col+4, true).string("Observaciones").style(style);
+            
+            worksheet.cell(row+6, col,   row+6, col,   true).string("Empaque").style(style);
+            worksheet.cell(row+6, col+1, row+6, col+1, true).string("Sin daños y limpio").style(style);
+            worksheet.cell(row+6, col+2, row+6, col+2, true).string(` ${inspection.packagingControl==true? "xxx" : ""} `).style(style);
+            worksheet.cell(row+6, col+3, row+6, col+3, true).string(` ${inspection.packagingControl==false? "xxx" : ""} `).style(style);
+            worksheet.cell(row+6, col+4, row+6, col+4, true).string(`  `).style(style);
+            
+            worksheet.cell(row+7, col,   row+7, col,   true).string("Materia extraña").style(style);
+            worksheet.cell(row+7, col+1, row+7, col+1, true).string("Ausente").style(style);
+            worksheet.cell(row+7, col+2, row+7, col+2, true).string(` ${inspection.foreingMatter==true? "xxx" : ""} `).style(style);
+            worksheet.cell(row+7, col+3, row+7, col+3, true).string(` ${inspection.foreingMatter==false? "xxx" : ""} `).style(style);
+            worksheet.cell(row+7, col+4, row+7, col+4, true).string(`  `).style(style);
+
+            worksheet.cell(row+8, col,   row+8, col,   true).string("Transporte").style(style);
+            worksheet.cell(row+8, col+1, row+8, col+1, true).string("Limpio").style(style);
+            worksheet.cell(row+8, col+2, row+8, col+2, true).string(` ${inspection.transport==true? "xxx" : ""} `).style(style);
+            worksheet.cell(row+8, col+3, row+8, col+3, true).string(` ${inspection.transport==false? "xxx" : ""} `).style(style);
+            worksheet.cell(row+8, col+4, row+8, col+4, true).string(`  `).style(style);
+
+
+            worksheet.cell(row+9, col,   row+9, col,   true).string("Peso por pieza").style(style);
+            worksheet.cell(row+9, col+1, row+9, col+1, true).string("Según empaque").style(style);
+            worksheet.cell(row+9, col+2, row+9, col+2, true).string(` ${inspection.weightPerPiece==true? "xxx" : ""} `).style(style);
+            worksheet.cell(row+9, col+3, row+9, col+3, true).string(` ${inspection.weightPerPiece==false? "xxx" : ""} `).style(style);
+            worksheet.cell(row+9, col+4, row+9, col+4, true).string(`  `).style(style);
+
+            worksheet.cell(row+10, col,   row+10, col,   true).string("Peso por pieza").style(style);
+            worksheet.cell(row+10, col+1, row+10, col+1, true).string("Según empaque").style(style);
+            worksheet.cell(row+10, col+2, row+10, col+2, true).string(` ${inspection.weightPerPiece==true? "xxx" : ""} `).style(style);
+            worksheet.cell(row+10, col+3, row+10, col+3, true).string(` ${inspection.weightPerPiece==false? "xxx" : ""} `).style(style);
+            worksheet.cell(row+10, col+4, row+10, col+4, true).string(`  `).style(style);
+
+            worksheet.cell(row+11,col,row+11,col,true).string("Día de salida").style(style);
+            worksheet.cell(row+11,col+1,row+11,col+1,true).string("Cliente o vendedor").style(style);
+            worksheet.cell(row+11,col+2,row+11,col+2,true).string("Cantidad entregada").style(style);
+            worksheet.cell(row+11,col+3,row+11,col+3,true).string("Cantidad del lote").style(style);
+            row=row+12;
+            
+            for(let subOrderM of subOrdersMetadata){
+                totalLot-=subOrderM.quantity;
+
+                worksheet.cell(row,col,row,col,true).string(subOrderM.outputDate.split("T")[0]).style(style);
+                worksheet.cell(row,col+1,row,col+1,true).string(subOrderM.subOrder.orderSeller.seller.name).style(style);
+                worksheet.cell(row,col+2,row,col+2,true).string(`${subOrderM.quantity}`).style(style);
+                worksheet.cell(row,col+3,row,col+3,true).string(`${totalLot}`).style(style);
+                row++;
+                
+            }
+            
+            row = row + 7; 
+            }
+
+        }
+        //ya que las hojas de calculo son entre comillas "matrices", los datos se deben manejar como tal
+        
+
+        return workbook;//se retorna el workbook
+    }
     generatePackingDocumentByDates(user:User,data:EntrancePacking[]){
         let tmp = os.tmpdir(); // se obtiene el path de la carpeta de tmp del sistema , ya que las cloudfunctions son de solo lecutra y para escribir un archivo solo se puede en la carpeta tmp
         var workbook = new excel.Workbook(); 
@@ -1803,7 +2008,145 @@ export default class Excel4Node{
         return workbook;
     }
 
+    generatePackagingsDocument(packagings:Packaging[]){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
 
+        let worksheet = workbook.addWorksheet('Packaging');
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ //comando para añadir una imagen
+            path: `${tmp}/imageTmp.png`,//path de la imagen
+            name: 'logo', // nombre no es obligatorio
+            type: 'picture', // el tipo de archivo
+            position: { // existen diferentes posiciones
+                type: 'twoCellAnchor', //oneCellAnchor para respetar tamaño de imagen y solo se manda from
+                //twoCellAnchor para modificar el tamaño de imagen y se manda from y to
+                from: { //
+                  col: 3,//columna donde empieza la esquina superior izquierda
+                  colOff: '0in', //margen
+                  row: 2, // fila donde empieza la esquina superior izquierda
+                  rowOff: '0in', // margen 
+                },
+                to: {
+                    col: 4, // columna donde termina la esquina inferior derecha
+                    colOff: '0in',
+                    row: 6, // fila donde termina la esquina inferior derecha
+                    rowOff: '0in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        });
+
+            worksheet.cell(2, 6, 2, 11, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(4, 6, 4, 11, true).string("BITÁCORA DE CONTROL DE REBANADO Y EMPACADO").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(6, 4, 6, 5, true).string(`Fecha: ${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}`).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+
+            let row = 8;
+            for(let pack of packagings){
+                worksheet.cell(row, 3, row, 4,  true).string(`PRODUCTO`).style(styleUser);
+                worksheet.cell(row, 5, row, 6,  true).string(`LOTE Y CADUCIDAD`).style(styleUser);
+                worksheet.cell(row, 7, row, 8,  true).string(`PRESENTACIONES`).style(styleUser);
+                worksheet.cell(row, 9, row, 9,  true).string(`UNIDADES`).style(styleUser);
+                worksheet.cell(row, 10,row, 10, true).string(`PESO KG`).style(styleUser);
+                worksheet.cell(row, 11,row, 12, true).string(`OBSERVACIONES`).style(styleUser);
+                worksheet.cell(row, 13,row, 14, true).string(`USUARIOS`).style(styleUser);
+                
+                worksheet.cell(row+1, 3, row+1, 4,  true).string(`${pack.productId == null ? " " : pack.productId.name}`).style(style);
+                worksheet.cell(row+1, 5, row+1, 6,  true).string(`${pack.lotId? pack.lotId:""} (Cad. ${pack.expiration})`).style(style);
+                
+                let presentaciones="";
+                                   
+                for(let i = 0 ; i < pack.propertiesPackaging.length ; i++){
+                    let propertyEntity:PropertiesPackaging = pack.propertiesPackaging[i];
+                    
+                    presentaciones=`${propertyEntity.presentation.presentationType}\n`
+                    worksheet.cell(row+1, 7, row+1, 8, true).string(presentaciones).style(style);
+
+                    worksheet.cell(row+1, 9, row+1, 9,  true).string(`${propertyEntity.outputOfWarehouse || " "}`).style(style);
+                    worksheet.cell(row+1, 10,row+1, 10, true).string(`${ propertyEntity.weight||" "}`).style(style);
+                    worksheet.cell(row+1, 11,row+1, 12, true).string(`${propertyEntity.observations||" "}`).style(style);
+                    worksheet.cell(row+1, 13,row+1, 14, true).string(`${pack.userId ==null ? " ": pack.userId.name }`).style(style);
+                    worksheet.cell(row+2, 13,row+2, 14, true).string(`F-CALL-RO-020`).style(styleUser);
+                    row++;
+                }
+                row+=4;
+            }
+        return workbook;
+    }
     generatePackagingDocumentById(data:Packaging, properties:PropertiesPackaging[],presentations:PresentationProducts[]){
         let tmp = os.tmpdir(); 
         var workbook = new excel.Workbook();
@@ -1940,7 +2283,7 @@ export default class Excel4Node{
     }
 
 
-    generateReportProcess(process: Process , conditioning: Conditioning, sausaged: Sausaged, tenderized: Tenderized){
+    generateReportProcess(processArray: Process[]){
         let tmp = os.tmpdir(); 
         var workbook = new excel.Workbook(); 
         let buff = new Buffer(Logo.data.split(',')[1], 'base64');
@@ -2044,7 +2387,9 @@ export default class Excel4Node{
             }
         });
 
+
         row = 5;
+    for(let process of processArray){
 
         worksheet.cell(row, 10).string(`No. lote: ${process.formulation.lotDay}`);
         worksheet.cell(++row, 10).string(`Fecha: ${new Date(process.createAt).toLocaleDateString()}`);
@@ -2065,17 +2410,19 @@ export default class Excel4Node{
 
         worksheet.cell(++row, 4, row, 6, true).string("ACONDICIONAMIENTO").style(styleUser);
 
-        worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
+        
+        for(let conditioning of process.conditioning){
+            worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
         worksheet.cell(row, 6).string("FECHA").style(styleUser);
         worksheet.cell(row, 7).string("PROCESO").style(styleUser);
         worksheet.cell(row, 8, row, 9, true).string("PESO Kg").style(styleUser);
         worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
 
-        worksheet.cell(++row, 4, row, 5, true).string(`${process.conditioning ? "process.conditioning.raw" : ""}`).style(style);
-        worksheet.cell(row, 6).string(`${process.conditioning ? "process.conditioning.date" : ""}`).style(style);
-        worksheet.cell(row, 7).string(`${process.currentProcess ? process.currentProcess : ""}`).style(style);
-        worksheet.cell(row, 8, row, 9, true).string(`${process.conditioning ? "process.conditioning.weight" : "" }`).style(style);
-        worksheet.cell(row, 10, row, 11, true).string(`${conditioning ? conditioning.raw : ""}`).style(style);
+        worksheet.cell(++row, 4, row, 5, true).string(`${conditioning.raw}`).style(style);
+        worksheet.cell(row, 6).string(`${conditioning.date}`).style(style);
+        worksheet.cell(row, 7).string(`${conditioning.process}`).style(style);
+        worksheet.cell(row, 8, row, 9, true).string(`${conditioning.weight}`).style(style);
+        worksheet.cell(row, 10, row, 11, true).string(`${conditioning.raw}`).style(style);
         worksheet.cell(row, 12).string(`clave`).style(styleUser);
         worksheet.cell(row, 13).string(`Proceso`).style(styleUser);
 
@@ -2111,8 +2458,10 @@ export default class Excel4Node{
         worksheet.cell(row, 7).string(``).style(style);
         worksheet.cell(row, 8, row, 9, true).string(``).style(style);
         worksheet.cell(row, 10, row, 11, true).string(``).style(style);
-
+        }
         worksheet.cell(++row, 4, row, 6, true).string("MOLIENDA").style(styleUser);
+        for(let grinding of process.grinding){
+        
 
         worksheet.cell(++row, 4, row, 5, true).string("MATERIA PRIMA").style(styleUser);
         worksheet.cell(row, 6).string("FECHA").style(styleUser);
@@ -2122,14 +2471,16 @@ export default class Excel4Node{
         worksheet.cell(row, 10, row, 11, true).string("PRODUCTO(s)").style(styleUser);
 
         
-        worksheet.cell(++row, 4, row, 5, true).string(`${process.grinding ? "process.grinding.raw" : "" }`).style(styleUser);
-        //worksheet.cell(row, 6).string(`${process.grinding ? "new Date(process.grinding.date").toLocaleDateString() : "" }`).style(styleUser);
-        //worksheet.cell(row, 7).string(`${process.grinding ? "process.grinding.process" : "" }`).style(styleUser);
-        //worksheet.cell(row, 8).string(`${process.grinding ? "process.grinding.weight" : "" }`).style(styleUser);
-        //worksheet.cell(row, 9).string(`${process.temperature ? "process.temperature" : "" }`).style(styleUser);
-        //worksheet.cell(row, 10, row, 11, true).string(`${process.product ? "process.product.name" : "" }`).style(styleUser);
-
+        worksheet.cell(++row, 4, row, 5, true).string(`${grinding.raw.rawMaterial}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${grinding.date ? new Date(grinding.date).toLocaleDateString() : "" }`).style(styleUser);
+        worksheet.cell(row, 7).string(`${grinding.process}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${grinding.weight }`).style(styleUser);
+        worksheet.cell(row, 9).string(`${grinding.temperature }`).style(styleUser);
+        worksheet.cell(row, 10, row, 11, true).string(`${process.formulation.productRovianda.name }`).style(styleUser);
+        }
         worksheet.cell(++row, 4, row, 6, true).string("INYECCION/TENDERIZADO").style(styleUser);
+        for(let tenderized of process.tenderized){
+        
 
         worksheet.cell(++row, 4, row, 5, true).string("PRODUCTO").style(styleUser);
         worksheet.cell(row, 6).string("FECHA").style(styleUser);
@@ -2140,14 +2491,14 @@ export default class Excel4Node{
 
         
         worksheet.cell(++row, 4, row, 5, true).string(`${tenderized.raw == null ? "" : tenderized.raw}`).style(styleUser);
-        worksheet.cell(row, 6).string(`${process.tenderized == null ? "" : "process.tenderized.date"}`).style(styleUser);
-        worksheet.cell(row, 7).string(`${process.tenderized == null ? "" : "process.tenderized.weight"}`).style(styleUser);
-        worksheet.cell(row, 8).string(`${process.tenderized == null ? "" : "process.tenderized.temperature"}`).style(styleUser);
-        worksheet.cell(row, 9, row, 10, true).string(`${process.tenderized == null ? "" : "process.tenderized.weightSalmuera"}`).style(styleUser);
-        worksheet.cell(row, 11).string(`${process.tenderized == null ? "" : "process.tenderized.percentInject"}`).style(styleUser);
-
+        worksheet.cell(row, 6).string(`${tenderized.date}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${tenderized.weight}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${tenderized.temperature}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${tenderized.weightSalmuera}`).style(styleUser);
+        worksheet.cell(row, 11).string(`${tenderized.percentInject}`).style(styleUser);
+        }
         worksheet.cell(++row, 4, row, 6, true).string("EMBUTIDO").style(styleUser);
-
+        for(let sausage of process.sausage){
         worksheet.cell(++row, 4, row, 6, true).string("PRODUCTO").style(styleUser);
         worksheet.cell(row, 7).string("FECHA").style(styleUser);
         worksheet.cell(row, 8).string("T*C").style(styleUser);
@@ -2156,14 +2507,15 @@ export default class Excel4Node{
         worksheet.cell(row, 11).string("PESO kg. Fin(Hra)").style(styleUser);
 
         
-        worksheet.cell(++row, 4, row, 5, true).string(`${sausaged.raw == null ? "" :sausaged.raw}`).style(styleUser);
-        worksheet.cell(row, 6).string(`${process.sausage == null ? "" : "process.sausage.date"}`).style(styleUser);
-        worksheet.cell(row, 7).string(`${process.sausage == null ? "" : "process.sausage.temperature"}`).style(styleUser);
-        worksheet.cell(row, 8).string(`${process.sausage == null ? "" : "process.sausage.weightIni"} (${process.sausage == null ? "" : "process.sausage.hour1"}`).style(styleUser);
-        worksheet.cell(row, 9, row, 10, true).string(`${process.sausage == null ? "" : "process.sausage.weightMedium"} (${process.sausage == null ? "" : "process.sausage.hour2"}`).style(styleUser);
-        worksheet.cell(row, 11).string(`${process.sausage == null ? "" : "process.sausage.weightExit"} (${process.sausage == null ? "" : "process.sausage.hour3"}`).style(styleUser);
+        worksheet.cell(++row, 4, row, 5, true).string(`${sausage.raw}`).style(styleUser);
+        worksheet.cell(row, 6).string(`${sausage.date}`).style(styleUser);
+        worksheet.cell(row, 7).string(`${sausage.temperature}`).style(styleUser);
+        worksheet.cell(row, 8).string(`${sausage.weightIni} (${sausage.hour1}`).style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(`${sausage.weightMedium} ( ${sausage.hour2})`).style(styleUser);
+        worksheet.cell(row, 11).string(`${sausage.weightExit} (${sausage.hour3}`).style(styleUser);
 
         worksheet.cell(++row, 11).string(`F-CAL-RO-07`).style(styleUser);
+        }
         row+=2;
 
         
@@ -2176,6 +2528,243 @@ export default class Excel4Node{
         worksheet.cell(row, 7, row, 8, true).string(`Firma:`).style(styleUser);
         worksheet.cell(row, 9, row, 11, true).string(`Puesto: ${process.jobVerify}`).style(styleUser);
 
+        row+=5;
+    }
+        return workbook;
+    }
+
+    generateInventoryReport(items:LotsStockInventoryPresentation[],title:string){
+        
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Inventario');
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        });
+
+            worksheet.cell(2, 6, 2, 11, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(4, 6, 4, 11, true).string(title).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            let date=new Date();
+            date.setHours(date.getHours()-6);
+            let month = (date.getMonth()+1).toString();
+            let day = date.getDate().toString();
+            if(+month<10) month="0"+month;
+            if(+day<10) day="0"+day;
+            worksheet.cell(6, 4, 6, 5, true).string(`Fecha de impresión: ${date.getFullYear().toString()}-${month}-${day}`).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+
+            let row = 8;
+            worksheet.cell(row, 5, row, 6,  true).string(`PRODUCTO`).style(styleUser);
+                worksheet.cell(row, 7, row, 8,  true).string(`PRESENTACION`).style(styleUser);
+                worksheet.cell(row, 9, row, 10,  true).string(`LOTE`).style(styleUser);
+                worksheet.cell(row, 11, row, 11,  true).string(`UNIDADES`).style(styleUser);
+                worksheet.cell(row, 12,row, 12, true).string(`PESO KG`).style(styleUser);
+
+            for(let item of items){      
+                    worksheet.cell(row+1, 5, row+1, 6, true).string(item.name).style(style);
+                    worksheet.cell(row+1, 7, row+1, 8,  true).string(`${item.type_presentation}`).style(style);
+                    worksheet.cell(row+1, 9,row+1, 10, true).string(`${ item.lot_id}`).style(style);
+                    worksheet.cell(row+1,11,row+1, 11, true).string(`${item.units}`).style(style);
+                    worksheet.cell(row+1, 12,row+1, 12, true).string(`${item.weight}`).style(style);
+                    row++;
+            }
+        return workbook;
+    }
+
+    generatePlantDelivery(records:OutputsDeliveryPlant[],from:string,to:string){
+        let tmp = os.tmpdir(); 
+        var workbook = new excel.Workbook();
+
+        let worksheet = workbook.addWorksheet('Plant');
+
+        let buff = new Buffer(Logo.data.split(',')[1], 'base64');
+        fs.writeFileSync(`${tmp}/imageTmp.png`, buff);
+
+        worksheet.addImage({ //comando para añadir una imagen
+            path: `${tmp}/imageTmp.png`,//path de la imagen
+            name: 'logo', // nombre no es obligatorio
+            type: 'picture', // el tipo de archivo
+            position: { // existen diferentes posiciones
+                type: 'twoCellAnchor', //oneCellAnchor para respetar tamaño de imagen y solo se manda from
+                //twoCellAnchor para modificar el tamaño de imagen y se manda from y to
+                from: { //
+                  col: 3,//columna donde empieza la esquina superior izquierda
+                  colOff: '0in', //margen
+                  row: 2, // fila donde empieza la esquina superior izquierda
+                  rowOff: '0in', // margen 
+                },
+                to: {
+                    col: 4, // columna donde termina la esquina inferior derecha
+                    colOff: '0in',
+                    row: 6, // fila donde termina la esquina inferior derecha
+                    rowOff: '0in',
+                  }
+              }
+          });
+
+        let style = workbook.createStyle({
+            font: {
+              color: '#000000',
+              size: 12, 
+            },
+            border: { 
+                top: {
+                    style:'double' 
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: { 
+                wrapText: true 
+            }
+        });
+
+        let styleUser = workbook.createStyle({
+            font: {
+                bold: true,
+                size: 12
+            },
+            border: {
+                top: {
+                    style:'double'
+                },
+                bottom: {
+                    style:'double'
+                },
+                left: {
+                    style:'double'
+                },
+                right: {
+                    style:'double'
+                }
+            },
+            alignment: {
+                wrapText: true
+            }
+        });
+
+            worksheet.cell(2, 6, 2, 11, true).string("ROVIANDA S.A.P.I. DE C.V").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(4, 6, 4, 11, true).string("SALIDAS DE ALMANCÉN PLANTA").style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+            worksheet.cell(6, 4, 6, 5, true).string(`Fecha de ${from} a ${to}`).style({
+                font: {
+                    bold: true
+                },
+                alignment: {
+                    wrapText: true,
+                    horizontal: 'center',
+                }
+            });
+
+            let row = 8;
+                worksheet.cell(row, 3, row, 4,  true).string(`Vendedor/Tienda/Sucursal`).style(styleUser);
+                worksheet.cell(row, 5, row, 6,  true).string(`Codigo`).style(styleUser);
+                worksheet.cell(row, 7, row, 8,  true).string(`Producto`).style(styleUser);
+                worksheet.cell(row, 9, row, 9,  true).string(`Presentación`).style(styleUser);
+                worksheet.cell(row, 10,row, 10, true).string(`Unidades`).style(styleUser);
+                worksheet.cell(row, 11,row, 12, true).string(`Peso`).style(styleUser);
+                worksheet.cell(row, 13,row, 14, true).string(`Fecha`).style(styleUser);
+                
+            for(let record of records){
+                    worksheet.cell(row+1, 3, row+1, 4,  true).string(`${record.seller}`).style(style);
+                    worksheet.cell(row+1, 5,row+1, 6, true).string(`${ record.code}`).style(style);
+                    worksheet.cell(row+1, 7,row+1, 8, true).string(`${record.name}`).style(style);
+                    worksheet.cell(row+1, 9,row+1, 9, true).string(`${record.presentation }`).style(style);
+                    worksheet.cell(row+1, 10,row+1, 10, true).string(`${record.units}`).style(styleUser);
+                    worksheet.cell(row+1, 11,row+1, 12, true).string(`${record.weight}`).style(styleUser);
+                    worksheet.cell(row+1, 13,row+1, 14, true).string(`${record.outputDate}`).style(styleUser);
+                    row++;
+            }
         return workbook;
     }
 }

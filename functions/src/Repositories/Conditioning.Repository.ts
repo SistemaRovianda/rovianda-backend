@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Conditioning } from '../Models/Entity/Conditioning';
+import { Process } from '../Models/Entity/Process';
 export class ConditioningRepository{
     private conditioningRepository:Repository<Conditioning>;
 
@@ -44,4 +45,9 @@ export class ConditioningRepository{
     //         where: {productId: `${id}`},
     //     });
     // }
+
+    async getByProcessEntity(process:Process){
+        await this.getConnection();
+        return await this.conditioningRepository.find({process});
+    }
 }

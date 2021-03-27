@@ -1,7 +1,8 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Cooling } from '../Models/Entity/Cooling';
 import { Raw } from '../Models/Entity/Raw';
+import { Fridge } from '../Models/Entity/Fridges';
 export class CoolingRepository{
     private coolingRepository:Repository<Cooling>;
 
@@ -26,6 +27,11 @@ export class CoolingRepository{
         return await this.coolingRepository.findOne({id})
     }
 
+    async getCoolingByIdAndStatus(id:number,status:string){
+        await this.getConnection();
+        return await this.coolingRepository.findOne({id,status})
+    }
+
     async getCoollingByStatus(status:string){
         await this.getConnection();
         return await this.coolingRepository.find({
@@ -33,7 +39,22 @@ export class CoolingRepository{
         });
     }
 
-   
+    async getCoolingByLotInterBetweenDates(lotId:string,loteProveedor:string,dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.coolingRepository.find({
+            loteInterno:lotId,openingDate:Between(dateStart,dateEnd),loteProveedor
+        });
+    }
+
+    async getCoolingByLotInterBetweenDatesHistory(lotId:string,dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.coolingRepository.query(
+            `select id as coolingId,opening_date as openingDate,closing_date as closedDate from cooling where lote_interno ="${lotId}" and opening_date between ${dateStart} and ${dateEnd} and status<>"PENDING" ;`
+        );
+        // return await this.coolingRepository.find({
+        //     loteInterno:lotId,openingDate:Between(dateStart,dateEnd)
+        // });
+    }
 
     async getCoollingByFridgeGroup(fridgeId:number,status:string){
         await this.getConnection();
@@ -56,10 +77,11 @@ export class CoolingRepository{
         WHERE cooling.lote_interno = "${loteInterno}" AND cooling.status = "${status}" AND cooling.fridgeFridgeId = ${fridgeId}`);
     }
 
-    async getCollingByLotInterno(loteInterno:string){
+    async getCollingByLotInterno(loteInterno:string,fridge:Fridge){
         await this.getConnection();
         return await this.coolingRepository.find({
             where: {loteInterno: `${loteInterno}`},
+            // where: {loteInterno: `${loteInterno}`,fridge},
         });
     }
 

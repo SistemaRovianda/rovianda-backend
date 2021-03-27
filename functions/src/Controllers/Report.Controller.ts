@@ -30,6 +30,9 @@ import { TenderizedService } from '../Services/Tenderized.Service';
 import Excel4Node from "../Utils/Excel.Helper" 
 import * as os from "os";
 import * as fs from "fs";
+const fsP =require("fs-path");
+const multer = require("multer");
+const pdfMergeL = require('easy-pdf-merge');
 import { Packaging } from '../Models/Entity/Packaging';
 import { PackagingService } from '../Services/Packaging.Service';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
@@ -40,7 +43,18 @@ import { DryingLabel } from '../Models/Entity/Dryng.Label';
 import { DryngLabelService } from '../Services/Dring.Label.Service';
 import { ProductService } from '../Services/Product.Services';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
-
+import { OutputsCooling } from '../Models/Entity/outputs.cooling';
+import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
+import { Defrost } from '../Models/Entity/Defrost';
+import { DefrostRepository } from '../Repositories/Defrost.Repository';
+import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
+import { FormulatioIngredientsRepository } from '../Repositories/Formulation.Ingredients.Repository';
+import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+import { InspectionRepository } from '../Repositories/Inspection.Repository';
+import { Inspection } from '../Models/Entity/Inspection';
+import { EndedProductReport } from '../Utils/componentsReports/endedProductReports';
+import {DeliveredProductWarehouse} from "../Utils/componentsReports/DeliveredProductWarehouse";
+const pdfMerger = require("pdf-merger-js");
 export class ReportController{
 
     private entranceDriefService: EntranceDriefService;
@@ -61,6 +75,14 @@ export class ReportController{
     private productService: ProductService;
     private pdfHelper: PdfHelper;
     private excel: Excel4Node;
+    private  outputCoolingRepository:OutputsCoolingRepository;
+    private defrostRepository:DefrostRepository;
+    private defrostFormulationRepository:DefrostFormulationRepository;
+    private formulationIngredientsRepository:FormulatioIngredientsRepository;
+    private propertiesPackagingRepository:PropertiesPackagingRepository;
+    private inspectionRepository:InspectionRepository;
+    private endedProductReports: EndedProductReport; 
+    private deliveredProductWarehouse: DeliveredProductWarehouse;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
@@ -80,11 +102,21 @@ export class ReportController{
         this.productService = new ProductService();
         this.pdfHelper = new PdfHelper();
         this.excel = new Excel4Node();
+        this.defrostRepository = new DefrostRepository();
+        this.defrostFormulationRepository = new DefrostFormulationRepository();
+        this.outputCoolingRepository = new OutputsCoolingRepository();
+        this.formulationIngredientsRepository = new FormulatioIngredientsRepository();
+        this.propertiesPackagingRepository = new PropertiesPackagingRepository();
+        this.inspectionRepository = new InspectionRepository();
+        this.endedProductReports = new EndedProductReport();
+        this.deliveredProductWarehouse = new DeliveredProductWarehouse();
     }
 
     async reportEntranceDrief(req:Request, res:Response){ 
-        let user:User = await this.userService.getUserByUid(req.query.uid);
+        
         let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
+        let userId: string = drief.warehouseDrief.userId;
+        let user:User = await this.userService.getUserByUid(userId);
         let report = await this.pdfHelper.reportEntranceDrief(user,drief);
         pdf.create(report, {
             format: 'Legal',
@@ -154,6 +186,7 @@ export class ReportController{
 
     async reportDocumentFormulation(req:Request, res:Response){
         let tmp = os.tmpdir();
+        
         let formulation:Formulation = await this.formulationService.reportFormulation(+req.params.formulationId);
         let formulationIngredents:FormulationIngredients[] = await this.formulationService.reportFormulationIngredents(+req.params.formulationId)
         
@@ -179,8 +212,10 @@ export class ReportController{
     }
   
   async reportEntranceMeat(req:Request, res:Response){ 
-        let user:User = await this.userService.getUserByUid(req.query.uid);
-        let meat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(+req.params.meatId);
+        
+        let entranceId: number = +req.params.entranceId;
+        let meat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(entranceId);
+        let user:User = meat.qualityInspector;
         let report = await this.pdfHelper.reportEntranceMeat(user,meat);
         pdf.create(report, {
             format: 'Legal',
@@ -351,15 +386,31 @@ export class ReportController{
         })
     }
     
-    async reportFormularionByDate(req: Request, res:Response){
-        let user:User = await this.userService.getUserByUid(req.query.uid);
-        let {iniDate, finDate} = req.params;
-
-        let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
+    async reportFormulationByDate(req: Request, res:Response){
+        let dateInit = req.params.dateInit;
+        let dateEnd = req.params.dateEnd;
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
         
-
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            
+            let ingredientes:FormulationIngredients[] = await this.formulationIngredientsRepository.getByFormulation(defrostF.formulation);
+            defrostF.formulation.ingredients=ingredientes;
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        
+    
         let html = this.pdfHelper.generateFormulationReport(formulations);
         pdf.create(html, {
+            orientation:"landscape",
             format: 'Legal',
             border: {
                 top: "1cm", 
@@ -483,13 +534,35 @@ export class ReportController{
     }
 
     async reportOvenByDates(req:Request, res:Response){
+        
         let dateInit = req.params.iniDate;
         let dateEnd = req.params.finDate;
-        let user:User = await this.userService.getUserByUid(req.query.uid);
-        let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
-        let userElaborated:User= await this.userService.getUserByName(oven[0].nameElaborated);
-        let userVerify:User= await this.userService.getUserByName(oven[0].nameVerify);
-        let report = await this.pdfHelper.reportOvenProducts(userElaborated,userVerify,oven);
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let userMapped = new Map<number,{userVerify:User,userElaborated:User}>();
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let oven:OvenProducts[] = await this.ovenService.getByProcessIds(process.map(x=>x.id));
+        for(let ove of oven){
+        let userElaborated:User= await this.userService.getUserByName(ove.nameElaborated);
+        let userVerify:User= await this.userService.getUserByName(ove.nameVerify);
+        let revisions:RevisionsOvenProducts[] = await this.revisionOvenProductService.getRevisionByOven(ove);
+        ove.revisions=revisions;
+        userMapped.set(ove.id,{userElaborated,userVerify});
+        }
+        let report = await this.pdfHelper.reportOvenProducts(userMapped,oven);
         pdf.create(report, {
             format: 'Letter',
             border: {
@@ -512,9 +585,27 @@ export class ReportController{
         let tmp = os.tmpdir();
         let dateInit = req.params.iniDate;
         let dateEnd = req.params.finDate;
-        let user:User = await this.userService.getUserByUid(req.query.uid);
-        let oven:OvenProducts[] = await this.ovenService.getReportOvenProducts(dateInit,dateEnd);
-
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let oven:OvenProducts[] = await this.ovenService.getByProcessIds(process.map(x=>x.id));
+        for(let ove of oven){
+            let revisions = await this.revisionOvenProductService.getRevisionByOven(ove);
+            ove.revisions= revisions;
+        }
         let workbook = this.excel.generateOvenProductsDocumentsByDate(oven); 
         console.log(oven);
 
@@ -537,6 +628,56 @@ export class ReportController{
         })
 
         
+    }
+
+    async getReportByPackaging(req:Request,res:Response){
+        let dateInit = req.params.dateInit;
+        let dateEnd = req.params.dateEnd;
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let oven:OvenProducts[] = await this.ovenService.getByProcessIds(process.map(x=>x.id));
+        let ovenLots =  oven.map(x=>x.newLote);
+        let packaging:Packaging[] = await this.packagingService.getPackgingByLotsIds(ovenLots);
+        for(let pack of packaging){
+            let packagingDetails = await this.packagingService.getPackagingById(pack.id);
+            pack.productId = packagingDetails.productId;
+            let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(pack);
+            
+            pack.propertiesPackaging = properties;
+        }
+        let report = await this.pdfHelper.reportPackagings(packaging);
+        
+        pdf.create(report, {
+            format: 'Legal',
+            orientation:'landscape',
+            border: {
+                top: "2cm", 
+                right: "2cm",
+                bottom: "1cm",
+                left: "2cm"
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEmpaquetadoPDF.pdf`
+            });
+            stream.pipe(res);
+        }));
     }
 
     async reportProcess(req:Request, res:Response){
@@ -562,29 +703,67 @@ export class ReportController{
         }));
     }
 
-    async reportDocumentProcess(req:Request, res:Response){
-        let process:Process = await this.processService.getProcessById(+req.params.processId);
-        let tmp = os.tmpdir();
-        let conditioning:Conditioning = new Conditioning();
-        let sausaged:Sausaged = new Sausaged();
-        let tenderized:Tenderized= new Tenderized();
+    async reportProcessByEntranceId(req:Request,res:Response){
+        let dateStart=req.query.dateStart;
+        let dateEnd=req.query.dateEnd;
+        let entranceId=req.query.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateStart,dateEnd);
         
-      /*  if(process.conditioningId == null){
-            conditioning = null;
-        }else{
-            conditioning = await this.conditioningService.getConditioningByProcessId(+process.conditioningId.id);
-        }      
-        if(process.sausageId == null){
-            sausaged = null;
-        }else{
-            sausaged = await this.sausagedService.getSausagedByProcessId(+process.sausageId.id);
-        }    
-        if(process.tenderizedId == null){
-            tenderized = null;
-        }else{
-            tenderized = await this.tenderizedService.getTenderizedByProcessId(+process.tenderizedId.id);
-        }  */                                                                  
-        let workbook = this.excel.generateReportProcess(process, conditioning, sausaged, tenderized); 
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let report = await this.pdfHelper.reportProcessByEntranceId(process);
+        pdf.create(report, {
+            format: 'legal',
+            orientation:`landscape`,
+            header: {
+                height: ".5cm"
+            },
+            footer: {
+                height: ".5cm"
+          },
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteProceso.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async reportDocumentProcess(req:Request, res:Response){
+        let dateStart:string = req.query.dateStart;
+        let dateEnd:string = req.query.dateEnd;
+        let entranceId:number = req.query.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateStart,dateEnd);
+        
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let tmp = os.tmpdir();
+                                                                   
+        let workbook = this.excel.generateReportProcess(process); 
         workbook.write(`${tmp}/Reporte-procesos.xlsx`,(err, stats)=>{
             if(err){
                 console.log(err);
@@ -605,11 +784,27 @@ export class ReportController{
     }
 
     async documentReportFormulationByDates(req: Request, res: Response){
-        let user:User = await this.userService.getUserByUid(req.query.uid);
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
         let {iniDate, finDate} = req.params;
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,iniDate,finDate);
+        
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+                let ingredients = await this.formulationIngredientsRepository.getByFormulation(defrostF.formulation);
+                defrostF.formulation.ingredients=ingredients;
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
         let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
 
-        let formulations = await this.formulationService.getFormulartionByDates(iniDate, finDate);
+        
 
         let workbook = this.excel.generateFormulationDocumentByDates(formulations); // se llama a la utileria con los mismos datos que se envian al reporte html
 
@@ -632,15 +827,139 @@ export class ReportController{
         })
     }
 
+    async getReportEndedProduct(req:Request,res:Response){
+        let dateInit:string = req.params.dateInit;
+        let dateEnd:string = req.params.dateEnd;
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let ovenProducts = await this.ovenService.getByProcessIdsAndStatus(process.map(x=>x.id),"CLOSED");
+        let itemsToReport:{ovenProduct:OvenProducts,inspection:Inspection[]}[] =[]; 
+        for(let oven of ovenProducts){
+            let inspection:Inspection[] = await this.inspectionRepository.getByProcessId(oven.processId);
+            if(inspection){
+                itemsToReport.push({ovenProduct:oven,inspection});
+            }
+        }
+        
+        let report =await this.endedProductReports.getReportOfEndedProduct(itemsToReport);
+        pdf.create(report, {
+            format: 'Legal',
+            orientation:'landscape',
+            border: {
+                top: "2cm", 
+                right: "2cm",
+                bottom: "1cm",
+                left: "2cm"
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEmpaquetadoPDF.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async getReportDocumentEndedProduct(req:Request,res:Response){
+        let dateInit:string = req.params.dateInit;
+        let dateEnd:string = req.params.dateEnd;
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let ovenProducts = await this.ovenService.getByProcessIdsAndStatus(process.map(x=>x.id),"CLOSED");
+        let itemsToReport:{ovenProduct:OvenProducts,inspection:Inspection[]}[] =[]; 
+        for(let oven of ovenProducts){
+            let inspection:Inspection[] = await this.inspectionRepository.getByProcessId(oven.processId);
+            if(inspection){
+                itemsToReport.push({ovenProduct:oven,inspection});
+            }
+        }
+        
+        
+        let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
+
+        
+        let workbook = await this.excel.generateEndedProductReportDocument(itemsToReport); // se llama a la utileria con los mismos datos que se envian al reporte html
+        workbook.write(`${tmp}/Reportes-salidas-producto-terminado.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",//se pone un tipo de cabecera
+                'inline; filename="Reportes-salidas-producto-terminado.xlsx"'//para indicar a front el nombre del archivo
+              );
+              res.setHeader("Content-Type", "application/vnd.ms-excel");// se añade cabecera para permitir excel
+              res.status(200); 
+            console.log(stats);//stats solo trae informacion de la creacion del archivo
+            return res.download(`${tmp}/Reportes-salidas-producto-terminado.xlsx`,(er) =>{ //response.download manda un documento para ser descargado en el response
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/Reportes-salidas-producto-terminado.xlsx"}`);//aunque en la carpeta tmp no sea necesario eliminar archivos es mejor hacerlo para no aumentar el peso de las cloud functions    
+                fs.unlinkSync(`${tmp}/imageTmp.png`);//borrar aqui la imagen temporal si no, dara error al generar el documento y no encontrar la imagen
+            })
+        })
+    }
 
     async documentReportPackingByDates(req: Request, res: Response){
-        let user:User = await this.userService.getUserByUid(req.query.uid);
+        
         let {iniDate, finDate} = req.params;
+        let entranceId:number = +req.params.entranceId;
+        let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,iniDate,finDate);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let oven:OvenProducts[] = await this.ovenService.getByProcessIds(process.map(x=>x.id));
+        let ovenLots =  oven.map(x=>x.newLote);
+        let packagings:Packaging[] = await this.packagingService.getPackgingByLotsIds(ovenLots);
+        
+        for(let pack of packagings){
+            let packagingDetails = await this.packagingService.getPackagingById(pack.id);
+            pack.productId = packagingDetails.productId;
+            let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(pack);
+            pack.propertiesPackaging = properties;
+        }
+
         let tmp = os.tmpdir(); //se obtiene la carpeta temporal ya que las cloudfunctions solo permiten escritura en carpeta tmp
 
         let entrysPacking:EntrancePacking[] = await this.entrancePackingService.getReportEntrysPacking(iniDate,finDate);
         
-        let workbook = this.excel.generatePackingDocumentByDates(user,entrysPacking); // se llama a la utileria con los mismos datos que se envian al reporte html
+        let workbook = this.excel.generatePackingDocumentByDates(null,entrysPacking); // se llama a la utileria con los mismos datos que se envian al reporte html
 
         workbook.write(`${tmp}/Reporte-Empaques.xlsx`,(err, stats)=>{//workbook escribe y permite un callback
             if(err){
@@ -768,16 +1087,36 @@ export class ReportController{
 }
 
 async reportDocumentPackagingById(req:Request,res:Response){
-    let packagingId = req.params.packaginId;
-
-    let user:User = await this.userService.getUserByUid(req.query.uid);
+    let dateInit = req.params.dateInit;
+    let dateEnd = req.params.dateEnd;
+    let entranceId:number = +req.params.entranceId;
+    let entrance:EntranceMeat = await this.entranceMeatService.getEntranceMeatById(entranceId);
+        let outputsCooling:OutputsCooling[]=await this.outputCoolingRepository.findByLotIdAndDates(entrance.loteInterno,entrance.loteProveedor,dateInit,dateEnd);
+        let defrosts:Defrost[] = await this.defrostRepository.getByOutputsIds(outputsCooling.map(x=>x.id));
+        
+        let formulations:Formulation[] =[];
+        let ids = [];
+        for(let df of defrosts){
+            let defrostF = await this.defrostFormulationRepository.getDefrostFormulationByDefrostWithFormulation(df);
+            if(!ids.includes(defrostF.formulation.id)){
+            formulations.push(defrostF.formulation);
+            ids.push(defrostF.formulation.id);
+            }
+        }
+        let process:Process[] = await this.processService.getProcessWithData(formulations.map(x=>x.id));
+        let oven:OvenProducts[] = await this.ovenService.getByProcessIds(process.map(x=>x.id));
+        let ovenLots =  oven.map(x=>x.newLote);
+        let packagings:Packaging[] = await this.packagingService.getPackgingByLotsIds(ovenLots);
+        
+        for(let pack of packagings){
+            let packagingDetails = await this.packagingService.getPackagingById(pack.id);
+            pack.productId = packagingDetails.productId;
+            let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(pack);
+            pack.propertiesPackaging = properties;
+        }
     let tmp = os.tmpdir();
-
-    let packaging:Packaging = await this.packagingService.getPackagingById(+packagingId);
-    let properties: PropertiesPackaging[] = await this.packagingService.getPackagingPropertiesById(packaging);
-    let presentations:PresentationProducts[] = await this.productRoviandaService.getProductsPresentation(+packaging.productId.id)
     
-    let workbook = this.excel.generatePackagingDocumentById(packaging,properties,presentations); 
+    let workbook = this.excel.generatePackagingsDocument(packagings); 
     workbook.write(`${tmp}/Reporte-Rebanado-Empacado.xlsx`,(err, stats)=>{
         if(err){
             console.log(err);
@@ -818,6 +1157,157 @@ async reportDocumentPackagingById(req:Request,res:Response){
             });
             stream.pipe(res);
         }));
+    }
+
+    async getListOfOrdersSeller(req:Request,res:Response){
+        let urgent:boolean = JSON.parse(req.query.urgent);
+        let date = req.query.date;
+        let type= req.query.type;
+        let reports:string[] = await this.packagingService.getReportOrdersOfSeller(urgent,date,type);
+        
+        let tmp = os.tmpdir();
+        if(reports.length>1){
+            let merger = new pdfMerger();
+        for(let i=0;i<reports.length;i++){
+            merger.add((await this.parsePdf(reports[i],i,tmp)) as string);
+            //paths.push( );
+        }
+        await merger.save(tmp+"/ordenes.pdf");
+                fs.readFile(tmp+"/ordenes.pdf",(err,buffer)=>{
+                    if(err) console.log("Error al escribir");
+                    console.log("Lectura correcta");
+                    res.writeHead(200, {
+                        'Content-Type': 'application/pdf',
+                        'responseType': 'blob',
+                        'Content-disposition': `attachment; filename=ordenes.pdf`,
+                        'Content-Length':buffer.length
+                    });
+                    res.end(buffer);
+                });
+    }else{
+        pdf.create(reports[0], {
+            format: 'Legal',
+            border: {
+                top: "2cm", 
+                right: "1cm",
+                bottom: "2cm",
+                left: "1cm"
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=ordenes.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+       
+    }
+
+    async parsePdf(html:string,index:number,tmp:string){
+        return new Promise((resolve,reject)=>{
+             pdf.create(html,{
+                format: 'Legal',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toBuffer((err,buffer)=>{
+                if(err) reject(null);
+                let date=new Date();
+                let path =tmp+`/${date.getTime()}${index}.pdf`;
+                fs.writeFile(path,buffer,(err)=>{
+                    if(err) reject(null);
+                    resolve(path);
+                }); 
+            });
+        });
+    }
+
+    async getEntrancesToSellerInventoryByWarehouse(req:Request,res:Response){
+        let warehouseId:string = req.params.warehouseId;
+        let dateStart:string = req.query.dateStart;
+        let dateEnd:string = req.query.dateEnd;
+        let productDelivered = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd);
+        let seller:User = await this.userService.getByWarehouseId(warehouseId);
+        let report:string ="";
+        if(seller){
+            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredBySeller(productDelivered,seller,dateStart,dateEnd);
+        }else if(+warehouseId==53){
+            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredByPlant(productDelivered,dateStart);
+        }else{
+            report = "<html><body>NO EXISTE EL USUARIO VENDEDOR</body></html>"
+        }
+        pdf.create(report, {
+            format: 'Legal',
+            border: {
+                top: "2cm", 
+                right: "1cm",
+                bottom: "2cm",
+                left: "1cm"
+            }
+            
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteEntregaAAlmacen.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }
+
+    async getReportPlantDelivery(req:Request,res:Response){
+        let from = req.query.from;
+        let to=req.query.to;
+        let type=req.query.type;
+        let records = await this.packagingService.getAllOutputsByPlant(from,to);
+        
+        if(type=="pdf"){
+            let report =  this.pdfHelper.getReportPlanDelivery(records,from,to);
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=reporteEntregaPlanta.pdf`
+                });
+                stream.pipe(res);
+            }));
+    }else if(type=="excel"){
+        let tmp = os.tmpdir();
+        let workbook = this.excel.generatePlantDelivery(records,from,to); 
+            workbook.write(`${tmp}/reporteEntregaPlanta.xlsx`,(err, stats)=>{
+            if(err){
+                console.log(err);
+            }
+            res.setHeader(
+                "Content-disposition",
+                'inline; filename="reporteEntregaPlanta.xlsx"'
+            );
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            console.log(stats);
+            return res.download(`${tmp}/reporteEntregaPlanta.xlsx`,(er) =>{ 
+                if (er) console.log(er);
+                fs.unlinkSync(`${tmp+"/reporteEntregaPlanta.xlsx"}`);
+                fs.unlinkSync(`${tmp}/imageTmp.png`);
+            })
+        });
+    }
     }
 
 }

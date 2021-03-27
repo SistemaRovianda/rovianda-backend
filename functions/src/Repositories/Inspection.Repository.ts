@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Inspection } from '../Models/Entity/Inspection';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 export class InspectionRepository{
     private inspectionRepository:Repository<Inspection>;
 
@@ -47,10 +48,30 @@ export class InspectionRepository{
         });
     }
 
+    async getInspectionsByNewLotAndProduct(newLot:string,product:ProductRovianda){
+        await this.getConnection();
+        return await this.inspectionRepository.find({
+            where: {lotId:newLot,productId:product}
+        });
+    }
+
     async getByProcessId(processId:number){
         await this.getConnection();
         return await this.inspectionRepository.find({
             where:{processId}
         });
+    }
+
+    async getAllHistoryByOvenIds(ovenIds:number[]){
+        await this.getConnection();
+        let ids="(";
+        for(let id of ovenIds){
+            ids+=`${id},`;
+        }
+        ids+=")";
+        ids=ids.replace(",)",")");
+        return await this.inspectionRepository.query(`
+        
+        `);
     }
 }

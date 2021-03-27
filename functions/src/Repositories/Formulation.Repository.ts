@@ -6,6 +6,7 @@ import { groupBy } from "lodash";
 import { LotInternalByLotDrief } from "../Models/DTO/LotInternalByLotDrief";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
+import { Process } from "../Models/Entity/Process";
 
 export class FormulationRepository{
     private formulatioRepository: Repository<Formulation>;
@@ -19,7 +20,10 @@ export class FormulationRepository{
         await this.getConnection();
         return await this.formulatioRepository.findOne({id:formulationId},{relations:["process"]})
     }
-
+    async getFormulationsByIds(formulationsIds:number[]){
+        await this.getConnection();
+        return await this.formulatioRepository.find({where:{id: In(formulationsIds)},relations:["process"]});
+    }
     async saveFormulation(formulation: Formulation){
         await this.getConnection();
         return await this.formulatioRepository.save(formulation);
@@ -29,6 +33,24 @@ export class FormulationRepository{
     //     await this.getConnection();
     //     return await this.formulatioRepository.findOne({loteInterno:loteId,productRovianda:productId});
     // }
+
+    async getAllFormulationHistoryByOutputs(outputs:number[]){
+        await this.getConnection();
+        let ids = "(";
+        for(let id of outputs){
+            ids+=`${id},`
+        };
+        ids+=")";
+        ids=ids.replace(",)",")");
+        return await this.formulatioRepository.query(`
+                select fo.id as formulationId,us.name as providerId,fo.lot_day as lotDay,fo.date,fo.water_temp as temp,pr.name as product from defrost as de
+        right join defrost_formulation as def on de.defrost_id=def.defrostDefrostId right join 
+        formulation as fo on def.formulation_id=fo.id left join users as us on us.id=fo.makeId left join products_rovianda as pr
+        on pr.id=fo.product_rovianda_id
+        where de.defrost_id in ${ids}
+                `);        
+            
+    }
 
     async getLastFormulation(){
         await this.getConnection();
@@ -107,4 +129,9 @@ export class FormulationRepository{
     //     await this.getConnection();
     //     return await this.formulatioRepository.findOne({loteInterno,productRovianda});
     // }
+
+    async getByProcessEntity(process:Process){
+        await this.getConnection();
+        return await this.formulatioRepository.findOne({process});
+    }
 }

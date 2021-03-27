@@ -16,7 +16,7 @@ export const reportRoutes:Array<routeInterface>=[
         target: "reportDryinById"
     },
     {
-        url:"/rovianda/report/entry/meat/:meatId",
+        url:"/rovianda/report/entry/meat/:entranceId",
         method:"get",
         controller:ReportController,
         target:"reportEntranceMeat"
@@ -58,10 +58,10 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportOven"
     },
     {
-        url: "/rovianda/report/formulation/:iniDate/:finDate",
+        url: "/rovianda/report/formulation/:dateInit/:dateEnd/:entranceId",// pdf de formulaciones
         method: "get",
         controller: ReportController,
-        target: "reportFormularionByDate"
+        target: "reportFormulationByDate"
     },
     {
         url:"/rovianda/report/entry/drief/:iniDate/:finDate",
@@ -88,7 +88,7 @@ export const reportRoutes:Array<routeInterface>=[
         target:"reportEntryPackingByDates"
     },
     {
-        url:"/rovianda/report/oven/:iniDate/:finDate",
+        url:"/rovianda/report/oven/:iniDate/:finDate/:entranceId",
         method:"get",
         controller:ReportController,
         target:"reportOvenByDates"
@@ -98,25 +98,31 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "reportProcess"
-    },/*
+    },
     {
-        url:"/rovianda/report/document/process/:processId",
+        url: "/rovianda/report/process",
+        method: "get",
+        controller: ReportController,
+        target: "reportProcessByEntranceId"
+    },
+    {
+        url:"/rovianda/report/document/process",
         method:"get",
         controller:ReportController,
         target:"reportDocumentProcess"
-    }, */
+    }, 
     {
-        url: "/rovianda/report/document/formulation/:iniDate/:finDate",
+        url: "/rovianda/report/document/formulation/:iniDate/:finDate/:entranceId",
         method: "get",
         controller: ReportController,
         target: "documentReportFormulationByDates"
     },
-    {
-        url: "/rovianda/report/document/entry/packing/:iniDate/:finDate",
-        method: "get",
-        controller: ReportController,
-        target: "documentReportPackingByDates"
-    },
+    // {
+    //     url: "/rovianda/report/document/ended-product/:iniDate/:finDate/:entranceId",
+    //     method: "get",
+    //     controller: ReportController,
+    //     target: "documentReportPackingByDates"
+    // },
     {
         url: "/rovianda/report/document/entry/drief/:iniDate/:finDate",
         method: "get",
@@ -134,6 +140,16 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "documentReportEntrancePackingById"
+    },{
+        url: "/rovianda/report/ended-product/:dateInit/:dateEnd/:entranceId",
+        method: "get",
+        controller: ReportController,
+        target: "getReportEndedProduct"
+    },{
+        url: "/rovianda/report/document/ended-product/:dateInit/:dateEnd/:entranceId",
+        method: "get",
+        controller: ReportController,
+        target: "getReportDocumentEndedProduct"  
     },
     {
         url: "/rovianda/report/document/entry/meat/:meatId",
@@ -148,27 +164,52 @@ export const reportRoutes:Array<routeInterface>=[
         target: "documentReportEntryDriefById"
     },
     {
-        url:"/rovianda/report/document/oven/:iniDate/:finDate",
+        url:"/rovianda/report/document/oven/:iniDate/:finDate/:entranceId",
         method:"get",
         controller:ReportController,
         target:"documentReportOvenByDates"
     },
     {
-        url:"/rovianda/report/packagin/:packaginId",
+        url:"/rovianda/report/packaging/:packaginId",
         method:"get",
         controller:ReportController,
         target:"reportPackagingById"
-    },
-    {
-        url:"/rovianda/report/document/packagin/:packaginId",
-        method:"get",
-        controller:ReportController,
-        target:"reportDocumentPackagingById"
     },
     {
         url: "/rovianda/report/packaging-delivered/:orderSellerId",
         method: "get",
         controller: ReportController,
         target: "getReportPackagingDelivered"
+    },
+    {
+        url: "/rovianda/sellers/orders-list",
+        method: "get",
+        controller: ReportController,
+        target: "getListOfOrdersSeller"
+    },
+    {
+        url: "/rovianda/report/packaging/:dateInit/:dateEnd/:entranceId",
+        method: "get",
+        controller: ReportController,
+        target: "getReportByPackaging"
+    },
+    
+    {
+        url:"/rovianda/report/document/packaging/:dateInit/:dateEnd/:entranceId",
+        method:"get",
+        controller:ReportController,
+        target:"reportDocumentPackagingById"
+    },
+    {
+        url: "/rovianda/report/packaging-warehouse/:warehouseId",
+        method: "get",
+        controller: ReportController,
+        target: "getEntrancesToSellerInventoryByWarehouse"
+    },
+    {
+        url:"/rovianda/report/plant-delivery",
+        method: "get",
+        controller: ReportController,
+        target: "getReportPlantDelivery"
     }
 ];

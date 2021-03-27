@@ -1,8 +1,8 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Packaging } from '../Models/Entity/Packaging';
 import { OrderSellerRequestProduct, PackagingProperties } from '../Models/DTO/Sales.ProductDTO';
-import { PackagingProductPresentationLot } from '../Models/DTO/PackagingDTO';
+import { OutputsDeliveryPlant, PackagingProductPresentationLot } from '../Models/DTO/PackagingDTO';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 export class PackagingRepository{
     private packagingRepository:Repository<Packaging>;
@@ -34,9 +34,14 @@ export class PackagingRepository{
     
     async getPackagingByLotId(lotId:string){
         await this.getConnection();
-        return await this.packagingRepository.findOne({
-            where: {lotId: `${lotId}`}
+        return await this.packagingRepository.find({
+            where: {lotId: `${lotId}`,active:true}
         });
+    }
+
+    async getPackagingsByLotId(lotId:string){
+        await this.getConnection();
+        return await this.packagingRepository.find({where:lotId});
     }
 
     async getPackagingByLotIdAndPropertiesPackaging(lotId:string){
@@ -61,6 +66,10 @@ export class PackagingRepository{
         return await this.packagingRepository.query(`SELECT * FROM packaging ORDER BY id DESC LIMIT 1`)
     }
 
+    async getBynewLotsIds(lotsIds:string[]){
+        await this.getConnection();
+        return await this.packagingRepository.find({lotId:In(lotsIds)});
+    }
     async getPackaging(){
         await this.getConnection();
         return await this.packagingRepository.find({
@@ -89,7 +98,7 @@ export class PackagingRepository{
   async getPackagingWithProperties(products:OrderSellerRequestProduct[]){
         let ids = "and";
         for(let product of products){
-            ids+=` pack.id = ${product.productId} or `;
+            ids+=` pack.id = ${product.keySae} or `;
         }
         ids+=";";
         ids = ids.replace("or ;",";");
@@ -117,13 +126,18 @@ export class PackagingRepository{
         );
     }
 
-    async getPackagingAvailableProductLotsPresentation(productId:number):Promise<Array<PackagingProductPresentationLot>>{
+    async getPackagingsByProduct(product:ProductRovianda){
+        await this.getConnection();
+        return await this.packagingRepository.find({where:{productId:product,active:true}});
+    };
+
+    async getPackagingAvailableProductLotsPresentation(orderId:number):Promise<Array<PackagingProductPresentationLot>>{
         await this.getConnection();
         return await this.packagingRepository.query(
             `select pack.product_id as productId,pack.lot_id as loteId,sum(propack.units) as quantity,propack.presentation_id as presentationId,
             pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation_public as pricePresentationPublic,pp.price_presentation_min as pricePresentationMin,pp.price_presentation_liquidation as pricePrecentationLiquidation
              from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id inner join presentation_products as pp
-             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and pack.product_id=${productId} group by pack.lot_id,pack.product_id,propack.presentation_id;`
+             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and pp.presentation_id in (select presentation_id from suborders where order_seller_id=${orderId}) group by propack.presentation_id,pack.lot_id,pack.product_id;`
         ) as Array<PackagingProductPresentationLot>;
     }
 
@@ -139,15 +153,34 @@ export class PackagingRepository{
         WHERE packaging.lot_id ="${lotId}";`);
     }
 
+    async getPackagingById(id:number){
+        await this.getConnection();
+       return await this.packagingRepository.findOne({id},{relations:["propertiesPackaging"]});
+    }
+
     async getPackagingByProcessId(lotId:string){
         await this.getConnection();
         return await this.packagingRepository.find({lotId})
     }
 
-    async getPackagingOrdeByProduct(){
+    async getPackagingByOvenProduct(ovenProductId:number){
+        await this.getConnection();
+        return await this.packagingRepository.find({where:{ovenProduct:{id:ovenProductId}}})
+    }
+
+    async getAllProductsToInspection(){
         await this.getConnection();
         return await this.packagingRepository.query(`
-        SELECT distinct(product_id) FROM packaging  ORDER BY packaging.product_id
+            select pr.id,pr.name from products_rovianda as pr where pr.id not in (select productId from cheeses);
+        `);
+    }
+
+    async getPackagingsByProductAndActive(productId:number){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        select pack.lot_id as lotId,oven.processId,oven.id as 
+        ovenProductId from packaging as pack inner join oven_products as oven 
+        on pack.oven_product_id = oven.id where pack.product_id=${productId}; 
         `);
     }
 
@@ -157,5 +190,37 @@ export class PackagingRepository{
             where:{ productId},
             relations:["productId"]
         });
+    }
+
+    async getAllDispatched(dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        select pres.key_sae as keySae,pro.output_of_warehouse as quantity,
+            pro.weight_of_warehouse as weight,pack.lot_id as lotId,pack.register_date as outputDate,pack.expiration,pro.observations,
+            prod.name,pres.type_presentation as presentation from properties_packaging as pro right join packaging as pack on 
+            pro.packaging_id=pack.id right join products_rovianda as prod on pack.product_id=prod.id right join
+            presentation_products as pres on pro.presentation_id=pres.presentation_id where register_date between "${dateStart}" and "${dateEnd}";
+        `);
+    }
+
+    async getLotsToInspectionOfProducts(productId:number){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        select oven.new_lote as lotId,oven.processId,oven.id as ovenProductId 
+        from oven_products  as oven where oven.product_rovianda_id=${productId} oven.status=='USED'";
+        `);    
+    }
+
+    async getAllOutputsByPlant(from:string,to:string){
+        await this.getConnection();
+        let fromStr = from+"T00:00:00.000Z"
+        let toSTR = to+"T23:59:59.000Z"
+        return (await this.packagingRepository.query(`
+        select us.name as seller,pr.code,pr.name,pp.type_presentation as presentation,sm.lote_id as loteId,sm.quantity as units,sm.weigth as weight,sm.output_date as outputDate from suborder_metadata as sm left join suborders as sub on sm.sub_order_id=sub.suborder_id 
+        left join orders_sellers as os on sub.order_seller_id=os.order_seller_id left join users as us on os.seller_id = us.id
+        left join products_rovianda as pr on sub.product_id =pr.id left join presentation_products as pp 
+        on sub.presentation_id = pp.presentation_id where output_date 
+        between "${fromStr}" and "${toSTR}";
+        `)) as Array<OutputsDeliveryPlant>;
     }
 }

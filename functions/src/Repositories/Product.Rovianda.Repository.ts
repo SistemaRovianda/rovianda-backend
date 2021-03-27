@@ -84,6 +84,11 @@ export class ProductRoviandaRepository {
         return await this.repository.findOne({code});
     }
 
+    async getProductRoviandaByCodeLike(code:string){
+        await this.getConnection();
+        return await this.repository.findOne({code:Like(`%${code}`)});
+    }
+
     async getById(id:number){
         await this.getConnection();
         return await this.repository.findOne({id},{relations:["presentationProducts"]});
@@ -98,7 +103,7 @@ export class ProductRoviandaRepository {
 
     async getAllProductRoviandaCatalog(){
         await this.getConnection();
-        return await this.repository.find({select:["name","imgS3","id"]});
+        return await this.repository.find({select:["name","imgS3","id","code"]});
     }
 
 

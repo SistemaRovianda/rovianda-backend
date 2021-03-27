@@ -1,5 +1,5 @@
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { Formulation } from "../Models/Entity/Formulation";
 import { Product } from "../Models/Entity/Product";
@@ -18,6 +18,7 @@ export class FormulatioIngredientsRepository {
         return await this.formulationIngredientsRepository.save(formulationIngredients);
     }
 
+    
     async getByFormulation(formulation:Formulation){
         await this.getConnection();
         return await this.formulationIngredientsRepository.find({

@@ -1,6 +1,7 @@
 import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Tenderized } from '../Models/Entity/Tenderized';
+import { Process } from '../Models/Entity/Process';
 export class TenderizedRepository{
     private tenderizedRepository:Repository<Tenderized>;
 
@@ -54,4 +55,9 @@ export class TenderizedRepository{
     //         where: {productId: `${id}`},
     //     });
     // }
+
+    async getByProcessEntity(process:Process){
+        await this.getConnection();
+        return await this.tenderizedRepository.find({process});
+    }
 }

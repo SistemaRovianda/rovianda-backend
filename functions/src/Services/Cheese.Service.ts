@@ -28,7 +28,11 @@ export class CheeseService{
     }
 
     async createCheese(payload:{code:string}){
-        let productRovianda= await this.productRoviandaRepository.getProductRoviandaByCode(payload.code);
+        let productRovianda= null;
+        productRovianda= await this.productRoviandaRepository.getProductRoviandaByCode(payload.code);
+        if(!productRovianda){
+            productRovianda =await this.productRoviandaRepository.getProductRoviandaByCodeLike(payload.code);
+        }
         if(!productRovianda) throw new Error("[409], no existe un producto con este codigo");
         let cheese:Cheese= await this.cheeseRepository.getCheeseByCode(payload.code);
         if(cheese) throw new Error("[409], El queso ya esta registrado");

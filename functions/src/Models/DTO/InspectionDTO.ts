@@ -2,6 +2,7 @@ export interface InspectionDTO{
     lotId: string,
     expirationDate: string,
     productId: string,
+    presentationId:number,
     numberPackages: string,
     observations: string,
     validations:    
@@ -15,7 +16,8 @@ export interface InspectionDTO{
         colour: boolean,
         texture: boolean
        },
-       processId:number
+       processId:number,
+       uid:string
 }
 
 export interface InspectionUsersDTO{

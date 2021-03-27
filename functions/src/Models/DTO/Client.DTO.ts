@@ -1,3 +1,5 @@
+import { Client } from "../Entity/Client";
+
 export interface ClientDTO{
     clientId:number;
     name:string;
@@ -28,7 +30,7 @@ export interface ClientCreation{
     phone:number;
     //country siempre es mexico
     typeClient: string; // CONTADO O CREDITO
-    credit: number;
+    currentCredit: number;
     saleUid: string;
     daysCredit: number; // dias de credito
     dayCharge: number; // dia del mes que se cobra
@@ -36,7 +38,8 @@ export interface ClientCreation{
     cfdi:string;
     paymentSat:string;
     contacts:contactForm[]
-    clasification:string; // limitado a 4 letras    
+    clasification:string; // limitado a 4 letras
+    daysVisited:daysVisitedInterface    
 }
 
 export interface contactForm{
@@ -50,7 +53,7 @@ export interface contactForm{
 export interface addressClient{
         street: string;
         extNumber: number;
-        intNumber: number;
+        intNumber?: number;
         intersectionOne:string;
         intersectionTwo:string;
         suburb: string; //colonia
@@ -170,6 +173,33 @@ export interface SellerClientCreation{
     curp:string;
     phone:number;
     saleUid: string;
-    addressClient: addressClient; 
-    contacts:contactForm[]
+    addressClient: addressClient;
+    contacts:contactForm[],
+    daysVisited:daysVisitedInterface,
+    typeClient:number
+}
+
+export interface daysVisitedInterface{
+    monday:boolean,
+    tuesday:boolean,
+    wednesday:boolean,
+    thursday:boolean,
+    friday:boolean,
+    saturday:boolean,
+    sunday:boolean
+}
+
+export interface ClientVisitedDTO{
+    client:Client,
+    visitedStatus:ClientVisitedStatus,
+    clientVisitId:number,
+    time: string
+}
+
+export enum ClientVisitedStatus{
+    PENDING="PENDING",INVISIT="INVISIT",VISITED="VISITED"
+}
+
+export interface clientVisitDTO{
+    clientId:number
 }

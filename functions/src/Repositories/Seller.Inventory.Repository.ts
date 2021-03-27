@@ -1,9 +1,11 @@
-import { MoreThanOrEqual, Repository } from "typeorm";
+import { MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { SellerInventory } from "../Models/Entity/Seller.Inventory";
 import { connect } from "../Config/Db";
 import { Request } from "express";
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { User } from "../Models/Entity/User";
+import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
+import { LotsStockInventoryPresentation } from "../Models/DTO/PackagingDTO";
 
 export class SellerInventoryRepository{
     private repository:Repository<SellerInventory>;
@@ -43,6 +45,11 @@ export class SellerInventoryRepository{
         });
     }
 
+    async getInventoryMoreThanOneBySeller(seller:User){
+        await this.getConnection();
+        return await this.repository.query(`select distinct(presentation_id) as presentationId from seller_inventory where seller_id="${seller.id}" and quantity>0`) as Array<{presentationId:number}>;
+    }
+
     async getPresentationsSeller(productId:number,sellerUid:string){
         await this.getConnection();
         return await this.repository.query(`select selinv.presentation_id as presentationId ,selinv.quantity, prepro.presentation,prepro.type_presentation as typePresentation 
@@ -56,5 +63,29 @@ export class SellerInventoryRepository{
         return await this.repository.findOne({
             where:{presentation,quantity: MoreThanOrEqual(units),seller}
         });
+    }
+
+    async getByProductPresentationAndSeller(product:ProductRovianda,presentation:PresentationProducts,seller:User){
+        await this.getConnection();
+        return await this.repository.find(
+            {
+                where:{
+                    product,
+                    presentation,
+                    seller
+                }
+            }
+        );
+    }
+
+    async getInventoryByProductStockOfSeller(user:User){
+        await this.getConnection();
+        return (await this.repository.query(
+            `
+            select round(sum(si.weigth),2) as weight,sum(si.quantity) as units,si.presentation_id,pro.name,pp.type_presentation,si.lote_id as lot_id
+        from seller_inventory as si inner join presentation_products as pp on pp.presentation_id=si.presentation_id inner join products_rovianda as pro on pro.id=si.productId
+        where seller_id="${user.id}" group by si.lote_id,si.presentation_id,si.productId;
+            `
+        ) )as LotsStockInventoryPresentation[];
     }
 }

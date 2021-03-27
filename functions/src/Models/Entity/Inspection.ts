@@ -67,6 +67,12 @@ export class Inspection{
 
     @Column({name:"process_id"})
     processId:number;
+
+    @Column({name:"user_inspector",nullable:true})
+    userIspector:string;
+
+    @Column({name:"presentation_id"})
+    presentationId:number;
 }
 
 

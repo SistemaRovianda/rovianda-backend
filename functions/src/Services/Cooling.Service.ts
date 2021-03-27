@@ -111,9 +111,10 @@ export class CoolingService{
         }
     }
 
-    async getCollingByLotInterno(loteInterno:string){
+    async getCollingByLotInterno(loteInterno:string,fridgeId:number){
         if(!loteInterno) throw new Error("[400], lotId is requerid");
-        let colling:Cooling[] = await this.coolingRepository.getCollingByLotInterno(loteInterno);
+        //let fridge:Fridge = await this.fridgeRepository.getFridgeById(fridgeId);
+        let colling:Cooling[] = await this.coolingRepository.getCollingByLotInterno(loteInterno,null);
         if(!colling) throw new Error("[404], lot not found");
         console.log(colling);
         let response:any = [];

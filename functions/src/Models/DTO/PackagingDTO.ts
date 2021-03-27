@@ -84,3 +84,42 @@ export interface DevolutionRequest{
     presentationId:number;
     units:number;
 }
+
+export interface LotsStockInventory{
+    lotId: string;
+    quantity: number;
+}
+export interface LotsStockInventoryPresentation{
+    units:number,
+    weight:number,
+    presentation_id:number,
+    name: string,
+    type_presentation:string,
+    lot_id:string,
+    packaging_id:number
+}
+
+export interface UpdateStockPlant{
+    
+        lot_id:string,
+        units:number,
+        weight:number,
+        packaging_id:number,
+        unitsTemp:number,
+        weightTemp:number,
+        presentation_id:number,
+        unitTypeOp:number,
+        weightTypeOp:number
+    
+}
+
+export interface OutputsDeliveryPlant{
+    seller:string,
+    code:string,
+    name:string,
+    presentation:string,
+    loteId:string,
+    units:number,
+    weight:number,
+    outputDate:string
+}

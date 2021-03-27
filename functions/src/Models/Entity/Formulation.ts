@@ -51,6 +51,10 @@ export class Formulation {
     @Column({name:"lot_day"})
     lotDay:string;
 
-    
+    @Column({name:"type_formulation",default:"PRODUCT"})
+    typeFormulation: string;
+
+    @Column({name:"ingredients_process_ids",nullable:true})
+    ingredientsIds:string;
 
 }

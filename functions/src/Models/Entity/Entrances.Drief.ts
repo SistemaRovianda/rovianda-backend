@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
+import { WarehouseDrief } from "./Warehouse.Drief";
 
 
 @Entity({name:"entrances_drief"})
@@ -55,4 +56,8 @@ export class EntranceDrief{
 
     @Column({name:"is_pz"})
     isPz:boolean;
+
+    @OneToOne(type=>WarehouseDrief,wd=>wd.entranceDrief,{nullable:true})
+    @JoinColumn({name:"warehouse_drief"})
+    warehouseDrief:WarehouseDrief;
 }

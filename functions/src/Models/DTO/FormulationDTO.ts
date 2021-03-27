@@ -6,7 +6,10 @@ export interface FormulationDTO {
     date:string,
     makeId:string
     lotsDefrost: lotDefrost[],
-    ingredient: formulationIngredients[]
+    ingredient: formulationIngredients[],
+    processNormal:boolean,
+    processIngredient:boolean,
+    processIngredients:[number]
 }
 
 export interface lotDefrost{

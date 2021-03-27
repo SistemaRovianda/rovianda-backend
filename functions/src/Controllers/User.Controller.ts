@@ -1,4 +1,4 @@
-import {Request,Response, response} from 'express';
+import {request, Request,Response, response} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Process } from '../Models/Entity/Process';
 import { ProcessService } from '../Services/Process.Service';
@@ -67,5 +67,11 @@ export class UserController{
     async getUserByRol(req:Request,res:Response){
         let users = await this.usersService.getUserByRol(req.params.rol);
         return res.status(200).send(users);
+    }
+
+    async updateUserStatus(req:Request,res:Response){
+        let {userId,status,name} =req.body;
+        await this.usersService.updateUserStatus(userId,status,name);
+        return res.status(204).send();
     }
 }

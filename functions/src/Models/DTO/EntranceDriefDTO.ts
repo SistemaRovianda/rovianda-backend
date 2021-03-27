@@ -16,5 +16,5 @@ export interface EntranceDriefDTO{
     color:boolean;
     isPz:boolean;
     observations:string;
-
+    makeId:string;
 }

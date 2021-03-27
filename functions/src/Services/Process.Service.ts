@@ -1,7 +1,7 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, response } from "express";
-import { ProcessUpdateDTO, UserProcessDTO, DefrostDTO, DefrostFormUpdate } from '../Models/DTO/ProcessDTO';
+import { ProcessUpdateDTO, UserProcessDTO, DefrostDTO, DefrostFormUpdate, processIngredient, processIngredientItem } from '../Models/DTO/ProcessDTO';
 import { ProductRoviandaService } from './Product.Rovianda.Service';
 
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
@@ -25,6 +25,15 @@ import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { ReprocessingRepository } from '../Repositories/Reprocessing.Repository';
 import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
 import { Formulation } from '../Models/Entity/Formulation';
+import { SausagedRepository } from '../Repositories/Sausaged.Repository';
+import { TenderizedRepository } from '../Repositories/Tenderized.Repository';
+import { ConditioningRepository } from '../Repositories/Conditioning.Repository';
+import { Conditioning } from '../Models/Entity/Conditioning';
+import { Sausaged } from '../Models/Entity/Sausaged';
+import { Tenderized } from '../Models/Entity/Tenderized';
+import { GrindingRepository } from '../Repositories/Grinding.Repository';
+import { Grinding } from '../Models/Entity/Grinding';
+import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 
 
 
@@ -37,7 +46,11 @@ export class ProcessService{
     private reprocesingRepository:ReprocessingRepository;
     private defrostRepository:DefrostRepository;
     private formulationRepository:FormulationRepository;
-    
+    private sausageRepository:SausagedRepository;
+    private tenderizeRepository:TenderizedRepository;
+    private conditioningRepository:ConditioningRepository;
+    private grindingRepository:GrindingRepository;
+    private productRoviandaRepository:ProductRoviandaRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
         
@@ -50,7 +63,12 @@ export class ProcessService{
         this.reprocesingRepository = new ReprocessingRepository();
 
         this.formulationRepository = new FormulationRepository();
-        
+
+        this.sausageRepository = new SausagedRepository();
+        this.tenderizeRepository= new TenderizedRepository();
+        this.conditioningRepository = new ConditioningRepository();
+        this.grindingRepository= new GrindingRepository();
+        this.productRoviandaRepository = new ProductRoviandaRepository();
     }
 
      async createProcessInter():Promise<Process>{
@@ -108,10 +126,26 @@ export class ProcessService{
     }
 
     async getAllDefrostActive(){
-        return (await this.defrostRepository.getAllActive()).map((x)=>({lotId:x.outputCooling.loteInterno,rawMaterial:x.outputCooling.rawMaterial.rawMaterial,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
+        let defrostList:Defrost[]=await this.defrostRepository.getAllActive();
+        let list=[];
+        for(let defrost of defrostList){
+            let outputCooling:OutputsCooling = await (await this.defrostRepository.getDefrostById(defrost.defrostId)).outputCooling;
+            list.push(
+                {lotId:outputCooling.loteInterno,rawMaterial:outputCooling.rawMaterial.rawMaterial,defrostId:defrost.defrostId,quantity:defrost.weigth,dateDefrost:defrost.dateInit}
+            );
+        }
+        return list;
     }
     async getAllDefrostInactive(){
-        return (await this.defrostRepository.getAllInactive()).map((x)=>({lotId:x.outputCooling.loteInterno,rawMaterial:x.outputCooling.rawMaterial.rawMaterial,defrostId:x.defrostId,quantity:x.weigth,dateDefrost:x.dateInit}));
+        let defrostList:Defrost[]=await this.defrostRepository.getAllInactive();
+        let list=[];
+        for(let defrost of defrostList){
+            let outputCooling:OutputsCooling = await (await this.defrostRepository.getDefrostById(defrost.defrostId)).outputCooling;
+            list.push(
+                {lotId:outputCooling.loteInterno,rawMaterial:outputCooling.rawMaterial.rawMaterial,defrostId:defrost.defrostId,quantity:defrost.weigth,dateDefrost:defrost.dateInit}
+            );
+        }
+        return list;
     }
 
     async updateProcessProperties(process:Process){
@@ -133,7 +167,8 @@ export class ProcessService{
                 end_date: `${i.endDate}`,
                 entrance_hour: `${i.entranceHour}`,
                 output_hour: `${i.outputHour}`,
-                createAt: `${i.createAt}`
+                createAt: `${i.createAt}`,
+                typeProcess: i.typeProcess
             });
         });
         return response;
@@ -143,6 +178,34 @@ export class ProcessService{
         if(!id) throw new Error("[400], processId is required");
         let process = await this.processRepository.findProcessById(id);
         if(!process) throw new Error("[404], process not found");
+        return process;
+    }
+
+    async getProcessWithData(formulations:number[]){
+        let process:Process[] = await this.processRepository.getAllProcess(formulations);
+        for(let processItem of process){
+            let sausages:Sausaged[] = await this.sausageRepository.getSausagesByProcessEntity(processItem);
+            let conditionings:Conditioning[]= await this.conditioningRepository.getByProcessEntity(processItem);
+            let tenderized:Tenderized[] = await this.tenderizeRepository.getByProcessEntity(processItem);
+            let grindings:Grinding[] = await this.grindingRepository.getByProcessEntity(processItem);
+            for(let grin of grindings){
+                let grinding = await this.grindingRepository.getGrindingWithRaw(grin.id);
+                grin.raw = grinding.raw;
+            }
+            //let formulation:Formulation = await this.formulationRepository.getByProcessEntity(processItem);
+            processItem.sausage = sausages;
+            processItem.conditioning = conditionings;
+            processItem.tenderized = tenderized;
+            processItem.grinding = grindings;
+            for(let de of processItem.formulation.defrosts){
+                
+                let deFE = await this.defrostRepository.getDefrostById(de.defrost.defrostId);
+                de.defrost=deFE;
+            }
+            let reprocesing = await this.reprocesingRepository.getByProcess(processItem);
+            processItem.reprocesings =reprocesing;
+            //processItem.formulation = formulation;
+        }
         return process;
     }
 
@@ -374,4 +437,30 @@ export class ProcessService{
             await this.reprocesingRepository.saveRepocessing(reprocesing);
         }
     }
+
+    async getAllProcessIngredientsAvailable(){
+        let ingredients:Process[]= await this.processRepository.getAllProcessIngredientsByProductRovianda();
+        let processIngredients:processIngredient[]=[];
+        for(let ingredient of ingredients){
+            let processId = ingredient.id;
+            let ingredientItems:processIngredientItem[] =[];
+            for(let defrostFormulation of ingredient.formulation.defrosts ){
+                let lotMeat = defrostFormulation.lotMeat;
+                let defrost= defrostFormulation.defrost;
+                let outputCooling:OutputsCooling = await (await this.defrostRepository.getDefrostById(defrost.defrostId)).outputCooling;
+                ingredientItems.push({
+                    lotId: lotMeat,
+                    rawMaterial: outputCooling.rawMaterial.rawMaterial
+                });
+            }
+            processIngredients.push({
+                processId,
+                dateEnded: ingredient.endDate,
+                ingredients: ingredientItems,
+                productName: ingredient.product.name
+            });
+        }
+        return processIngredients;
+    }
 }
+

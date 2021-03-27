@@ -114,6 +114,22 @@ export const productRoutes:Array<routeInterface>=[
         method: "get",
         controller: ProductController,
         target: "getProductsLines"
+    },{
+        url: "/rovianda/sae/delete-products/lines/:cve",
+        method: "delete",
+        controller: ProductController,
+        target: "deleteProductsLines"
+    },{
+        url: "/rovianda/sae/list-clients",
+        method: "get",
+        controller: ProductController,
+        target: "getClientSaeList"
+    },
+    {
+        url: "/rovianda/sales-clients/:clientId",
+        method: "get",
+        controller: ProductController,
+        target: "getSalesOfClient"
     },
     {
         url: "/rovianda/sae/product/line",

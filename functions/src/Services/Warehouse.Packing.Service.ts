@@ -152,7 +152,10 @@ export class WarehousePackingService{
         lot.forEach( i => {
             response.push({
                 warehouseId: `${i.id}`,
-                lot: `${i.loteProveedor}`
+                lot: `${i.loteProveedor}`,
+                date: i.date,
+                openingDate: i.openingDate,
+                closingDate: i.closingDate
             })
         });
         return response;

@@ -10,10 +10,10 @@ export class Address{
     @Column()
     street:string;
 
-    @Column({name:"ext_number"})
+    @Column({name:"ext_number",nullable:true})
     extNumber:number;
 
-    @Column({name:"int_number",nullable:false})
+    @Column({name:"int_number",nullable:true})
     intNumber:number;
 
     @Column({name:"intersection_one",nullable:true})
@@ -34,7 +34,7 @@ export class Address{
     @Column()
     population:string;
 
-    @Column({nullable:false})
+    @Column({nullable:true})
     cp:number;
 
     @Column()

@@ -19,7 +19,7 @@ export class UserRepository{
 
     async getUserById(userId:string){
         await this.getConnection();
-        return await this.userRepository.findOne({id:userId},{relations:["clientsArr"]});
+        return await this.userRepository.findOne({id:userId});
     }
 
 
@@ -44,14 +44,14 @@ export class UserRepository{
 
     async getAllUsers(){
         await this.getConnection();
-        return await this.userRepository.find();
+        return await this.userRepository.find({relations:["roles"]});
     }
 
     //87.- Servicio [GET] /report/formulation/{iniDate}/{finDate}
-    async getByFullName(name:string,firstSurname:string,lastSurname:string){
+    async getByFullName(name:string){
         await this.getConnection();
         return await this.userRepository.query(`
-        SELECT * FROM users WHERE name = "${name} ${firstSurname} ${lastSurname}"`);
+        SELECT * FROM users WHERE name = "${name}"`);
     }
 
     async getByFullNameJob(name:string,firstSurname:string,lastSurname:string,job:string){
@@ -73,5 +73,10 @@ export class UserRepository{
         return await this.userRepository.findOne({
             where: {name: `${name}`, firstSurname:`${firstSurname}`, lastSurname:`${lastSurname}`},
         });
+    }
+
+    async getByWarehouseId(warehouseKeySae:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({warehouseKeySae});
     }
 }

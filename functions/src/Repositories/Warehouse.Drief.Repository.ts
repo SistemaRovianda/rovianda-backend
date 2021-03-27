@@ -49,6 +49,13 @@ export class WarehouseDriefRepository{
             where: {loteProveedor:loteProveedor}
         });
     }
+
+    async getWarehouseDriefByLoteIdAndStatus(loteProveedor:string,status:string){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({
+            where: {loteProveedor:loteProveedor,status}
+        });
+    }
     async getWarehouseDriefByLoteIdAndProductId(loteProveedor:string,productId:number){
         await this.getConnection();
         return await this.warehouseDriefRepository.query(`SELECT * from warehouse_drief where lote_proveedor="${loteProveedor}" and productId=${productId}`);

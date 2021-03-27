@@ -144,6 +144,13 @@ export const processRoutes: Array<routeInterface> = [
         target: "getProcessProductsAvailables"
     },
     {
+        url: "/rovianda/process-ingredientes/availables",
+        method: "get",
+        controller: ProcessController,
+        target: "getProcessProcessIngredientsAvailables"
+    }
+    ,
+    {
         url: "/rovianda/process-reprocesing",
         method: "post",
         controller: ProcessController,

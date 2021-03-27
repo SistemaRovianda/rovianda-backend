@@ -74,7 +74,7 @@ export class SaleRepository{
     async getSaleByDate(date:string,seller:User){
         await this.getConnection();
         return await this.saleRepository.find({
-            where:{seller,date: Between(date+"T00:00:00",date+"T23:59:00"),status: Not(Equal("DELETED"))},
+            where:{seller,date: Between(date+"T00:00:00Z",date+"T23:59:00Z"),status: false},
         });
     }
 
@@ -93,13 +93,21 @@ export class SaleRepository{
         let date1=date+"T00:00:00";
         let date2=date+"T23:59:59";
         await this.getConnection();
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-        let salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+        let salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
         let response:SalesToSuperAdmin={
             sales,
             totalCount:salesTotal.length
         };
         return response;
+    }
+
+    async getAllSalesOfSellerUid(seller:User,date:string){
+        let date1=date+"T00:00:00";
+        let date2=date+"T23:59:59";
+        await this.getConnection();
+        let sales = await this.saleRepository.find({where:{seller,date:Between(date1,date2)},relations:["seller"]});
+        return sales;
     }
 
 
@@ -118,7 +126,7 @@ export class SaleRepository{
         let dateInit=date+'T00:00:00';
         let dateEnd=date+'T23:59:59';
         return await this.saleRepository.find({
-            typeSale:"DELETED",
+            statusStr:"DELETED",
             date:Between(dateInit,dateEnd)
         });
     }
@@ -128,9 +136,27 @@ export class SaleRepository{
         let dateInit=date+'T00:00:00';
         let dateEnd=date+'T23:59:59';
 
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale and sale.typeSale <> :typeSale2",{dateInit,dateEnd,typeSale:"CREDITO",typeSale2:"DELETED"})
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{dateInit,dateEnd,typeSale:"CREDITO",typeSale2:"DELETED"})
         .leftJoinAndSelect("sale.seller","seller").leftJoinAndSelect("sale.client","client").getMany();
         return sales;
+    }
+
+    async getSalesByClientRange(client:Client,page:number,perPage:number,from:string,to:string){
+        await this.getConnection();
+        let dateInit=from+'T00:00:00Z';
+        let dateEnd=to+'T23:59:59Z';
+        
+        let skip = (page)*perPage;
+        let count= await this.saleRepository.count({where:{client,date:Between(dateInit,dateEnd)}});
+        let items= await this.saleRepository.query(`
+        select sale_id as saleId,folio,date,amount,users.name as seller from 
+        sales left join users on sales.seller_id = users.id
+         where client_id=${client.id} and date between "${dateInit}" and "${dateEnd}" limit ${perPage} offset ${skip};
+        `);
+        return {
+            count,
+            items: items as Array<any>
+        }
     }
 
 }

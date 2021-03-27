@@ -10,3 +10,14 @@ export interface Presentation{
     keySae:string,
     isPz:boolean
 }
+
+export interface PresentationsAvailables{
+    presentationType:string,
+    price:number,
+    keySae:string,
+    presentationId: number,
+    isPz:boolean,
+    nameProduct:string,
+    quantity:number,
+    weight?: number
+    }

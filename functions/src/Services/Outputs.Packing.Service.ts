@@ -21,7 +21,7 @@ export class OutputsPackingService{
         
         let product:Product = await this.productRepository.getProductById(outputsPackingDTO.productId);
         if(!product) throw new Error("[404], producto no existe");
-        let lote:WarehousePacking = await this.warehousePackingRep.findWarehousePackingById(+outputsPackingDTO.loteId);
+        let lote:WarehousePacking = await this.warehousePackingRep.findWarehousePackingByIdAndStatus(+outputsPackingDTO.loteId,"OPENED");
         if(!lote) throw new Error("[404], no existe registro en almacen de empaque");
         if(lote.status==WarehouseStatus.CLOSED) throw new Error("[409], el lote ya esta cerrado");
         if(lote.status==WarehouseStatus.PENDING) throw new Error("[409], el lote no ah sido abierto");

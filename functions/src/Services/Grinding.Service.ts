@@ -20,12 +20,14 @@ export class GrindingService{
     private formulationRepository:FormulationRepository;
     private rawRepository:RawRepository;
     private defrostFormulationRepository:DefrostFormulationRepository;
+    private defrostRepository:DefrostRepository;
     constructor(){
         this.grindingRepository = new GrindingRepository();
         this.processRepository = new ProcessRepository();
         this.formulationRepository = new FormulationRepository();
         this.rawRepository = new RawRepository();
         this.defrostFormulationRepository = new DefrostFormulationRepository();
+        this.defrostRepository = new DefrostRepository();
     }
 
     async createProcessInter():Promise<Process>{
@@ -64,7 +66,10 @@ export class GrindingService{
                 processObj.grinding = new Array<Grinding>();
             }
         }
-        
+        processObj.typeProcess = formulation.typeFormulation;
+        if(formulation.ingredientsIds!=null){
+            processObj.ingredientsIds=formulation.ingredientsIds;
+        }
         for(let grindingForm of grindingsForm){
             if (!grindingForm.process) throw new Error('[400],process is required');
             if (!grindingForm.weight) throw new Error('[400],weight is required');
@@ -76,7 +81,8 @@ export class GrindingService{
         
         processObj.product = formulation.productRovianda;
         let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(grindingForm.defrostId);
-        
+        let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostFormulation.defrost.defrostId);
+        defrostFormulation.defrost=defrost;
             let grinding = new Grinding();
             grinding.singleProcess=grindingForm.process;
             grinding.date = grindingForm.date;

@@ -1,7 +1,7 @@
 import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
-import { OrderSellerRequest, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
+import { OrderSellerRequest, OrderSellerUpdateProperties, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
@@ -22,7 +22,7 @@ import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
 import { RelationCount } from 'typeorm';
 import { Sale } from '../Models/Entity/Sales';
 import { SaleRepository } from '../Repositories/Sale.Repository';
-import { times } from 'lodash';
+import { isEmpty, LoDashImplicitStringWrapper, times } from 'lodash';
 import { SubSaleRepository } from '../Repositories/SubSale.Repository';
 import { SubSales } from '../Models/Entity/Sub.Sales';
 import { SqlSRepository } from '../Repositories/SqlS.Repositoy';
@@ -30,7 +30,7 @@ import { UserDTO } from '../Models/DTO/UserDTO';
 import { Roles } from '../Models/Entity/Roles';
 import { RolesRepository } from '../Repositories/Roles.Repository';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
-import { Presentation } from '../Models/DTO/Presentations.DTO';
+import { Presentation, PresentationsAvailables } from '../Models/DTO/Presentations.DTO';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { Debts } from '../Models/Entity/Debts';
@@ -38,6 +38,11 @@ import { Client } from '../Models/Entity/Client';
 import { DebtsPaymentRequest } from '../Models/DTO/Debts.DTO';
 import { TicketUtil } from '../Utils/Tickets/Ticket.Util';
 import { CheeseRepository } from '../Repositories/Cheese.Repository';
+import { response } from 'express';
+import { SellerInventory } from '../Models/Entity/Seller.Inventory';
+import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
+import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
+import { VisitClientOperationRepository } from '../Repositories/VisitClientOperationRepository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -56,7 +61,8 @@ export class SalesRequestService{
     private rolesRepository:RolesRepository;
     private ticketUtil:TicketUtil;
     private cheeseRepository:CheeseRepository;
-    
+    private propertiesPackagingRepository:PropertiesPackagingRepository;
+    private visitOperationReporsitory:VisitClientOperationRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -74,6 +80,8 @@ export class SalesRequestService{
         this.rolesRepository = new RolesRepository();
         this.ticketUtil = new TicketUtil();
         this.cheeseRepository = new CheeseRepository();
+        this.propertiesPackagingRepository = new PropertiesPackagingRepository();
+        this.visitOperationReporsitory = new VisitClientOperationRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -83,25 +91,27 @@ export class SalesRequestService{
         console.log("ROL: ",user.roles.description);
         if(user.roles.description!="SALESUSER") throw new Error("[403], Usuario no autorizado");
         //let properties:PackagingProperties[] = await this.packagingRepository.getPackagingWithProperties(request.products);
+        let orderDateTime = request.date.split(" ");
         let order:OrderSeller = new OrderSeller();
-        order.date = request.date;
+        order.date = orderDateTime[0]+"T"+orderDateTime[1];
         order.status="ACTIVE";
         order.urgent=request.urgent;
         order.seller=user;
         
         let subOrderArr:Array<SubOrder> = new Array<SubOrder>();
         for(let suborder of request.products){
-          let product = await this.productRoviandaRepository.getById(suborder.productId);
-          if(!product) throw new Error(`[404], el producto con el id = '${suborder.productId}' no existe`);
-          let presentation = await this.presentationProductsRepository.getPresentationProductsById(suborder.presentationId);
-          if(!presentation) throw new Error(`[404], la presentacion con el id = '${suborder.presentationId}' no existe`);
+          
+          let presentation = await this.presentationProductsRepository.findByKeySae(suborder.keySae);
+          if(!presentation) throw new Error(`[404], la presentacion con el codigo: '${suborder.keySae}' no existe`);
           let subOrder:SubOrder = new SubOrder();
           subOrder.units= suborder.quantity;
-          subOrder.productRovianda = product;
+          subOrder.productRovianda = presentation.productRovianda;
           subOrder.presentation = presentation;
           subOrder.typePrice=presentation.typePrice;
           subOrder.active=true;
+          subOrder.observations = suborder.observations;
           subOrderArr.push(subOrder);
+
         }
         order.subOrders = subOrderArr;
         
@@ -127,13 +137,20 @@ export class SalesRequestService{
         return result;
     }
 
-    async getPresentationsOfProductOfOrder(orderId:number,productId:number){
+    async getPresentationsOfProductOfOrder(orderId:number){
         // let order:OrderSeller = await this.saleSellerRepository.getOrderById(orderId);
         // if(!order) throw new Error("[404], la orden no existe");
         // let product:ProductRovianda = await this.productRoviandaRepository.getById(productId);
         // if(!product) throw new Error("[404], el producto de rovianda no existe");
-        return await this.salesRequestRepository.getPresentationOfProductOfOrder(orderId,productId);
+        return await this.salesRequestRepository.getPresentationOfProductOfOrder(orderId);
     }
+    async getPresentationsOfProductOfOrderApp(orderId:number,productId:number){
+      // let order:OrderSeller = await this.saleSellerRepository.getOrderById(orderId);
+      // if(!order) throw new Error("[404], la orden no existe");
+      // let product:ProductRovianda = await this.productRoviandaRepository.getById(productId);
+      // if(!product) throw new Error("[404], el producto de rovianda no existe");
+      return await this.salesRequestRepository.getPresentationOfProductOfOrderApp(orderId,productId);
+  }
 
     async getSellerInventory(sellerUid:string){
         return await this.sellerInventoryRepository.getSellerInventoryBySellerId(sellerUid);
@@ -337,20 +354,36 @@ export class SalesRequestService{
       }
     }
 
-    async saveSellerOperation(sellerOperationDTO:SellerOperationDTO){
-      if(!sellerOperationDTO.date) throw new Error("[400], date is required");
-      if(!sellerOperationDTO.sellerUid) throw new Error("[400], date is required");
-      if(!sellerOperationDTO.timeStart) throw new Error("[400], date is required");
-      let user:User = await this.userRepository.getUserById(sellerOperationDTO.sellerUid);
+    async saveSellerOperation(request:SellerOperationDTO){
+      let user:User = await this.userRepository.getUserById(request.sellerUid);
       if(!user) throw new Error("[404], user not found");
-      let sellerOperation:SellerOperation = new SellerOperation();
       let date = new Date();
-      date.setHours(date.getHours()-6)
+      date.setHours(date.getHours()-6);
+      let month:string = (date.getMonth()+1).toString();
+      let day:string  = date.getDate().toString();
+      if(+month<10){
+        month=+"0"+month;
+      }
+      if(+day<10){
+        day="0"+day;
+      }
+      let dateStr:string = date.getFullYear()+"-"+month+"-"+day;
+      let sellerOperation:SellerOperation = await this.sellerOperationRepository.getSellerOperationByDateUser(dateStr,user);
+      if(sellerOperation){
+        if(sellerOperation.eatingTimeEnd!=null && sellerOperation.eatingTimeEnd!=""){
+          throw new Error("[409], ya haz terminado un tiempo de comida por hoy");
+        }else{
+          throw new Error("[409], ya haz iniciado un tiempo de comida por hoy");
+        }
+      }
+      let sellerOperationToSave:SellerOperation = new SellerOperation();
+      
       let newHour = date.getHours() + ":" + date.getMinutes()+":"+date.getSeconds();
-      sellerOperation.date = sellerOperationDTO.date;
-      sellerOperation.eatingTimeStart = newHour;
-      sellerOperation.seller = user;
-      await this.sellerOperationRepository.saveSellerOperation(sellerOperation);
+      sellerOperationToSave.date = dateStr;
+      sellerOperationToSave.eatingTimeStart = newHour;
+      sellerOperationToSave.seller = user;
+      await this.sellerOperationRepository.saveSellerOperation(sellerOperationToSave);
+
     }
 
     async updateHourSellerOperation(sellerUid:string){
@@ -596,40 +629,43 @@ export class SalesRequestService{
         user.warehouseKeySae=userDTO.warehouse;
         await this.firebaseHelper.createUser(userDTO).then(async(userRecord)=>{
           user.id= userRecord.uid;
-          await this.userRepository.saveUser(user);
-          
+          await this.userRepository.saveUser(user);          
            await this.sqlsRepository.createSeller(userDTO);
-          await this.sqlsRepository.updateWarehouse(userDTO.warehouse,user.name);
+           await this.sqlsRepository.updateWarehouse(userDTO.warehouse,user.name);
         });        
      }
     
     async createSaleSae(saleRequestForm:SaleRequestForm){
       console.log("SALE REQUEST FORM: ",JSON.stringify(saleRequestForm));
-      console.log("iniciando creacin de venta");
+      console.log("iniciando creacion de venta");
       let seller:User = await this.userRepository.getUserById(saleRequestForm.sellerId);
       console.log("obteniendo vendedor");
       let alreadyActive = await this.sqlsRepository.getSellerActive(seller.saeKey);
       console.log("obteniendo vendedor de sae");
       if(!alreadyActive.recordset.length) throw new Error("[409], el vendedor no esta activo en SAE");
-      let client = await this.sqlsRepository.getClientsByKey(saleRequestForm.keyClient);
       let clientRovianda = await this.clientRepository.findByClientKey(saleRequestForm.keyClient);
-
-      console.log("obteniendo cliente de sae");
-      if(!client.recordset.length) throw new Error("[404], no existe el cliente en SAE");
+      if(clientRovianda.status=="INACTIVE") throw new Error("[409], el cliente ah sido eliminado del sistema");
+      if(clientRovianda.idAspel==0){
+        console.log("obteniendo cliente de sae");
+        let client = await this.sqlsRepository.getClientsByKey(saleRequestForm.keyClient);
+        if(!client.recordset.length) throw new Error("[404], no existe el cliente en SAE");
+      }
       
+          
       console.log("iniciando recorrido de articulos");
       let saleGral = new Sale();
       saleGral.client = clientRovianda;
       saleGral.seller=seller;
       let date = new Date();
-      date.setHours(date.getHours()-6);
-      saleGral.date = date.toLocaleString();
+      saleGral.statusStr="ACTIVE";
+      date.setHours(date.getHours()-6);    
+      saleGral.date = date.toISOString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
-      if(saleRequestForm.credit && saleRequestForm.typeSale=="CREDITO"){
-        if(clientRovianda.credit<saleRequestForm.credit) throw new Error("[409], ya no tienes credito disponible");
+      if(saleRequestForm.credit && saleRequestForm.typeSale=="Crédito"){
+        if(clientRovianda.currentCredit<saleRequestForm.credit) throw new Error("[409], credito insuficiente solo tienes $"+clientRovianda.currentCredit +" de $"+clientRovianda.credit);
         saleGral.credit = saleRequestForm.credit;
-        clientRovianda.credit-=saleRequestForm.credit;
+        clientRovianda.currentCredit-=saleRequestForm.credit;
         saleGral.typeSale="CREDITO";
         await this.clientRepository.saveClient(clientRovianda);
       }else{
@@ -637,19 +673,64 @@ export class SalesRequestService{
       }
       for(let sale of saleRequestForm.products){
        let subSale:SubSales = new SubSales();
-       let presentation:PresentationProducts = await this.presentationProductsRepository.getPresentationProductsById(sale.presentationId);
+       let presentation:PresentationProducts = null; 
+       presentation= await this.presentationProductsRepository.findByKeySae(sale.productKey);
+       if(!presentation){
+         presentation = await this.presentationProductsRepository.findByKeySaeByLike(sale.productKey);
+       }
        subSale.presentation = presentation;
        subSale.product = presentation.productRovianda;
        subSale.quantity=sale.quantity;
        
-       let exist = await this.sqlsRepository.getProductExist(presentation.keySae,sale.quantity,seller.warehouseKeySae);
+       //let exist = await this.sqlsRepository.getProductExist(presentation.keySae,sale.quantity,seller.warehouseKeySae);
+       let productSae = null;
+       productSae= await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
+       if(!productSae.length){
+        productSae = await this.sqlsRepository.getProductSaeByKeyLike(presentation.keySae);
+       }
+       if(!productSae.length) throw new Error("[404], no existe el product en aspel sae");
+       let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
        console.log("buscando existencia en stock");
        if(!presentation) throw new Error("[404], no existe la presentacion del producto en el sistema rovianda");
-       let productSae = await this.sqlsRepository.getProductSaeByKey(presentation.keySae);
-       console.log("buscando producto en sae");
-       if(!exist.length) throw new Error("[404], no existe el producto o no hay stock completo acorde a la orden");
-        sale.taxSchema = productSae[0].CVE_ESQIMPU;
-        sale.warehouseKey = exist[0].EXISTENCIA;
+       let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(presentation.productRovianda,presentation,seller);
+       let stock = 0;
+       for(let ava of avaibleProduct){
+          if(uniMed=="pz"){
+            stock+=ava.quantity;
+          }else{
+            stock+=ava.weigth;
+          }
+       }
+       if(stock<sale.quantity) throw new Error("No hay stock Suficiente para la venta");
+       
+       let removedCount = sale.quantity;//4
+       let tempRemoved=0;
+       for(let ava of avaibleProduct){
+          if(uniMed=="pz"){
+            if(ava.quantity<removedCount){
+              ava.quantity=0;
+                removedCount-=ava.quantity;
+            }else{
+              tempRemoved=removedCount;
+              removedCount=tempRemoved-ava.quantity;
+              ava.quantity-=tempRemoved;
+              
+            }
+            
+          }else if(uniMed=="kg"){
+              if(ava.weigth<removedCount){//6<4
+                ava.weigth=0;
+                removedCount-=ava.weigth;
+              }else{
+                tempRemoved = removedCount;//4
+                removedCount=removedCount-ava.weigth; // -2
+                ava.weigth-=tempRemoved; //6 -> 4   
+              }
+          }
+          await this.sellerInventoryRepository.saveSellerInventory(ava);
+         
+       } 
+       console.log("Eliminado de stock completado");
         let price =0;
         if(presentation.typePrice=="PUBLIC"){
           price = presentation.presentationPricePublic;
@@ -658,70 +739,25 @@ export class SalesRequestService{
         }else if(presentation.typePrice=="LIQUIDATION"){
           price = presentation.presentationPriceLiquidation;
         }
-        /*let claveEsq = +productSae[0].CVE_ESQIMPU;
-        switch(claveEsq){
-          case 1:
-            price +=(price*.16);
-            break;
-            case 2: // sin IVA operaciones no necesarias
-              break;
-              case 3: // IVA EXCENTO
-                break;
-                case 4: // 16 IVA mas 8% de IEPS
-                price += (price*.16);
-                price += (price*.08)
-                  
-                  break;
-                  case 5:// 16 IVA mas 25% de IEPS
-                  
-                  price += (price*.16);
-                  price += (price*.25)
-                    break;
-                    case 6:// 16 IVA mas 50% de IEPS
-                    price += (price*.16);
-                    price += (price*.50)
-                      break;
-        }*/
+       
         sale.price= price;
-        let unidMed=(productSae[0].UNI_MED as string).toLowerCase();
-        if(unidMed=="pz"){
-          sale.total = price*sale.quantity;
-        }else{
-          sale.total = price*sale.weight;
-          subSale.quantity=sale.weight;
-        }
-        subSale.amount = sale.total;
+        subSale.amount = sale.quantity*sale.price;
         subSale.loteId="desconocido";
         saleGral.subSales.push(subSale);
-        let sellerInventory=await this.sellerInventoryRepository.getInventoyOfProductPresentationId(presentation,sale.quantity,seller);
-        sellerInventory.quantity-=sale.quantity;
+        //let sellerInventory=await this.sellerInventoryRepository.getInventoyOfProductPresentationId(presentation,sale.quantity,seller);
+        //sellerInventory.quantity-=sale.quantity;
         
-        await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+        //await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
         
      }
-     saleGral.amount = saleGral.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
+     saleGral.amount = saleRequestForm.amount;
+     saleGral.payedWith = saleRequestForm.payed;
      console.log("SaleGral: "+saleGral.amount);
      if(saleRequestForm.credit){
        saleRequestForm.payed=saleGral.amount-saleGral.credit;
      }
      console.log("SaleGral: "+saleGral.credit);
-    //  if(saleRequestForm.payed<saleGral.amount){
-    //     saleGral.debts= new Array<Debts>();
-    //    let debs:Debts = new Debts();
-    //    debs.amount=saleGral.amount-saleRequestForm.payed;
-    //    let date=new Date();
-    //     date.setHours(date.getHours()-6)
-    //     debs.createDay= date.toISOString();
-    //     debs.days=saleRequestForm.days;
-    //     debs.status=true;
-    //     debs.seller=seller;
-    //     saleGral.debts.push(debs);
-    //   clientRovianda.hasDebts=true;
-    //   saleGral.status=true;
-    //   await this.clientRepository.saveClient(clientRovianda);
-    //  }else{
-       saleGral.status=false;
-    // }
+      saleGral.status=false;
      let lastSale =null;
      lastSale= await this.saleRepository.getLastSale();//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
      if(!lastSale){
@@ -749,10 +785,15 @@ export class SalesRequestService{
 
     async getSellerCount(){
       let result= await this.sqlsRepository.getSellerCount();
+      
       if(!result.length){
-        return {count:1}
+        
+          return {count:1}
+        
       }else{
-        return {count:(+result[0].CVE_VEND)+1}
+        let clave:number = +result[0].CVE_VEND;
+        
+        return {count:(clave)+1}
       }
     }
 
@@ -792,13 +833,15 @@ export class SalesRequestService{
       if(!user) throw new Error("[404], vendedor no existe la venta");
       
       let dateParsed=new Date(date);
-      dateParsed.setHours(dateParsed.getHours()-24);
+      //dateParsed.setHours(dateParsed.getHours()-6);
       let month=(dateParsed.getMonth()+1).toString();
       let day = dateParsed.getDate().toString();
       if(+month<10){
         month='0'+month;
       }
-      
+      if(+day<10){
+        day='0'+day;
+      }
       let dateStr = dateParsed.getFullYear()+"-"+month+"-"+day;
       console.log(dateStr);
       let sales:Sale[]=await this.saleRepository.getSaleByDate(dateStr,user);
@@ -808,9 +851,84 @@ export class SalesRequestService{
         sale.subSales=subSales;
       }
       let sellerOperations:SellerOperation = await this.sellerOperationRepository.getSellerOperationByDateUser(dateStr,user);
-      let ticket=await this.ticketUtil.TickedEndDate(sales,user,sellerOperations);
+      let clientOfSeller = await this.clientRepository.getClientBySeller(user);
+      let clientsIds = clientOfSeller.map(x=>x.id);
+      let visitsOfSellerInDay:VisitClientOperation[] = await this.visitOperationReporsitory.getByClientOfSellerIdsAndDate(clientsIds,dateStr);
+      
+      
+
+      
+      let inventory:{presentationId:number}[] =  await this.sellerInventoryRepository.getInventoryMoreThanOneBySeller(user);
+      let productsAvailable:PresentationsAvailables []  = [];
+      for(let presentation of inventory){
+          let presentationEntity:PresentationProducts = await this.presentationProductsRepository.getPresentationProductsById(presentation.presentationId);
+          let productSae = await this.sqlsRepository.getProductSaeByKey(presentationEntity.keySae);
+          if(productSae.length){
+          let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+          let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(presentationEntity.productRovianda,presentationEntity,user)
+          let quantityAvailable =0;
+          for(let ava of avaibleProduct){
+            if(uniMed=="kg"){
+              quantityAvailable+=ava.weigth;
+            }else if(uniMed=="pz"){
+              quantityAvailable+=ava.quantity;
+            }
+          }
+        
+          productsAvailable.push({
+            presentationType: presentationEntity.presentationType,
+            price: presentationEntity.presentationPricePublic,
+            keySae: presentationEntity.keySae,
+            presentationId: presentationEntity.id,
+            isPz: uniMed=="pz",
+            nameProduct: presentationEntity.productRovianda.name,
+            quantity: quantityAvailable
+          })
+        }
+      }
+      let ticket=await this.ticketUtil.TickedEndDate(sales,user,sellerOperations,visitsOfSellerInDay,productsAvailable,dateStr);
       return ticket;
     }
+
+  async getResguardedTicket(sellerUid:string){
+    let user:User = await this.userRepository.getUserById(sellerUid);
+    if(!user) throw new Error("[404], vendedor no existe la venta");
+    let inventory:{presentationId:number}[] =  await this.sellerInventoryRepository.getInventoryMoreThanOneBySeller(user);
+    let productsAvailable:PresentationsAvailables []  = [];
+    for(let presentation of inventory){
+        let presentationEntity:PresentationProducts = await this.presentationProductsRepository.getPresentationProductsById(presentation.presentationId);
+        let productSae = await this.sqlsRepository.getProductSaeByKey(presentationEntity.keySae);
+        if(productSae.length){
+        let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+        let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(presentationEntity.productRovianda,presentationEntity,user)
+        let quantityAvailable =0;
+        let weightAvailable=0;
+        for(let ava of avaibleProduct){
+          if(uniMed=="kg"){
+            quantityAvailable+=ava.quantity;
+            weightAvailable+=ava.weigth;
+          }else if(uniMed=="pz"){
+            quantityAvailable+=ava.quantity;
+            weightAvailable+=ava.weigth;
+          }
+        }
+      
+        productsAvailable.push({
+          presentationType: presentationEntity.presentationType,
+          price: presentationEntity.presentationPricePublic,
+          keySae: presentationEntity.keySae,
+          presentationId: presentationEntity.id,
+          isPz: uniMed=="pz",
+          nameProduct: presentationEntity.productRovianda.name,
+          quantity: quantityAvailable,
+          weight: weightAvailable
+        })
+      }
+    }
+    let ticket=await this.ticketUtil.getResguardedTicket(productsAvailable,user.name);
+    return ticket;
+  }
+
     async getOrdersSellers(){
       let orders:OrderSeller[]= await this.saleSellerRepository.getAllOrdersSellers();
       let response:OrderSeller[]=[];
@@ -834,6 +952,34 @@ export class SalesRequestService{
         return await this.saleRepository.getAllSalesForSuperAdmin(page,peerPage,salesIds,date);
     }
 
+    async cancelSale(saleId:number){
+      let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      if(!sale) throw new Error("[404], no existe la venta");
+      sale.statusStr="CANCELED";
+      let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+      for(let subSale of subSales){
+        let sellerInventory = await this.sellerInventoryRepository.getByProductPresentationAndSeller(subSale.product,subSale.presentation,sale.seller);
+        let productSae = await this.sqlsRepository.getProductSaeByKey(subSale.presentation.keySae);
+        let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+        if(sellerInventory.length){
+          let firstInventoryOfProduct = sellerInventory[0];  
+          if(uniMed=="pz"){
+            firstInventoryOfProduct.quantity+=subSale.quantity;
+          }else if(uniMed=="kg"){
+            firstInventoryOfProduct.weigth+=subSale.quantity;
+          }
+          await this.sellerInventoryRepository.saveSellerInventory(firstInventoryOfProduct);
+        }
+      }
+      
+      await this.saleRepository.saveSale(sale);
+    }
+
+    async getAllSalesBySellerAndDate(sellerUid:string,date:string){
+        let seller:User = await this.userRepository.getUserById(sellerUid);
+        return await this.saleRepository.getAllSalesOfSellerUid(seller,date);
+    }
+
     async deleteSalesBySuperAdmin(salesIds:Array<number>,date:string){
       if(!salesIds.length) throw new Error("[400], el arreglo de ventas no puede venir vacio");
       let sales:Sale[]=[];
@@ -853,7 +999,7 @@ export class SalesRequestService{
         sale.folio='0'.repeat(10-folioInit.toString().length)+''+folioInit;
         folioInit++;
         }else{
-          sale.typeSale="DELETED";
+          sale.statusStr="DELETED";
           let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
           sale.subSales=subSales;
           await this.sqlsRepository.updateProductInSaeBySellerWarehouses(sale);
@@ -889,6 +1035,186 @@ export class SalesRequestService{
         await this.sqlsRepository.createSaleSae(sale);
       }
       
+    }
+
+    async findProduct(selleruid:string,productKey:string){
+      let seller:User = await this.userRepository.getUserById(selleruid);
+      if(!seller) throw new Error("[404], no existe el usuario");
+      let productPresentation:PresentationProducts = null;
+      productPresentation= await this.presentationProductsRepository.findByKeySae(productKey);
+      if(!productPresentation){
+        productPresentation = await this.presentationProductsRepository.findByKeySaeByLike(productKey);
+      }
+      if(productPresentation==null) throw new Error("[404], no existe el producto");
+      let productSae =null;
+      productSae= await this.sqlsRepository.getProductSaeByKey(productKey);
+      if(!productSae.length){
+        productSae= await this.sqlsRepository.getProductSaeByKeyLike(productKey);
+      }
+      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+      let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(productPresentation.productRovianda,productPresentation,seller)
+      let quantityAvailable =0;
+      for(let ava of avaibleProduct){
+        if(uniMed=="kg"){
+          quantityAvailable+=ava.weigth;
+        }else if(uniMed=="pz"){
+          quantityAvailable+=ava.quantity;
+        }
+      }
+    
+      let product:{
+          presentationType:string,
+          price:number,
+          keySae:string,
+          presentationId: number,
+          isPz:boolean,
+          nameProduct:string,
+          quantity:number
+      }={
+        presentationType: productPresentation.presentationType,
+        price: productPresentation.presentationPricePublic,
+        keySae: productPresentation.keySae,
+        presentationId: productPresentation.id,
+        isPz: uniMed=="pz",
+        nameProduct: productPresentation.productRovianda.name,
+        quantity: quantityAvailable
+      }
+      return product;
+    }
+
+    async findProductInve(key:string){
+      let productPresentation:PresentationProducts = null;
+      productPresentation= await this.presentationProductsRepository.findByKeySae(key);
+      if(!productPresentation) {
+        productPresentation = await this.presentationProductsRepository.findByKeySaeByLike(key);
+      }
+      if(!productPresentation) throw new Error("[404], no existe el producto");
+      
+      let productSae = null;
+      productSae =await this.sqlsRepository.getProductSaeByKey(key);
+      if(!productSae.length){
+        productSae = await this.sqlsRepository.getProductSaeByKeyLike(key);
+      }
+      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+
+      let packagings = await this.packagingRepository.getPackagingsByProduct(productPresentation.productRovianda);
+      let stock = 0;
+      let stockPendingToDeliver=0;
+      for(let packaging of packagings){
+          let propertiesPackaging = await this.propertiesPackagingRepository.findPropiertiesPackagings(packaging);
+          for(let pro of propertiesPackaging){
+            if(pro.presentation.id==productPresentation.id){
+              stock+=pro.units;
+            }
+          }
+      }
+
+      console.log("Total stock of: "+key+" : "+stock);
+
+      let ordersSellers = await this.saleSellerRepository.getAllOrdersSellers();
+      for(let orderSeller  of ordersSellers){
+        let subOrdersSeller = await this.salesRequestRepository.getByOrderSeller(orderSeller);
+        orderSeller.subOrders=subOrdersSeller;
+        for(let sub of subOrdersSeller){
+          if(sub.presentation.id==productPresentation.id){
+            stockPendingToDeliver+=sub.units;
+          }
+        }
+      }
+      console.log("Total stock requested: "+stockPendingToDeliver);
+      stock-=stockPendingToDeliver;
+      let product:{
+        presentationType:string,
+        price:number,
+        keySae:string,
+        presentationId: number,
+        isPz:boolean,
+        nameProduct:string,
+        quantity:number
+    }={
+      presentationType:productPresentation.presentationType,
+      price: productPresentation.presentationPricePublic,
+      keySae: productPresentation.keySae,
+      presentationId: productPresentation.id,
+      isPz: uniMed=="pz",
+      nameProduct: productPresentation.productRovianda.name,
+      quantity: (stock<0)?0:stock
+    };
+      return product;
+    }
+
+    async  getAllSellers() {
+        let rol:Roles = await this.rolesRepository.getRoleById(10);
+        let sellers:User[] = await this.userRepository.getByRol(rol);
+        return sellers;
+    }
+
+    async getCurrentTime(sellerUid:string){
+
+      let seller:User = await this.userRepository.getUserById(sellerUid);
+      let dateParsed = new Date();
+      dateParsed.setHours(dateParsed.getHours()-6);
+      let month:string= (dateParsed.getMonth()+1).toString();
+      let day:string = dateParsed.getDate().toString();
+      if(+month<10){
+        month='0'+month;
+      }
+      if(+day<10){
+        day='0'+day;
+      }
+      let dateStr = dateParsed.getFullYear()+"-"+month+"-"+day;
+      console.log("fecha a buscar: ",dateStr);
+      let sellerOperations:SellerOperation = await this.sellerOperationRepository.getSellerOperationByDateUser(dateStr,seller);
+      let response:{hours:number,minutes:number,seconds:number}=null;
+      if(sellerOperations==null){
+          throw new Error("[409], Aún no haz iniciado tu hora de comida");
+        }else{
+          if(sellerOperations.eatingTimeEnd!=null && !isEmpty(sellerOperations.eatingTimeEnd)){
+            let hours = sellerOperations.eatingTimeEnd.split(":");
+            let currentTimeEat = sellerOperations.eatingTimeStart.split(":");
+            if(+hours[2]<+currentTimeEat[2]){
+              hours[1]=(+hours[1]-1).toString();
+              currentTimeEat[2]=(+currentTimeEat[2]-(+hours[2])).toString();
+              hours[2]="60";
+            }
+            response={
+              hours:+hours[0]-(+currentTimeEat[0]),
+              minutes:+hours[1]-(+currentTimeEat[1]),
+              seconds:+hours[2]-(+currentTimeEat[2])
+          };
+          }else{
+            let newDate:Date = new Date();
+            newDate.setHours(newDate.getHours()-6);
+            let currentTimeEat = sellerOperations.eatingTimeStart.split(":");
+            let seconds = newDate.getSeconds();
+            if(newDate.getSeconds()<+currentTimeEat[2]){
+              newDate.setMinutes(newDate.getMinutes()-1);
+              currentTimeEat[2]=(+currentTimeEat[2]-seconds).toString();
+              newDate.setSeconds(60);
+            }
+            response={
+                hours:newDate.getHours()-(+currentTimeEat[0]),
+                minutes:newDate.getMinutes()-(+currentTimeEat[1]),
+                seconds:newDate.getSeconds()-(+currentTimeEat[2])
+            };
+          }
+        }
+      return response;
+    }
+
+    async getOrderDetails(orderId:number){
+      let orderDetails = await this.saleSellerRepository.getDetailsOfOrderOfSellerToEdit(orderId);
+      return orderDetails;
+    }
+
+    async deleteOrderDetails(items:OrderSellerUpdateProperties[],orderId:number){
+        let ids=items.map(x=>x.subOrderId);
+        for(let item of items){
+          await this.saleSellerRepository.updateSubOrderQuantity(item.subOrderId,item.quantity);
+        }
+        await this.saleSellerRepository.deleteSubordersOmit(ids,orderId);
     }
   }
 

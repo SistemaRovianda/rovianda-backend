@@ -23,7 +23,7 @@ export class OutputsDriefService {
         let product: Product = await this.productRepository.getProductById(outputsDriefDTO.productId);
         if (!product) throw new Error("[404], producto no encontrado");
 
-        let lote: WarehouseDrief = await this.warehouseDriefRep.getWarehouseDriefByLoteId(outputsDriefDTO.loteId);
+        let lote: WarehouseDrief = await this.warehouseDriefRep.getWarehouseDriefByLoteIdAndStatus(outputsDriefDTO.loteId,"OPENED");
         if (!lote) throw new Error("[404], El lote no existe");
         console.log(lote)
         

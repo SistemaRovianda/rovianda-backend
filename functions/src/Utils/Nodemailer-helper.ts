@@ -59,7 +59,7 @@ export class Nodemailers {
             let mailOptions:any = {
                     from: this.config.nodemailer.mailOptions.from, // sender address
                     to: email, // list of receivers
-                    subject: "Cuenta SUMAGRO", // Subject line // plain text body
+                    subject: "Cuenta Rovianda", // Subject line // plain text body
                     text: `Username: ${credentials.email} Password: ${credentials.password}`
                 };
 

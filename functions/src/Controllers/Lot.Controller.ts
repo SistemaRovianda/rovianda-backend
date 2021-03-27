@@ -74,7 +74,7 @@ export class LotController{
     }  
     
     async getDriefHistory(req: Request, res: Response){
-        let response = await this.warehouseDriefService.getDriefHistory(req.params.lotId);
+        let response = await this.warehouseDriefService.getDriefHistory(+req.params.entranceId);
         return res.status(200).send(response);
     }
 

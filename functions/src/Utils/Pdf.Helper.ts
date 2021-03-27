@@ -20,7 +20,8 @@ import { Devolution } from '../Models/Entity/Devolution';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { CheeseRepository } from '../Repositories/Cheese.Repository';
-import { ceil } from 'lodash';
+import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from '../Models/DTO/PackagingDTO';
+
 
 
 export default class PdfHelper{
@@ -31,6 +32,82 @@ export default class PdfHelper{
         this.cheeseRepository = new CheeseRepository();
         this.grindingRepository=new GrindingRepository();
     }
+
+    getReportInventory(items:LotsStockInventoryPresentation[],name:string){
+        let content= `<html><body>`;
+        content+=`<h1 style="text-align:center">${name}</h1>`;
+        content+=`<table><tr><th>Producto</th><th>Presentación</th><th>Lote</th><th>Unidades</th><th>Peso</th></tr>`;
+        for(let item of items){
+            content+=`<tr>
+            <td>${item.name}</td>
+            <td>${item.type_presentation}</td>
+            <td>${item.lot_id}</td>
+            <td>${item.units}</td>
+            <td>${item.weight}</td>
+            </tr>`;
+        }
+        content+=`</body></html>`;
+        return content;
+    }
+
+    getReportOfOrdersSellers(orders:OrderSeller[]){
+        let reports=[];
+        let content = ``;
+        if(orders.length){
+            for(let order of orders){
+                content+=`
+                    <html><head>
+                <style>
+                table {
+                    border-collapse: collapse;
+                    }
+                    table, td, th {
+                    border: 1px solid black;
+                    }
+                    
+                </style>
+                </head><body>
+                <h3 style="text-align:center">Reporte de ordenes de vendedores</h3>
+                <h3 style="text-align:center">Orden No. ${order.id}</h3>
+                <table border=1>
+                <tr><th>Vendedor</th>
+                <th>Producto</th>
+                <th>Presentacion</th>
+                <th>Cantidad</th>
+                <th>Observaciones</th>
+                <th>Urgente</th>
+                </tr>
+                <tr>
+                <td>${order.seller.name}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tr>`;
+                for(let subOrder of order.subOrders){
+                    content+=`
+                    <tr>
+                    <td style="font-size: 8px">${subOrder.presentation.keySae}</td>
+                    <td>${subOrder.productRovianda.name}</td>
+                    <td>${subOrder.presentation.presentationType}</td>
+                    <td>${subOrder.units}</td>
+                    <td>${subOrder.observations?subOrder.observations:""}</td>
+                    <td>${order.urgent?"SI":"NO"}</td>
+                    </tr>
+                    `;
+                }
+                content+=`<table></html>`;
+                reports.push(content);
+                content="";
+            }
+        }else{
+            reports.push(`<html><body><h1>No hay ordenes</h1></body></html>`);
+        }
+        
+        return reports;
+    }
+    
     headReportEntranceDrief(){
         return`
         <!DOCTYPE html>
@@ -189,6 +266,10 @@ export default class PdfHelper{
                 <th>${!drief.weight ? "Ok" : ""}</th>
                 <th></th>
             </tr>
+            <tr>
+                <td colspan="2">Se recibió: </td>
+                <td colspan="3">${drief.quantity}</td>
+            </tr>
             <tr style="border:0px">
                 <td style="border:0px;"></td>
                 <td style="border:0px;"></td>
@@ -196,6 +277,7 @@ export default class PdfHelper{
                 <td style="border:0px;"></td>     
                 <td >F-CAL-RO-02</td>
             </tr>
+            
         </table>
     </body>
     </html>
@@ -313,6 +395,16 @@ export default class PdfHelper{
     }
 
     bodyReportEntranceMeat(user:User,meat:EntranceMeat){
+        let date= new Date();
+        date.setHours(date.getHours()-6);
+        let day = date.getDate().toString();
+        let month = (date.getMonth()+1).toString();
+        if(+day<10){
+            day='0'+day;
+        }
+        if(+month<10){
+            month='0'+month;
+        }
         let conten1=`
         <body bgcolor="">
 
@@ -328,14 +420,14 @@ export default class PdfHelper{
          </tr>
          <tr></tr>
          <tr>
-            <th><font size=1>Fecha</font></th>
+            <th><font size=1>Fecha de recepción</font></th>
             <th><font size=1>Proveedor</font</th>
             <th colspan="2"><font size=1>Materia prima</font></th>
             <th><font size=1>Lote proveedor</font></th>
          </tr>
 <!-- ************************************************************************************************-->
          <tr>
-            <th class="espa"><font size=1>${new Date().getFullYear().toString()}-${new Date().getMonth().toString()}-${new Date().getDate().toString()}</font></th>
+            <th class="espa"><font size=1>${meat.createdAt}</font></th>
             <th class="espa"><font size=1>${meat.proveedor}</font></th>
             <th class="espa"  colspan="2"><font size=1>${meat.rawMaterial}</font></th>
             <th class="espa"><font size=1>${meat.loteProveedor}</font></th>
@@ -858,6 +950,11 @@ export default class PdfHelper{
             <td>${packing.paking ? "Ok" : ""}</td>
             <td>${!packing.paking ? "Ok" : ""}</td>
             <td colspan="2"></td>
+        </tr>
+        <tr>
+        <td colspan="2">Se recibió: </td> 
+        <td  colspan="4"> ${packing.quantity}</td>  
+    
         </tr>
         <tr>
         <td colspan="2"><b>Verifico: ${packing.verifit ? packing.verifit.name: "" }</b> </td> 
@@ -1614,34 +1711,36 @@ export default class PdfHelper{
       `;
     }
 
-    bodyReportOvenProducts(data:OvenProducts[]){
-        let content=`<table border="1" align="center" width="100%">
-            
-        <tr>
-            <td>  <img src="${LOGO.data}" alt=""  height="80px">    </td>`;
+    bodyReportOvenProducts(data:OvenProducts[],users:Map<number,{userVerify:User,userElaborated:User}>){
+        console.log("PDF");
+        let content=`<table border="1" align="center" width="100%"> `;
         for(let i = 0; i<data.length; i++){
-            content =content + ` 
-                ${i>0? "<td></td>" : ""}
-                 <td colspan="3"></td>   
-                 <th><font size=1>Tiempo estimado:${data[i].stimatedTime}</font></th>   
+            content += ` 
+            <tr>
+            ${i==0?`<td>  <img src="${LOGO.data}" alt=""  height="80px">    </td>`:"<td></td>"}
+                 <td colspan="4"></td>   
+                 <td><font size=1>Tiempo estimado:${data[i].stimatedTime}</font></td>   
              </tr>
          
              <th colspan="2"><font size=1>Producto: ${data[i].product.name}</font></th>
              <th><font size=1>PCC: ${data[i].pcc}</font></th>
-             <th id="mueve7"><font size=1>Fecha: ${data[i].date}</font></th>
+             <th id="mueve7" colspan="2"><font size=1>Fecha: ${data[i].date}</font></th>
              <th> <font size=1>PCC = 70° C</font></th>
  
              <tr>
+             <td ><font size=1>Lote del día</font></td>
                  <td id="mueve5"><font size=1>Hora</font></td>
                  <td  id="mueve3"><font size=1>Temperatura interna del producto</font></td>
                  <td id="mueve4"><font size=1>Temperatura del horno</font></td>
                  <td id="mueve6"><font size=1>Humedad</font></td>
                  <td id="mueve2"><font size=1>Observaciones</font></td>
              </tr>`;
-             let content2="";
+             
               for(let j=0; j<data[i].revisions.length;j++){   
-                content =content + content2 + `
+                
+                content +=`
              <tr>
+                <td ><font size=1>${data[i].newLote}</font></td>
                  <td class="espa"><font size=1>${data[i].revisions[j].hour}</font></td>
                  <td class="espa"><font size=1>${data[i].revisions[j].interTemp}</font></td>
                  <td class="espa"><font size=1>${data[i].revisions[j].ovenTemp}</font></td>
@@ -1649,33 +1748,39 @@ export default class PdfHelper{
                  <td class="espa"><font size=1>${data[i].revisions[j].observations}</font></td> 
              </tr >
              `
-            }
+              }
+              let usersM = users.get(data[i].id);
+             content+=`<tr>
+             <th colspan="3" class="seg"><font size=1>Elaboró: ${usersM.userElaborated.name}</font></th>
+             <th class="fir" colspan="2"><font size=1>Firma:</font></th>
+             <td><font size=1>Puesto: ${usersM.userElaborated.job}</font> </td>
+         </tr>
+         <tr>
+             <th colspan="3" class="seg"><font size=1>Revisó: ${usersM.userVerify.name}</font></th>
+             <th class="fir"  colspan="2"><font size=1>Firma:</font></th>
+             <td><font size=1><Puesto: ${usersM.userVerify.job}</font></td>
+         </tr>
+         <tr>
+             <th colspan="3" class="seg"><font size=1>Verificó: ${usersM.userVerify.name}</font</th>
+             <th class="fir"  colspan="2"><font size=1>Firma:</font></th>
+             <td><font size=1>Puesto: ${usersM.userVerify.job}</font></td>
+         </tr>
+              <tr>
+              <td colspan="4"></td>
+              <td coslpan="2"></td>
+              </tr>
+          `    
+           
         }
          return content;
      }
 
-    footerReportOvenProducts(userElaborated:User,userVerify:User,oven:OvenProducts){
+    footerReportOvenProducts(){
         return `
-            <tr>
-                <th colspan="3" class="seg"><font size=1>Elaboró: ${oven.nameElaborated}</font></th>
-                <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1>Puesto: ${oven.jobElaborated}</font> </td>
-            </tr>
-            <tr>
-                <th colspan="3" class="seg"><font size=1>Revisó: ${oven.nameCheck}</font></th>
-                <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1><Puesto: ${oven.jobCheck}</font></td>
-            </tr>
-            <tr>
-                <th colspan="3" class="seg"><font size=1>Verificó: ${oven.nameVerify}</font</th>
-                <th class="fir"><font size=1>Firma:</font></th>
-                <td><font size=1>Puesto: ${oven.nameVerify}</font></td>
-            </tr>
-        
-             <tr>  
-                <td colspan="4"></td>   
-                <td><font size=1>F-HACCP-RO-05</font></td>
-             </tr>
+        <tr>  
+             <td colspan="4"></td>   
+             <td><font size=1>F-HACCP-RO-05</font></td>
+          </tr>
         </table>
         </body>
     </html>         
@@ -1683,8 +1788,8 @@ export default class PdfHelper{
         `;
     }
 
-     async reportOvenProducts(userElaborated:User,userVerify:User,data:OvenProducts[]){
-        let content = this.headReportOvenProducts()+this.bodyReportOvenProducts(data)+this.footerReportOvenProducts(userElaborated,userVerify,data[0]);
+     async reportOvenProducts(users: Map<number,{userVerify:User,userElaborated:User}>,data:OvenProducts[]){
+        let content = this.headReportOvenProducts()+this.bodyReportOvenProducts(data,users)+this.footerReportOvenProducts();
         return content;
     }
 
@@ -1843,23 +1948,23 @@ export default class PdfHelper{
                 
             </style>
         </head>
-        `;
-    }
-
-    async bodyReportProcess(process:Process){
-        let date=new Date();
-        let content =` 
         <body bgcolor="">
     <header align="center">
         <b><p>EMPACADORA ROVIANDA S.A.P.I. DE C.V</p></b>
         <p>BITACORA DE CONTROL DE CALIDAD SALA DE TRABAJO</p>
     </header>
+        `;
+    }
+
+    async bodyReportProcess(process:Process){
+        let content =` 
+        
     <table  border="1" width="100%">
         <tr>
             <th colspan="2"><img src="${LOGO.data}" height="60px" /></th>
             <th colspan="2">No.Lote: ${process.formulation.lotDay}</th>
             <th colspan="2">Producto: ${process.product.name}</th>
-            <th colspan="1">Fecha: ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} </th>
+            <th colspan="1">Fecha: ${process.createAt} </th>
         </tr>
         <tr>
             <th>DESCOGELADO</th>
@@ -1913,7 +2018,7 @@ export default class PdfHelper{
             content+=`
             <tr>
             <td  class="formacion">${conditioning.raw} - ${conditioning.lotId}</td>
-            <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+            <td>${(dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate())+(month<10?'0'+month.toString():month.toString())+year}</td>
             <td>${conditioning.clean==true?"L,":""}${conditioning.bone==true?"D":""}${conditioning.healthing==true?(conditioning.bone==true)?",SC":"SC":""}</td>
             <td>${conditioning.weight}</td>
             <td>${conditioning.temperature}</td>
@@ -1971,7 +2076,7 @@ export default class PdfHelper{
         content+=    `
                 <tr>
                     <th class="formacion">${grindingEntity.raw.rawMaterial} - ${grinding.lotId}</th>
-                    <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+                    <td>${(dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate())+(month<10?'0'+month.toString():month.toString())+year}</td>
                     <th>${grinding.singleProcess}</th>
                     <th>${grinding.weight}</th>
                     <th>${grinding.temperature}</th>
@@ -2004,7 +2109,7 @@ export default class PdfHelper{
             year = year.slice(2,4);
             content+=`<tr>
             <th class="formacion">${process.product.name}</th>
-            <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+            <td>${(dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate())+(month<10?'0'+month.toString():month.toString())+year}</td>
             <th>${tenderized.weight}</th>
             <th>${tenderized.temperature}</th>
             <th>${tenderized.weightSalmuera}</th>
@@ -2039,7 +2144,7 @@ export default class PdfHelper{
                 content+=`
                 <tr>
                 <th class="formacion">${process.product.name}</th>
-                <td>${dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate()+(month<10?'0'+month.toString():month.toString())+year}</td>
+                <td>${(dateParsed.getDate()<10?'0'+dateParsed.getDate():dateParsed.getDate())+(month<10?'0'+month.toString():month.toString())+year}</td>
                 <th>${sausage.temperature}</th>
                 <th>${sausage.weightIni} (${!isNaN(hour1.getHours())?hour1.getHours()+":"+hour1.getMinutes():"No aplica"})</th>
                 <th>${sausage.weightMedium} (${!isNaN(hour2.getHours())?hour2.getHours()+":"+hour2.getMinutes():"No aplica"})</th>
@@ -2097,16 +2202,29 @@ export default class PdfHelper{
           </div>
         </tr>
     </table>
-</body>
-</html>`
+`
          return content;
+     }
+
+     async bodyReportProcessByEntranceId(process:Process[]){
+
      }
     
      async reportProcess(process:Process){
         let content = this.headReportProcess()+await this.bodyReportProcess(process);
+        content+=`</body>
+        </html>`;
         return content;
     }
 
+    async reportProcessByEntranceId(process:Process[]){
+        let content = this.headReportProcess();
+        for(let pro of process){
+            content+=await this.bodyReportProcess(pro);
+            content+=`<br><br>`;
+        }
+        return content;
+    }
 
     headReportPackaging(){
         return `
@@ -2226,10 +2344,74 @@ export default class PdfHelper{
                 `;
          return content+content2+content3;
      }
+
+     bodyReportPackagings(data:Packaging[]){
+        let content =` 
+        </head>
+        <body>
+        
+            <div id="pageHeader" >
+                <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
+                <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+            </div>
+            `;
+            for(let pack of data){
+                content+=`
+                <table border="1" align="center" width="90%" height="50px">
+                <tr>
+                    <th>
+                        <img src="${LOGO.data}" alt=""> 
+                    </th>
+                    <th colspan="5"></th>
+                    <th>            
+                        <p>Fecha: ${pack.registerDate}</p>
+                    </th>
+                </tr>
+            
+                    <tr>
+                        <th>PRODUCTO</th>
+                        <th>LOTE Y CADUCIDAD</th>
+                        <th>PRESENTACIONES</th>
+                        <th>UNIDADES</th>
+                        <th>PESO(KG)</th>
+                        <th>OBSERVACIONES</th>
+                        <th>USUARIOS</th>
+                    </tr>
+                `;
+                for(let i=0;i<pack.propertiesPackaging.length;i++){
+                    let property = pack.propertiesPackaging[i];
+                    content+=  `<tr>
+                                <td class="cel">${(i==0)?pack.productId.name:""}</td>
+                                <td class="cel">${(i==0)?pack.lotId:""}</td>
+                                <td class="cel">${!property ? " " : property.presentation.presentation+" "+property.presentation.presentationType}</td>
+                                <td class="cel">${!property ? " " : property.outputOfWarehouse}</td>
+                                <td class="cel">${!property ? " " : property.weight}</td>
+                                <td class="cel">${!property ? " " : property.observations}</td>
+                                <td class="cel">${!pack?"":pack.userId.name}</td>
+                            </tr>
+                            `;
+                }
+                    content+= `
+                    <tr>    
+                        <td colspan="6"></td>
+                        <td>F-CALL-RO-020</td>
+                    </tr>
+                </table>
+                <br><br>`;
+            }
+            
+           
+       content+=`</body></html>`;
+         return content;
+     }
     
 
     async reportPackagingById(data:Packaging,properties: PropertiesPackaging[]){
         let content = this.headReportPackaging()+this.bodyReportPackaging(data,properties);
+        return content;
+    }
+    async reportPackagings(data:Packaging[]){
+        let content = this.headReportPackaging()+this.bodyReportPackagings(data);
         return content;
     }
 
@@ -2335,13 +2517,59 @@ export default class PdfHelper{
         let cheeses = await this.cheeseRepository.getAllCheeses();
         let cheesesIds = cheeses.map(x=>x.product.id);
         content+=` 
-        ${this.getHeaderReportPackaging()}   
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>R4</title>
+            <style>
+                body{
+                    margin: 0;
+                    padding:0;
+                }
+                .cel{
+                    height: 3px;
+                }
+        
+                header{
+                   text-align: center;
+                    transform: translateY(190%);
+                }
+        
+                #ta{
+                    margin-left: 770px;
+        
+                }
+        
+                #fec{
+                   transform:translateY(450%) translateX(20%);
+                }
+        
+                #mueve{
+                  width: 194px;
+               margin-left: 898px;
+           }
+              
+              img{
+                  width: 70px;
+                  height:80px;
+                  transform: translateY(50%) translateX(350%);
+              }
+              td{
+                  font-size: 10px;
+              }
+              .anch{
+                  width: 314px;
+              }
+            </style>
         </head>
         <body>
         
             <div id="pageHeader" >
                 <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
                 <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
+                <p align="center"> <b> ORDEN No. ${orderSeller.id} </b></p>
             </div>
             
             <table border="1" align="center" width="90%" height="50px">
@@ -2361,19 +2589,22 @@ export default class PdfHelper{
                     <th>PRESENTACION</th>
                     <th>CANTIDAD</th>
                     <th>PESO</th>
+                    <th>OBSERVACIONES</th>
                     <th>PRECIO</th>
                 </tr>
         `;
         for(let subOrder of orderSeller.subOrders){
+            if(!subOrder.active){
             if(mode==undefined || mode==null){
                 if(!cheesesIds.includes(subOrder.productRovianda.id)){
                 content+=`
                 <tr>
-                <td>${subOrder.productRovianda.code}</td>
+                <td>${subOrder.presentation.keySae}</td>
                 <td>${subOrder.productRovianda.name}</td>
                 <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
                 <td>${subOrder.units}</td>
-                <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
+                <td>${(mapSubOrder.get(subOrder.subOrderId)).toFixed(2)}</td>
+                <td>${subOrder.observations}</td>
                 <td>${subOrder.presentation.presentationPricePublic}</td>
                 </tr>
                 `;
@@ -2386,12 +2617,14 @@ export default class PdfHelper{
                     <td>${subOrder.productRovianda.name}</td>
                     <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
                     <td>${subOrder.units}</td>
-                    <td>${mapSubOrder.get(subOrder.subOrderId)}</td>
+                    <td>${(mapSubOrder.get(subOrder.subOrderId)).toFixed(2)}</td>
+                    <td>${subOrder.observations}</td>
                     <td>${subOrder.presentation.presentationPricePublic}</td>
                     </tr>
                     `;
                 }
             }
+        }
             
         }
         content+="</table></html>"
@@ -2432,6 +2665,59 @@ export default class PdfHelper{
             <td>${reprocesing.comment}</td>
         </tr>
         </table>
+        </body>
+        </html>
+        `;
+        return content;
+    }
+
+    getReportPlanDelivery(records:Array<OutputsDeliveryPlant>,from:string,to:string){
+        let content=`
+        <html>
+        <head>
+        <style>
+            td{
+                font-size:8px;
+            }
+            th{
+                font-size: 10px;
+            }
+        </style>
+        </head>
+        <body>
+        <div>
+            <p align="center"> <b> Salida general de producto de planta </b></p>
+            <p align="center"> <b>Fecha: ${from} a ${to}  </b></p>
+        </div>
+    
+        <table border="1" align="center" width="100%">
+        <tr>
+        <th>Vendedor/Tienda/Surcursal</th>
+        <th>Codigo</th>
+        <th>Producto</th>
+        <th>Presentación</th>
+        <th>Lote</th>
+        <th>Unidades</th>
+        <th>Peso</th>
+        <th>Fecha de salida</th>
+        </tr>`;
+        
+        for(let record of records){
+            content+=`
+            <tr>
+            <td>${record.seller}</td>
+            <td>${record.code}</td>
+            <td>${record.name}</td>
+            <td>${record.presentation}</td>
+            <td>${record.loteId}</td>
+            <td>${record.units}</td>
+            <td>${record.weight}</td>
+            <td>${record.outputDate}</td>
+            </tr>
+            `;
+        }
+
+        content+=`</table>
         </body>
         </html>
         `;

@@ -40,4 +40,9 @@ export class FormulationController {
         let formulationId:number = +req.params.formulationId;
         return res.status(200).send(await this.formulationService.getDetails(formulationId));
     }
+
+    async updateStatusProcess(req:Request,res:Response){
+        await this.formulationService.changeProcessIngredient(+req.params.processId);
+        return res.status(204).send();
+    }
 }

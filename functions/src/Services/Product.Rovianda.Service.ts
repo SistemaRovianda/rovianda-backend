@@ -11,6 +11,10 @@ import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
 import { validateProductLineSae } from "../Utils/Validators/Product.Rovianda.Vlidator";
 import { CheeseService } from "./Cheese.Service";
 import { Cheese } from "../Models/Entity/Cheese";
+import { isEmpty } from "lodash";
+import { ClientRepository } from "../Repositories/Client.Repository";
+import { SaleRepository } from "../Repositories/Sale.Repository";
+import { Client } from "../Models/Entity/Client";
 
 
 export class ProductRoviandaService{
@@ -19,12 +23,16 @@ export class ProductRoviandaService{
     private presentationsProductsRepository:PresentationsProductsRepository;
     private sqlsRepository:SqlSRepository;
     private cheeseService:CheeseService;
+    private clientRepository:ClientRepository;
+    private saleRepository:SaleRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.productRepository = new ProductRepository();
         this.presentationsProductsRepository= new PresentationsProductsRepository();
         this.sqlsRepository = new SqlSRepository();
         this.cheeseService=new CheeseService();
+        this.clientRepository=new ClientRepository();
+        this.saleRepository = new SaleRepository();
     }
 
 
@@ -254,7 +262,9 @@ export class ProductRoviandaService{
         if(!productRovianda) throw new Error(`[404],product_rovianda with id ${productId} not found`);
         productRovianda.name = productRoviandaDTO.nameProduct;
         if(productRoviandaDTO.image!=null){
-            await this.firebaseHelper.deleteImagen(productRovianda.imgS3.split(".appspot.com/")[1]);
+            if(productRovianda.imgS3!=null && !isEmpty(productRovianda.imgS3)){
+             await this.firebaseHelper.deleteImagen(productRovianda.imgS3.split(".appspot.com/")[1]);
+            }
             let urlOfImage: string = await this.firebaseHelper.uploadImage(`${productRovianda.code}/`, new Buffer(productRoviandaDTO.image,'base64'));
             productRovianda.imgS3 = urlOfImage;
         }
@@ -402,14 +412,14 @@ export class ProductRoviandaService{
         if(uniMed=="kg"){
           presentation.isPz=false;
           
-          let hasKg=(presentation.presentationType as string).toLowerCase().includes("kg");
+          /*let hasKg=(presentation.presentationType as string).toLowerCase().includes("kg");
           let kagNumber =0;
           if(hasKg){
             let kgNumber:string =((presentation.presentationType.split('(')[1]).split(')')[0]).toLowerCase();
             kgNumber=kgNumber.slice(0,kgNumber.indexOf('kg'));
             kagNumber =  +kgNumber;
             presentation.presentationPricePublic=presentation.presentationPricePublic*kagNumber;
-          }
+          }*/
           
         }else if(uniMed=="pz"){
           presentation.isPz=true;
@@ -420,7 +430,18 @@ export class ProductRoviandaService{
     }
 
     async getAllproductsRoviandaCatalog(){
-        return await this.productRoviandaRepository.getAllProductRoviandaCatalog();
+        let productsRovianda= await this.productRoviandaRepository.getAllProductRoviandaCatalog();
+        let cheeses = await this.cheeseService.getAllCheeses();
+        let cheesesCodes = cheeses.map(x=>x.code);
+        let response:any[]=[];
+        for(let productRovianda of productsRovianda){
+            if(cheesesCodes.includes(productRovianda.code)){
+                response.push({...productRovianda,category: "cheeses"});
+            }else{
+                response.push({...productRovianda,category: "meat"});
+            }
+        }
+        return response;
     }
 
 
@@ -438,5 +459,17 @@ export class ProductRoviandaService{
 
     async getAllProductLines(){
         return await this.sqlsRepository.getLinesOfProductsSae();
+    }
+    async deleteProductLines(cve:string){
+        return await this.sqlsRepository.deleteLinesOfProductsSae(cve);
+    }
+    async getClientsSae(page:number,perPage:number){
+        return await this.clientRepository.getAllClients(page,perPage);
+    }
+    async getSalesByClient(clientId:number,page:number,perPage:number,from:string,to:string){
+        let client:Client = await this.clientRepository.getClientById(clientId);
+        if(!client) throw new Error("[404], no existe el cliente");
+        
+        return await this.saleRepository.getSalesByClientRange(client,page,perPage,from,to);
     }
 }

@@ -119,39 +119,33 @@ export class WarehouseDriefService{
         return response;
     }
 
-    async getDriefHistory(lotIdProveedor:string) {
+    async getDriefHistory(entranceId:number) {
 
-        let warehouseDrief:WarehouseDrief[] = await this.warehouseDriefRepository.getWarehouseDriefByLotProveedor(lotIdProveedor);
-        console.log(warehouseDrief);
-        if (!warehouseDrief.length) throw new Error(`[404], warehouseDrief with lot ${lotIdProveedor} was not found`);
-        let response:any = [];
-        for(let e = 0; e < warehouseDrief.length; e++){
-            let entranceDrief:EntranceDrief = await this.entranceDriefRepository.getEntrnaceDriefByLotProveedorProduct(warehouseDrief[e].loteProveedor,warehouseDrief[e].product)
-            let response2:any = [];
-            let outputs:OutputsDrief[] = warehouseDrief[e].outputDriefs;
-            //let aplications:Array<LotInternalByLotDrief> = await this.formulationRepository.getLotInternalByLotDrief(lotIdProveedor);
-            for(let i = 0; i < outputs.length; i++){
-                let formulationIngredients:FormulationIngredients = await this.formulationIngredentsRepository.getByOutputsDrief(outputs[i]);
+        let entranceDrief:EntranceDrief = await this.entranceDriefRepository.getEntranceDriefById(entranceId);
+        
+        if (!entranceDrief) throw new Error(`[404], entranceDrief with id ${entranceId} was not found`);
+        let outputs:any = [];
+        let outputsDrief:OutputsDrief[] = await this.outputsDriefRepository.getOutputsDriefByWarehouseDrief(entranceDrief.warehouseDrief);
+            for(let i = 0; i < outputsDrief.length; i++){
+                let formulationIngredients:FormulationIngredients = await this.formulationIngredentsRepository.getByOutputsDrief(outputsDrief[i]);
                 if(formulationIngredients){
-                response2.push({
-                    outputDate: outputs[i].date,
-                    product: outputs[i].product ? outputs[i].product.description :  "",
-                    productId: outputs[i].product ? outputs[i].product.id : "",
-                    observations: outputs[i].observations ? outputs[i].observations : "",
-                    lot: formulationIngredients.formulation?formulationIngredients.formulation.lotDay:null,
-                    productRovianda: formulationIngredients.formulation?formulationIngredients.formulation.productRovianda.name:null
-                })
-            
+                    outputs.push({
+                        outputDate: outputsDrief[i].date,
+                        product: outputsDrief[i].product ? outputsDrief[i].product.description :  "",
+                        productId: outputsDrief[i].product ? outputsDrief[i].product.id : "",
+                        observations: outputsDrief[i].observations ? outputsDrief[i].observations : "",
+                        lot: formulationIngredients.formulation?formulationIngredients.formulation.lotDay:null,
+                        productRovianda: formulationIngredients.formulation?formulationIngredients.formulation.productRovianda.name:null
+                    })
                 }
             }
-            response.push({
+            let response= {
                 entranceDriefId: entranceDrief ? entranceDrief.id : "",
-                receptionDate: warehouseDrief[e].date,
-                openingDate: warehouseDrief[e].openingDate,
-                closedDate: warehouseDrief[e].closingDate,
-                outputs: response2
-            })
-        }
+                receptionDate: entranceDrief.warehouseDrief.date,
+                openingDate: entranceDrief.warehouseDrief.openingDate,
+                closedDate: entranceDrief.warehouseDrief.closingDate,
+                outputs: outputs
+            };
         
         return response;
     }
@@ -186,7 +180,10 @@ export class WarehouseDriefService{
         lot.forEach( i => {
             response.push({
                 warehouseId: `${i.id}`,
-                lot: `${i.loteProveedor}`
+                lot: `${i.loteProveedor}`,
+                date: i.date,
+                openingDate: i.openingDate,
+                closingDate: i.closingDate
             })
         });
         return response;

@@ -39,5 +39,11 @@ export const formulationRoutes: Array<routeInterface>=[
         method: "get",
         controller: FormulationController,
         target: "getAllLotMeatByProductId"
+    },
+    {
+        url: "/rovianda/ingredient-close/:processId",
+        method: "put",
+        controller: FormulationController,
+        target: "updateStatusProcess"
     }
 ]

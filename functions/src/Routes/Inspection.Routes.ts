@@ -18,6 +18,12 @@ export const inspectionRoutes:Array<routeInterface>=[
         method:"post",
         controller:InspectionController,
         target:"createInspectionUsers" 
+    },
+    {
+        url: "/rovianda/packaging/lot-inspectioned/:ovenProductId",
+        method: "patch",
+        controller: InspectionController,
+        target: "setEndedInspection"
     }
 
 ];

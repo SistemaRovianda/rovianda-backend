@@ -55,16 +55,18 @@ import { CatCFDIUses } from "../Models/Entity/Cat.CFDI.Uses";
 import { CatPaymentTypes } from "../Models/Entity/Cat.Payment.Types";
 import { Devolution } from "../Models/Entity/Devolution";
 import { Cheese } from "../Models/Entity/Cheese";
+import { VisitClientOperation } from "../Models/Entity/VisitClientOperation";
+import { DayVisited } from "../Models/Entity/DayVisited";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host:  "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"rovisapi.dyndns.tv",//"localhost",//,//
+    host:  "rovisapi.dyndns.tv",//"localhost",//,//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
-    username: "admin",//"root",//"master_rovianda",//
-    password: "Holamundo1250",//"Sistemas2020",//
-    database: "new_rovianda",//"rovianda-test-dev","bd_rovianda",//
-    synchronize: true,
+    username: "master_rovianda",//"admin",//"root",//"admin",// 
+    password: "Sistemas2020",//"Holamundo1250",//
+    database:  "bd_rovianda",//"new_rovianda",//"rovianda-test-dev",,// "new_rovianda",//
+    synchronize: false,
     logging: false,
     debug:false,
     entities: [
@@ -114,7 +116,9 @@ const config: ConnectionOptions = {
         Address,Debts,Sale,SellerOperation,SubSales,
         Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes,
         Client,Devolution,
-        Cheese
+        Cheese,
+        DayVisited,
+        VisitClientOperation
     ]
 }
 let connection: Connection;

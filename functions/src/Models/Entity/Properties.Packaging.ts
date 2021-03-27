@@ -33,4 +33,10 @@ export class PropertiesPackaging {
 
     @Column()
     active: boolean
+
+    @Column({name:"output_of_warehouse",type:"float",nullable:false,default:0})
+    outputOfWarehouse:number;
+
+    @Column({name:"weight_of_warehouse",type:"float",nullable:false,default:0})
+    weightOfWarehouse:number;
 }

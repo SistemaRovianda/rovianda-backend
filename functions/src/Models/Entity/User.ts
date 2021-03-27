@@ -75,4 +75,7 @@ export class User{
 
     @Column({nullable:true,name:"warehouse_key_sae"})
     warehouseKeySae:string;
+
+    @Column({name:"status",default:"ACTIVE"})
+    status:string;
 }

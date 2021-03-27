@@ -262,4 +262,9 @@ export class ProcessController {
     async useReprocesingLots(req:Request,res:Response){
         return res.status(201).send(await this.processService.useLotsReprocesing(req.body));
     }
+
+    async getProcessProcessIngredientsAvailables(req:Request,res:Response){
+        
+        return res.status(200).send(await this.processService.getAllProcessIngredientsAvailable());
+    }
 }

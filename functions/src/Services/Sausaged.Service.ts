@@ -66,6 +66,10 @@ export class SausagedService{
                 formulation.status="TAKED";
                 await this.formulationRepository.saveFormulation(formulation);
             }
+        process.typeProcess = formulation.typeFormulation;
+        if(formulation.ingredientsIds!=null){
+            process.ingredientsIds=formulation.ingredientsIds;
+        }
         for(let sausagedDTO of sausagedsDTO){
             if(!sausagedDTO.temperature) throw new Error("[400], temperature is required");
             if(!sausagedDTO.date) throw new Error("[400], date is required");

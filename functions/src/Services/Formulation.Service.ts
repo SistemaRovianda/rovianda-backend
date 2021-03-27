@@ -22,6 +22,7 @@ import { RawRepository } from "../Repositories/Raw.Repository";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostRepository } from "../Repositories/Defrost.Repository";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
+import { ProcessRepository } from "../Repositories/Process.Repository";
 
 export class FormulationService {
     private formulationRepository: FormulationRepository;
@@ -34,6 +35,7 @@ export class FormulationService {
     private outputsCoolingRepository:OutputsCoolingRepository;
     private rawMaterialRepository:RawRepository;
     private defrostRepository:DefrostRepository;
+    private processRepository:ProcessRepository;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -45,6 +47,7 @@ export class FormulationService {
         this.outputsCoolingRepository = new OutputsCoolingRepository();
         this.rawMaterialRepository=new RawRepository();
         this.defrostRepository = new DefrostRepository();
+        this.processRepository= new ProcessRepository();
     }
 
     async createFormulation(req: Request) {
@@ -122,9 +125,25 @@ export class FormulationService {
         formulationToSave.ingredients = formulationIngredients;
         formulationToSave.lotDay = day+month+date.getFullYear();
         formulationToSave.date = date.toISOString()
-        
+        if(formulationDTO.processIngredient==true){
+            formulationToSave.typeFormulation="INGREDIENT";
+        }else if(formulationDTO.processNormal==true){
+            formulationToSave.typeFormulation="PRODUCT";
+        }
+        if(formulationDTO.processIngredients.length){
+            
+            formulationToSave.ingredientsIds = "["+formulationDTO.processIngredients.toString()+"]";
+        }else {
+            formulationToSave.ingredientsIds=null;
+        };
         let formulationSaved:Formulation=await this.formulationRepository.saveFormulation(formulationToSave);
         return formulationSaved.id;
+    }
+
+    async changeProcessIngredient(processId:number){
+        let process = await this.processRepository.findProcessById(processId);
+        process.status="INGREDIENT_USED";
+        await this.processRepository.saveProcess(process);
     }
 
     // async getbyLoteIdAndProductId(loteId:string,productId:ProductRovianda){
@@ -240,7 +259,12 @@ export class FormulationService {
     }
 
     async getDetails(formulationId:number){
-        return await this.formulationRepository.getByFormulationId(formulationId);
+        let formulation:Formulation= await this.formulationRepository.getByFormulationId(formulationId);
+        for(let defrostF of formulation.defrosts){
+            let defrost = await this.defrostRepository.getDefrostById(defrostF.defrost.defrostId);
+            defrostF.defrost=defrost;
+        }
+        return formulation;
     }
 
 }

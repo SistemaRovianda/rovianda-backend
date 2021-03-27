@@ -1,8 +1,7 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import {  Between, Not, Repository } from 'typeorm';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
-import { assignWith } from 'lodash';
-import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
+import { User } from '../Models/Entity/User';
 
 export class SalesSellerRepository{
     private salesSellerRepository:Repository<OrderSeller>;
@@ -26,10 +25,11 @@ export class SalesSellerRepository{
                 }
         });
     }
+   
 
     async getOrders(uid:string){
         await this.getConnection();
-        return await this.salesSellerRepository.query(`select order_seller_id as orderId,date,if(urgent=1,"true","false") urgent from orders_sellers where user_id="${uid}" and status="ACTIVE";`);
+        return await this.salesSellerRepository.query(`select order_seller_id as orderId,date,if(urgent=1,"true","false") urgent from orders_sellers where seller_id="${uid}" and status="ACTIVE";`);
     }
 
     async getOrderById(id:number){
@@ -53,6 +53,14 @@ export class SalesSellerRepository{
         .getMany();
     }
 
+    async getOrderSellerByUrgentByDate(urgent:boolean){
+        
+        await this.getConnection();
+        return await this.salesSellerRepository.find({
+           where:{ status:Not("INACTIVE"),urgent},relations:["seller"]
+        });
+    }
+
     async getOrderByIdWithSuborders(subOrderId:number){
         await this.getConnection();
         return await this.salesSellerRepository.findOne({id:subOrderId},{relations:["subOrders","seller"]});
@@ -64,4 +72,46 @@ export class SalesSellerRepository{
             status:"ACTIVE"
         });
     }
+
+    async getAllOrdersDispached(seller:User){
+        await this.getConnection();
+        return await this.salesSellerRepository.find(
+            {
+                where:{seller,status:"INACTIVE"}
+            }
+        );
+    }
+
+    async getDetailsOfOrderOfSellerToEdit(orderId:number){
+        await this.getConnection();
+        return await this.salesSellerRepository.query(`
+        select suborder_id as subOrderId,units as quantity,pr.name,pp.type_presentation as presentation from suborders as sub left join products_rovianda as pr
+        on sub.product_id=pr.id left join presentation_products as pp on sub.presentation_id=pp.presentation_id
+        where order_seller_id=${orderId};
+        `) as Array<{
+            subOrderId:number,quantity:number,name:string,presentation:string
+        }>;
+    }
+
+    async updateSubOrderQuantity(subOrderId:number,quantity:number){
+        await this.getConnection();
+        return await this.salesSellerRepository.query(`
+        update suborders set units=${quantity} where suborder_id=${subOrderId}
+        `);
+    }
+
+    async deleteSubordersOmit(subOrdersId:number[],orderSellerId:number){
+        let ids ="(";
+        for(let id of subOrdersId){
+            ids+=`${id},`
+        }
+        ids+=")";
+        ids=ids.replace(",)",")");
+        await this.getConnection();
+        return await this.salesSellerRepository.query(`
+        delete from  suborders  where order_seller_id=${orderSellerId} and suborder_id not in ${ids}
+        `);
+    }
+
+
 }

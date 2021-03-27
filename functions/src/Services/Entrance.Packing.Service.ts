@@ -61,18 +61,18 @@ export class EntrancePackingService{
         entrancePacking.transport = entrancePackingDTO.transport;
         entrancePacking.make = make;
         entrancePacking.verifit = verifit;
-        if(entrancePackingDTO.quality==true && entrancePackingDTO.strageMaterial==true && entrancePackingDTO.transport==true && entrancePackingDTO.paking==true){
-            let findWarehousePacking:WarehousePacking = await this.warehousePackingRepository.findWarehousePackingByProductLot(product,entrancePackingDTO.lotProveedor);
-            if(findWarehousePacking){
-                if(findWarehousePacking.status == WarehouseStatus.CLOSED){
-                    findWarehousePacking.quantity = entrancePackingDTO.quantity;
-                    await this.warehousePackingRepository.saveWarehousePacking(findWarehousePacking)
-                }
-                if(findWarehousePacking.status == WarehouseStatus.OPENED){
-                    findWarehousePacking.quantity = findWarehousePacking.quantity + entrancePackingDTO.quantity;
-                    await this.warehousePackingRepository.saveWarehousePacking(findWarehousePacking)
-                }
-            }else{
+        // if(entrancePackingDTO.quality==true && entrancePackingDTO.strageMaterial==true && entrancePackingDTO.transport==true && entrancePackingDTO.paking==true){
+        //     let findWarehousePacking:WarehousePacking = await this.warehousePackingRepository.findWarehousePackingByProductLot(product,entrancePackingDTO.lotProveedor);
+        //     if(findWarehousePacking){
+        //         if(findWarehousePacking.status == WarehouseStatus.CLOSED){
+        //             findWarehousePacking.quantity = entrancePackingDTO.quantity;
+        //             await this.warehousePackingRepository.saveWarehousePacking(findWarehousePacking)
+        //         }
+        //         if(findWarehousePacking.status == WarehouseStatus.OPENED){
+        //             findWarehousePacking.quantity = findWarehousePacking.quantity + entrancePackingDTO.quantity;
+        //             await this.warehousePackingRepository.saveWarehousePacking(findWarehousePacking)
+        //         }
+        //     }else{
                 let warehousePacking:WarehousePacking = new WarehousePacking();
                 warehousePacking.isPz = entrancePackingDTO.isPz;
                 warehousePacking.loteProveedor = entrancePackingDTO.lotProveedor;
@@ -80,11 +80,11 @@ export class EntrancePackingService{
                 warehousePacking.product = product;
                 warehousePacking.quantity = entrancePackingDTO.quantity;
                 warehousePacking.status = WarehouseStatus.PENDING;
-                warehousePacking.userId= req.headers.uid as string;
+                warehousePacking.userId= entrancePackingDTO.makeId;
                 warehousePacking.date = entrancePackingDTO.date;
                 await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);   
-            } 
-        }
+        //     } 
+        // }
         
         let entranceSaved:EntrancePacking=await this.entrancePackingRepository.saveEntracenPacking(entrancePacking);
         

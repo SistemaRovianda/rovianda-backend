@@ -54,4 +54,8 @@ export class RevisionOvenProductService {
          if (!revisionOvenProduct) throw new Error("[404], Not found revision for this oven product"); 
          return revisionOvenProduct;
     }
+
+    async getRevisionByOven(oven:OvenProducts){
+        return await this.revisionOvenProductRepository.getByOven(oven);
+    }
 }

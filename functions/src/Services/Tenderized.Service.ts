@@ -12,6 +12,8 @@ import { Formulation } from '../Models/Entity/Formulation';
 import { FormulationRepository } from '../Repositories/Formulation.Repository';
 import { DefrostFormulation } from '../Models/Entity/Defrost.Formulation';
 import { DefrostFormulationRepository } from '../Repositories/DefrostFormulation.Repository';
+import { Defrost } from '../Models/Entity/Defrost';
+import { DefrostRepository } from '../Repositories/Defrost.Repository';
 
 
 export class TenderizedService{
@@ -21,6 +23,7 @@ export class TenderizedService{
     private productRoviandaRepository: ProductRoviandaRepository;
     private formulationRepository:FormulationRepository;
     private defrostFormulationRepository:DefrostFormulationRepository;
+    private defrostRepository:DefrostRepository;
     constructor(){
         this.tenderizedRepository = new TenderizedRepository();
         this.productRepository = new ProductRepository();
@@ -28,6 +31,7 @@ export class TenderizedService{
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.formulationRepository = new FormulationRepository();
         this.defrostFormulationRepository = new DefrostFormulationRepository();
+        this.defrostRepository = new DefrostRepository();
     }
  
     async createProcessInter():Promise<Process>{
@@ -64,6 +68,10 @@ export class TenderizedService{
             formulation.status ="TAKED";
             await this.formulationRepository.saveFormulation(formulation);
         }
+        process.typeProcess = formulation.typeFormulation;
+        if(formulation.ingredientsIds!=null){
+            process.ingredientsIds=formulation.ingredientsIds;
+        }
         for(let tenderizedDto of tenderizedDTO){
             if(!tenderizedDto.date) throw new Error("[400], falta el parametro date");
             if(!tenderizedDto.percentage) throw new Error("[400], falta el parametro percentage");
@@ -74,6 +82,8 @@ export class TenderizedService{
             if(!tenderizedDto.lotId) throw new Error("[400], falta el parametro lotId");
             let tenderizedToSave:Tenderized = new Tenderized();
             let defrostFormulation:DefrostFormulation = await this.defrostFormulationRepository.getDefrostFormulation(tenderizedDto.defrostId);
+            let defrost:Defrost = await this.defrostRepository.getDefrostById(defrostFormulation.defrost.defrostId);
+            defrostFormulation.defrost=defrost;
             tenderizedToSave.date = tenderizedDto.date;
             tenderizedToSave.loteMeat = defrostFormulation.defrost.outputCooling.loteInterno;
             tenderizedToSave.percentInject = tenderizedDto.percentage;

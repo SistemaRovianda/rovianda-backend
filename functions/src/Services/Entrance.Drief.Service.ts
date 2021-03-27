@@ -20,6 +20,10 @@ export class EntranceDriefService{
     }
 
 
+    async getEntranceByLoteId(loteId:string,date:string,page:number,peerPage:number){
+        let entrances:EntranceDrief[] = await this.entranceDriefRepository.findByLotId(loteId, date, page, peerPage);
+        return entrances;
+    }
     async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
         
         if(!entranceDriefDTO.expiration== null) throw new Error("[400],el parametro expiration es requerido");
@@ -35,7 +39,7 @@ export class EntranceDriefService{
         if(entranceDriefDTO.weight == null) throw new Error("[400],el parametro weight es requerido");
         if(entranceDriefDTO.color == null) throw new Error("[400],el parametro color es requerido");
         if(entranceDriefDTO.date == null) throw new Error("[400],el parametro date es requerido");
-
+        if(entranceDriefDTO.makeId == null) throw new Error("[400],el parametro makeId es requerido");
         let product:Product = await this.productRepository.getProductById(entranceDriefDTO.productId);
         if(!product) throw new Error("[400], el producto a recibir no existe");
         
@@ -58,22 +62,22 @@ export class EntranceDriefService{
         entranceDrief.observations = entranceDriefDTO.observations;
         entranceDrief.odor = entranceDriefDTO.odor;
 
-        if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
-            && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
-            entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){
-                let findWarehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.findWarehouseDriefByProductLot(product,entranceDriefDTO.lotProveedor)
-                if(findWarehouseDrief){
-                    if(findWarehouseDrief.status == WarehouseStatus.CLOSED){
-                        findWarehouseDrief.quantity = entranceDriefDTO.quantity; 
-                        await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
-                    }
-                    if(findWarehouseDrief.status == WarehouseStatus.OPENED){
-                        findWarehouseDrief.quantity = findWarehouseDrief.quantity + entranceDriefDTO.quantity;
-                        await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
-                    }
-                }else{
+        // if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
+        //     && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
+        //     entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){
+        //         let findWarehouseDrief:WarehouseDrief = await this.warehouseDriefRepository.findWarehouseDriefByProductLot(product,entranceDriefDTO.lotProveedor)
+        //         if(findWarehouseDrief){
+        //             if(findWarehouseDrief.status == WarehouseStatus.CLOSED){
+        //                 findWarehouseDrief.quantity = entranceDriefDTO.quantity; 
+        //                 await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
+        //             }
+        //             if(findWarehouseDrief.status == WarehouseStatus.OPENED){
+        //                 findWarehouseDrief.quantity = ((+findWarehouseDrief.quantity) + (+entranceDriefDTO.quantity)).toString();
+        //                 await this.warehouseDriefRepository.saveWarehouseDrief(findWarehouseDrief);
+        //             }
+        //         }else{
                     let warehouseDrief:WarehouseDrief = new WarehouseDrief();
-                    warehouseDrief.userId = req.headers.uid as string;
+                    warehouseDrief.userId = entranceDriefDTO.makeId;
                     warehouseDrief.date= entranceDriefDTO.date;
                     warehouseDrief.isPz = entranceDriefDTO.isPz;
                     warehouseDrief.loteProveedor = entranceDriefDTO.lotProveedor;
@@ -81,11 +85,11 @@ export class EntranceDriefService{
                     warehouseDrief.product = product;
                     warehouseDrief.quantity = entranceDriefDTO.quantity;
                     warehouseDrief.status = WarehouseStatus.PENDING
-                    await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
-                }
-            }
+                    let warehouseSaved = await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
+            //     }
+            // }
 
-        
+        entranceDrief.warehouseDrief =  warehouseSaved;
         let entranceDriefSaved:EntranceDrief=await this.entranceDriefRepository.saveDrief(entranceDrief);
     
         return entranceDriefSaved.id;

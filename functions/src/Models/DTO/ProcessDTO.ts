@@ -30,3 +30,15 @@ export interface UserProcessDTO{
     nameVerify: string
     jobVerify: string
 }
+
+export interface processIngredient{
+    processId:number,
+    dateEnded:string,
+    ingredients: processIngredientItem[],
+    productName:string
+}
+
+export interface processIngredientItem{
+    lotId:string,
+    rawMaterial:string;
+}

@@ -2,6 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany
 import { Product } from "./Product";
 import { RevisionsOvenProducts } from "./Revisions.Oven.Products";
 import { ProductRovianda } from "./Product.Rovianda";
+import { Packaging } from "./Packaging";
+import { Devolution } from "./Devolution";
 
 @Entity({ name: "oven_products" })
 export class OvenProducts {
@@ -55,8 +57,16 @@ export class OvenProducts {
     @Column()
     processId:number;
 
+    @Column({name:"observations",nullable:true})
+    observations:string;
     // @Column({ name: "new_lote" })
     // newLote: string;
     
+
+    @OneToMany(type=>Packaging,packaging=>packaging.ovenProduct)
+    packagings:Packaging[];
+
+    @OneToMany(type=>Devolution,dev=>dev.ovenProduct)
+    devolutions:Devolution[];
 
 }

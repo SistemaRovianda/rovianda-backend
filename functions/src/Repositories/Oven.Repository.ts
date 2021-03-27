@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
@@ -24,6 +24,18 @@ export class OvenRepository{
         FROM oven_products INNER JOIN products_rovianda WHERE oven_products.product_id = products_rovianda.id`);
     }
 
+    async findByProcessIdsAndStatus(processIds:number[],status:string){
+        await this.getConnection();
+        return await this.ovenRepository.find({
+            where:{processId:In(processIds),status}
+        });
+    }
+
+    async findByProcessIds(processIds:number[]){
+        await this.getConnection();
+        return await this.ovenRepository.find({where:{processId:In(processIds)}});
+    }
+
     async getOvenStatus(status){
         await this.getConnection();
         return await this.ovenRepository.find({status});
@@ -33,7 +45,7 @@ export class OvenRepository{
         await this.getConnection();
         console.log("consulta")
         return await this.ovenRepository.findOne({
-            where:{ id:`${ovenProduct_id}`},
+            where:{ id: ovenProduct_id},
             relations:["product","revisions"]
          });
     }
@@ -123,6 +135,10 @@ export class OvenRepository{
     });
     }
 
+    async getOvensByNewLotAndProduct(newLote:string,product:ProductRovianda){
+        await this.getConnection();
+        return await this.ovenRepository.findOne({newLote,product})
+    }
     async getOvensByNewLot(newLote:string){
         await this.getConnection();
         return await this.ovenRepository.findOne({newLote})
@@ -131,6 +147,21 @@ export class OvenRepository{
     async getOvenByProcessId(processId:number){
         await this.getConnection();
         return await this.ovenRepository.find({processId})
+    }
+
+    async getAllHistoryByProcessIds(processIds:number[]){
+        await this.getConnection();
+        let ids="(";
+        for(let id of processIds){
+            ids+=`${id},`;
+        }
+        ids+=")";
+        ids=ids.replace(",)",")");
+        return await this.ovenRepository.query(`
+        select ov.id as ovenId,ov.date,ov.estimated_time as time,ov.oven,ov.new_lote as newLot,pr.name as product 
+        from oven_products as ov left join products_rovianda as pr on ov.product_rovianda_id=pr.id 
+        where ov.processId in ${ids}
+        `);
     }
 
     

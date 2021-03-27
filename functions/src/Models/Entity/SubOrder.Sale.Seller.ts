@@ -22,7 +22,7 @@ export class SubOrder{
     @JoinColumn({name:"presentation_id"})
     presentation:PresentationProducts;
 
-    @Column()
+    @Column({type:"float"})
     units:number;
 
     @OneToMany(type=>SubOrderMetadata,metadata=>metadata.subOrder,{eager:true,cascade:true,onDelete:"SET NULL"})
@@ -36,4 +36,7 @@ export class SubOrder{
 
     @Column({type:"float"})
     weight:number;
+
+    @Column({name:"observations",nullable:true})
+    observations:string;
 }

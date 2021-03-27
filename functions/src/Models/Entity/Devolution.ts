@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { OvenProducts } from "./Oven.Products";
 import { PresentationProducts } from "./Presentation.Products";
 
 @Entity({name:"devolutions"})
@@ -20,4 +21,7 @@ export class Devolution{
     @Column()
     date:string;
 
+    @ManyToOne(type=>OvenProducts,ovenP=>ovenP.devolutions)
+    @JoinColumn({name:"oven_product_id"})
+    ovenProduct:OvenProducts;
 }

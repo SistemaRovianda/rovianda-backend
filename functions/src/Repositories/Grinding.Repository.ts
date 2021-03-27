@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository } from 'typeorm';
 import { Grinding } from '../Models/Entity/Grinding';
 import { GrindingForm } from '../Models/DTO/GrindingForm';
+import { Process } from '../Models/Entity/Process';
 export class GrindingRepository{
     private grindingRepository:Repository<Grinding>;
 
@@ -38,4 +39,8 @@ export class GrindingRepository{
         });
     }
 
+    async getByProcessEntity(process:Process){
+        await this.getConnection();
+        return await this.grindingRepository.find({process});
+    }
 }

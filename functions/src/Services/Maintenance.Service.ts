@@ -70,8 +70,8 @@ export class MaintenanceService{
         if (!maintenanceDTO.typeFailure)  throw new Error("[400],typeFailure is required");
         if (!maintenanceDTO.image)  throw new Error("[400],image is required");
 
-        let cadena = maintenanceDTO.fullName.split(" ");
-        let user = await this.userRepository.getByFullName(cadena[0],cadena[1],cadena[2])
+        let cadena = maintenanceDTO.fullName;
+        let user = await this.userRepository.getByFullName(cadena)
         if (!user[0])  throw new Error("[404],User not found");
 
         let photo = Buffer.from(maintenanceDTO.image, 'base64');

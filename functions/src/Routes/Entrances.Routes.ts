@@ -94,5 +94,17 @@ export const entrancesRoutes:Array<routeInterface>=[
         method:"get",
         controller:EntrancesMeatController,
         target:"getLotMeat"
+    },
+    {
+        url: "/rovianda/quality/entrances/:loteId",
+        method:"get",
+        controller: EntrancesMeatController,
+        target: "getAllEntrancesOfmeat"
+    },
+    {
+        url: "/rovianda/quality/drief/entrances/:loteId",
+        method:"get",
+        controller: EntrancesMeatController,
+        target: "getAllEntrancesOfDrief"
     }
 ];

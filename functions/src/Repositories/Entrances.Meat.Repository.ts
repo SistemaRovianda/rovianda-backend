@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, MoreThanOrEqual } from 'typeorm';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 
 export class EntranceMeatRepository{
@@ -10,6 +10,13 @@ export class EntranceMeatRepository{
             this.entrancesMeatRepository = (await connect()).getRepository(EntranceMeat);
         }
     }
+
+    async findByLotId(lotId:string,date:string,page:number,peerPage:number){
+        let skip = page*peerPage;
+        await this.getConnection();
+        return await this.entrancesMeatRepository.find({select:["id","createdAt","loteInterno","loteProveedor","proveedor","weight","rawMaterial"],where:{loteInterno:lotId,createdAt:MoreThanOrEqual(date)},take:peerPage,skip});
+    }
+    
 
     async saveEntrancesMeat(entranceMeat:EntranceMeat){
         await this.getConnection();
@@ -25,6 +32,9 @@ export class EntranceMeatRepository{
         await this.getConnection();
         return await this.entrancesMeatRepository.findOne({id});
     }
+
+
+   
 
     async getEntrancesMeats(dateInit:string,dateEnd:string){
         await this.getConnection();
@@ -46,4 +56,5 @@ export class EntranceMeatRepository{
         await this.getConnection();
         return await this.entrancesMeatRepository.find({loteInterno})
     }
+
 }

@@ -15,14 +15,23 @@ export class ClientRepository{
         }
     }
 
+    async getLastClient(){
+        await this.getConnection();
+        return await this.clientRepository.findOne({order:{ id: 'DESC' }})
+    }
     async saveClient(client:Client){
         await this.getConnection();
         return await this.clientRepository.save(client);
     }
 
+    async getClientById(id:number){
+        await this.getConnection();
+        return await this.clientRepository.findOne({id});
+    }
+
     async getClientBySeller(seller:User){
         await this.getConnection();
-        return await this.clientRepository.find({seller:seller});
+        return await this.clientRepository.find({seller:seller,status:"ACTIVE"});
         /*return await this.clientRepository.query(
             `select deb.deb_id as debId,cli.client_id as clientId,cli.name as name,
             deb.amount,deb.create_day as createDay,deb.days from clients as cli 
@@ -30,19 +39,24 @@ export class ClientRepository{
             */
     }
 
+
+    async deleteClientById(clientId:number){
+        await this.getConnection();
+        return await this.clientRepository.delete({id:clientId});
+    }
     async getAllClientBySeller(seller:User){
         await this.getConnection();
-        return await this.clientRepository.find({seller});
+        return await this.clientRepository.find({seller,status:"ACTIVE"});
     }
 
     async getAllClientBySellerAndHint(seller:User,keyClient:number){
         await this.getConnection();
-        return await (await this.clientRepository.find({seller:seller,keyClient}));
+        return await (await this.clientRepository.find({seller:seller,keyClient,status:"ACTIVE"}));
     }
 
     async getCurrentCountCustomer(){
         await this.getConnection();
-        return await this.clientRepository.query("SELECT `AUTO_INCREMENT` as noCount FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = rovianda-test-dev AND   TABLE_NAME   = clients");
+        return await this.clientRepository.query("SELECT `AUTO_INCREMENT` as noCount FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = new_rovianda AND   TABLE_NAME   = clients");
     }
     
     async findByClientKey(keyClient:number){
@@ -51,8 +65,21 @@ export class ClientRepository{
     }
     async getClientBySellerAndDebts(seller:User){
         await this.getConnection();
-        return await this.clientRepository.find({seller,hasDebts:true});
+        return await this.clientRepository.find({seller,hasDebts:true,status:"ACTIVE"});
     }
 
+    async getAllClients(page:number,perPage:number){
+        await this.getConnection();
+        let skip = (page)*perPage;
+        console.log(skip);
+        let count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+        let items= await this.clientRepository.query(
+            `select * from clients where status='ACTIVE' limit ${perPage}  offset ${skip}`
+        );
+        return {
+            count,
+            items: items as Array<any>
+        }
+    }
 
 }

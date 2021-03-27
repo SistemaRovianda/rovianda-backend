@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
@@ -23,5 +23,10 @@ export class DefrostFormulationRepository{
     async getDefrostFormulationByDefrostWithFormulation(defrost:Defrost){
         await this.getConnection();
         return await this.repository.findOne({defrost},{relations:["formulation"]});
+    }
+
+    async findByDefrostIds(defrosts:Defrost[]){
+        await this.getConnection();
+        return await this.repository.find({where:{defrost:In(defrosts)}});
     }
 }

@@ -19,7 +19,7 @@ export class DefrostRepository{
 
     async getDefrostById(defrostId:number){
         await this.getConnection();
-        return await this.repository.findOne({defrostId});
+        return await this.repository.findOne({defrostId},{relations:["outputCooling"]});
     }
 
     async getAllActive(){
@@ -31,10 +31,17 @@ export class DefrostRepository{
         await this.getConnection();
         return await this.repository.find({status:"INACTIVE"});
     }
-    async getByOutputsCooling(outputsCooling:OutputsCooling){
+    async getByOutputsCooling(outputCooling:number[]){
         await this.getConnection();
         return await this.repository.find({
-            outputCooling: outputsCooling
+            where:{outputCooling:{id:In(outputCooling)}}
+        });
+    }
+
+    async getByOutputsIds(outputsIds:Array<number>){
+        await this.getConnection();
+        return await this.repository.find({
+            where: { outputCooling: In([outputsIds])}
         });
     }
 }

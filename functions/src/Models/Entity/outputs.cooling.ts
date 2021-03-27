@@ -1,4 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, OneToMany, ManyToOne, JoinColumn, OneToOne  } from "typeorm";
+import { Defrost } from "./Defrost";
 import { Formulation } from "./Formulation";
 import { Raw } from "./Raw";
 
@@ -29,4 +30,13 @@ export class OutputsCooling{
     
     @OneToOne(type=>Formulation,{nullable:true})
     formulation:Formulation;
+
+    // @OneToOne(()=>Defrost,defrost=>defrost.outputCooling)
+    // defrost:Defrost;
+
+    @OneToOne(type=>Defrost,defrost=>defrost.outputCooling)
+    defrost:Defrost;
+
+    @Column({name:"lote_proveedor",nullable:true})
+    loteProveedor:string;
 }

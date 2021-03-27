@@ -1,4 +1,4 @@
-import {Request,Response} from 'express';
+import {Request,response,Response} from 'express';
 import { SalesRequestService } from '../Services/Sales.Request.Service';
 
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
@@ -7,6 +7,8 @@ import { Sale } from '../Models/Entity/Sales';
 import { SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
 import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
+import { User } from '../Models/Entity/User';
+import { OrderSeller } from '../Models/Entity/Order.Seller';
 
 export class SalesRequestController{
 
@@ -22,9 +24,22 @@ export class SalesRequestController{
     
     async createSeller(req:Request,res:Response){
         await this.salesRequestService.createSeller(req.body);
+        
         return res.status(201).send();
     }
 
+    async getAllSalesOfDayOfSeller(req:Request,res:Response){
+        let sellerUid:string = req.params.sellerUid;
+        let date = req.query.date;
+        let sales:Sale[]= await this.salesRequestService.getAllSalesBySellerAndDate(sellerUid,date);
+        return res.status(200).send(sales);
+    }
+
+    async cancelSale(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        await this.salesRequestService.cancelSale(saleId);
+        return res.status(204).send();
+    }
 
     async saveOrderSeller(req:Request,res:Response){
         let uid = req.params.sellerUid;//req.headers.uid as string;
@@ -52,10 +67,14 @@ export class SalesRequestController{
 
     async getPresentationsOfProductOfOrderSeller(req:Request,res:Response){
         let orderId:number = +req.params.orderId;
-        let productId:number =+req.params.productId;
         if(orderId<1) throw new Error("[400], el valor de la orden debe ser mayor a cero");
-        if(productId<1) throw new Error("[400], el valor del producto debe ser mayor a cero");
-        return res.status(200).send(await this.salesRequestService.getPresentationsOfProductOfOrder(orderId,productId));
+        return res.status(200).send(await this.salesRequestService.getPresentationsOfProductOfOrder(orderId));
+    }
+    async getPresentationsOfProductOfOrderSellerApp(req:Request,res:Response){
+        let orderId:number = +req.params.orderId;
+        let productId:number = +req.params.productId;
+        if(orderId<1) throw new Error("[400], el valor de la orden debe ser mayor a cero");
+        return res.status(200).send(await this.salesRequestService.getPresentationsOfProductOfOrderApp(orderId,productId));
     }
 
     async getSellerPackagingInventory(req:Request,res:Response){
@@ -221,6 +240,53 @@ export class SalesRequestController{
         let saleId:number = +req.query.saleId;
         await this.salesRequestService.transferAllSalesAutorized();
         res.status(204).send();
+    }
+
+    async getProductByKeyToSale(req:Request,res:Response){
+        let sellerUid:string = req.params.sellerUid;
+        if(isNaN(+req.params.key)){
+            throw new Error("[404], la clave del producto debe ser un numero");
+        }
+        let productKey:string = req.params.key;
+        
+        let product = await this.salesRequestService.findProduct(sellerUid,productKey);
+        res.status(200).send(product);
+    }
+
+    async getCurrentTime(req:Request,res:Response){
+        let uid=req.params.sellerUid;
+        
+        let response:{hours:number,minutes:number,seconds:number} = await this.salesRequestService.getCurrentTime(uid);
+        return res.status(200).send(response);
+    }
+
+    async getProductsInfoOfInventStock(req:Request,res:Response){
+        let key:string = req.params.key;
+        let response = await this.salesRequestService.findProductInve(key);
+        return res.status(200).send(response);
+    }
+
+    async getListOfSellers(req:Request,res:Response){
+        let sellers: User[] = await this.salesRequestService.getAllSellers();
+        return res.status(200).send(sellers);
+    }
+
+    async getResguardedOfSeller(req:Request,res:Response){
+        let uid = req.params.sellerUid;
+        let response:string =await this.salesRequestService.getResguardedTicket(uid);
+        return res.status(200).send(response);
+    }
+
+    async getDetailsOfOrderSeller(req:Request,res:Response){
+        let orderId:number = +req.params.orderId;
+        let orderDetails = await this.salesRequestService.getOrderDetails(orderId);
+        return res.status(200).send(orderDetails);
+    }
+
+    async updateDetailsOfOrderSeller(req:Request,res:Response){
+        let orderId:number = +req.params.orderId;
+        await this.salesRequestService.deleteOrderDetails(req.body,orderId);
+        return res.status(204).send();
     }
 
 } 

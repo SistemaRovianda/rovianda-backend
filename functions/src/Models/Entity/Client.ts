@@ -3,6 +3,7 @@ import { Address } from "./Address";
 import { Debts } from "./Debts";
 import { Sale } from "./Sales";
 import { User } from "./User";
+import { VisitClientOperation } from "./VisitClientOperation";
 
 @Entity({name:"clients"})
 export class Client{
@@ -65,5 +66,12 @@ export class Client{
 
     @Column({name:"has_debts"})
     hasDebts:boolean;
+
+
+    @OneToMany(type=>VisitClientOperation,visit=>visit.client)
+    visits:VisitClientOperation[];
+
+    @Column({default:"ACTIVE"})
+    status:string;
 
 }

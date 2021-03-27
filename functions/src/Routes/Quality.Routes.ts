@@ -32,5 +32,11 @@ export const qualityRoutes:Array<routeInterface>=[
         method:"get",
         controller:UserController,
         target:"getUserByRol"
+    },
+    {
+        url: "/rovianda/user-status",
+        method: "put",
+        controller: UserController,
+        target: "updateUserStatus"
     }
 ];

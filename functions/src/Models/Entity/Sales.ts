@@ -3,6 +3,7 @@ import { User } from "./User";
 import { Client } from "./Client";
 import { SubSales } from "./Sub.Sales";
 import { Debts } from "./Debts";
+import { Float } from "mssql";
 
 @Entity({name:"sales"})
 export class Sale{
@@ -20,10 +21,13 @@ export class Sale{
     @Column()
     hour:string;
     
-    @Column()
+    @Column({type:"float",nullable:false})
     amount:number;
 
-    @Column()
+    @Column({name:"payed_with",type:"float",nullable:false})
+    payedWith:number;
+
+    @Column({nullable:true})
     credit: number;
 
     @Column({name:"type_sale"})
@@ -45,7 +49,10 @@ export class Sale{
     @Column()
     folio:string;
 
-    @Column({name:"with_debts"})
+    @Column({name:"with_debts",nullable:false,default:false})
     withDebts:boolean;
+
+    @Column({name:"status_str",nullable:true})
+    statusStr:string;
 
 }

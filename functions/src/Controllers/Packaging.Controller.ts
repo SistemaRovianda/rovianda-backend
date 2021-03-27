@@ -4,15 +4,20 @@ import { PackagingService } from '../Services/Packaging.Service'
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { Devolution } from '../Models/Entity/Devolution';
 import * as pdf from 'html-pdf';
-
+import { LotsStockInventory, LotsStockInventoryPresentation } from '../Models/DTO/PackagingDTO';
+import PdfHelper from "../Utils/Pdf.Helper";
+import Excel4Node from '../Utils/Excel.Helper';
+import * as os from "os";
+import * as fs from "fs";
 export class PackagingController{
 
-   
+    private excel: Excel4Node;
     private packagingService: PackagingService;
-    
+    private pdfHelper: PdfHelper;
     constructor(private firebaseInstance:FirebaseHelper){
         this.packagingService = new PackagingService();
-        
+        this.pdfHelper= new PdfHelper();
+        this.excel = new Excel4Node();
     }
 
     async savePackaging(req:Request,res:Response){
@@ -59,8 +64,8 @@ export class PackagingController{
     }
 
     async getPackagingInventoryLotsProduct(req:Request,res:Response){
-        let productId:number = +req.params.productId;
-        return res.status(200).send(await this.packagingService.getProductPresentationInventory(productId));
+        let orderId:number = +req.params.orderId;
+        return res.status(200).send(await this.packagingService.getProductPresentationInventory(orderId));
     }
 
     async savePackagingInventoryLotsProductOutput(req:Request,res:Response){
@@ -142,4 +147,85 @@ export class PackagingController{
         await this.packagingService.closeOrderSeller(orderSellerId);
         return res.status(204).send();
     }
+
+    async getEntrancesToSellerInventoryByWarehouse(req:Request,res:Response){
+        let warehouseId:string = req.params.warehouseId;
+        let dateStart:string = req.query.dateStart;
+        let dateEnd:string = req.query.dateEnd;
+        let response = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd);
+        return res.status(200).send(response);
+    }
+
+    async getLotsStockInventory(req:Request,res:Response){
+        let presentationId:number = +req.params.presentationId;
+        let response: LotsStockInventory[] =  await this.packagingService.getLotsStockInventoryByPresentationId(presentationId);
+        return res.status(200).send(response);
+    }
+
+    async getReportInventory(req:Request,res:Response){
+        let warehouse = req.query.ware;
+        let type = req.params.type;
+        let result:{items:LotsStockInventoryPresentation[],name:string} = await this.packagingService.getLotsStockInventoryByWarehouseGeneral(warehouse);
+        
+        if(type=="pdf"){
+            let content = this.pdfHelper.getReportInventory(result.items,result.name);
+        
+            pdf.create(content, {
+                format: 'Legal',
+                orientation:`landscape`,
+                header: {
+                    height: ".5cm"
+                },
+                footer: {
+                    height: ".5cm"
+              },
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=Inventario.pdf`
+                });
+                stream.pipe(res);
+            }))
+        }else if(type=="excel"){
+            let tmp = os.tmpdir();
+            let workbook = this.excel.generateInventoryReport(result.items,result.name); 
+            workbook.write(`${tmp}/Inventario.xlsx`,(err, stats)=>{
+                if(err){
+                    console.log(err);
+                }
+                res.setHeader(
+                    "Content-disposition",
+                    'inline; filename="Inventario.xlsx"'
+                  );
+                  res.setHeader("Content-Type", "application/vnd.ms-excel");
+                  res.status(200); 
+                console.log(stats);
+                return res.download(`${tmp}/Inventario.xlsx`,(er) =>{ 
+                    if (er) console.log(er);
+                    fs.unlinkSync(`${tmp+"/Inventario.xlsx"}`);
+                    
+                })
+            });
+        }
+       
+    }
+
+    async getInventoryPlant(req:Request,res:Response){
+        let result:{items:LotsStockInventoryPresentation[],name:string} = await this.packagingService.getLotsStockInventoryByWarehouseGeneral(53);
+        return res.status(200).send(result.items);
+    }
+
+    async UpdateInventoryPlant(req:Request,res:Response){
+        
+        return res.status(204).send(await this.packagingService.updateInventoryPlant(req.body));
+    }
+
+    async getOutputsByPlant(req:Request,res:Response){
+        let from =req.query.from;
+        let to = req.query.to;
+        let response = await this.packagingService.getAllOutputsByPlant(from,to);
+        return res.status(200).send(response);
+    }
+
 }

@@ -45,7 +45,7 @@ export const packagingRoutes:Array<routeInterface>=[
         target: "getPackaging"
     },
     {
-        url: "/rovianda/packaging-lots/inventory/product/:productId", // servicio para obtener los productos por presentation y por lote en empaques
+        url: "/rovianda/packaging-lots/inventory/product-order/:orderId", // servicio para obtener los productos por presentation y por lote en empaques /// productId
         method: "get",
         controller: PackagingController,
         target: "getPackagingInventoryLotsProduct"
@@ -74,6 +74,7 @@ export const packagingRoutes:Array<routeInterface>=[
         controller:PackagingController,
         target:"getPackagingLotProduct" 
     },
+    
     {
         url: "/rovianda/packaging/reprocessing",
         method:"post",
@@ -94,9 +95,46 @@ export const packagingRoutes:Array<routeInterface>=[
         target: "createDevolution"
     },
     {
+        url: "/rovianda/packaging/inventory-warehouse/:type",
+        method: "get",
+        controller: PackagingController,
+        target: "getReportInventory"
+    },
+    {
+        url: "/rovianda/packaging/inventory-plant",
+        method: "get",
+        controller: PackagingController,
+        target: "getInventoryPlant"
+    },
+    {
+        url: "/rovianda/packaging-inventory/plant",
+        method: "put",
+        controller: PackagingController,
+        target: "UpdateInventoryPlant"
+    }
+    ,
+    {
         url: "/rovianda/packaging/devolution-report/:devolutionId",
         method: "get",
         controller:PackagingController,
         target: "getDevolutionReport"
+    },
+    {
+        url: "/rovianda/packaging-warehouse/:warehouseId",
+        method: "get",
+        controller: PackagingController,
+        target: "getEntrancesToSellerInventoryByWarehouse"
+    },
+    {
+        url: "/rovianda/plant-delivery",
+        method: "get",
+        controller: PackagingController,
+        target: "getOutputsByPlant"
+    },
+    {
+        url: "/rovianda/products-rovianda/inventory-lots/:presentationId",
+        method: "get",
+        controller: PackagingController,
+        target: "getLotsStockInventory"
     }
 ];

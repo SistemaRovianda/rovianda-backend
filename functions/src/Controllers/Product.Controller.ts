@@ -7,6 +7,8 @@ import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { FileInterface, SaveProductRoviandaDTO } from '../Models/DTO/ProductRoviandaDTO';
 import {keys} from "ts-transformer-keys";
 import { keysIn } from 'lodash';
+import { ClientSAE } from '../Models/DTO/Client.DTO';
+import { Client } from '../Models/Entity/Client';
 export class ProductController{
 
     private productService:ProductService;
@@ -121,5 +123,38 @@ export class ProductController{
     async getAllProductsLines(req:Request,res:Response){
         let result = await this.productRoviandaService.getAllProductLines();
         return res.status(200).send(result);
+    }
+
+    async deleteProductsLines(req:Request,res:Response){
+        let cve=req.params.cve;
+        await this.productRoviandaService.deleteProductLines(cve);
+        return res.status(204).send();
+    }
+
+    async getClientSaeList(req:Request,res:Response){
+        if(!req.query.page) throw new Error("falta el parametro page");
+        if(!req.query.perPage) throw new Error("falta el parametro perPage");
+        let page=req.query.page;
+        let perPage=req.query.perPage;
+        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage);
+        res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+        res.setHeader("X-Total-Count",response.count);
+        return res.status(200).send(response.items);
+    }
+
+    async getSalesOfClient(req:Request,res:Response){
+        if(!req.query.page) throw new Error("falta el parametro page");
+        if(!req.query.perPage) throw new Error("falta el parametro perPage");
+        if(!req.query.from) throw new Error("falta el parametro from");
+        if(!req.query.to) throw new Error("falta el parametro to");
+        let page=req.query.page;
+        let perPage=req.query.perPage;
+        let from=req.query.from;
+        let to=req.query.to;
+        let clientId:number = +req.params.clientId;
+        let response:{count:number,items:Array<any>}= await this.productRoviandaService.getSalesByClient(clientId,page,perPage,from,to);
+        res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+        res.setHeader("X-Total-Count",response.count);
+        return res.status(200).send(response.items);
     }
 }

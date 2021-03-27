@@ -1,3 +1,4 @@
+import { String } from "lodash";
 import { Sale } from "../Entity/Sales";
 
 export interface SalesProductDTO{
@@ -19,9 +20,9 @@ export interface OrderSellerRequest{
 }
 
 export interface OrderSellerRequestProduct{
-   productId:number,
-   presentationId:number,
+   keySae:string;   
    quantity:number;
+   observations:string;
 }
 
 export interface PackagingProperties{
@@ -47,20 +48,16 @@ export interface SaleOrderDTO {
     sellerId:string;
     products: productSaled[],
     payed:number,
+    amount:number;
     credit?:number,
     days?:number,
     typeSale:string
  }
 
  export interface productSaled{
-    presentationId:number,
     productKey?:string;
     quantity: number;
-    price?:number;
-    total?:number;
-    taxSchema?:number;
-    warehouseKey?:number;
-    weight:number;
+    price:number;
  }
 
  export interface ImpuSchemaSAE{
@@ -83,4 +80,22 @@ export interface SaleOrderDTO {
  export interface SalesToSuperAdmin{
    sales:Sale[],
    totalCount:number
+ }
+
+ export interface SubOrderMetadataOutputs{
+      lotId:string,
+      outputDate:string,
+      quantity:number,
+      weight:number,
+      sellerUid:string,
+      presentation:string,
+      name:string,
+      keySae:string,
+      expiration:string,
+      observations:string
+ }
+
+ export interface OrderSellerUpdateProperties{
+      subOrderId:number,
+      quantity:number;
  }

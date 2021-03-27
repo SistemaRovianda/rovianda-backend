@@ -44,7 +44,7 @@ export class App extends ErrorHandler{
                 //this.mapMulter(route,req,res,next);
                 await (route.controller)[route.target](req,res);
                 }catch(err){
-                    console.log(err);
+                    console.log(err,route.target);
                     this.parser(err.message,res);
                 }
             })
@@ -67,13 +67,13 @@ export class App extends ErrorHandler{
 }
 
 
-export const app = functions.https.onRequest( new App().app);
+export const app = functions.runWith({timeoutSeconds:500}).https.onRequest( new App().app);
 
 //export const appCron = functions.pubsub.schedule('10 0 * * *')
-export const appCron = functions.pubsub.schedule('51 14 * * *')
-.timeZone('America/New_York').onRun(async (context)=>{
-   console.log("Se programo una cloud function a las 11 10 pm");
+// export const appCron = functions.pubsub.schedule('51 14 * * *')
+// .timeZone('America/New_York').onRun(async (context)=>{
+//    console.log("Se programo una cloud function a las 11 10 pm");
     
-    let saleService:SalesRequestService = new SalesRequestService(null);
-    await saleService.transferAllSalesAutorized();
-})
+//     let saleService:SalesRequestService = new SalesRequestService(null);
+//     await saleService.transferAllSalesAutorized();
+// }) 

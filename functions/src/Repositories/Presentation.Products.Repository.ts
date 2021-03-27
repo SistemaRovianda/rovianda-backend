@@ -1,5 +1,5 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { PresentationProducts } from '../Models/Entity/Presentation.Products';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 export class PresentationsProductsRepository{
@@ -34,6 +34,13 @@ export class PresentationsProductsRepository{
             order: {
                 id: 'DESC'
                 }
+        });
+    }
+
+    async getAllPresentations(){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.find({
+            relations:["productRovianda"]
         });
     }
 
@@ -79,5 +86,14 @@ export class PresentationsProductsRepository{
     async deleteById(presentationProductId:number){
         await this.getConnection();
         return await this.presentationsProductsRepository.delete({id:presentationProductId});
+    }
+
+    async findByKeySae(presentationKey:string){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.findOne({keySae:presentationKey},{relations:["productRovianda"]});
+    }
+    async findByKeySaeByLike(presentationKey:string){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.findOne({keySae:Like(`%${presentationKey}`)},{relations:["productRovianda"]});
     }
 }

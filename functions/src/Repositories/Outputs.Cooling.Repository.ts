@@ -1,7 +1,9 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
 import { Raw } from '../Models/Entity/Raw';
+import { Formulation } from '../Models/Entity/Formulation';
+import { Defrost } from '../Models/Entity/Defrost';
 export class OutputsCoolingRepository{
     private outputsCoolingRepository:Repository<OutputsCooling>;
 
@@ -11,11 +13,17 @@ export class OutputsCoolingRepository{
         }
     }
 
+   
+
     async createOutputsCooling(outputsCooling:OutputsCooling){
         await this.getConnection();
         return await this.outputsCoolingRepository.save(outputsCooling);
     }
 
+    async findByLotIdAndDates(lotId:string,loteProveedor:string,dateInit,dateEnd){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.find({loteInterno:lotId,loteProveedor,outputDate:Between(dateInit,dateEnd)});
+    }
     async getAllOutputsCooling(){
         await this.getConnection();
         return await this.outputsCoolingRepository.find();
@@ -67,5 +75,10 @@ export class OutputsCoolingRepository{
     async getOutputCoolingByRawAndStatus(status:string,rawMaterial:Raw){
         await this.getConnection();
         return await this.outputsCoolingRepository.find({rawMaterial:rawMaterial,status});
+    }
+
+    async getOutputsCoolingByLotInternoBetweenDates(loteInterno:string,dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.find({loteInterno,outputDate:Between(dateStart,dateEnd)});
     }
 }

@@ -29,12 +29,13 @@ export class OvenController{
 
     async updateOvenProduct(req:Request,res:Response){
         let id = req.params.productId;
-        await this.ovenService.updateOvenProductStatus(+id);
+        let observations:string = req.body.observations;
+        await this.ovenService.updateOvenProductStatus(+id,observations);
         return res.status(204).send();
     }
 
     async markUsedOvenProductStatus(req:Request,res:Response){
-        let ovenProductId:number = +req.params.ovenProductId;
+        let ovenProductId:string = req.params.ovenProductId;
         await this.ovenService.markUsedOvenProductStatus(ovenProductId);
         return res.status(204).send();
     }
