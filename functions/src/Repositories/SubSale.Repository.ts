@@ -1,6 +1,6 @@
 import { Sale } from "../Models/Entity/Sales";
 import { SubSales } from "../Models/Entity/Sub.Sales";
-import { Repository } from "typeorm";
+import { Between, In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { User } from "../Models/Entity/User";
 
@@ -18,6 +18,13 @@ export class SubSaleRepository{
             where:{ sale},
             relations:["presentation","product"]
         });
+    }
+
+    async getBySeller(seller:User,date:string){
+        await this.getConnection();
+        let dateFrom = date+"T00:00:00.000Z";
+        let dateTo = date+"T23:59:59.0000Z";
+        return await this.subSaleRepository.find({where:{ createAt: Between(dateFrom,dateTo) ,sale:{seller}}});
     }
 
 

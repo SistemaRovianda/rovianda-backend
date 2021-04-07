@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { Client } from "../Models/Entity/Client";
 import { connect } from "../Config/Db";
 import { ClientsBySeller } from "../Models/DTO/Client.DTO";
@@ -68,14 +68,22 @@ export class ClientRepository{
         return await this.clientRepository.find({seller,hasDebts:true,status:"ACTIVE"});
     }
 
-    async getAllClients(page:number,perPage:number){
+    async getAllClients(page:number,perPage:number,hint:string){
         await this.getConnection();
         let skip = (page)*perPage;
-        console.log(skip);
-        let count=await this.clientRepository.count({where:{status:"ACTIVE"}});
-        let items= await this.clientRepository.query(
+        let count=0;
+        let items=[];
+        if(hint){
+            count=await this.clientRepository.count({where:{status:"ACTIVE",name:Like(`%${hint}%`)}});
+            items= await this.clientRepository.query(
+            `select * from clients where status='ACTIVE' and name like "%${hint}%" limit ${perPage}  offset ${skip}`
+            );
+        }else{
+            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            items= await this.clientRepository.query(
             `select * from clients where status='ACTIVE' limit ${perPage}  offset ${skip}`
-        );
+            );
+        }
         return {
             count,
             items: items as Array<any>

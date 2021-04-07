@@ -7,6 +7,10 @@ import { PresentationProducts } from "./Presentation.Products";
 @Entity({name:"sub_sales"})
 export class SubSales{
 
+    constructor(){
+        this.createAt = new Date().toISOString();
+    }
+
     @PrimaryGeneratedColumn({name:"sub_sale_id"})
     subSaleId:number;
 
@@ -31,5 +35,7 @@ export class SubSales{
     @Column()
     amount:number;
 
+    @Column({name:"create_at",nullable:true})
+    createAt:string;
 
 }

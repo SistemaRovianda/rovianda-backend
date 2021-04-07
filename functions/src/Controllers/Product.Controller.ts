@@ -136,7 +136,8 @@ export class ProductController{
         if(!req.query.perPage) throw new Error("falta el parametro perPage");
         let page=req.query.page;
         let perPage=req.query.perPage;
-        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage);
+        let hint = req.query.hint;
+        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage,hint);
         res.header('Access-Control-Expose-Headers', 'X-Total-Count')
         res.setHeader("X-Total-Count",response.count);
         return res.status(200).send(response.items);

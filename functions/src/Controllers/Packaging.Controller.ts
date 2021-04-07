@@ -63,10 +63,7 @@ export class PackagingController{
         return res.status(200).send(response);
     }
 
-    async getPackagingInventoryLotsProduct(req:Request,res:Response){
-        let orderId:number = +req.params.orderId;
-        return res.status(200).send(await this.packagingService.getProductPresentationInventory(orderId));
-    }
+    
 
     async savePackagingInventoryLotsProductOutput(req:Request,res:Response){
         
@@ -226,6 +223,15 @@ export class PackagingController{
         let to = req.query.to;
         let response = await this.packagingService.getAllOutputsByPlant(from,to);
         return res.status(200).send(response);
+    }
+    async getPackagingInventoryLotsProduct(req:Request,res:Response){
+        let orderId:number = +req.params.orderId;
+        return res.status(200).send(await this.packagingService.getProductPresentationInventory(orderId));
+    }
+
+    async getProductsLotsCheeses(req:Request,res:Response){
+        let productId:number =+req.params.productId;
+        return res.status(200).send(await this.packagingService.getProductPresentationInventoryByProduct(productId));
     }
 
 }

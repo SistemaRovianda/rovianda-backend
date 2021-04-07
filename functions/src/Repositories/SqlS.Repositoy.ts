@@ -610,12 +610,21 @@ export class SqlSRepository{
 
                 let date = new Date(saleRequestForm.date);
                 date.setHours(date.getHours()-6);
-                let dateParse=date.toISOString().slice(0, 19).replace('T', ' ')
-                let countOrder = await pool.request().query(`select * from TBLCONTROL01 where ID_TABLA=32`);
+                let month = (date.getMonth()+1).toString();
+                let day = date.getDate().toString();
+                if(+month){
+                    month="0"+month;
+                }
+                if(+day){
+                    day="0"+day
+                }
+                let dateParse=date.getFullYear()+"-"+month+"-"+day+" 00:00:00:000";
+                let dateParse2=date.getFullYear()+"-"+month+"-"+day+" 10:30:00:000";
+                let countOrder = await pool.request().query(`select * from TBLCONTROL${EMPRESA} where ID_TABLA=32`);
                 let count = (countOrder.recordset as Array<{ID_TABLA:number,ULT_CVE:number}>)[0].ULT_CVE.toString();
                 let folios = await pool.request().query(
                         `
-                        select top 1 * from FACTR_CLIB${EMPRESA} ORDER BY CLAVE_DOC DESC
+                        select  * from FOLIOSF${EMPRESA} WHERE TIP_DOC='R'
                         `
                 );// de FACTP A FACTV YA QUE VENTAS ES LO MAS ACTUALIZADO
                 let foliosBita = await pool.request().query(
@@ -626,7 +635,7 @@ export class SqlSRepository{
                 let totalSaleAmount = saleRequestForm.subSales.map(x=>x.amount).reduce((a,b)=>a+b,0);
                 
                 //let esquimpu= await pool.request().input('CVE_ESQUIMPU',VarChar,).query(`select * from IMPU01 where CVE_ESQUIMPU=`);
-                let newFolio=+folios.recordset[0].CLAVE_DOC+1;
+                let newFolio=+folios.recordset[0].ULT_DOC+1;
                 let foliocount = (folios.recordset.length)?'0'.repeat(10-newFolio.toString().length)+newFolio.toString():'0000000001';
                 let foliocountBita = (foliosBita.recordset.length)?+foliosBita.recordset[0].CVE_BITA+1:1
                 console.log("FOLIOS",+foliocount);
@@ -634,21 +643,19 @@ export class SqlSRepository{
                 console.log("FOLIOBITA",foliocountBita);
                 console.log("CVE_VEND",saleRequestForm.seller.saeKey);
                 let client = saleRequestForm.client;
-                if(client.idAspel!=0){
-                    client.keyClient=713;
-                }
+                client.keyClient=client.idAspel;
                 let seller = saleRequestForm.seller;
                 let warehouseId=saleRequestForm.seller.warehouseKeySae;
                 ////////////////////////////////pedidos
-                await pool.request().input('TIP_DOC',VarChar,'P').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient)
-                        .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,seller.saeKey).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
+                /*await pool.request().input('TIP_DOC',VarChar,'P').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient)
+                        .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,' '.repeat(5-seller.saeKey.toString().length)+seller.saeKey).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
                         .input('FECHA_ENT',DateTime,dateParse).input('FECHA_VEN',DateTime,dateParse).input('FECHA_CANCELA',DateTime,null).input('CAN_TOT',Float,totalSaleAmount)
                         .input('IMP_TOT1',Float,0).input('IMP_TOT2',Float,0).input('IMP_TOT3',Float,0).input('IMP_TOT4',Float,0).input('DES_TOT',Float,0).input('DES_FIN',Float,0).input('COM_TOT',Float,0)
-                        .input('CONDICION',VarChar,null).input('CVE_OBS',Int,0).input('NUM_ALMA',Int,warehouseId).input('ACT_CXC',VarChar,'S').input('ACT_COI',VarChar,'N').input('ENLAZADO',VarChar,'O').input('TIP_DOC_E',VarChar,'O')
-                        .input('NUM_MONED',Int,1).input('TIPCAMB',Float,1).input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,0).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0).input('ESCFD',VarChar,'N')
+                        .input('CONDICION',VarChar,null).input('CVE_OBS',Int,0).input('NUM_ALMA',Int,warehouseId).input('ACT_CXC',VarChar,'S').input('ACT_COI',VarChar,'N').input('ENLAZADO',VarChar,'T').input('TIP_DOC_E',VarChar,'R')
+                        .input('NUM_MONED',Int,1).input('TIPCAMB',Float,1).input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,(saleRequestForm.status)?0:totalSaleAmount).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0).input('ESCFD',VarChar,'N')
                         .input('AUTORIZA',Int,1).input('SERIE',VarChar,'').input('FOLIO',Int,+foliocount).input('AUTOANIO',VarChar,'').input('DAT_ENVIO',Int,0).input('CONTADO',VarChar,'N').input('CVE_BITA',Int,foliocountBita)
                         .input('BLOQ',VarChar,'N').input('FORMAENVIO',VarChar,'').input('DES_FIN_PORC',Float,0).input('DES_TOT_PORC',Float,0).input('IMPORTE',Float,totalSaleAmount).input('COM_TOT_PORC',Float,0).input('METODODEPAGO',VarChar,null)
-                        .input('NUMCTAPAGO',VarChar,null).input('TIP_DOC_ANT',VarChar,'').input('DOC_ANT',VarChar,'').input('TIP_DOC_SIG',VarChar,null).input('DOC_SIG',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse)
+                        .input('NUMCTAPAGO',VarChar,null).input('TIP_DOC_ANT',VarChar,'').input('DOC_ANT',VarChar,'').input('TIP_DOC_SIG',VarChar,null).input('DOC_SIG',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2)
                         .input('FORMADEPAGOSAT',VarChar,null).input('USO_CFDI',VarChar,null).query(
                     `
                         insert into FACTP${EMPRESA}(TIP_DOC,CVE_DOC,CVE_CLPV,STATUS,DAT_MOSTR,CVE_VEND,CVE_PEDI,FECHA_DOC,FECHA_ENT,FECHA_VEN,FECHA_CANCELA,CAN_TOT,IMP_TOT1,
@@ -666,7 +673,7 @@ export class SqlSRepository{
                 
 
                 await pool.request().input('CVE_BITA',Int,+foliocountBita).input('CVE_CLIE',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient).input('CVE_CAMPANIA',VarChar,'_SAE_').input('CVE_ACTIVIDAD',VarChar,'    4')
-                .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [  ${foliocount} ] $${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
+                .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [ ${foliocount} ] $ ${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
                 .input('NOM_USUARIO',VarChar,'Administrador').query(
                     `insert into BITA${EMPRESA}(CVE_BITA,CVE_CLIE,CVE_CAMPANIA,CVE_ACTIVIDAD,FECHAHORA,CVE_USUARIO,OBSERVACIONES,STATUS,NOM_USUARIO)
                      VALUES(@CVE_BITA,@CVE_CLIE,@CVE_CAMPANIA,@CVE_ACTIVIDAD,@FECHAHORA,@CVE_USUARIO,@OBSERVACIONES,@STATUS,@NOM_USUARIO)`
@@ -680,22 +687,22 @@ export class SqlSRepository{
                 await pool.request().input('ULT_DOC',VarChar,' '.repeat(10-(+foliocountBita).toString().length)+(+foliocount).toString()).input('TIP_DOC',VarChar,'P')
                 .query(`
                     UPDATE FOLIOSF${EMPRESA} SET ULT_DOC=@ULT_DOC WHERE TIP_DOC=@TIP_DOC;
-                `);
+                `);*/
                 ////////////////remisiones
                
                 console.log("inserto venta 5");
                 await pool.request().input("TIP_DOC",VarChar,'R').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient)
-                .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,seller.saeKey).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
+                .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,' '.repeat(5-seller.saeKey.toString().length)+seller.saeKey).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
                 .input('FECHA_ENT',DateTime,dateParse).input('FECHA_VEN',DateTime,dateParse).input('FECHA_CANCELA',DateTime,null).input('CAN_TOT',Float,totalSaleAmount)
                 .input('IMP_TOT1',Float,0).input('IMP_TOT2',Float,0).input('IMP_TOT3',Float,0).input('IMP_TOT4',Float,0).input('DES_TOT',Float,0).input('DES_FIN',Float,0)
                 .input('COM_TOT',Float,0).input('CONDICION',VarChar,'').input('CVE_OBS',Int,0).input('NUM_ALMA',Int,warehouseId).input('ACT_CXC',VarChar,'S')
                 .input('ACT_COI',VarChar,'N').input('ENLAZADO',VarChar,'T').input('TIP_DOC_E',VarChar,'V').input('NUM_MONED',Int,1).input('TIPCAMB',Float,1)
-                .input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,0).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0)
+                .input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,(saleRequestForm.status)?0:totalSaleAmount).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0)
                 .input('ESCFD',VarChar,'N').input('AUTORIZA',Int,1).input('SERIE',VarChar,'').input('FOLIO',Int,+foliocount).input('AUTOANIO',VarChar,'')
                 .input('DAT_ENVIO',Int,0).input('CONTADO',VarChar,'N').input('CVE_BITA',Int,+foliocountBita+1).input('BLOQ',VarChar,'N').input('FORMAENVIO',VarChar,'')
                 .input('DES_FIN_PORC',Float,0).input('DES_TOT_PORC',Float,0).input('IMPORTE',Float,totalSaleAmount).input('COM_TOT_PORC',Float,0).input('METODODEPAGO',VarChar,'PPD')
                 .input('NUMCTAPAGO',VarChar,'').input('TIP_DOC_ANT',VarChar,'P').input('DOC_ANT',VarChar,foliocount).input('TIP_DOC_SIG',VarChar,'V').input('DOC_SIG',VarChar,foliocount)
-                .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).input('FORMADEPAGOSAT',VarChar,'').input('USO_CFDI',VarChar,null)
+                .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).input('FORMADEPAGOSAT',VarChar,'').input('USO_CFDI',VarChar,null)
                 .query(
                     `
                     INSERT INTO FACTR${EMPRESA}(TIP_DOC,CVE_DOC,CVE_CLPV,STATUS,DAT_MOSTR,CVE_VEND,CVE_PEDI,FECHA_DOC,FECHA_ENT,FECHA_VEN,FECHA_CANCELA,CAN_TOT,IMP_TOT1,IMP_TOT2,
@@ -709,7 +716,7 @@ export class SqlSRepository{
                     `
                 );
                 await pool.request().input('CVE_BITA',Int,(' '.repeat(10-(+foliocountBita+1).toString().length)+(+foliocountBita+1))).input('CVE_CLIE',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient).input('CVE_CAMPANIA',VarChar,'_SAE_').input('CVE_ACTIVIDAD',VarChar,'    3')
-                    .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [  ${foliocount} ] $${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
+                    .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [ ${foliocount} ] $ ${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
                     .input('NOM_USUARIO',VarChar,'Administrador').query(
                         `insert into BITA${EMPRESA}(CVE_BITA,CVE_CLIE,CVE_CAMPANIA,CVE_ACTIVIDAD,FECHAHORA,CVE_USUARIO,OBSERVACIONES,STATUS,NOM_USUARIO)
                         VALUES(@CVE_BITA,@CVE_CLIE,@CVE_CAMPANIA,@CVE_ACTIVIDAD,@FECHAHORA,@CVE_USUARIO,@OBSERVACIONES,@STATUS,@NOM_USUARIO)`
@@ -729,20 +736,20 @@ export class SqlSRepository{
                 //FALTA QUERY
 
                 ////////////////ventas
-               
+               if(!saleRequestForm.status){
                 console.log("inserto venta 5");
                 await pool.request().input("TIP_DOC",VarChar,'V').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient)
-                .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,seller.saeKey).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
+                .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,(' '.repeat(5-seller.saeKey.toString().length)+seller.saeKey)).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
                 .input('FECHA_ENT',DateTime,dateParse).input('FECHA_VEN',DateTime,dateParse).input('FECHA_CANCELA',DateTime,null).input('CAN_TOT',Float,totalSaleAmount)
                 .input('IMP_TOT1',Float,0).input('IMP_TOT2',Float,0).input('IMP_TOT3',Float,0).input('IMP_TOT4',Float,0).input('DES_TOT',Float,0).input('DES_FIN',Float,0)
                 .input('COM_TOT',Float,0).input('CONDICION',VarChar,'').input('CVE_OBS',Int,0).input('NUM_ALMA',Int,warehouseId).input('ACT_CXC',VarChar,'S')
-                .input('ACT_COI',VarChar,'N').input('ENLAZADO',VarChar,'T').input('TIP_DOC_E',VarChar,'V').input('NUM_MONED',Int,1).input('TIPCAMB',Float,1)
-                .input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,0).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0)
+                .input('ACT_COI',VarChar,'N').input('ENLAZADO',VarChar,'O').input('TIP_DOC_E',VarChar,'R').input('NUM_MONED',Int,1).input('TIPCAMB',Float,1)
+                .input('NUM_PAGOS',Int,1).input('FECHAELAB',DateTime,dateParse).input('PRIMERPAGO',Float,(saleRequestForm.status)?0:totalSaleAmount).input('RFC',VarChar,client.rfc).input('CTLPOL',Int,0)
                 .input('ESCFD',VarChar,'N').input('AUTORIZA',Int,1).input('SERIE',VarChar,'').input('FOLIO',Int,+foliocount).input('AUTOANIO',VarChar,'')
                 .input('DAT_ENVIO',Int,0).input('CONTADO',VarChar,'N').input('CVE_BITA',+foliocountBita+2).input('BLOQ',VarChar,'N').input('FORMAENVIO',VarChar,'')
                 .input('DES_FIN_PORC',Float,0).input('DES_TOT_PORC',Float,0).input('IMPORTE',Float,totalSaleAmount).input('COM_TOT_PORC',Float,0).input('METODODEPAGO',VarChar,'PPD')
                 .input('NUMCTAPAGO',VarChar,'').input('TIP_DOC_ANT',VarChar,'P').input('DOC_ANT',VarChar,foliocount).input('TIP_DOC_SIG',VarChar,'V').input('DOC_SIG',VarChar,foliocount)
-                .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).input('FORMADEPAGOSAT',VarChar,'').input('USO_CFDI',VarChar,null)
+                .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).input('FORMADEPAGOSAT',VarChar,'').input('USO_CFDI',VarChar,null)
                 .query(
                     `
                     INSERT INTO FACTV${EMPRESA}(TIP_DOC,CVE_DOC,CVE_CLPV,STATUS,DAT_MOSTR,CVE_VEND,CVE_PEDI,FECHA_DOC,FECHA_ENT,FECHA_VEN,FECHA_CANCELA,CAN_TOT,IMP_TOT1,IMP_TOT2,
@@ -756,7 +763,7 @@ export class SqlSRepository{
                     `
                 );
                 await pool.request().input('CVE_BITA',Int,+foliocountBita+2).input('CVE_CLIE',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient).input('CVE_CAMPANIA',VarChar,'_SAE_').input('CVE_ACTIVIDAD',VarChar,'')
-                    .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [  ${foliocount} ] $${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
+                    .input('FECHAHORA',DateTime,dateParse).input('CVE_USUARIO',SmallInt,0).input('OBSERVACIONES',VarChar,`No. [ ${foliocount} ] $ ${totalSaleAmount.toFixed(6)}`).input('STATUS',VarChar,'F')
                     .input('NOM_USUARIO',VarChar,'Administrador').query(
                         `insert into BITA${EMPRESA}(CVE_BITA,CVE_CLIE,CVE_CAMPANIA,CVE_ACTIVIDAD,FECHAHORA,CVE_USUARIO,OBSERVACIONES,STATUS,NOM_USUARIO)
                         VALUES(@CVE_BITA,@CVE_CLIE,@CVE_CAMPANIA,@CVE_ACTIVIDAD,@FECHAHORA,@CVE_USUARIO,@OBSERVACIONES,@STATUS,@NOM_USUARIO)`
@@ -769,21 +776,15 @@ export class SqlSRepository{
                 .query(`
                     UPDATE FOLIOSF${EMPRESA} SET ULT_DOC=@ULT_DOC WHERE TIP_DOC=@TIP_DOC;
                 `);
+                    
                 //////////////////////////////
                 let newDate = new Date(saleRequestForm.date);
                 newDate.setHours(newDate.getHours()-6);
-                let day = newDate.getDate().toString();
-                if(+day<10){
-                    day='0'+day;
-                }
-                let month = (newDate.getMonth()+1).toString();
-                if(+month<10){
-                    month='0'+month;
-                }
+  
                 let year = newDate.getFullYear().toString().slice(2,4);
                 ////////////////////////////////AFACT01
-                let afactRecord = await pool.request().input('PER_ACUM',DateTime,`${newDate.getFullYear()}-${month}-01 00:00:00.000`).query(
-                    `select * from AFACT${EMPRESA} where PER_ACUM=@PER_ACUM`
+                let afactRecord = await pool.request().query(
+                    `select * from AFACT${EMPRESA} where cast ([PER_ACUM] as date)= '${newDate.getFullYear()+"-"+month+"-01 00:00:00.000"}';`
                 );
                 if(afactRecord.recordset.length){
                     await pool.request().input('PER_ACUM',DateTime,`${newDate.getFullYear()}-${month}-01 00:00:00.000`)
@@ -815,21 +816,21 @@ export class SqlSRepository{
                         `
                     );
                 }
-                let CUENTDET01 = await pool.request().query(
-                    `SELECT * FROM CUEN_DET01`
-                );
+                
                 
                 await pool.request().input('CVE_CLIE',VarChar,' '.repeat(10-((+foliocount).toString().length))+(+foliocount).toString() ).input('REFER',VarChar,foliocount).input('NUM_CPTO',Int,2).input('NUM_CARGO',Int,1)
                 .input('CVE_OBS',Int,0).input('NO_FACTURA',VarChar,foliocount).input('DOCTO',VarChar,foliocount).input('IMPORTE',Float,saleRequestForm.amount).input('FECHA_APLI',DateTime,dateParse)
                 .input('FECHA_VENC',DateTime,dateParse).input('AFEC_COI',VarChar,'A').input('STRCVEVEND',VarChar,seller.saeKey).input('NUM_MONED',Int,1).input('TCAMBIO',Int,1).input('IMPMON_EXT',Float,saleRequestForm.amount)
                 .input('FECHAELAB',DateTime,dateParse).input('CTLPOL',Int,null).input('CVE_FOLIO',VarChar,null).input('TIPO_MOV',VarChar,'C').input('CVE_BITA',Int,null).input('SIGNO',Int,1).input('CVE_AUT',Int,null)
-                .input('USUARIO',SmallInt,0).input('ENTREGADA',VarChar,'S').input('FECHA_ENTREGA',DateTime,dateParse).input('STATUS',VarChar,'A').input('REF_SIST',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse)
+                .input('USUARIO',SmallInt,0).input('ENTREGADA',VarChar,'S').input('FECHA_ENTREGA',DateTime,dateParse).input('STATUS',VarChar,'A').input('REF_SIST',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2)
                 .query(`
                         INSERT INTO CUEN_M${EMPRESA} (CVE_CLIE, REFER, NUM_CPTO, NUM_CARGO, CVE_OBS, NO_FACTURA, DOCTO, IMPORTE, FECHA_APLI, FECHA_VENC, AFEC_COI, STRCVEVEND, NUM_MONED, TCAMBIO, IMPMON_EXT, FECHAELAB, CTLPOL, CVE_FOLIO,
                              TIPO_MOV, CVE_BITA, SIGNO, CVE_AUT, USUARIO, ENTREGADA, FECHA_ENTREGA, STATUS, REF_SIST, UUID, VERSION_SINC) 
                              VALUES (@CVE_CLIE, @REFER, @NUM_CPTO, @NUM_CARGO, @CVE_OBS, @NO_FACTURA, @DOCTO, @IMPORTE, @FECHA_APLI, @FECHA_VENC, @AFEC_COI, @STRCVEVEND, @NUM_MONED, @TCAMBIO, @IMPMON_EXT, @FECHAELAB, @CTLPOL, @CVE_FOLIO,
                                 @TIPO_MOV, @CVE_BITA, @SIGNO, @CVE_AUT, @USUARIO, @ENTREGADA, @FECHA_ENTREGA, @STATUS, @REF_SIST, @UUID, @VERSION_SINC)
                 `);
+                
+            }
 
                 console.log("inserto venta 3");
                 for(let i=0;i<saleRequestForm.subSales.length;i++){
@@ -845,13 +846,13 @@ export class SqlSRepository{
                 .query(`SELECT * FROM MINVE${EMPRESA} WHERE CVE_ART=@CVE_ART AND ALMACEN=@ALMACEN`);
                    ///////////////// PARTES DEL PEDIDO
                     
-                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.amount/product.quantity).input('PXS',Float,product.quantity)
-                    .input('PREC',Float,priceByProduct).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
+                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.quantity).input('PXS',Float,product.quantity)
+                    .input('PREC',Float,product.presentation.presentationPricePublic).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
                     .input('IMP1APLA',Float,0).input('IMP2APLA',Float,0).input('IMP3APLA',Float,0).input('IMP4APLA',Float,0).input('TOTIMP1',Float,0)
                     .input('TOTIMP2',Float,0).input('TOTIMP3',Float,0).input('TOTIMP4',Float,0).input('DESC1',Float,0).input('DESC2',Float,0).input('DESC3',Float,0).input('COMI',Float,0).input('APAR',Float,1)
                     .input('ACT_INV',VarChar,'N').input('NUM_ALM',warehouseId).input('POLIT_APLI',VarChar,'').input('TIP_CAM',Float,1).input('UNI_VENTA',VarChar,'pz').input('TIPO_PROD',VarChar,'P').input('CVE_OBS',Int,0).input('REG_SERIE',Int,0)
                     .input('E_LTPD',Int,0).input('TIPO_ELEM',VarChar,'N').input('NUM_MOV',Int,0).input('TOT_PARTIDA',Float,product.amount).input('IMPRIMIR',VarChar,'S').input('MAN_IEPS',VarChar,'N').input('APL_MAN_IMP',Int,1)
-                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).query(
+                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).query(
                         `
                         insert into PAR_FACTP${EMPRESA}(CVE_DOC,NUM_PAR,CVE_ART,CANT,PXS,PREC,COST,IMPU1,IMPU2,IMPU3,IMPU4,IMP1APLA,IMP2APLA,IMP3APLA,IMP4APLA,TOTIMP1,TOTIMP2,TOTIMP3,TOTIMP4
                             ,DESC1,DESC2,DESC3,COMI,APAR,ACT_INV,NUM_ALM,POLIT_APLI,TIP_CAM,UNI_VENTA,TIPO_PROD,CVE_OBS,REG_SERIE,E_LTPD,TIPO_ELEM,NUM_MOV,TOT_PARTIDA,IMPRIMIR,MAN_IEPS,
@@ -875,13 +876,13 @@ export class SqlSRepository{
                     );
                     ///////////////// PARTES DE LA REMISSION
 
-                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.amount/product.quantity).input('PXS',Float,product.quantity)
-                    .input('PREC',Float,priceByProduct).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
+                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.quantity).input('PXS',Float,product.quantity)
+                    .input('PREC',Float,product.presentation.presentationPricePublic).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
                     .input('IMP1APLA',Float,0).input('IMP2APLA',Float,0).input('IMP3APLA',Float,0).input('IMP4APLA',Float,0).input('TOTIMP1',Float,0)
                     .input('TOTIMP2',Float,0).input('TOTIMP3',Float,0).input('TOTIMP4',Float,0).input('DESC1',Float,0).input('DESC2',Float,0).input('DESC3',Float,0).input('COMI',Float,0).input('APAR',Float,1)
                     .input('ACT_INV',VarChar,'N').input('NUM_ALM',warehouseId).input('POLIT_APLI',VarChar,'').input('TIP_CAM',Float,1).input('UNI_VENTA',VarChar,'pz').input('TIPO_PROD',VarChar,'P').input('CVE_OBS',Int,0).input('REG_SERIE',Int,0)
                     .input('E_LTPD',Int,0).input('TIPO_ELEM',VarChar,'N').input('NUM_MOV',Int,0).input('TOT_PARTIDA',Float,product.amount).input('IMPRIMIR',VarChar,'S').input('MAN_IEPS',VarChar,'N').input('APL_MAN_IMP',Int,1)
-                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).query(
+                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).query(
                         `
                         insert into PAR_FACTR${EMPRESA}(CVE_DOC,NUM_PAR,CVE_ART,CANT,PXS,PREC,COST,IMPU1,IMPU2,IMPU3,IMPU4,IMP1APLA,IMP2APLA,IMP3APLA,IMP4APLA,TOTIMP1,TOTIMP2,TOTIMP3,TOTIMP4
                             ,DESC1,DESC2,DESC3,COMI,APAR,ACT_INV,NUM_ALM,POLIT_APLI,TIP_CAM,UNI_VENTA,TIPO_PROD,CVE_OBS,REG_SERIE,E_LTPD,TIPO_ELEM,NUM_MOV,TOT_PARTIDA,IMPRIMIR,MAN_IEPS,
@@ -906,13 +907,14 @@ export class SqlSRepository{
                     `);
                     
                             /////////////// PARTES DE LA VENTA
-                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.amount/product.quantity).input('PXS',Float,product.quantity)
-                    .input('PREC',Float,priceByProduct).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
+                    
+                    await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.quantity).input('PXS',Float,product.quantity)
+                    .input('PREC',Float,product.presentation.presentationPricePublic).input('COST',Float,0).input('IMPU1',Float,0).input('IMPU2',Float,0).input('IMPU3',Float,0).input('IMPU4',Float,0)
                     .input('IMP1APLA',Float,0).input('IMP2APLA',Float,0).input('IMP3APLA',Float,0).input('IMP4APLA',Float,0).input('TOTIMP1',Float,0)
                     .input('TOTIMP2',Float,0).input('TOTIMP3',Float,0).input('TOTIMP4',Float,0).input('DESC1',Float,0).input('DESC2',Float,0).input('DESC3',Float,0).input('COMI',Float,0).input('APAR',Float,1)
                     .input('ACT_INV',VarChar,'N').input('NUM_ALM',warehouseId).input('POLIT_APLI',VarChar,'').input('TIP_CAM',Float,1).input('UNI_VENTA',VarChar,'pz').input('TIPO_PROD',VarChar,'P').input('CVE_OBS',Int,0).input('REG_SERIE',Int,0)
                     .input('E_LTPD',Int,0).input('TIPO_ELEM',VarChar,'N').input('NUM_MOV',Int,+lastExist.recordset.length+1).input('TOT_PARTIDA',Float,product.amount).input('IMPRIMIR',VarChar,'S').input('MAN_IEPS',VarChar,'N').input('APL_MAN_IMP',Int,1)
-                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).query(
+                    .input('CUOTA_IEPS',Float,0).input('APL_MAN_IEPS',VarChar,'C').input('MTO_PORC',Float,0).input('MTO_CUOTA',Float,0).input('CVE_ESQ',9).input('DESCR_ART',VarChar,null).input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).query(
                         `
                         insert into PAR_FACTV${EMPRESA}(CVE_DOC,NUM_PAR,CVE_ART,CANT,PXS,PREC,COST,IMPU1,IMPU2,IMPU3,IMPU4,IMP1APLA,IMP2APLA,IMP3APLA,IMP4APLA,TOTIMP1,TOTIMP2,TOTIMP3,TOTIMP4
                             ,DESC1,DESC2,DESC3,COMI,APAR,ACT_INV,NUM_ALM,POLIT_APLI,TIP_CAM,UNI_VENTA,TIPO_PROD,CVE_OBS,REG_SERIE,E_LTPD,TIPO_ELEM,NUM_MOV,TOT_PARTIDA,IMPRIMIR,MAN_IEPS,
@@ -927,6 +929,7 @@ export class SqlSRepository{
                         `insert into PAR_FACTV_CLIB${EMPRESA}(CLAVE_DOC,NUM_PART) values(@CLAVE_DOC,@NUM_PART)`
                     );
 
+                    
 
                     // await pool.request().input("TIP_DOC",VarChar,'V').input('CVE_DOC',VarChar,foliocount)
                     // .input('ANT_SIG',VarChar,'S').input('TIP_DOC_E',VarChar,'V').input('CVE_DOC_E',VarChar,foliocount)
@@ -951,10 +954,10 @@ export class SqlSRepository{
                 let existenceByWarehouse = lastExist.recordset[lastExist.recordset.length-1];
                     await pool.request().input('CVE_ART',VarChar,product.presentation.keySae).input('ALMACEN',Int,warehouseId)
                     .input('NUM_MOV',Int,+lastExist.recordset.length+1).input('CVE_CPTO',Int,6).input('FECHA_DOCU',DateTime,dateParse)
-                    .input('TIPO_DOC',VarChar,'R').input('REFER',VarChar,`IF-${day}${month}${year}`).input('CLAVE_CLPV',VarChar,null)
+                    .input('TIPO_DOC',VarChar,'R').input('REFER',VarChar,`${foliocount}`).input('CLAVE_CLPV',VarChar,null)
                     .input('VEND',VarChar,seller.saeKey).input('CANT',Float,product.quantity).input('CANT_COST',Float,0).input('PRECIO',Float,null)
                     .input('COSTO',Float,0).input('AFEC_COI',VarChar,null).input('CVE_OBS',Int,null).input('REG_SERIE',Int,0)
-                    .input('UNI_VENTA',VarChar,inve01.recordset[0].UNI_MED).input('E_LTPD',Int,0).input('EXIST_G',Float,inve01.recordset[0].EXIST).input('EXISTENCIA',Float,existenceByWarehouse.EXIST-product.quantity)
+                    .input('UNI_VENTA',VarChar,inve01.recordset[0].UNI_MED).input('E_LTPD',Int,0).input('EXIST_G',Float,inve01.recordset[0].EXIST-product.quantity).input('EXISTENCIA',Float,existenceByWarehouse?existenceByWarehouse.EXIST-product.quantity:-product.quantity)
                     .input('TIPO_PROD',VarChar,'P').input('FACTOR_CON',Int,1).input('FECHAELAB',DateTime,dateParse).input('CTLPOL',Int,null)
                     .input('CVE_FOLIO',VarChar,count.toString()).input('SIGNO',Int,-1).input('COSTEADO',VarChar,'S').input('COSTO_PROM_INI',Float,0)
                     .input('COSTO_PROM_FIN',Float,0).input('COSTO_PROM_GRAL',Float,0).input('DESDE_INVE',VarChar,'S').input('MOV_ENLAZADO',Int,0)
@@ -965,17 +968,26 @@ export class SqlSRepository{
                                     @REG_SERIE,@UNI_VENTA,@E_LTPD,@EXIST_G,@EXISTENCIA,@TIPO_PROD,@FACTOR_CON,@FECHAELAB,@CTLPOL,@CVE_FOLIO,@SIGNO,@COSTEADO,@COSTO_PROM_INI,
                                     @COSTO_PROM_FIN,@COSTO_PROM_GRAL,@DESDE_INVE,@MOV_ENLAZADO)
                     `);
-
+                    
+                      
                     await this.updateInventoryGeneralAspeSaeByProduct(product.presentation.keySae,-product.quantity);
                     await pool.connect();
 
-                    await pool.request().input('CVE_CLIE',VarChar,' '.repeat(10-(+CUENTDET01.recordset[0].CVE_CLIE+(i+1).toString().length))+(+CUENTDET01.recordset[0].CVE_CLIE+(i+1)).toString() ).input('REFER',VarChar,foliocount).input('ID_MOV',+lastExist.recordset.length+1)
-                    .input('NUM_CPTO',Int,10).input('NUM_CARGO',Int,1).input('CVE_OBS',Int,0).input('NO_FACTURA',VarChar,foliocount).input('DOCTO',VarChar,'').input('IMPORTE',Float,product.amount)
+                    if(!saleRequestForm.status){
+                        
+                    let concept = 10;
+                    if(saleRequestForm.typeSale=="Cheque"){
+                        concept=11;
+                    }else if(saleRequestForm.typeSale=="Transferencia"){
+                        concept=22;
+                    }
+                    await pool.request().input('CVE_CLIE',VarChar,' '.repeat(10-client.keyClient.toString().length)+client.keyClient.toString()  ).input('REFER',VarChar,foliocount).input('ID_MOV',+lastExist.recordset.length+1)
+                    .input('NUM_CPTO',Int,concept).input('NUM_CARGO',Int,1).input('CVE_OBS',Int,0).input('NO_FACTURA',VarChar,foliocount).input('DOCTO',VarChar,'').input('IMPORTE',Float,product.amount)
                     .input('FECHA_APLI',DateTime,dateParse).input('FECHA_VENC',DateTime,dateParse).input('AFEC_COI',VarChar,null).input('STRCVEVEND',VarChar,'').input('NUM_MONED',Int,1)
                     .input('TCAMBIO',Int,1).input('IMPMON_EXT',Float,product.amount).input('FECHAELAB',DateTime,dateParse).input('CTLPOL',Float,0).input('CVE_FOLIO',VarChar,'').input('TIPO_MOV',VarChar,'A')
                     .input('CVE_BITA',Int,null).input('SIGNO',Int,-1).input('CVE_AUT',Int,0).input('USUARIO',SmallInt,0).input('OPERACIONPL',VarChar,null).input('REF_SIST',VarChar,null).input('NO_PARTIDA',Int,(i+1))
                     .input('REFBANCO_ORIGEN',VarChar,null).input('REFBANCO_DEST',VarChar,null).input('NUMCTAPAGO_ORIGEN',VarChar,null).input('NUMCTAPAGO_DESTINO',VarChar,null).input('NUMCHEQUE',VarChar,null).input('BENEFICIARIO',VarChar,null)
-                    .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse).input('ID_OPERACION',VarChar,null).input('CVE_DOC_COMPPAGO',VarChar,null).query(
+                    .input('UUID',VarChar,v4()).input('VERSION_SINC',DateTime,dateParse2).input('ID_OPERACION',VarChar,null).input('CVE_DOC_COMPPAGO',VarChar,null).query(
                         `
                         INSERT INTO CUEN_DET${EMPRESA} (CVE_CLIE, REFER, ID_MOV, NUM_CPTO, NUM_CARGO, CVE_OBS, NO_FACTURA, DOCTO, IMPORTE, FECHA_APLI, FECHA_VENC, AFEC_COI, STRCVEVEND,
                              NUM_MONED, TCAMBIO, IMPMON_EXT, FECHAELAB, CTLPOL, CVE_FOLIO, TIPO_MOV, CVE_BITA, SIGNO, CVE_AUT, USUARIO, OPERACIONPL, REF_SIST, NO_PARTIDA, REFBANCO_ORIGEN,
@@ -985,6 +997,10 @@ export class SqlSRepository{
                                  @REFBANCO_DEST, @NUMCTAPAGO_ORIGEN, @NUMCTAPAGO_DESTINO, @NUMCHEQUE, @BENEFICIARIO, @UUID, @VERSION_SINC, @ID_OPERACION, @CVE_DOC_COMPPAGO)
                         `
                     );
+
+                    
+
+                    }
 
                 }
                 let foliosBita2 = await pool.request().query(

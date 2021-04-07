@@ -74,7 +74,7 @@ export class SaleRepository{
     async getSaleByDate(date:string,seller:User){
         await this.getConnection();
         return await this.saleRepository.find({
-            where:{seller,date: Between(date+"T00:00:00Z",date+"T23:59:00Z"),status: false},
+            where:{seller,date: Between(date+"T00:00:00.000Z",date+"T23:59:00.000Z")},
         });
     }
 
@@ -85,7 +85,7 @@ export class SaleRepository{
         .getOne();
     }
 
-    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string){
+    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string){
         
         if(!salesIds.length){
             salesIds=[0];
@@ -93,18 +93,26 @@ export class SaleRepository{
         let date1=date+"T00:00:00";
         let date2=date+"T23:59:59";
         await this.getConnection();
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-        let salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
-        let response:SalesToSuperAdmin={
-            sales,
-            totalCount:salesTotal.length
-        };
+        let sales:Sale[]=[];
+        let salesTotal:Sale[]=[];
+        if(hint){
+            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",hint:+hint}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",hint:+hint}).getMany();
+        }else{
+            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale   and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+        }
+    let response:SalesToSuperAdmin={
+        sales,
+        totalCount:salesTotal.length
+    };
         return response;
     }
 
     async getAllSalesOfSellerUid(seller:User,date:string){
         let date1=date+"T00:00:00";
         let date2=date+"T23:59:59";
+        
         await this.getConnection();
         let sales = await this.saleRepository.find({where:{seller,date:Between(date1,date2)},relations:["seller"]});
         return sales;
@@ -132,11 +140,13 @@ export class SaleRepository{
     }
 
     async getSalesBetweenDates(date:string){
+        let dateInit="2021-04-02"+"T00:00:00";
+        let dateEnd="2021-04-03"+"T23:59:59";
         await this.getConnection();
-        let dateInit=date+'T00:00:00';
-        let dateEnd=date+'T23:59:59';
+        // let dateInit=date+'T00:00:00';
+        // let dateEnd=date+'T23:59:59';
 
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2",{dateInit,dateEnd,typeSale:"CREDITO",typeSale2:"DELETED"})
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale2 and sale.typeSale <> :typeSale3",{dateInit,dateEnd,typeSale2:"DELETED",typeSale3:"CANCELED"})
         .leftJoinAndSelect("sale.seller","seller").leftJoinAndSelect("sale.client","client").getMany();
         return sales;
     }
@@ -156,6 +166,42 @@ export class SaleRepository{
         return {
             count,
             items: items as Array<any>
+        }
+    }
+
+    async getPendingCreditBySeller(seller:User){
+        await this.getConnection();
+        return await this.saleRepository.find({where:{seller,status:true}});
+    }
+
+    async getAmountSales(dateStr:string,sellerId:string){
+        await this.getConnection();
+        let dateFrom = dateStr+"T00:00:00.OOOZ";
+        let dateTo = dateStr+"T23:59:59.000Z";
+        let totalSolded= await this.saleRepository.query(`
+            select format(sum(amount),2) as totalVendido from sales where date between "${dateFrom}" and "${dateTo}" and seller_id="${sellerId}" and status_str<>"CANCELED"
+        `) as Array<{totalVendido:string}>;
+
+        let items:any[] = await this.saleRepository.query(`
+        SELECT * FROM bd_rovianda.sub_sales as ss left join presentation_products as pp 
+        on ss.presentation_id =pp.presentation_id where sale_id in 
+        (select sale_id from sales where seller_id ="${sellerId}" 
+        and date between "${dateFrom}" and "${dateTo}" and status_str<>"CANCELED");
+        `);
+        let totalWeight=items.map((x:any)=>{
+            if(x.uni_med=="PZ"){
+                return ((x.quantity*x.price_presentation_min) as number) ;
+            }else{
+                return x.quantity as number;
+            }
+        }).reduce((a,b)=>a+b,0);
+        let totalVendido="0";
+        if(totalSolded.length){
+            totalVendido=totalSolded[0].totalVendido;
+        }
+        return {
+            totalSolded:totalVendido,
+            totalWeight:totalWeight.toFixed(2)
         }
     }
 

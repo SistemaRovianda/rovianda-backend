@@ -17,72 +17,154 @@ export class TicketUtil{
     async TicketSale(sale:Sale,subSales:SubSales[],seller?:User){
         let date=new Date();
         date.setHours(date.getHours()-6);
+        let month = (date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10){
+            month="0"+month;
+        }
+        if(+day<10){
+            day="0"+day;
+        }
         let ticket =`ROVIANDA SAPI DE CV\nAV.1 #5 Esquina Calle 1\nCongregación Donato Guerra\nParque Industrial Valle de Orizaba\nC.P 94780\nRFC 8607056P8\nTEL 272 72 46077, 72 4 5690\n`
-        ticket+=`Pago en una Sola Exhibición\nLugar de Expedición: Ruta\nNota No. ${sale.folio}\nFecha: ${date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()}\n\n`;
+        ticket+=`Pago en una Sola Exhibición\nLugar de Expedición: Ruta\nNota No. ${sale.folio}\nFecha: ${day+"/"+month+"/"+date.getFullYear()} ${date.getHours()+":"+date.getMinutes()}\n\n`;
         ticket+=`Vendedor: ${(seller)?seller.name:sale.seller.name}\n\nCliente: ${sale.client.keyClient}\n${sale.client.name}\nColonia: ${sale.client.address.suburb}\nCp: ${sale.client.address.cp}\n`;
         ticket+=`Tipo de venta: ${sale.typeSale}\n--------------------------------\nDESCR   CANT    PRECIO  IMPORTE\n--------------------------------\n`;
         let total=0;
         let pieces =0;
         for(let saleItem of subSales){
-            let productSae = await this.sqlServer.getProductSaeByKey(saleItem.presentation.keySae);
+            
             ticket+=`${saleItem.product.name} ${saleItem.presentation.presentationType} \n${saleItem.quantity} $${this.pipeNumber(saleItem.amount)}\n`;
             total+=saleItem.amount;
             pieces+=saleItem.quantity;
         }
-        ticket+=`--------------------------------\nTOTAL: $ ${this.pipeNumber(total)}\nPAGO CON: ${sale.payedWith}\nCAMBIO: ${sale.payedWith-sale.amount}\n`;
+        ticket+=`--------------------------------\nTOTAL: $ ${total.toFixed(2)}\n`;
         ticket+=`Piezas: ${pieces}\n\n*** GRACIAS POR SU COMPRA ***\n
-        ${sale.typeSale=="CREDITO"?"Esta venta se incluye en la\nventa global del dia, por el\npresente reconozco deber\ny me obligo a pagar en esta\nciudad y cualquier otra que\nse me de pago a la orden de\nROVIANDA S.A.P.I. de C.V. la\ncantidad que se estipula como\ntotal en el presente documento.":""}\n\n `;
-
-        ticket+=ticket;
+        ${sale.typeSale=="CREDITO"?`\nEsta venta se incluye en la\nventa global del dia, por el\npresente reconozco deber\ny me obligo a pagar en esta\nciudad y cualquier otra que\nse me de pago a la orden de\nROVIANDA S.A.P.I. de C.V. la\ncantidad que se estipula como\ntotal en el presente documento.\n-------------------\n      Firma\n\n${sale.status==true?"SE ADEUDA":"PAGADO"}`:""}\n\n `;
         return ticket;
     }
 
     pipeNumber(x:number){
+        x=+x.toFixed(2);
         var parts=x.toString().split(".");
         return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
       }
 
-    async TickedEndDate(sales:Sale[],seller:User,sellerOperations:SellerOperation,visits:VisitClientOperation[],productsAvailables:PresentationsAvailables[],date:string){
+    async TickedEndDate(sales:Sale[],seller:User,sellerOperations:SellerOperation,/*visits:VisitClientOperation[],*/date:string,subSales:SubSales[]){
         
         let ticket =`\nREPORTE DE CIERRE\nVendedor: ${seller.name}\nFecha: ${date}\n-----------------------------------------\n`;
-        ticket+=`\nART.    DESCR   CANT    PRECIO  IMPORTE\n-----------------------------------------`; 
+        ticket+=`\nART.    DESCR   CANT    PRECIO  IMPORTE\n-----------------------------------------\n`; 
         let amountContado:number=0;
         let amountCredito:number=0;
+        let amountTransferencia:number=0;
+        let amountCheque:number=0;
         let clients:string=`\n-----------------------------------------\nDOC NOMBRE  CLIENTE IMPORTE TIPOVENTA\n-----------------------------------------\n`;
+        let totalKilos =0;
+        let totalAmount=0;
+        let productsNameSKU= new Map();
+        let productsNameAmount= new Map();
+        let productsNameWeight= new Map();
+
         for(let venta of sales){
-            for(let subOrder of venta.subSales){
-                let productSae = await this.sqlServer.getProductSaeByKey(subOrder.presentation.keySae);
-            ticket+=`\n${subOrder.product.name} ${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}    ${subOrder.quantity} ${(productSae[0].UNI_MED as string).toUpperCase()}  ${this.pipeNumber(subOrder.amount)} `;
-            if(venta.credit==0){
-            amountContado+=venta.amount;
+            if(venta.statusStr=="ACTIVE"){
+            if(venta.typeSale=="Efectivo"){
+                amountContado+=venta.amount;
+            }else if(venta.typeSale=="CREDITO"){
+                amountCredito+=venta.amount;
+            }else if(venta.typeSale=="Cheque"){
+                amountCheque+=venta.amount;
+            }else if(venta.typeSale=="Transferencia"){
+                amountTransferencia+=venta.amount;
+            }
+            for(let subOrder of venta.subSales){    
+                let sku = productsNameSKU.get(subOrder.presentation.keySae);
+                
+                if(sku){
+                    
+                let amount=productsNameAmount.get(subOrder.presentation.keySae);
+                
+                productsNameAmount.set(subOrder.presentation.keySae,((+amount)+(+subOrder.amount)));
+                let weight=productsNameWeight.get(subOrder.presentation.keySae);
+                        if(subOrder.presentation.uniMed=="KG"){
+                            productsNameWeight.set(subOrder.presentation.keySae,(+weight)+(+subOrder.quantity));
+                        }else if(subOrder.presentation.uniMed=="PZ"){
+                            productsNameWeight.set(subOrder.presentation.keySae,(+weight)+(+subOrder.quantity*subOrder.presentation.presentationPriceMin));
+                        }             
+                        console.log(productsNameWeight.get(subOrder.presentation.keySae));
             }else{
-            amountCredito+=venta.amount;
+                        productsNameSKU.set(subOrder.presentation.keySae,subOrder.product.name+" "+subOrder.presentation.presentationType);
+                        productsNameAmount.set(subOrder.presentation.keySae,+subOrder.amount);
+                    if(subOrder.presentation.uniMed=="KG"){
+                        productsNameWeight.set(subOrder.presentation.keySae,(+subOrder.quantity));
+                    }else{
+                        productsNameWeight.set(subOrder.presentation.keySae,(+subOrder.quantity*(+subOrder.presentation.presentationPriceMin)));
+                    }
+                    console.log(productsNameWeight.get(subOrder.presentation.keySae));
             }
-            clients+=`${venta.folio}  ${venta.client.name}    $ ${this.pipeNumber(venta.amount)} ${venta.typeSale}\n`;
             }
+            
+        }
+            //     ticket+=`\n${subOrder.product.name} ${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}    ${subOrder.quantity} ${subOrder.presentation.uniMed.toUpperCase()}  ${this.pipeNumber(subOrder.amount)} `;
+            // if(subOrder.presentation.uniMed=="PZ"){
+            //     totalKilos+=subOrder.quantity*subOrder.presentation.presentationPriceMin;
+            // }else if(subOrder.presentation.uniMed=="KG"){
+            //     totalKilos+=subOrder.quantity;
+            // }
+            // if(venta.credit==0){
+            //     amountContado+=venta.amount;
+            // }else{
+            //     amountCredito+=venta.amount;
+            // }
+            
+            // }
+            clients+=`${venta.folio}  ${venta.client.name}    $ ${venta.amount.toFixed(2)} ${venta.typeSale} ${venta.statusStr=="CANCELED"?"CANCELADO":""}\n`;
+
+        }
+        let skus = Array.from(productsNameSKU.keys());
+        for(let sku of skus){
+            let skuName = productsNameSKU.get(sku);
+            let weight = productsNameWeight.get(sku);
+            let amount = productsNameAmount.get(sku); 
+            ticket+=`${sku} ${skuName} ${(weight as number).toFixed(2)} $${(amount as number).toFixed(2)}\n`;
+            totalKilos+=weight;
+            totalAmount+=amount;
         }
         ticket+=clients;
-            ticket+=`\nVentas por concepto\nEFECTIVO        $ ${this.pipeNumber(amountContado)}\nCREDITO         $ ${this.pipeNumber(amountCredito)}\n-----------------\n$${this.pipeNumber(amountContado+amountCredito)}`;
-        if(sellerOperations){
-            let eatTextTime = this.getTimeDiff(sellerOperations.eatingTimeStart,sellerOperations.eatingTimeEnd,sellerOperations.date);
+            ticket+=`Ventas por concepto\nEFECTIVO        $ ${this.pipeNumber(amountContado)}\nCREDITO         $ ${this.pipeNumber(amountCredito)}\nTRANSFERENCIA         $${this.pipeNumber(amountTransferencia)}\nCHEQUE         $${this.pipeNumber(amountCheque)}\n-----------------\n$${this.pipeNumber(amountContado)}\nTOTAL KILOS: ${this.pipeNumber(totalKilos)}`;
+            let cobranza =0;
+            for(let sub of subSales){
+                cobranza+=sub.amount;
+            }
+            ticket+=`\nRecup. Cobranza\n $ ${this.pipeNumber(cobranza)}\n\n\n\n\n\n`
+        // if(sellerOperations){
+        //     let eatTextTime = this.getTimeDiff(sellerOperations.eatingTimeStart,sellerOperations.eatingTimeEnd,sellerOperations.date);
             
-            ticket+=`\n-----------------------------------------\nHORA DE COMIDA: ${sellerOperations.eatingTimeStart}\n${eatTextTime}`;
-        }
-        ticket+=`\n------TIEMPO EN TIENDAS-----`;
-        for(let visit of visits){
-            ticket+=`\n ${visit.client.name} \n${this.getTimeDiff(visit.startVisitTime,visit.endVisitTime,visit.date)}`;
-        }
-        ticket+=`\n---------RESGUARDO----------`;
-        for(let product of productsAvailables){
-            ticket+=`\n ${ product.keySae} ${product.nameProduct} ${product.presentationType} \n ${product.quantity} ${product.isPz?"PZ":"KG"}\n----`;
-        }
+        //     //ticket+=`\n-----------------------------------------\nHORA DE COMIDA: ${sellerOperations.eatingTimeStart}\n${eatTextTime}`;
+        // }
+        //ticket+=`\n------TIEMPO EN TIENDAS-----`;
+        // for(let visit of visits){
+        //     ticket+=`\n ${visit.client.name} \n${this.getTimeDiff(visit.startVisitTime,visit.endVisitTime,visit.date)}`;
+        // }
+        //ticket+=`\n---------RESGUARDO----------`;
+        // for(let product of productsAvailables){
+        //     ticket+=`\n ${ product.keySae} ${product.nameProduct} ${product.presentationType} \n ${product.quantity} ${product.isPz?"PZ":"KG"}\n----`;
+        // }
         return ticket;
     }
 
     async getResguardedTicket(productsAvailables:PresentationsAvailables[],name:string){
-        let ticket=name.toUpperCase()+"\nROVIANDA SAPI DE CV\nAV.1 #5 Esquina Calle 1\nCongregación Donato Guerra\nParque Industrial Valle de Orizaba\nC.P 94780\nRFC 8607056P8\nTEL 272 72 46077, 72 4 5690\nINVENTARIO DISPONIBLE\n";
+        let date = new Date();
+        let month = (date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10){
+            month+="0"+month;
+        }
+        if(+day<10){
+            day+="0"+day;
+        }
+        let ticket=name.toUpperCase()+`\nROVIANDA SAPI DE CV\nAV.1 #5 Esquina Calle 1\nCongregación Donato Guerra\nParque Industrial Valle de Orizaba\nC.P 94780\nRFC 8607056P8\nTEL 272 72 46077, 72 4 5690\nINVENTARIO DISPONIBLE\n${day+"/"+month+"/"+date.getFullYear() + " "+date.getHours()+":"+date.getMinutes()}\nSKU   NOMBRE  PZ  KG\n`;
+        productsAvailables=productsAvailables.sort((a,b)=>a.keySae.length-b.keySae.length);
         for(let product of productsAvailables){
-            ticket+=`-------------\n${product.nameProduct} ${product.presentationType} \nCantidad en piezas: ${product.quantity} ${product.isPz==false?`\nCantidad de kilos: ${product.weight}`:""}\n`;
+            ticket+=`\n${product.keySae}    ${product.nameProduct.split(" ")[0]}    ${product.quantity}    ${product.isPz==false?`${product.weight}`:""}`;
         }
         return ticket;
     }

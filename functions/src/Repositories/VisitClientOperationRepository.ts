@@ -34,7 +34,7 @@ export class VisitClientOperationRepository{
     async getByClientOfSellerIdsAndDate(clientsId:number[],date:string){
         await this.getConnection();
         return await this.repository.find({
-            where:{ client:In(clientsId),date},relations:["client"]
+            where:{ client:{id:In(clientsId)},date},relations:["client"]
         });
     }
 }

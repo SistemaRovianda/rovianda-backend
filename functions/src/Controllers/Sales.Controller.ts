@@ -187,6 +187,11 @@ export class SalesRequestController{
         return res.status(200).send(await this.salesRequestService.getTicketOfSale(saleId));
     }
 
+    async getSingleTicket(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        return res.status(200).send(await this.salesRequestService.getSingleTicketOfSale(saleId));
+    }
+
     async endDaySeller(req:Request,res:Response){
         let sellerUid=req.params.sellerUid;
         let date=req.query.date;
@@ -198,7 +203,8 @@ export class SalesRequestController{
         let peerPage=req.query.peerPage;
         let salesIds=req.body.sales;
         let date=req.query.date;
-        let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date);
+        let hint = req.query.hint;
+        let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint);
         res.header('Access-Control-Expose-Headers','x-total-count');
         res.setHeader('x-total-count',response.totalCount);
         return res.status(200).send(response.sales);
@@ -244,9 +250,9 @@ export class SalesRequestController{
 
     async getProductByKeyToSale(req:Request,res:Response){
         let sellerUid:string = req.params.sellerUid;
-        if(isNaN(+req.params.key)){
-            throw new Error("[404], la clave del producto debe ser un numero");
-        }
+        // if(isNaN(+req.params.key)){
+        //     throw new Error("[404], la clave del producto debe ser un numero");
+        // }
         let productKey:string = req.params.key;
         
         let product = await this.salesRequestService.findProduct(sellerUid,productKey);
@@ -287,6 +293,32 @@ export class SalesRequestController{
         let orderId:number = +req.params.orderId;
         await this.salesRequestService.deleteOrderDetails(req.body,orderId);
         return res.status(204).send();
+    }
+
+    async getDebtsOfClientsOfSeller(req:Request,res:Response){
+        let sellerId:string = req.params.sellerId;
+        let sales = await this.salesRequestService.getAllDebtsOfSeller(sellerId);
+        return res.status(200).send(sales);
+    }
+    async payDebtsOfClientsOfSeller(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        await this.salesRequestService.paySalePending(saleId,req.body);
+        return res.status(200).send();
+    }
+
+    async getStatusSale(req:Request,res:Response){
+        let sellerId = req.params.sellerId;
+        if(!req.query.date) throw new Error("[404], falta el parametro date");
+        let date = req.query.date;
+        let response=await this.salesRequestService.getStatusSale(sellerId,date);
+        return res.status(200).send(response);
+    }
+
+    async initTransfer(req:Request,res:Response){
+        console.log("Inicializando demonio");
+         this.salesRequestService.transferAllSalesAutorized();
+         
+        return res.status(201).send();
     }
 
 } 

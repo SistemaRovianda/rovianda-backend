@@ -2727,7 +2727,7 @@ export default class Excel4Node{
                     horizontal: 'center',
                 }
             });
-            worksheet.cell(4, 6, 4, 11, true).string("SALIDAS DE ALMANCÉN PLANTA").style({
+            worksheet.cell(4, 6, 4, 11, true).string("SALIDAS DE ALMACÉN PLANTA").style({
                 font: {
                     bold: true
                 },
@@ -2751,18 +2751,20 @@ export default class Excel4Node{
                 worksheet.cell(row, 5, row, 6,  true).string(`Codigo`).style(styleUser);
                 worksheet.cell(row, 7, row, 8,  true).string(`Producto`).style(styleUser);
                 worksheet.cell(row, 9, row, 9,  true).string(`Presentación`).style(styleUser);
-                worksheet.cell(row, 10,row, 10, true).string(`Unidades`).style(styleUser);
-                worksheet.cell(row, 11,row, 12, true).string(`Peso`).style(styleUser);
-                worksheet.cell(row, 13,row, 14, true).string(`Fecha`).style(styleUser);
+                worksheet.cell(row, 10, row, 10,  true).string(`Lote`).style(styleUser);
+                worksheet.cell(row, 11,row, 12, true).string(`Unidades`).style(styleUser);
+                worksheet.cell(row, 13,row, 14, true).string(`Peso`).style(styleUser);
+                worksheet.cell(row, 15,row, 16, true).string(`Fecha`).style(styleUser);
                 
             for(let record of records){
                     worksheet.cell(row+1, 3, row+1, 4,  true).string(`${record.seller}`).style(style);
                     worksheet.cell(row+1, 5,row+1, 6, true).string(`${ record.code}`).style(style);
                     worksheet.cell(row+1, 7,row+1, 8, true).string(`${record.name}`).style(style);
                     worksheet.cell(row+1, 9,row+1, 9, true).string(`${record.presentation }`).style(style);
-                    worksheet.cell(row+1, 10,row+1, 10, true).string(`${record.units}`).style(styleUser);
-                    worksheet.cell(row+1, 11,row+1, 12, true).string(`${record.weight}`).style(styleUser);
-                    worksheet.cell(row+1, 13,row+1, 14, true).string(`${record.outputDate}`).style(styleUser);
+                    worksheet.cell(row+1, 10,row+1, 10, true).string(`${record.loteId }`).style(style);
+                    worksheet.cell(row+1, 11,row+1, 12, true).string(`${record.units}`).style(styleUser);
+                    worksheet.cell(row+1, 13,row+1, 14, true).string(`${record.weight}`).style(styleUser);
+                    worksheet.cell(row+1, 15,row+1, 16, true).string(`${record.outputDate}`).style(styleUser);
                     row++;
             }
         return workbook;

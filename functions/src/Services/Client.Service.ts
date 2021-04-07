@@ -256,7 +256,8 @@ export class ClientService {
         }
         let dateStr = date.getFullYear().toString()+"-"+month+"-"+day;
         let visitOperation = await this.visitClientOperationRepository.findByDateAndClient(dateStr,client);
-        if(visitOperation) throw new Error("[409], ya existe un registro de visita.");
+        if(!visitOperation){
+        
         let visitOperationEntity:VisitClientOperation = new VisitClientOperation();
         visitOperationEntity.client=client;
         visitOperationEntity.date=dateStr;
@@ -268,6 +269,10 @@ export class ClientService {
         if(+seconds<10) seconds='0'+seconds;
         visitOperationEntity.startVisitTime=hours+":"+minutes+":"+seconds;
         await this.visitClientOperationRepository.saveVisitClientOperation(visitOperationEntity);
+        }else{
+            visitOperation.endVisitTime=null;
+            await this.visitClientOperationRepository.saveVisitClientOperation(visitOperation);
+        }
     }
 
     async endVisitToClient(clientId:number){

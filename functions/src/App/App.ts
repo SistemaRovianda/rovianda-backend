@@ -69,8 +69,8 @@ export class App extends ErrorHandler{
 
 export const app = functions.runWith({timeoutSeconds:500}).https.onRequest( new App().app);
 
-//export const appCron = functions.pubsub.schedule('10 0 * * *')
-// export const appCron = functions.pubsub.schedule('51 14 * * *')
+// export const appCron = functions.pubsub.schedule('10 0 * * *')
+// //export const appCron = functions.pubsub.schedule('51 14 * * *')
 // .timeZone('America/New_York').onRun(async (context)=>{
 //    console.log("Se programo una cloud function a las 11 10 pm");
     

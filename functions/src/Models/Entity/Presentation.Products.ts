@@ -53,4 +53,7 @@ export class PresentationProducts {
 
     @OneToMany(type=>Devolution,devolution=>devolution.presentationProduct)
     devolutions:Devolution[];
+
+    @Column({name:"uni_med",default:"KG"})
+    uniMed:string;
 }

@@ -158,9 +158,9 @@ export class ProductRoviandaService{
         //if(!productRoviandaDTO.ingredients[) throw new Error("[400],ingredients is required");
         if(!productRoviandaDTO.presentations.length) throw new Error("[400],presentations is required");
         
-        let lineProduct = await this.sqlsRepository.getProductLineSaeByKey(productRoviandaDTO.productLine);
+        // let lineProduct = await this.sqlsRepository.getProductLineSaeByKey(productRoviandaDTO.productLine);
         
-        if(!lineProduct.length) throw new Error("[409], No existe la linea de producto: "+productRoviandaDTO.productLine);
+        // if(!lineProduct.length) throw new Error("[409], No existe la linea de producto: "+productRoviandaDTO.productLine);
         
         for(let i=0;i<productRoviandaDTO.presentations.length;i++){
         let presentation = productRoviandaDTO.presentations[i];
@@ -204,6 +204,7 @@ export class ProductRoviandaService{
             presentationProduct.presentationType = productRoviandaDTO.presentations[i].typePresentation;
             presentationProduct.productRovianda = productRovianda;
             presentationProduct.typePrice = "PUBLICO";
+            presentationProduct.uniMed=productRoviandaDTO.presentations[i].uniMed;
             presentationProduct.status = true;
             if(productRoviandaDTO.presentations[i].codePresentation!=null){
                 presentationProduct.keySae=productRoviandaDTO.presentations[i].codePresentation;
@@ -463,8 +464,8 @@ export class ProductRoviandaService{
     async deleteProductLines(cve:string){
         return await this.sqlsRepository.deleteLinesOfProductsSae(cve);
     }
-    async getClientsSae(page:number,perPage:number){
-        return await this.clientRepository.getAllClients(page,perPage);
+    async getClientsSae(page:number,perPage:number,hint:string){
+        return await this.clientRepository.getAllClients(page,perPage,hint);
     }
     async getSalesByClient(clientId:number,page:number,perPage:number,from:string,to:string){
         let client:Client = await this.clientRepository.getClientById(clientId);

@@ -108,6 +108,16 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getClientDebts"
+    },{
+        url: "/rovianda/seller-debts/:sellerId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getDebtsOfClientsOfSeller"
+    },{
+        url: "/rovianda/seller-debts/:saleId",
+        method: "post",
+        controller: SalesRequestController,
+        target: "payDebtsOfClientsOfSeller"
     }
     ,{
         url: "/rovianda/seller-clients/:sellerUid", // obtiene todos los clientes del vendedor
@@ -188,6 +198,11 @@ export const salesRoutes:Array<routeInterface>=[
         controller: SalesRequestController,
         target: "getSaleTicket"
     },{
+        url: "/rovianda/single-ticket/:saleId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getSingleTicket"
+    },{
         url: "/rovianda/day-ended/:sellerUid",
         method:"get",
         controller:SalesRequestController,
@@ -252,5 +267,16 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getResguardedOfSeller"
+    },
+    {
+        url: "/rovianda/get-status/sales/:sellerId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getStatusSale"
+    },{
+        url: "/rovianda/supertranfer",
+        method:"post",
+        controller: SalesRequestController,
+        target: "initTransfer"
     }
 ];

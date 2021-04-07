@@ -141,6 +141,16 @@ export class PackagingRepository{
         ) as Array<PackagingProductPresentationLot>;
     }
 
+    async getPackagingAvailableProductLotsPresentationByProduct(productId:number):Promise<Array<PackagingProductPresentationLot>>{
+        await this.getConnection();
+        return await this.packagingRepository.query(
+            `select pack.product_id as productId,pack.lot_id as loteId,sum(propack.units) as quantity,propack.presentation_id as presentationId,
+            pp.presentation,pp.type_presentation as typePresentation,pp.price_presentation_public as pricePresentationPublic,pp.price_presentation_min as pricePresentationMin,pp.price_presentation_liquidation as pricePrecentationLiquidation
+             from packaging as pack inner join properties_packaging as propack on pack.id=propack.packaging_id inner join presentation_products as pp
+             on pp.presentation_id=propack.presentation_id where pack.active=1 and propack.active=1 and propack.presentation_id="${productId}" group by propack.presentation_id,pack.lot_id,pack.product_id;`
+        ) as Array<PackagingProductPresentationLot>;
+    }
+
     async getPackagingByLot(lotId:string){
         await this.getConnection();
         return await this.packagingRepository.query(`

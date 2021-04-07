@@ -57,6 +57,12 @@ export const packagingRoutes:Array<routeInterface>=[
         target: "savePackagingInventoryLotsProductOutput"
     },
     {
+        url: "/rovianda/packaging-lots/inventory/product/:productId",
+        method: "get",
+        controller: PackagingController,
+        target: "getProductsLotsCheeses"
+    },
+    {
         url:"/rovianda/packaging/outputsProduct",
         method:"post",
         controller:PackagingController,

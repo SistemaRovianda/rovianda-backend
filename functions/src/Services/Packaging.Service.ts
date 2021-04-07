@@ -271,6 +271,13 @@ export class PackagingService{
         return result;
     }
 
+    async getProductPresentationInventoryByProduct(productId:number){
+        let result= await this.packagingRepository.getPackagingAvailableProductLotsPresentationByProduct(productId);
+        result=result.filter(x=>x.quantity>0);
+        return result;
+    }
+    
+
     async savePackagingInventoryLotsProductOutput(packagingOutput:PackagingOutput[]){
         for(let pack of packagingOutput){
         await validPackagingOutput(pack);
@@ -597,7 +604,7 @@ export class PackagingService{
         let cheeses = await this.cheeseRepository.getAllCheeses();
         let cheeseIds = cheeses.map(x=>x.product.id);
         for(let sub of subOrders){
-            if(cheeseIds.includes(+sub.presentation.keySae)){
+            if(cheeseIds.includes(+sub.productRovianda.id)){
                 hasCheese=true;
             }
         }

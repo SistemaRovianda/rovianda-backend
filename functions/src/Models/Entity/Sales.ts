@@ -54,5 +54,10 @@ export class Sale{
 
     @Column({name:"status_str",nullable:true})
     statusStr:string;
+    @Column({name:"new_folio",nullable:true})
+    newFolio:string;
+
+    @Column({name:"sincronized",default:false})
+    sincronized:boolean;
 
 }

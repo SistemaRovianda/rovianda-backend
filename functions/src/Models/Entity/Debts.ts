@@ -9,7 +9,6 @@ export class Debts{
     @PrimaryGeneratedColumn({name:"deb_id"})
     debId:number;
 
-  
 
     @Column()
     amount:number;
@@ -30,4 +29,7 @@ export class Debts{
     @ManyToOne(type=>User,seller=>seller.debts)
     @JoinColumn({name: "seller_id"})
     seller:User;
+
+    @Column({name:"type_pay",default:"EFECTIVO"})
+    typePay:string;
 }
