@@ -96,7 +96,10 @@ export interface LotsStockInventoryPresentation{
     name: string,
     type_presentation:string,
     lot_id:string,
-    packaging_id:number
+    packaging_id:number,
+    key_sae?:string,
+    price?:number,
+    uni_med?:string
 }
 
 export interface UpdateStockPlant{

@@ -9,6 +9,7 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { User } from '../Models/Entity/User';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
+import { ModeOffline } from '../Models/DTO/ModeOfflineDTO';
 
 export class SalesRequestController{
 
@@ -204,7 +205,8 @@ export class SalesRequestController{
         let salesIds=req.body.sales;
         let date=req.query.date;
         let hint = req.query.hint;
-        let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint);
+        let dateTo=req.query.dateTo;
+        let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint,dateTo);
         res.header('Access-Control-Expose-Headers','x-total-count');
         res.setHeader('x-total-count',response.totalCount);
         return res.status(200).send(response.sales);
@@ -321,4 +323,16 @@ export class SalesRequestController{
         return res.status(201).send();
     }
 
+    async getStatusStockOffline(req:Request,res:Response){
+        let sellerId:string = req.params.sellerId;
+        let modeOffline:ModeOffline = await this.salesRequestService.getModeOffline(sellerId);
+        return res.status(200).send(modeOffline);
+    }
+
+    async getAcumulatedSales(req:Request,res:Response){
+        let dateFrom = req.query.dateFrom;
+        let dateTo = req.query.dateTo;
+        let response = await this.salesRequestService.getAcumulatedSales(dateFrom,dateTo);
+        return res.status(200).send(response);
+    }
 } 

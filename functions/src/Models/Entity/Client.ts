@@ -74,4 +74,7 @@ export class Client{
     @Column({default:"ACTIVE"})
     status:string;
 
+    @Column({name:"key_sae_new",nullable:true})
+    keySaeNew:string;
+
 }

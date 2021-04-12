@@ -129,7 +129,7 @@ export class TicketUtil{
             totalAmount+=amount;
         }
         ticket+=clients;
-            ticket+=`Ventas por concepto\nEFECTIVO        $ ${this.pipeNumber(amountContado)}\nCREDITO         $ ${this.pipeNumber(amountCredito)}\nTRANSFERENCIA         $${this.pipeNumber(amountTransferencia)}\nCHEQUE         $${this.pipeNumber(amountCheque)}\n-----------------\n$${this.pipeNumber(amountContado)}\nTOTAL KILOS: ${this.pipeNumber(totalKilos)}`;
+            ticket+=`Ventas por concepto\nEFECTIVO        $ ${this.pipeNumber(amountContado)}\nCREDITO         $ ${this.pipeNumber(amountCredito)}\nTRANSFERENCIA         $${this.pipeNumber(amountTransferencia)}\nCHEQUE         $${this.pipeNumber(amountCheque)}\n-----------------\n$${this.pipeNumber(amountContado)}\nTOTAL KILOS: ${this.pipeNumber(totalKilos)}\n-----------------\nVENTA TOTAL: $ ${this.pipeNumber(amountContado+amountCredito+amountCheque+amountTransferencia)}`;
             let cobranza =0;
             for(let sub of subSales){
                 cobranza+=sub.amount;

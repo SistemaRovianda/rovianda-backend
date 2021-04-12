@@ -25,10 +25,12 @@ export class SaleRepository{
         return await this.saleRepository.findOne({saleId:id});
     }
 
-    async getSalleSellerByDateUser(seller:string,date:string){
+    async getSalleSellerByDateUser(sellerId:string,date:string){
+        let from = date+"T00:00:00.000Z";
+        let to = date+"T23:59:59.59.000Z";
         await this.getConnection();
         return await this.saleRepository.find({
-            where:{ seller, date},
+            where:{ seller:{id:sellerId}, date:Between(from,to)},
             relations:["client"]
         });
     }
@@ -85,13 +87,14 @@ export class SaleRepository{
         .getOne();
     }
 
-    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string){
+    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string,dateTo:string){
         
         if(!salesIds.length){
             salesIds=[0];
         }
         let date1=date+"T00:00:00";
-        let date2=date+"T23:59:59";
+        let date2=(dateTo)?dateTo:date;
+        date2+="T23:59:59";
         await this.getConnection();
         let sales:Sale[]=[];
         let salesTotal:Sale[]=[];
@@ -140,13 +143,13 @@ export class SaleRepository{
     }
 
     async getSalesBetweenDates(date:string){
-        let dateInit="2021-04-02"+"T00:00:00";
-        let dateEnd="2021-04-03"+"T23:59:59";
+        let dateInit=date+"T00:00:00.000Z";
+        let dateEnd=date+"T23:59:59.000Z";
         await this.getConnection();
         // let dateInit=date+'T00:00:00';
         // let dateEnd=date+'T23:59:59';
 
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.typeSale <> :typeSale2 and sale.typeSale <> :typeSale3",{dateInit,dateEnd,typeSale2:"DELETED",typeSale3:"CANCELED"})
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.statusStr <> :typeSale2 and sale.statusStr <> :typeSale3",{dateInit,dateEnd,typeSale2:"DELETED",typeSale3:"CANCELED"})
         .leftJoinAndSelect("sale.seller","seller").leftJoinAndSelect("sale.client","client").getMany();
         return sales;
     }
@@ -203,6 +206,13 @@ export class SaleRepository{
             totalSolded:totalVendido,
             totalWeight:totalWeight.toFixed(2)
         }
+    }
+
+    async getLastFolioOfSeller(seller:User){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+            select folio from sales where seller_id="${seller.id}"
+        `) as {folio:string}[];
     }
 
 }

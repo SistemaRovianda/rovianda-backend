@@ -126,6 +126,8 @@ export class PackagingService{
             propertiesPackaging.outputOfWarehouse=packagingDTO.products[e].units;
             propertiesPackaging.weightOfWarehouse=packagingDTO.products[e].weight;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
+            let quantity = (presentation.uniMed.toUpperCase()=="PZ")?packagingDTO.products[e].units:packagingDTO.products[e].weight;
+            this.sqlRepository.updateInventoryGeneralAspeSaeByProduct(presentation.keySae,quantity);
         }
         return packing.id;
    }
@@ -370,9 +372,10 @@ export class PackagingService{
                     }else{
                         valueToSave=pack.weight;
                     }
-                    //await this.sqlRepository.updateProductInSaeBySellerWarehouseStock(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
+                    
                     await this.subOrderRepository.saveSalesProduct(subOrder); 
                     await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+                    //await this.sqlRepository.updateProductInSaeBySellerWarehouseStock(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
         }
     }
 
@@ -604,7 +607,7 @@ export class PackagingService{
         let cheeses = await this.cheeseRepository.getAllCheeses();
         let cheeseIds = cheeses.map(x=>x.product.id);
         for(let sub of subOrders){
-            if(cheeseIds.includes(+sub.productRovianda.id)){
+            if(cheeseIds.includes(+sub.productRovianda.id) && sub.active){
                 hasCheese=true;
             }
         }

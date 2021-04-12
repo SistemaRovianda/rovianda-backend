@@ -78,4 +78,7 @@ export class User{
 
     @Column({name:"status",default:"ACTIVE"})
     status:string;
+
+    @Column({name:"cve",nullable:true})
+    cve:string;
 }

@@ -43,6 +43,7 @@ import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
 import { VisitClientOperationRepository } from '../Repositories/VisitClientOperationRepository';
+import { ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineSaleInterface } from '../Models/DTO/ModeOfflineDTO';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -966,8 +967,8 @@ export class SalesRequestService{
       }
       return response;
     }
-    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string){
-        return await this.saleRepository.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint);
+    async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string,dateTo:string){
+        return await this.saleRepository.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint,dateTo);
     }
 
     async cancelSale(saleId:number){
@@ -1056,7 +1057,7 @@ export class SalesRequestService{
       let day="02";
       let sales:Sale[] =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
       
-      sales=sales.slice(1,sales.length);
+      sales=[sales[0]];
       // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       for(let sale of sales){
         if(!sale.sincronized){
@@ -1282,6 +1283,123 @@ export class SalesRequestService{
       
       return await this.saleRepository.getAmountSales(date,sellerId);
    
+    }
+
+    async getModeOffline(sellerId:string){
+      let date = new Date();
+      date.setHours(date.getHours()-6);
+      let month = (date.getMonth()+1).toString();
+      let day = date.getDate().toString();
+      if(+month<10){
+        month="0"+month;
+      }
+      if(+day<10){
+        day="0"+day;
+      }
+      let dateStr = date.getFullYear()+"-"+month+"-"+day;
+      let status= await this.saleRepository.getAmountSales(dateStr,sellerId);
+      let seller:User = await this.userRepository.getUserById(sellerId);
+      let clients = await this.clientRepository.getAllClientBySeller(seller);
+      let clientsMapped:ModeOfflineClients[] = clients.map(x=>{
+        let item:ModeOfflineClients={
+          clientName: x.name,
+          keyClient: x.keyClient.toString(),
+          rfc: x.rfc,
+          type: x.typeClient
+        }
+        return item;
+      });
+      let getLastFolioByUser = await this.saleRepository.getLastFolioOfSeller(seller);
+      let lastFolio=seller.cve+"0";
+      if(getLastFolioByUser.length){
+        lastFolio=getLastFolioByUser[0].folio;
+      }
+      let inventory = await this.sellerInventoryRepository.getInventoryByProductStockOfSellerModeOffline(seller);
+      let inventoryOffline:ModeOfflineInventory[] = inventory.map(x=>{
+        let itemInventoryOffline:ModeOfflineInventory={
+          codeSae: x.key_sae,
+          pieces: x.units,
+          weight: x.weight,
+          price: x.price,
+          productName: x.name, 
+          uniMed: x.uni_med
+        }
+        return itemInventoryOffline;
+      });
+      let getSalesToday=await this.saleRepository.getSalleSellerByDateUser(seller.id,dateStr);
+      let completed = getSalesToday.filter(x=>!x.status);
+      let debs = getSalesToday.filter(x=>x.status);
+      let salesOffline:ModeOfflineSaleInterface[] = [];
+      if(completed.length){
+      for(let x of completed){
+        let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(x);
+        let item:ModeOfflineSaleInterface={
+          amount: x.amount,
+          credit: x.credit,
+          folio: x.folio,
+          keyClient: x.client.keyClient.toString(),
+          payed: x.payedWith,
+          typeSale:x.typeSale,
+          sellerId: seller.id,
+          products: subSales.map(sub=>{
+            let product:ModeOfflineProductInterface={
+              price: sub.amount,
+              productKey: sub.product.name+" "+sub.presentation.presentationType,
+              quantity: sub.quantity,
+              type: sub.presentation.uniMed,
+              weightStandar: sub.presentation.presentationPriceMin
+            };  
+            return product;
+          })
+        };
+        salesOffline.push(item);
+      };
+    }
+      let debsOffline:ModeOfflineSaleInterface[] =[];
+      if(debs.length){
+      for(let x of debs){
+        let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(x);
+        let item:ModeOfflineSaleInterface={
+          amount: x.amount,
+          credit: x.credit,
+          folio: x.folio,
+          keyClient: x.client.keyClient.toString(),
+          payed: x.payedWith,
+          typeSale:x.typeSale,
+          sellerId: seller.id,
+          products: subSales.map(sub=>{
+            let product:ModeOfflineProductInterface={
+              price: sub.amount,
+              productKey: sub.product.name+" "+sub.presentation.presentationType,
+              quantity: sub.quantity,
+              type: sub.presentation.uniMed,
+              weightStandar: sub.presentation.presentationPriceMin
+            };  
+            return product;
+          })
+        };
+        debsOffline.push(item);
+      }
+    }
+      let modeOffline:ModeOffline ={
+        sellerId: sellerId,
+        cashAcumulated: +(status.totalSolded.split(",").join("")),
+        weightAcumulated: +status.totalWeight,
+        clients: clientsMapped,
+        folioNomenclature: seller.cve,
+        foliocount:lastFolio,
+        lastSincronization: date.toString(),
+        username: seller.name,
+        logedId: true,
+        inventory: inventoryOffline,
+        sales: salesOffline,
+        debts: debsOffline
+      };
+      return modeOffline;
+    }
+
+    async getAcumulatedSales(from:string,to:string){
+      return await this.salesRequestRepository.getAcumulatedByDate(from,to);
     }
   }
 

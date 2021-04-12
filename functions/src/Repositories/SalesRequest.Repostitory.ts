@@ -92,5 +92,27 @@ export class SalesRequestRepository{
             );
     }
 
+    async getAcumulatedByDate(from:string,to:string){
+        await this.getConnection();
+        let dateFrom = from+"T00:00:00.000Z";
+        let dateTo = to+"T23:59:59.000Z";
+        return (await this.salesRequestRepository.query(`
+        select 
+        (select format(sum(amount),2) 
+        from sales where  status_str<>"CANCELED" and status_str<>"DELETED" and 
+        date between "${dateFrom}" and "${dateTo}"
+        ) as total,
+        (select format(sum(amount),2) 
+        from sales where type_sale<>"CREDITO" and status_str<>"CANCELED" and status_str<>"DELETED" and 
+        date between "${dateFrom}" and "${dateTo}"
+        ) as contado,
+        (select format(sum(amount),2) 
+        from sales where type_sale="CREDITO" and status_str<>"CANCELED" and status_str<>"DELETED" and
+        date between "${dateFrom}" and "${dateTo}") as credito,
+        (select format(sum(credit),2) 
+        from sales where status=0 and type_sale="CREDITO" and
+        date between "${dateFrom}" and "${dateTo}") as cobranza;
+        `) as {total:string,contado:string,credito:string,cobranza:string}[])[0];
+    }
    
 }

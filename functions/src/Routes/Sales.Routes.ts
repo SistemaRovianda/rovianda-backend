@@ -278,5 +278,17 @@ export const salesRoutes:Array<routeInterface>=[
         method:"post",
         controller: SalesRequestController,
         target: "initTransfer"
+    },
+    {
+        url: "/rovianda/getstock/:sellerId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getStatusStockOffline"
+    },
+    {
+        url: "/rovianda/accumulated/sales",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getAcumulatedSales"
     }
 ];

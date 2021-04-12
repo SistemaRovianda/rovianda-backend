@@ -88,4 +88,16 @@ export class SellerInventoryRepository{
             `
         ) )as LotsStockInventoryPresentation[];
     }
+
+    async getInventoryByProductStockOfSellerModeOffline(user:User){
+        await this.getConnection();
+        return (await this.repository.query(
+            `
+            select round(sum(si.weigth),2) as weight,sum(si.quantity) as units,si.presentation_id,pro.name,pp.type_presentation,si.lote_id as lot_id,pp.key_sae,
+            pp.price_presentation_public as price,pp.uni_med
+        from seller_inventory as si inner join presentation_products as pp on pp.presentation_id=si.presentation_id inner join products_rovianda as pro on pro.id=si.productId
+        where seller_id="${user.id}" group by si.lote_id,si.presentation_id,si.productId;
+            `
+        ) )as LotsStockInventoryPresentation[];
+    }
 }
