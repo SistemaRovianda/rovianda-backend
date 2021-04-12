@@ -1049,24 +1049,22 @@ export class SalesRequestService{
       if(+day<10){
         day="0"+day;
       }
-      
       // console.log(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
       // console.log(date.getHours()+"-"+date.getMinutes());
       
        let sales:Sale[] =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
-      console.log("TOTAL DE VENTAS: "+sales.length);
-      // sales=[sales[0]];
-      // // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
-      // for(let sale of sales){
-      //   if(!sale.sincronized){
-      //   let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-      //   sale.subSales=subSales;
-      //   let folio=await this.sqlsRepository.createSaleSae(sale);
-      //   sale.newFolio = folio;
-      //   sale.sincronized=true;
-      //   await this.saleRepository.saveSale(sale);
-      //   }
-      // }
+      
+      // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      for(let sale of sales){
+        if(!sale.sincronized){
+        let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+        sale.subSales=subSales;
+        let folio=await this.sqlsRepository.createSaleSae(sale);
+        sale.newFolio = folio;
+        sale.sincronized=true;
+        await this.saleRepository.saveSale(sale);
+        }
+      }
       console.log("Ventas traspasadas: "+year+"-"+month+"-"+day);
       
     }
