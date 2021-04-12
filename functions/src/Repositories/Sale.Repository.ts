@@ -149,7 +149,7 @@ export class SaleRepository{
         // let dateInit=date+'T00:00:00';
         // let dateEnd=date+'T23:59:59';
 
-        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.statusStr <> :typeSale2 and sale.statusStr <> :typeSale3",{dateInit,dateEnd,typeSale2:"DELETED",typeSale3:"CANCELED"})
+        let sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :dateInit and :dateEnd and sale.statusStr <> :typeSale2 and sale.statusStr <> :typeSale3 and sale.amount>0",{dateInit,dateEnd,typeSale2:"DELETED",typeSale3:"CANCELED"})
         .leftJoinAndSelect("sale.seller","seller").leftJoinAndSelect("sale.client","client").getMany();
         return sales;
     }
