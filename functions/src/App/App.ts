@@ -1,4 +1,4 @@
-import  * as express from 'express';
+﻿import  * as express from 'express';
 import * as bodyp from 'body-parser';
 import * as functions from 'firebase-functions';
 import { routesToExpress } from '../Routes/Index';
@@ -67,7 +67,7 @@ export class App extends ErrorHandler{
 }
 
 
-export const app = functions.runWith({timeoutSeconds:500}).https.onRequest( new App().app);
+//export const app = functions.runWith({timeoutSeconds:500}).https.onRequest( new App().app);
 
 // export const appCron = functions.pubsub.schedule('10 0 * * *')
 // //export const appCron = functions.pubsub.schedule('51 14 * * *')

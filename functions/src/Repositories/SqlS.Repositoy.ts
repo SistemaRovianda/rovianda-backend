@@ -8,7 +8,7 @@ import { ProductLineSae, ProductLineSaeForm, SaveProductRoviandaDTO, UpdatePrese
 import { UserDTO } from "../Models/DTO/UserDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Sale } from "../Models/Entity/Sales";
-const EMPRESA = "01";
+const EMPRESA = "06";
 export class SqlSRepository{
 
     constructor(){}
@@ -428,6 +428,7 @@ export class SqlSRepository{
         let existenceByWarehouse = lastExist.recordset[0];
         let existenceByWarehouseGeneral = lastExist3.recordset[0];
         let dateParse = new Date();
+	dateParse.setHours(dateParse.getHours()-24);
         let month = (dateParse.getMonth()+1).toString();
         let day = dateParse.getDate().toString();
         if(+month<10){
@@ -823,7 +824,7 @@ export class SqlSRepository{
                
                 console.log(`insertando FACTR${EMPRESA}`);
                 
-                await pool.request().input("TIP_DOC",VarChar,'R').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keySaeNew.toString().length)+client.keySaeNew.toString())
+                /*await pool.request().input("TIP_DOC",VarChar,'R').input('CVE_DOC',VarChar,foliocount).input('CVE_CLPV',VarChar,' '.repeat(10-client.keySaeNew.toString().length)+client.keySaeNew.toString())
                 .input('STATUS',VarChar,'E').input('DAT_MOSTR',Int,0).input('CVE_VEND',VarChar,' '.repeat(5-seller.saeKey.toString().length)+seller.saeKey.toString()).input('CVE_PEDI',VarChar,'').input('FECHA_DOC',DateTime,dateParse)
                 .input('FECHA_ENT',DateTime,dateParse).input('FECHA_VEN',DateTime,dateParse).input('FECHA_CANCELA',DateTime,null).input('CAN_TOT',Float,totalSaleAmount)
                 .input('IMP_TOT1',Float,0).input('IMP_TOT2',Float,0).input('IMP_TOT3',Float,0).input('IMP_TOT4',Float,0).input('DES_TOT',Float,0).input('DES_FIN',Float,0)
@@ -862,6 +863,7 @@ export class SqlSRepository{
                 await pool.request().query(`
                 update TBLCONTROL${EMPRESA} set ULT_CVE=${foliocountBita}  WHERE ID_TABLA=62
                 `);
+		*/
                 // await pool.request().input('ULT_DOC',VarChar,' '.repeat(10-(+foliocountBita).toString().length)+(+foliocount).toString()).input('TIP_DOC',VarChar,'R')
                 // .query(`
                 //     UPDATE FOLIOSF${EMPRESA} SET ULT_DOC=@ULT_DOC WHERE TIP_DOC=@TIP_DOC;
@@ -1109,7 +1111,7 @@ export class SqlSRepository{
                     `);
                     console.log(`ACTUALIZANDO TBLCONTROL${EMPRESA} ID_TABLA=44`);
                     await pool.request().query(`
-                    UPDATE TBLCONTROL${EMPRESA} set ULT_CVE=${countFolio} WHERE ID_TABLA=44
+                    UPDATE TBLCONTROL${EMPRESA} set ULT_CVE=${numMov} WHERE ID_TABLA=44
                     `);
 
                     // await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.quantity).input('PXS',Float,product.quantity)
@@ -1172,10 +1174,10 @@ export class SqlSRepository{
 
                 let doctoSig = await pool.request().query(
                     `
-                    select top 1 * from MINVE${EMPRESA} ORDER BY CVE_FOLIO DESC
+                    select top 1 * from MINVE${EMPRESA} ORDER BY CAST(CVE_FOLIO AS DECIMAL) DESC
                     `
                     );
-                let tipDocCount=doctoSig.recordset.length;
+                let tipDocCount=doctoSig.recordset[0].CVE_FOLIO;
                 await pool.request().input('ULT_CVE',Int,+tipDocCount).input('ID_TABLA',Int,32)
                 .query(`
                     UPDATE TBLCONTROL${EMPRESA} SET ULT_CVE=@ULT_CVE WHERE ID_TABLA=@ID_TABLA
@@ -1183,7 +1185,7 @@ export class SqlSRepository{
 
                 let minve = await pool.request().query(
                     `
-                    select top 1 * from MINVE${EMPRESA} ORDER BY NUM_MOV DESC
+                    select top 1 * from MINVE${EMPRESA} ORDER BY CAST(NUM_MOV AS DECIMAL) DESC
                     `
                     );
                 let minveCount=minve.recordset[0].NUM_MOV;
@@ -1223,7 +1225,7 @@ export class SqlSRepository{
         let existenceByWarehouse = lastExist.recordset[0];
 
         let folios = await pool.request().query(`
-        select * from TBLCONTROL${EMPRESA} WHERE ID_TABLA=44
+        select * from TBLCONTROL${EMPRESA} WHERE ID_TABLA=32
         `);
         let folio = (+folios.recordset[0].ULT_CVE)+1;
         let dateParse = new Date();
