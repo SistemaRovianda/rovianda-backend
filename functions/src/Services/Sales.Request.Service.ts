@@ -1053,6 +1053,10 @@ export class SalesRequestService{
       if(+day<10){
         day="0"+day;
       }
+      let dayOfWeek =this.zellerGregorian(date);
+      if(dayOfWeek==1){
+        date.setHours(date.getHours()-24);
+      }
       // console.log(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
       // console.log(date.getHours()+"-"+date.getMinutes());
       

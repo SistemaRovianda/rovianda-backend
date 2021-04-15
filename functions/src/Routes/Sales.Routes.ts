@@ -275,7 +275,7 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getStatusSale"
     },{
         url: "/rovianda/supertranfer",
-        method:"post",
+        method:"get",
         controller: SalesRequestController,
         target: "initTransfer"
     },

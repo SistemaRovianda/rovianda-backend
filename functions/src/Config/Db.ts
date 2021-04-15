@@ -61,7 +61,7 @@ import { DayVisited } from "../Models/Entity/DayVisited";
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host:  "localhost",//"rovisapi.dyndns.tv",//"localhost",//,//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host:  "rovisapi.dyndns.tv",//"localhost",//,//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
     username: "master_rovianda",//"admin",//"root",//"admin",// 
     password: "Sistemas2020",//"Holamundo1250",//
