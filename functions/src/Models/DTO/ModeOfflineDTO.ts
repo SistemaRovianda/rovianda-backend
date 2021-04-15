@@ -9,10 +9,11 @@ export interface ModeOffline{
     weightAcumulated:number;
     inventory: ModeOfflineInventory[],
     folioNomenclature:string;
-    foliocount:string;
+    folioCount:string;
     sales:ModeOfflineSaleInterface[],
     debts:ModeOfflineSaleInterface[],
-    clients:ModeOfflineClients[]
+    clients:ModeOfflineClients[],
+    clientsToVisit:ModeOfflineClients[]
 }
 
 export interface ModeOfflineClients{
@@ -39,6 +40,9 @@ export interface ModeOfflineInventory{
     weight:number;
     pieces:number;
     price:number;
+    presentation:string;
+    presentationId:number;
+    weightOriginal:number;
 }
 
 export interface ModeOfflineSaleInterface{
@@ -50,7 +54,12 @@ export interface ModeOfflineSaleInterface{
     amount:number;
     credit:number;
     typeSale:string;   
+    clientName:string;
+    date:string;
+    status:boolean;
+    statusStr:string;
 }
+
 
 export interface ModeOfflineProductInterface{
     productKey:string;
@@ -58,4 +67,6 @@ export interface ModeOfflineProductInterface{
     type:string;
     price:number;
     weightStandar:number;
+    productName:string;
+    productPresentationType:string;
 }

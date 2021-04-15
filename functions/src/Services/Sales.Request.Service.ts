@@ -44,6 +44,8 @@ import { PropertiesPackagingRepository } from '../Repositories/Properties.Packag
 import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
 import { VisitClientOperationRepository } from '../Repositories/VisitClientOperationRepository';
 import { ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineSaleInterface } from '../Models/DTO/ModeOfflineDTO';
+import { DayVisited } from '../Models/Entity/DayVisited';
+import { DayVisitedRepository } from '../Repositories/DayVisitedRepository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -64,6 +66,7 @@ export class SalesRequestService{
     private cheeseRepository:CheeseRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
     private visitOperationReporsitory:VisitClientOperationRepository;
+    private dayRepository:DayVisitedRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -83,6 +86,7 @@ export class SalesRequestService{
         this.cheeseRepository = new CheeseRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.visitOperationReporsitory = new VisitClientOperationRepository();
+        this.dayRepository = new DayVisitedRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -645,7 +649,7 @@ export class SalesRequestService{
       console.log("obteniendo vendedor de sae");
       //if(!alreadyActive.recordset.length) throw new Error("[409], el vendedor no esta activo en SAE");
       let clientRovianda = await this.clientRepository.findByClientKey(saleRequestForm.keyClient);
-      if(clientRovianda.status=="INACTIVE") throw new Error("[409], el cliente ah sido eliminado del sistema");
+      //if(clientRovianda.status=="INACTIVE") throw new Error("[409], el cliente ah sido eliminado del sistema");
       // if(clientRovianda.idAspel==0){
       //   console.log("obteniendo cliente de sae");
       //   let client = await this.sqlsRepository.getClientsByKey(saleRequestForm.keyClient);
@@ -694,47 +698,47 @@ export class SalesRequestService{
       //   productSae = await this.sqlsRepository.getProductSaeByKeyLike(presentation.keySae);
       //  }
       //  if(!productSae.length) throw new Error("[404], no existe el product en aspel sae");
-       let uniMed:string= presentation.uniMed.toLocaleLowerCase();//(productSae[0].UNI_MED as string).toLowerCase();
+       //let uniMed:string= presentation.uniMed.toLocaleLowerCase();//(productSae[0].UNI_MED as string).toLowerCase();
        console.log("buscando existencia en stock");
        if(!presentation) throw new Error("[404], no existe la presentacion del producto en el sistema rovianda");
-       let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(presentation.productRovianda,presentation,seller);
-       let stock = 0;
-       for(let ava of avaibleProduct){
-          if(uniMed=="pz"){
-            stock+=ava.quantity;
-          }else{
-            stock+=ava.weigth;
-          }
-       }
-       if(stock<sale.quantity) throw new Error("No hay stock Suficiente para la venta");
+       //let avaibleProduct:SellerInventory[] = await this.sellerInventoryRepository.getByProductPresentationAndSeller(presentation.productRovianda,presentation,seller);
+       //let stock = 0;
+      //  for(let ava of avaibleProduct){
+      //     if(uniMed=="pz"){
+      //       stock+=ava.quantity;
+      //     }else{
+      //       stock+=ava.weigth;
+      //     }
+      //  }
+       //if(stock<sale.quantity) throw new Error("No hay stock Suficiente para la venta");
        
-       let removedCount = sale.quantity;//4
-       let tempRemoved=0;
-       for(let ava of avaibleProduct){
-          if(uniMed=="pz"){
-            if(ava.quantity<removedCount){
-              ava.quantity=0;
-                removedCount-=ava.quantity;
-            }else{
-              tempRemoved=removedCount;
-              removedCount=tempRemoved-ava.quantity;
-              ava.quantity-=tempRemoved;
+       //let removedCount = sale.quantity;//4
+       //let tempRemoved=0;
+      //  for(let ava of avaibleProduct){
+      //     if(uniMed=="pz"){
+      //       if(ava.quantity<removedCount){
+      //         ava.quantity=0;
+      //           removedCount-=ava.quantity;
+      //       }else{
+      //         tempRemoved=removedCount;
+      //         removedCount=tempRemoved-ava.quantity;
+      //         ava.quantity-=tempRemoved;
               
-            }
+      //       }
             
-          }else if(uniMed=="kg"){
-              if(ava.weigth<removedCount){//6<4
-                ava.weigth=0;
-                removedCount-=ava.weigth;
-              }else{
-                tempRemoved = removedCount;//4
-                removedCount=removedCount-ava.weigth; // -2
-                ava.weigth-=tempRemoved; //6 -> 4   
-              }
-          }
-          await this.sellerInventoryRepository.saveSellerInventory(ava);
+      //     }else if(uniMed=="kg"){
+      //         if(ava.weigth<removedCount){//6<4
+      //           ava.weigth=0;
+      //           removedCount-=ava.weigth;
+      //         }else{
+      //           tempRemoved = removedCount;//4
+      //           removedCount=removedCount-ava.weigth; // -2
+      //           ava.weigth-=tempRemoved; //6 -> 4   
+      //         }
+      //     }
+      //     await this.sellerInventoryRepository.saveSellerInventory(ava);
          
-       } 
+      //  } 
        console.log("Eliminado de stock completado");
         let price =0;
         //if(presentation.typePrice=="PUBLIC"){
@@ -1293,9 +1297,32 @@ export class SalesRequestService{
         day="0"+day;
       }
       let dateStr = date.getFullYear()+"-"+month+"-"+day;
+
+      
+
+      
       let status= await this.saleRepository.getAmountSales(dateStr,sellerId);
+      console.log("Se obtuvo acumulado");
       let seller:User = await this.userRepository.getUserById(sellerId);
+      console.log("Se obtuvo vendedor");
       let clients = await this.clientRepository.getAllClientBySeller(seller);
+      console.log("Se obtuvieron clientes");
+      
+      let dayStr = this.zellerGregorian(date);
+      let clientsOfSellerUids = clients.map(x=>x.id);
+        
+      let clientsSchedule:DayVisited[] = await this.dayRepository.getClientsByDayOfVisitByDayAndClientIds(dayStr,clientsOfSellerUids);
+      console.log("Se obtuvieron clientes a visitar");
+      //let clientsToVisit = await this.clientRepository.getClie
+      let clientsToVisit:ModeOfflineClients[]=clientsSchedule.map(x=>{
+        let item:ModeOfflineClients={
+          clientName: x.client.name,
+          keyClient: x.client.keyClient.toString(),
+          rfc: x.client.rfc,
+          type: x.client.typeClient
+        }
+        return item;
+      })
       let clientsMapped:ModeOfflineClients[] = clients.map(x=>{
         let item:ModeOfflineClients={
           clientName: x.name,
@@ -1306,11 +1333,13 @@ export class SalesRequestService{
         return item;
       });
       let getLastFolioByUser = await this.saleRepository.getLastFolioOfSeller(seller);
+      console.log("Se obtuvo ultimo folio");
       let lastFolio=seller.cve+"0";
       if(getLastFolioByUser.length){
-        lastFolio=getLastFolioByUser[0].folio;
+        lastFolio=(getLastFolioByUser[0].folio_temp.replace(seller.cve,""));
       }
       let inventory = await this.sellerInventoryRepository.getInventoryByProductStockOfSellerModeOffline(seller);
+      console.log("Se obtuvo inventario");
       let inventoryOffline:ModeOfflineInventory[] = inventory.map(x=>{
         let itemInventoryOffline:ModeOfflineInventory={
           codeSae: x.key_sae,
@@ -1318,13 +1347,19 @@ export class SalesRequestService{
           weight: x.weight,
           price: x.price,
           productName: x.name, 
-          uniMed: x.uni_med
+          uniMed: x.uni_med,
+          presentation: x.type_presentation,
+          presentationId: x.presentation_id,
+          weightOriginal: x.price_presentation_min 
         }
         return itemInventoryOffline;
       });
       let getSalesToday=await this.saleRepository.getSalleSellerByDateUser(seller.id,dateStr);
-      let completed = getSalesToday.filter(x=>!x.status);
-      let debs = getSalesToday.filter(x=>x.status);
+      console.log("Se obtuvieron ventas del dia");
+      let getSalesDebs=await this.saleRepository.getSalleSellerByDateUserDebts(seller.id);
+      console.log("Se obtuvieron deudas");
+      let completed = getSalesToday;
+      let debs = getSalesDebs;
       let salesOffline:ModeOfflineSaleInterface[] = [];
       if(completed.length){
       for(let x of completed){
@@ -1339,14 +1374,20 @@ export class SalesRequestService{
           sellerId: seller.id,
           products: subSales.map(sub=>{
             let product:ModeOfflineProductInterface={
-              price: sub.amount,
-              productKey: sub.product.name+" "+sub.presentation.presentationType,
+              price: sub.presentation.presentationPricePublic,
+              productKey: sub.presentation.keySae,
               quantity: sub.quantity,
               type: sub.presentation.uniMed,
-              weightStandar: sub.presentation.presentationPriceMin
+              weightStandar: sub.presentation.presentationPriceMin,
+              productName: sub.product.name,
+              productPresentationType: sub.presentation.presentationType,
             };  
             return product;
-          })
+          }),
+          clientName: x.client.name,
+          date:x.date,
+          status: x.status,
+          statusStr: x.statusStr
         };
         salesOffline.push(item);
       };
@@ -1366,13 +1407,19 @@ export class SalesRequestService{
           products: subSales.map(sub=>{
             let product:ModeOfflineProductInterface={
               price: sub.amount,
-              productKey: sub.product.name+" "+sub.presentation.presentationType,
+              productKey: sub.presentation.keySae,
               quantity: sub.quantity,
               type: sub.presentation.uniMed,
-              weightStandar: sub.presentation.presentationPriceMin
+              weightStandar: sub.presentation.presentationPriceMin,
+              productName: sub.product.name,
+              productPresentationType: sub.presentation.presentationType
             };  
             return product;
-          })
+          }),
+          clientName: x.client.name,
+          date: x.date,
+          status: x.status,
+          statusStr: x.statusStr
         };
         debsOffline.push(item);
       }
@@ -1383,16 +1430,46 @@ export class SalesRequestService{
         weightAcumulated: +status.totalWeight,
         clients: clientsMapped,
         folioNomenclature: seller.cve,
-        foliocount:lastFolio,
+        folioCount:lastFolio,
         lastSincronization: date.toString(),
         username: seller.name,
         logedId: true,
         inventory: inventoryOffline,
         sales: salesOffline,
-        debts: debsOffline
+        debts: debsOffline,
+        clientsToVisit
       };
       return modeOffline;
     }
+
+    zellerGregorian(date){
+      let h = 0; // day of week, Saturday = 0
+
+      let q = date.getDate(); // day of month
+      let m = date.getMonth(); // month, 3 to 14 = March to February
+      let Y = 1900 + date.getYear(); // year is 1900-based
+
+      // adjust month to run from 3 to 14 for March to February
+      if(m <= 1)
+      {
+          m+= 13;
+      }
+      else
+      {
+          m+= 1;
+      }
+
+      // and also adjust year if January or February
+      if(date.getMonth() <= 1)
+      {
+          Y--;
+      }
+
+      // Calculate h as per Herr Zeller
+      h = (q + Math.floor(((13 * (m + 1)) / 5)) + Y + Math.floor((Y / 4)) - Math.floor((Y / 100)) + Math.floor((Y / 400))) % 7;
+
+      return h;
+}
 
     async getAcumulatedSales(from:string,to:string){
       return await this.salesRequestRepository.getAcumulatedByDate(from,to);

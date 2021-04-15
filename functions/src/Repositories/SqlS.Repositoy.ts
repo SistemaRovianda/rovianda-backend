@@ -8,7 +8,7 @@ import { ProductLineSae, ProductLineSaeForm, SaveProductRoviandaDTO, UpdatePrese
 import { UserDTO } from "../Models/DTO/UserDTO";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Sale } from "../Models/Entity/Sales";
-const EMPRESA = "01";
+const EMPRESA = "06";
 export class SqlSRepository{
 
     constructor(){}
@@ -1109,7 +1109,7 @@ export class SqlSRepository{
                     `);
                     console.log(`ACTUALIZANDO TBLCONTROL${EMPRESA} ID_TABLA=44`);
                     await pool.request().query(`
-                    UPDATE TBLCONTROL${EMPRESA} set ULT_CVE=${countFolio} WHERE ID_TABLA=44
+                    UPDATE TBLCONTROL${EMPRESA} set ULT_CVE=${numMov} WHERE ID_TABLA=44
                     `);
 
                     // await pool.request().input('CVE_DOC',VarChar,foliocount).input('NUM_PAR',Int,(i+1)).input('CVE_ART',VarChar,product.presentation.keySae).input('CANT',Float,product.quantity).input('PXS',Float,product.quantity)
@@ -1172,7 +1172,7 @@ export class SqlSRepository{
 
                 let doctoSig = await pool.request().query(
                     `
-                    select top 1 * from MINVE${EMPRESA} ORDER BY CVE_FOLIO DESC
+                    select top 1 * from MINVE${EMPRESA} ORDER BY CAST(CVE_FOLIO AS DECIMAL) DESC
                     `
                     );
                 let tipDocCount=doctoSig.recordset.length;
@@ -1223,7 +1223,7 @@ export class SqlSRepository{
         let existenceByWarehouse = lastExist.recordset[0];
 
         let folios = await pool.request().query(`
-        select * from TBLCONTROL${EMPRESA} WHERE ID_TABLA=44
+        select * from TBLCONTROL${EMPRESA} WHERE ID_TABLA=32
         `);
         let folio = (+folios.recordset[0].ULT_CVE)+1;
         let dateParse = new Date();

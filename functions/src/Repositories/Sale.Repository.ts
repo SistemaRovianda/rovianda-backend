@@ -35,6 +35,15 @@ export class SaleRepository{
         });
     }
 
+    async getSalleSellerByDateUserDebts(sellerId:string){
+        
+        await this.getConnection();
+        return await this.saleRepository.find({
+            where:{ seller:{id:sellerId},status:true},
+            relations:["client"]
+        });
+    }
+
     async getSalesBySaleIdSeller(saleId:number,seller:string){
         await this.getConnection();
         return await this.saleRepository.findOne({
@@ -211,8 +220,8 @@ export class SaleRepository{
     async getLastFolioOfSeller(seller:User){
         await this.getConnection();
         return await this.saleRepository.query(`
-            select folio from sales where seller_id="${seller.id}"
-        `) as {folio:string}[];
+            select folio_temp from sales where seller_id="${seller.id}"
+        `) as {folio_temp:string}[];
     }
 
 }

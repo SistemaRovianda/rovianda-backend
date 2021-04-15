@@ -99,7 +99,8 @@ export interface LotsStockInventoryPresentation{
     packaging_id:number,
     key_sae?:string,
     price?:number,
-    uni_med?:string
+    uni_med?:string,
+    price_presentation_min:number
 }
 
 export interface UpdateStockPlant{
