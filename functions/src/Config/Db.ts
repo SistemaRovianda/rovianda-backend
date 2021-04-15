@@ -1,4 +1,4 @@
-import "reflect-metadata";
+﻿import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { File } from '../Models/Entity/Files';
@@ -61,7 +61,7 @@ import { DayVisited } from "../Models/Entity/DayVisited";
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host:  "rovisapi.dyndns.tv",//"localhost",//,//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host:  "localhost",//"rovisapi.dyndns.tv",//"localhost",//,//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
     username: "master_rovianda",//"admin",//"root",//"admin",// 
     password: "Sistemas2020",//"Holamundo1250",//
