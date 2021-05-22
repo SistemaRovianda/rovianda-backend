@@ -35,7 +35,14 @@ export default class PdfHelper{
 
     getReportInventory(items:LotsStockInventoryPresentation[],name:string){
         let content= `<html><body>`;
+        let datePrint = new Date();
+        let month = (datePrint.getMonth()+1).toString();
+        let day = datePrint.getDate().toString();
+        let year = datePrint.getFullYear();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
         content+=`<h1 style="text-align:center">${name}</h1>`;
+        content+=`<h1 style="text-align:center">Fecha de impresión: ${day}/${month}/${year}</h1>`;
         content+=`<table><tr><th>Producto</th><th>Presentación</th><th>Lote</th><th>Unidades</th><th>Peso</th></tr>`;
         for(let item of items){
             content+=`<tr>
@@ -145,12 +152,24 @@ export default class PdfHelper{
             transform: translateY(507%) translateX(-2%);
             top: 200px;
             }
+            .label1{
+                font-size: 16px
+            }
+            .label2{
+                font-size: 10px;
+            }
         </style>
         </head>
         `;
     }
 
     bodyReportEntranceDrief(user:User,drief:EntranceDrief){
+        let dateReception = new Date(drief.date);
+        let month =(dateReception.getMonth()+1).toString();
+        let day= dateReception.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
+        let year =dateReception.getFullYear();
         return `
         <body>
         <br><br>
@@ -160,115 +179,114 @@ export default class PdfHelper{
         
         <table border="1" width="80%" align="center">
             <tr>
-                <th colspan="2" rowspan="3"><img src="${LOGO.data}" alt="" ></th>
-                <th class="ta" colspan="2">Nombre: ${user.name} </th>
-                <th></th>
+                <td colspan="2" rowspan="3" style="text-align:center"><img src="${LOGO.data}" alt="" ></td>
+                <td class="ta" colspan="3"><label class="label1">Nombre:</label> <label class="label2">${user.name}</label> </td>
             </tr>
 
             <tr>
-                <th class="ta" colspan="2">Firma: </th>
-                <th></th>
+                
+                <td class="ta" colspan="3"><label class="label1">Firma:</label> </td>      
             </tr>
 
             <tr>
-                <th class="ta" colspan="2">Puesto: ${user.job}</th>
-                <th></th>
+                
+                <td class="ta" colspan="3"><label class="label1">Puesto: </label><label class="label2">${user.job}</label></td>
+                
             </tr>
             
         <!--------------------------------------------------------------------------->
             <tr>
-                <th colspan="2" >Materia prima: ${drief.product.description}</th>
-                <th  rowspan="2" colspan="2" >Lote proveedor: ${drief.loteProveedor}</th>
-                <th  id="fec" rowspan="2">Fecha: ${drief.date}</th>
+                <td colspan="2"><label class="label1">Materia prima:</label> <label class="label2">${drief.product.description}</label></td>
+                <td colspan="2" ><label class="label1">Lote proveedor:<label> <label class="label2">${drief.loteProveedor}</label></td>
+                <td id="fec" ><label class="label1">Fecha:</label> <label class="label2">${day}-${month}-${year}</label></td>
             </tr>
-
+           
             <tr>
-                <th colspan="2">Proveedor: ${drief.proveedor}</th>
-                
+                <td colspan="5"><label class="label1">Proveedor:</label> <label class="label2">${drief.proveedor}</label></td>
             </tr>
         <!--------------------------------------------------------------------------->
         
             <tr>
-                <th>Control</th>
-                <th>Estandar</th>
-                <th>Aceptado</th>
-                <th>Rechazado</th>
-                <th>Observaciones</th>
+                <td><label class="label1">Control</label></td>
+                <td><label class="label1">Estandar</label></td>
+                <td><label class="label1">Aceptado</label></td>
+                <td><label class="label1">Rechazado</label></td>
+                <td><label class="label1">Observaciones</label></td>
             </tr>
 
             <tr>
-                <th>Certificado de calidad</th>
-                <th>Entrega de Certificado</th>
-                <th>${drief.quality?"Ok":""}</th>
-                <th>${!drief.quality?"Ok":""}</th>
-                <th>${drief.observations}</th>
+                <td><label class="label2">Certificado de calidad</label></td>
+                <td><label class="label2">Entrega de Certificado</label></td>
+                <td>${drief.quality?`<label class="label2">Ok</label>`:""}</td>
+                <td>${!drief.quality?`<label class="label2">Ok</label>`:""}</td>
+                <td><label class="label2">${drief.observations}</label></td>
             </tr>
             <tr>
-                <th>Caducidad</th>
-                <th>Vigente</th>
-                <th>${drief.expiration ? "Ok" : ""}</th>
-                <th>${!drief.expiration ? "Ok" : ""}</th>
-                <th></th>
-            </tr>
-
-            <tr>
-                <th>Materia Extraña</th>
-                <th>Ausente</th>
-                <th>${drief.strangeMaterial ? "Ok" : ""}</th>
-                <th>${!drief.strangeMaterial ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Caducidad</label></td>
+                <td><label class="label2">Vigente</label></td>
+                <td>${drief.expiration ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.expiration ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
 
             <tr>
-                <th>Transporte</th>
-                <th>Limpio</th>
-                <th>${drief.transport ? "Ok" : ""}</th>
-                <th>${!drief.transport ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Materia Extraña</label></td>
+                <td><label class="label2">Ausente</label></td>
+                <td>${drief.strangeMaterial ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.strangeMaterial ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
 
             <tr>
-                <th>Empaque</th>
-                <th>Sin daños y limpio</th>
-                <th>${drief.paking ? "Ok" : ""}</th>
-                <th>${!drief.paking ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Transporte</label></td>
+                <td><label class="label2">Limpio</label></td>
+                <td>${drief.transport ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.transport ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
 
             <tr>
-                <th>Olor</th>
-                <th>Caracteristico</th>
-                <th>${drief.odor ? "Ok" : ""}</th>
-                <th>${!drief.odor ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Empaque</label></td>
+                <td><label class="label2">Sin daños y limpio</label></td>
+                <td>${drief.paking ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.paking ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></th>
             </tr>
 
             <tr>
-                <th>Color</th>
-                <th>Caracteristico</th>
-                <th>${drief.color ? "Ok" : ""}</th>
-                <th>${!drief.color ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Olor</label></td>
+                <td><label class="label2">Caracteristico</label></td>
+                <td>${drief.odor ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.odor ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
 
             <tr>
-                <th>Textura</th>
-                <th>Caracteristico</th>
-                <th>${drief.texture ? "Ok" : ""}</th>
-                <th>${!drief.texture ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Color</label></td>
+                <td><label class="label2">Caracteristico</label></td>
+                <td>${drief.color ? `<label class="label2">Ok</label>`: ""}</td>
+                <td>${!drief.color ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
 
             <tr>
-                <th>Peso</th>
-                <th>Según Empaque</th>
-                <th>${drief.weight ? "Ok" : ""}</th>
-                <th>${!drief.weight ? "Ok" : ""}</th>
-                <th></th>
+                <td><label class="label2">Textura</label></td>
+                <td><label class="label2">Caracteristico</label></td>
+                <td>${drief.texture ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.texture ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td><label class="label2">Peso</label></td>
+                <td><label class="label2">Según Empaque</label></td>
+                <td>${drief.weight ? `<label class="label2">Ok</label>` : ""}</td>
+                <td>${!drief.weight ? `<label class="label2">Ok</label>` : ""}</td>
+                <td></td>
             </tr>
             <tr>
-                <td colspan="2">Se recibió: </td>
-                <td colspan="3">${drief.quantity}</td>
+                <td colspan="2"><label class="label1">Se recibió: </label></td>
+                <td colspan="3">${drief.quantity} KG</td>
             </tr>
             <tr style="border:0px">
                 <td style="border:0px;"></td>
@@ -2277,7 +2295,7 @@ export default class PdfHelper{
     }
 
     bodyReportPackaging(data:Packaging, properties:PropertiesPackaging[]){
-        let date=new Date();
+        let date=new Date(data.registerDate);
         let content =` 
         </head>
         <body>
@@ -2294,7 +2312,7 @@ export default class PdfHelper{
                 </th>
                 <th colspan="5"></th>
                 <th>            
-                    <p>Fecha: ${date.getFullYear().toString()}-${date.getMonth()+1}-${date.getDate()}</p>
+                    <p>Fecha: ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear().toString()}</p>
                 </th>
             </tr>
         
@@ -2346,6 +2364,7 @@ export default class PdfHelper{
      }
 
      bodyReportPackagings(data:Packaging[]){
+        
         let content =` 
         </head>
         <body>
@@ -2356,6 +2375,7 @@ export default class PdfHelper{
             </div>
             `;
             for(let pack of data){
+                let packagingRegisterDate=pack.registerDate.split("-");
                 content+=`
                 <table border="1" align="center" width="90%" height="50px">
                 <tr>
@@ -2364,7 +2384,7 @@ export default class PdfHelper{
                     </th>
                     <th colspan="5"></th>
                     <th>            
-                        <p>Fecha: ${pack.registerDate}</p>
+                        <p>Fecha: ${packagingRegisterDate[2]}/${packagingRegisterDate[1]}/${packagingRegisterDate[0]}</p>
                     </th>
                 </tr>
             

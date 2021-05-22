@@ -90,4 +90,14 @@ export class ClientRepository{
         }
     }
 
+    async getClientPublic(){
+        await this.getConnection();
+        return await this.clientRepository.findOne({where:{keyClient:1175}});
+    }
+
+    async getLastCount(){
+        await this.getConnection();
+        return await this.clientRepository.query(`select clients_client_id as clientId from clients order by clients_client_id desc limit 1`) as {clientId:number}[];
+    }
+
 }

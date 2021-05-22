@@ -56,4 +56,9 @@ export class PresentationProducts {
 
     @Column({name:"uni_med",default:"KG"})
     uniMed:string;
+
+    @Column({name:"key_altern"})
+    keyAltern:string;
+    @Column({name:"type_product"})
+    typeProduct:string;
 }

@@ -1,8 +1,7 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Equal, IsNull, Not, Repository } from 'typeorm';
 import { User } from '../Models/Entity/User';
 import { Roles } from '../Models/Entity/Roles';
-import { request } from 'express';
 export class UserRepository{
     private userRepository:Repository<User>;
 
@@ -79,4 +78,14 @@ export class UserRepository{
         await this.getConnection();
         return await this.userRepository.findOne({warehouseKeySae});
     }
+
+    async getAllSellers(rol:Roles){
+        await this.getConnection();
+        return await this.userRepository.find({where:{roles:rol,cve:Not(IsNull())}}); 
+    }  
+
+    async getAllSellersWithCVE(){
+        await this.getConnection();
+        return await this.userRepository.query(`select * from users where rol_id=10 and cve is not null and cve <>"";`) as any[];
+    }  
 }

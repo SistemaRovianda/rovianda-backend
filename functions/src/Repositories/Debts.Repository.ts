@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { Between, Repository } from "typeorm";
 import { Debts } from "../Models/Entity/Debts";
 import { connect } from "../Config/Db";
 import { Client } from "../Models/Entity/Client";
@@ -14,6 +14,17 @@ export class DebtsRepository{
     async saveDebts(deb:Debts){
         await this.getConnection();
         return await this.debtsRepository.save(deb);
+    }
+
+    async getDebtsBySellerId(sellerId:string,date:string){
+        let from = date+"T00:00:00.000Z";
+        let to = date+"T23:59:59.59.000Z";
+        await this.getConnection();
+        return await this.debtsRepository.query(
+            `
+                select sale_id from debts_sale where seller_id="${sellerId}" and create_day between "${from}" and "${to}"
+            `
+        ) as {sale_id:number}[];
     }
 
     async getDebts(debId:number){

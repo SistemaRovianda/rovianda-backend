@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
+import { User } from "./User";
 import { WarehouseDrief } from "./Warehouse.Drief";
 
 
@@ -60,4 +61,5 @@ export class EntranceDrief{
     @OneToOne(type=>WarehouseDrief,wd=>wd.entranceDrief,{nullable:true})
     @JoinColumn({name:"warehouse_drief"})
     warehouseDrief:WarehouseDrief;
+
 }

@@ -23,6 +23,7 @@ export interface OrderSellerRequestProduct{
    keySae:string;   
    quantity:number;
    observations:string;
+   outOfStock:boolean;
 }
 
 export interface PackagingProperties{

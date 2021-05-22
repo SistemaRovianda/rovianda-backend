@@ -18,7 +18,7 @@ export const entrancesRoutes:Array<routeInterface>=[
         target:"createEntrancePacking"
     },
     {
-        url:"/rovianda/entry/drief",
+        url:"/rovianda/entry/drief",///:userId
         method:"post",
         controller: EntranceDriefController,
         target:"saveEntrance"

@@ -63,4 +63,7 @@ export class Sale{
     @Column({name:"folio_temp",nullable:true})
     folioTemp:string;
 
+    @Column({name:"date_sincronized",nullable:true})
+    dateSincronized:string;
+
 }

@@ -89,10 +89,14 @@ export class PropertiesPackagingRepository{
     async getAllPropertiesPackaging(){
         await this.getConnection();
         return (await this.propertiesPackaginRepository.query(
-            `SELECT sum(prop.units) as units,round(sum(prop.weight),2) as weight,prop.presentation_id,pr.name,pp.type_presentation,pc.lot_id,prop.packaging_id FROM bd_rovianda.properties_packaging as prop 
-            inner join presentation_products as pp on pp.presentation_id=prop.presentation_id inner join products_rovianda as pr on pr.id=pp.product_rovianda_id inner join packaging as pc on pc.id=prop.packaging_id
-            and pc.lot_id not in (select code from cheeses)
-            group by prop.packaging_id,prop.presentation_id;`
+            ` SELECT sum(prop.units) as units,round(sum(prop.weight),2) as weight,prop.presentation_id,
+            pr.name,pp.type_presentation,pc.lot_id,prop.packaging_id
+            FROM bd_rovianda.properties_packaging as prop 
+                left join presentation_products as pp on pp.presentation_id=prop.presentation_id 
+                left join products_rovianda as pr on pr.id=pp.product_rovianda_id left 
+                join packaging as pc on pc.id=prop.packaging_id
+                 where if(pp.uni_med="PZ",prop.units>0,prop.weight>0) and prop.active=1 and  pc.product_id not in (select productId from cheeses)
+                group by prop.presentation_id,prop.packaging_id order by prop.presentation_id;`
         )) as LotsStockInventoryPresentation[];
     }
 

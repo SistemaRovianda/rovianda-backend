@@ -83,6 +83,7 @@ export interface DevolutionRequest{
     productId:number;
     presentationId:number;
     units:number;
+    weight:number;
 }
 
 export interface LotsStockInventory{
@@ -100,7 +101,8 @@ export interface LotsStockInventoryPresentation{
     key_sae?:string,
     price?:number,
     uni_med?:string,
-    price_presentation_min:number
+    price_presentation_min:number,
+    product_rovianda_id:number
 }
 
 export interface UpdateStockPlant{

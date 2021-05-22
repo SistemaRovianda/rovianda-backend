@@ -21,6 +21,9 @@ export class Devolution{
     @Column()
     date:string;
 
+    @Column({name:"weight",type:"float",nullable:true})
+    weight:number;
+
     @ManyToOne(type=>OvenProducts,ovenP=>ovenP.devolutions)
     @JoinColumn({name:"oven_product_id"})
     ovenProduct:OvenProducts;

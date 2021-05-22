@@ -8,15 +8,19 @@ import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
 import { Request } from "express";
 import { WarehouseStatus } from "../Models/Enum/WarehouseStatus";
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
+import { UserRepository } from "../Repositories/User.Repository";
+
 
 export class EntranceDriefService{
     private entranceDriefRepository:EntranceDriefRepository;
     private productRepository:ProductRepository;
     private warehouseDriefRepository:WarehouseDriefRepository;
+    private userRepository:UserRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.entranceDriefRepository = new EntranceDriefRepository();
         this.productRepository = new ProductRepository();
         this.warehouseDriefRepository = new WarehouseDriefRepository();
+        this.userRepository = new UserRepository();
     }
 
 
@@ -24,8 +28,8 @@ export class EntranceDriefService{
         let entrances:EntranceDrief[] = await this.entranceDriefRepository.findByLotId(loteId, date, page, peerPage);
         return entrances;
     }
-    async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO, req:Request){
-        
+    async saveEntranceDrief(entranceDriefDTO:EntranceDriefDTO){
+        //let user = await this.userRepository.getUserById(userId);
         if(!entranceDriefDTO.expiration== null) throw new Error("[400],el parametro expiration es requerido");
         if(!entranceDriefDTO.lotProveedor) throw new Error("[400],el parametro loteProveedor es requerido");
         if(!entranceDriefDTO.odor==null) throw new Error("[400],el parametro odor es requerido");
@@ -61,7 +65,7 @@ export class EntranceDriefService{
         entranceDrief.isPz = entranceDriefDTO.isPz;
         entranceDrief.observations = entranceDriefDTO.observations;
         entranceDrief.odor = entranceDriefDTO.odor;
-
+       
         // if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
         //     && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
         //     entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){

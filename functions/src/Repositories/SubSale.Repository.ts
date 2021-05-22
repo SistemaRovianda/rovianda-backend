@@ -27,5 +27,9 @@ export class SubSaleRepository{
         return await this.subSaleRepository.find({where:{ createAt: Between(dateFrom,dateTo) ,sale:{seller}}});
     }
 
+    async findBySaleId(saleId:number){
+        await this.getConnection();
+        return await this.subSaleRepository.findOne({where:{sale:{saleId}},relations:["sale"]});
+    }
 
 }

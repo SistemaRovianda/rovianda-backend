@@ -22,7 +22,7 @@ import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
 import { RelationCount } from 'typeorm';
 import { Sale } from '../Models/Entity/Sales';
 import { SaleRepository } from '../Repositories/Sale.Repository';
-import { isEmpty, LoDashImplicitStringWrapper, times } from 'lodash';
+import { isEmpty, LoDashImplicitStringWrapper, times, xorBy } from 'lodash';
 import { SubSaleRepository } from '../Repositories/SubSale.Repository';
 import { SubSales } from '../Models/Entity/Sub.Sales';
 import { SqlSRepository } from '../Repositories/SqlS.Repositoy';
@@ -43,7 +43,7 @@ import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
 import { VisitClientOperationRepository } from '../Repositories/VisitClientOperationRepository';
-import { ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineSaleInterface } from '../Models/DTO/ModeOfflineDTO';
+import { ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineRequestSincronization, ModeOfflineSaleInterface } from '../Models/DTO/ModeOfflineDTO';
 import { DayVisited } from '../Models/Entity/DayVisited';
 import { DayVisitedRepository } from '../Repositories/DayVisitedRepository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -65,7 +65,7 @@ export class SalesRequestService{
     private ticketUtil:TicketUtil;
     private cheeseRepository:CheeseRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
-    private visitOperationReporsitory:VisitClientOperationRepository;
+    
     private dayRepository:DayVisitedRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
@@ -85,7 +85,7 @@ export class SalesRequestService{
         this.ticketUtil = new TicketUtil();
         this.cheeseRepository = new CheeseRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
-        this.visitOperationReporsitory = new VisitClientOperationRepository();
+        
         this.dayRepository = new DayVisitedRepository();
     }
     
@@ -115,8 +115,11 @@ export class SalesRequestService{
           subOrder.typePrice=presentation.typePrice;
           subOrder.active=true;
           subOrder.observations = suborder.observations;
+          if(suborder.outOfStock){
+            subOrder.outOfStock=suborder.outOfStock;
+          }
           subOrderArr.push(subOrder);
-
+          
         }
         order.subOrders = subOrderArr;
         
@@ -616,7 +619,10 @@ export class SalesRequestService{
         let seller:User = await this.userRepository.getUserById(sellerUid);
         if(!seller) throw new Error("[404], no existe el usuario vendedor");
         if(hint==0){
-        return await this.clientRepository.getAllClientBySeller(seller);
+        let clients:Client[]= await this.clientRepository.getAllClientBySeller(seller);
+        //let clientPublic:Client = await this.clientRepository.getClientPublic();
+          //clients.push(clientPublic);
+          return clients;
         }else{
           return await this.clientRepository.getAllClientBySellerAndHint(seller,hint);
         }
@@ -634,9 +640,13 @@ export class SalesRequestService{
         user.warehouseKeySae=userDTO.warehouse;
         await this.firebaseHelper.createUser(userDTO).then(async(userRecord)=>{
           user.id= userRecord.uid;
-          await this.userRepository.saveUser(user);          
+          await this.userRepository.saveUser(user);        
+          try{  
            await this.sqlsRepository.createSeller(userDTO);
            await this.sqlsRepository.updateWarehouse(userDTO.warehouse,user.name);
+          }catch(err){
+            console.log("Error: "+err.message);
+          }
         });        
      }
     
@@ -665,6 +675,7 @@ export class SalesRequestService{
       saleGral.statusStr="ACTIVE";
       date.setHours(date.getHours()-6);    
       saleGral.date = date.toISOString();
+      saleGral.dateSincronized=date.toISOString();
       saleGral.hour = `${date.getHours()}:${date.getMinutes()}`;
       saleGral.subSales = new Array<SubSales>();
       if(saleRequestForm.credit && saleRequestForm.typeSale=="Crédito"){
@@ -767,19 +778,21 @@ export class SalesRequestService{
      }
      //console.log("SaleGral: "+saleGral.credit);
       
-     let lastSale =null;
-     lastSale= await this.saleRepository.getLastSale();//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
-     if(!lastSale){
+     let lastSale:any =null;
+     lastSale= await this.saleRepository.getLastFolioOfSeller(seller);//await this.sqlsRepository.createSaleSae(saleRequestForm,seller.saeKey,clientSAE);
+     /*if(!lastSale){
       lastSale = await this.sqlsRepository.getLastFolioCount();
-     }
+     }*/
       let folio ="";
       if(lastSale){
-       folio=(+lastSale.folio+1).toString();
-       folio = '0'.repeat(10-folio.length)+folio;
+      let subFolio = lastSale.replace(seller.cve,"");
+       folio=(+subFolio+1).toString();
+       folio = seller.cve+folio;
       }else{
-        folio='0000000001';
+        folio=seller.cve+'1';
       }
      saleGral.folio=folio.toString();
+     saleGral.folioTemp=folio.toString();
      console.log("VENTA A HACER: ",JSON.stringify(saleGral));
      console.log("SALE REQUEST FORM: ",JSON.stringify(saleRequestForm));
      let saleSaved:Sale =await this.saleRepository.saveSale(saleGral);
@@ -1013,22 +1026,37 @@ export class SalesRequestService{
         sales=await this.saleRepository.getSalesBetweenIds(salesIds[0],date);
       }
       if(sales.length){
-      let folioInit=+sales[0].folio;
+      
       
       //sales = sales.filter(x=>!salesIds.includes(x.saleId));
 
       for(let sale of sales){
-        if(!salesIds.includes(sale.saleId)){
-        sale.folio='0'.repeat(10-folioInit.toString().length)+''+folioInit;
-        folioInit++;
-        }else{
-          sale.statusStr="DELETED";
-          let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-          sale.subSales=subSales;
-          await this.sqlsRepository.updateProductInSaeBySellerWarehouses(sale);
+        if(salesIds.includes(sale.saleId)){
+            sale.statusStr="DELETED";
+            // let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+            // sale.subSales=subSales;
+            //await this.sqlsRepository.updateProductInSaeBySellerWarehouses(sale);
         }
         await this.saleRepository.saveSale(sale);
       }
+
+      let sellers:any[] = await this.userRepository.getAllSellersWithCVE();
+        console.log("Vendedores obtenidos");
+        for(let seller of sellers){
+            console.log("Obteniendo último folio");
+            let sales = await this.saleRepository.getLastSalesMaked(seller.id);
+            console.log("Ultima venta de "+seller.name+" "+sales[0].folio_temp);
+            let folio = +(sales[0].folio_temp as string).replace(seller.cve,"");
+            console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
+            let salesOfSeller = await this.saleRepository.getSalesMaked(seller.id);
+            for(let sale of salesOfSeller){
+                folio++;
+                console.log("Asignando folio: "+seller.cve+folio.toString());
+                let folioStr = seller.cve+(folio.toString());
+                await this.saleRepository.updateSaleFolio(folioStr,sale.sale_id);
+            }
+            console.log("Asignacion completa hasta :"+seller.cve+folio.toString());
+        }
       
       }
 
@@ -1251,8 +1279,29 @@ export class SalesRequestService{
 
     async deleteOrderDetails(items:OrderSellerUpdateProperties[],orderId:number){
         let ids=items.map(x=>x.subOrderId);
+        let date= new Date();
+        date.setHours(date.getHours()-6);
+        let month = (date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
         for(let item of items){
-          await this.saleSellerRepository.updateSubOrderQuantity(item.subOrderId,item.quantity);
+          //let totalRequested = item.quantity;
+          let subOrder = await this.salesRequestRepository.getSubOrderById(item.subOrderId);
+          let totalRequested = (await this.salesRequestRepository.getTotalSubOrdersUnitsRequested(subOrder.presentation.id,date.getFullYear()+"-"+month+"-"+day))[0];
+          let totalAvailable = (await this.packagingRepository.getTotalAvailable(subOrder.productRovianda.id,subOrder.presentation.id))[0];
+          let outOfStock = false;
+          if(totalRequested && totalAvailable){
+            if( ( (totalRequested.units-subOrder.units)+item.quantity) <=totalAvailable.units){
+              outOfStock=false;
+            }else{
+              outOfStock=true;
+            }
+          }
+          //subOrder.units = item.quantity;
+          //await this.salesRequestRepository.saveSalesProduct(subOrder);
+          console.log("Actualizar: "+item.subOrderId,item.quantity,outOfStock);
+          await this.saleSellerRepository.updateSubOrderQuantity(item.subOrderId,item.quantity,outOfStock);
         }
         await this.saleSellerRepository.deleteSubordersOmit(ids,orderId);
     }
@@ -1261,6 +1310,18 @@ export class SalesRequestService{
         let seller = await this.userRepository.getUserById(sellerId);
         if(!seller) throw new Error("[404], no existe el vendedor");
         let sales:Sale[] =await this.saleRepository.getPendingCreditBySeller(seller);
+        
+        if(!sales.length){
+          let date = new Date();
+          let month = (date.getMonth()+1).toString();
+          let day = date.getDate().toString();
+          if(+month<10) month="0"+month;
+          if(+day<10) day="0"+day;
+          let year = date.getFullYear();
+          let debts = await this.debRepository.getDebtsBySellerId(sellerId,`${year}-${month}-${day}`);
+          sales = await this.saleRepository.getSalesBySalesIds(debts.map(x=>x.sale_id));
+          
+        }
         return sales;
     }
 
@@ -1285,13 +1346,18 @@ export class SalesRequestService{
       let seller:User =await this.userRepository.getUserById(sellerId);
       if(!seller) throw new Error("[404], el usuario no existe");
       
-      return await this.saleRepository.getAmountSales(date,sellerId);
+      let response= await this.saleRepository.getAmountSales(date,sellerId);
+      
+      if(response.totalSolded==null){
+        response.totalSolded="0";
+      }
+      return response;
    
     }
 
-    async getModeOffline(sellerId:string){
-      let date = new Date();
-      date.setHours(date.getHours()-6);
+    async getModeOffline(sellerId:string,dateParam:string){
+      let date = new Date(dateParam);
+      //date.setHours(date.getHours()-6);
       let month = (date.getMonth()+1).toString();
       let day = date.getDate().toString();
       if(+month<10){
@@ -1302,14 +1368,13 @@ export class SalesRequestService{
       }
       let dateStr = date.getFullYear()+"-"+month+"-"+day;
 
-      
-
-      
       let status= await this.saleRepository.getAmountSales(dateStr,sellerId);
       console.log("Se obtuvo acumulado");
       let seller:User = await this.userRepository.getUserById(sellerId);
       console.log("Se obtuvo vendedor");
       let clients = await this.clientRepository.getAllClientBySeller(seller);
+      let clientPublic = await this.clientRepository.getClientPublic();
+      
       console.log("Se obtuvieron clientes");
       
       let dayStr = this.zellerGregorian(date);
@@ -1317,31 +1382,47 @@ export class SalesRequestService{
         
       let clientsSchedule:DayVisited[] = await this.dayRepository.getClientsByDayOfVisitByDayAndClientIds(dayStr,clientsOfSellerUids);
       console.log("Se obtuvieron clientes a visitar");
-      //let clientsToVisit = await this.clientRepository.getClie
+      
       let clientsToVisit:ModeOfflineClients[]=clientsSchedule.map(x=>{
         let item:ModeOfflineClients={
           clientName: x.client.name,
           keyClient: x.client.keyClient.toString(),
           rfc: x.client.rfc,
-          type: x.client.typeClient
+          type: x.client.typeClient,
+          clientId: 0
         }
         return item;
-      })
+      });
+      
+      clientsToVisit.push({
+        clientName: clientPublic.name,
+        keyClient: clientPublic.keyClient.toString(),
+        rfc: clientPublic.rfc,
+        type: clientPublic.typeClient,
+        clientId: clientPublic.id
+      });
       let clientsMapped:ModeOfflineClients[] = clients.map(x=>{
         let item:ModeOfflineClients={
           clientName: x.name,
           keyClient: x.keyClient.toString(),
           rfc: x.rfc,
-          type: x.typeClient
+          type: x.typeClient,
+          clientId: x.id
         }
         return item;
       });
+
+      clientsMapped.push({
+        clientName: clientPublic.name,
+        keyClient: clientPublic.keyClient.toString(),
+        rfc: clientPublic.rfc,
+        type: clientPublic.typeClient,
+        clientId: clientPublic.id
+      });
       let getLastFolioByUser = await this.saleRepository.getLastFolioOfSeller(seller);
       console.log("Se obtuvo ultimo folio");
-      let lastFolio=seller.cve+"0";
-      if(getLastFolioByUser.length){
-        lastFolio=(getLastFolioByUser[0].folio_temp.replace(seller.cve,""));
-      }
+      let lastFolio=(getLastFolioByUser.replace(seller.cve,""));
+      
       let inventory = await this.sellerInventoryRepository.getInventoryByProductStockOfSellerModeOffline(seller);
       console.log("Se obtuvo inventario");
       let inventoryOffline:ModeOfflineInventory[] = inventory.map(x=>{
@@ -1354,13 +1435,16 @@ export class SalesRequestService{
           uniMed: x.uni_med,
           presentation: x.type_presentation,
           presentationId: x.presentation_id,
+          productId: x.product_rovianda_id,
           weightOriginal: x.price_presentation_min 
         }
         return itemInventoryOffline;
       });
       let getSalesToday=await this.saleRepository.getSalleSellerByDateUser(seller.id,dateStr);
       console.log("Se obtuvieron ventas del dia");
+      let debsAlreadyPayed = await this.debRepository.getDebtsBySellerId(seller.id,dateStr);
       let getSalesDebs=await this.saleRepository.getSalleSellerByDateUserDebts(seller.id);
+      let salesDebtsAlreadyPayed=await this.saleRepository.getSalesBySalesIds(debsAlreadyPayed.map(x=>x.sale_id));
       console.log("Se obtuvieron deudas");
       let completed = getSalesToday;
       let debs = getSalesDebs;
@@ -1369,6 +1453,7 @@ export class SalesRequestService{
       for(let x of completed){
         let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(x);
         let item:ModeOfflineSaleInterface={
+          saleId: x.saleId,
           amount: x.amount,
           credit: x.credit,
           folio: x.folio,
@@ -1378,7 +1463,7 @@ export class SalesRequestService{
           sellerId: seller.id,
           products: subSales.map(sub=>{
             let product:ModeOfflineProductInterface={
-              price: sub.presentation.presentationPricePublic,
+              price: sub.amount/sub.quantity,
               productKey: sub.presentation.keySae,
               quantity: sub.quantity,
               type: sub.presentation.uniMed,
@@ -1401,6 +1486,7 @@ export class SalesRequestService{
       for(let x of debs){
         let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(x);
         let item:ModeOfflineSaleInterface={
+          saleId:x.saleId,
           amount: x.amount,
           credit: x.credit,
           folio: x.folio,
@@ -1410,7 +1496,7 @@ export class SalesRequestService{
           sellerId: seller.id,
           products: subSales.map(sub=>{
             let product:ModeOfflineProductInterface={
-              price: sub.amount,
+              price: sub.amount/sub.quantity,
               productKey: sub.presentation.keySae,
               quantity: sub.quantity,
               type: sub.presentation.uniMed,
@@ -1428,9 +1514,42 @@ export class SalesRequestService{
         debsOffline.push(item);
       }
     }
+    if(salesDebtsAlreadyPayed.length){
+      for(let x of salesDebtsAlreadyPayed){
+        let subSales:SubSales[] = await this.subSalesRepository.getSubSalesBySale(x);
+        let item:ModeOfflineSaleInterface={
+          saleId:x.saleId,
+          amount: x.amount,
+          credit: x.credit,
+          folio: x.folio,
+          keyClient: x.client.keyClient.toString(),
+          payed: x.payedWith,
+          typeSale:x.typeSale,
+          sellerId: seller.id,
+          products: subSales.map(sub=>{
+            let product:ModeOfflineProductInterface={
+              price: sub.presentation.presentationPricePublic,
+              productKey: sub.presentation.keySae,
+              quantity: sub.quantity,
+              type: sub.presentation.uniMed,
+              weightStandar: sub.presentation.presentationPriceMin,
+              productName: sub.product.name,
+              productPresentationType: sub.presentation.presentationType
+            };  
+            return product;
+          }),
+          clientName: x.client.name,
+          date: x.date,
+          status: x.status,
+          statusStr: x.statusStr
+        };
+        debsOffline.push(item);
+      }
+    }
+
       let modeOffline:ModeOffline ={
         sellerId: sellerId,
-        cashAcumulated: +(status.totalSolded.split(",").join("")),
+        cashAcumulated: +(status.totalSolded!=null?status.totalSolded.replace(",",""):"0"),
         weightAcumulated: +status.totalWeight,
         clients: clientsMapped,
         folioNomenclature: seller.cve,
@@ -1478,6 +1597,56 @@ export class SalesRequestService{
     async getAcumulatedSales(from:string,to:string){
       return await this.salesRequestRepository.getAcumulatedByDate(from,to);
     }
+
+    async sincronizeDataSeller(data:ModeOfflineRequestSincronization,sellerId:string){
+      let seller:User =await this.userRepository.getUserById(sellerId);
+        for(let sale of data.salesMaked){
+            await this.saleRepository.createSimpleSale(sale,sellerId);
+        }
+
+      for(let deb of data.debts){
+        if(!deb.status){
+        let sale:Sale =await this.saleRepository.getSaleById(deb.saleId);
+        if(sale){
+          let date = new Date();
+          date.setHours(date.getHours()-5);
+          let newDeb:Debts = new Debts();
+          newDeb.amount=sale.amount;
+          newDeb.status=false;
+          newDeb.days=8;
+          newDeb.sale=sale;
+          newDeb.seller=seller;
+          newDeb.typePay=deb.typeSale;
+          newDeb.createDay= date.toISOString();
+          sale.status=false;
+          await this.saleRepository.saveSale(sale);
+          await this.debRepository.saveDebts(newDeb);
+        }
+      }
+      }
+
+      for(let sale of data.sales){
+        if(!sale.status || sale.statusStr=="CANCELED"){
+          if(sale.saleId){
+            let saleEntity = await this.saleRepository.getSaleById(sale.saleId);
+            if(saleEntity){
+              saleEntity.statusStr=sale.statusStr;
+              saleEntity.status=sale.status;
+              await this.saleRepository.saveSale(saleEntity);
+            }
+          }
+        }
+      }
+
+    }
+
+
+    async getTicketOfOrder(orderId:number){
+      let orderSeller: OrderSeller = await this.saleSellerRepository.getOrderById(orderId);
+      let subSales = await this.salesRequestRepository.getByOrderSeller(orderSeller);
+      return await this.ticketUtil.getOrderTicket(orderSeller,subSales);
+    }
+
   }
 
   

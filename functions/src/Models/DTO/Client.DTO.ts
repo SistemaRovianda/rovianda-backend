@@ -203,3 +203,27 @@ export enum ClientVisitedStatus{
 export interface clientVisitDTO{
     clientId:number
 }
+
+
+
+export interface ClientEditRequest{
+    keyClientId:number,
+    name: string,
+    street: string,
+    suburb: string,
+    cp: number,
+    state: string,
+    city:string,
+    keySaeNew: string,
+    daysVisited:{
+        id: number,
+        monday: boolean,
+        tuesday: boolean,
+        wednesday: boolean,
+        thursday: boolean,
+        friday: boolean,
+        saturday: boolean,
+        sunday: boolean
+    }
+}
+

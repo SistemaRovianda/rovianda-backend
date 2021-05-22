@@ -85,7 +85,7 @@ export class SalesSellerRepository{
     async getDetailsOfOrderOfSellerToEdit(orderId:number){
         await this.getConnection();
         return await this.salesSellerRepository.query(`
-        select suborder_id as subOrderId,units as quantity,pr.name,pp.type_presentation as presentation from suborders as sub left join products_rovianda as pr
+        select suborder_id as subOrderId,units as quantity,pr.name,pp.type_presentation as presentation,out_of_stock as outOfStock from suborders as sub left join products_rovianda as pr
         on sub.product_id=pr.id left join presentation_products as pp on sub.presentation_id=pp.presentation_id
         where order_seller_id=${orderId};
         `) as Array<{
@@ -93,10 +93,10 @@ export class SalesSellerRepository{
         }>;
     }
 
-    async updateSubOrderQuantity(subOrderId:number,quantity:number){
+    async updateSubOrderQuantity(subOrderId:number,quantity:number,outOfStock:boolean){
         await this.getConnection();
         return await this.salesSellerRepository.query(`
-        update suborders set units=${quantity} where suborder_id=${subOrderId}
+        update suborders set units=${quantity},out_of_stock=${(outOfStock?1:0)} where suborder_id=${subOrderId}
         `);
     }
 

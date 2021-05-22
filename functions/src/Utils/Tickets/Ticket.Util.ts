@@ -1,8 +1,10 @@
 import { min } from "lodash";
 import { PresentationsAvailables } from "../../Models/DTO/Presentations.DTO";
+import { OrderSeller } from "../../Models/Entity/Order.Seller";
 import { Sale } from "../../Models/Entity/Sales";
 import { SellerOperation } from "../../Models/Entity/Seller.Operations";
 import { SubSales } from "../../Models/Entity/Sub.Sales";
+import { SubOrder } from "../../Models/Entity/SubOrder.Sale.Seller";
 import { User } from "../../Models/Entity/User";
 import { VisitClientOperation } from "../../Models/Entity/VisitClientOperation";
 import { SqlSRepository } from "../../Repositories/SqlS.Repositoy";
@@ -237,5 +239,16 @@ export class TicketUtil{
         </body>
         </html>`;
         return body;
+    }
+
+    async getOrderTicket(orderSeller:OrderSeller,subOrders:SubOrder[]){
+        let ticket:string = "ORDER NO. "+orderSeller.id+"\n"+"VENDEDOR: "+orderSeller.seller.name+"\n"+"FECHA: "+orderSeller.date+"\n"+"PEDIDO\n--------------\n";
+        for(let sub of subOrders){
+            ticket+=`PRODUCTO: `+sub.productRovianda.name+ " "+sub.presentation.presentationType+"\n";
+            ticket+=`CANTIDAD: `+sub.units+"\n";
+            ticket+=(sub.outOfStock)?"(FUERA DE STOCK)\n":"";
+        }
+        ticket+="\n\n\n\n";
+        return ticket;
     }
 }

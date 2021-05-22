@@ -2538,7 +2538,7 @@ export default class Excel4Node{
         var workbook = new excel.Workbook();
 
         let worksheet = workbook.addWorksheet('Inventario');
-
+        
         let style = workbook.createStyle({
             font: {
               color: '#000000',

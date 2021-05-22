@@ -1,5 +1,6 @@
 import { In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
+import { Client } from "../Models/Entity/Client";
 
 import { DayVisited } from "../Models/Entity/DayVisited";
 
@@ -57,6 +58,11 @@ export class DayVisitedRepository{
                 return [];
                 break;
         }
+    }
+
+    async getByClient(client:Client){
+        await this.getConnection();
+        return await this.repository.findOne({client});
     }
 
 }

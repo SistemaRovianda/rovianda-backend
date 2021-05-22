@@ -36,6 +36,18 @@ export class SalesRequestRepository{
         },{relations:["orderSeller"]});
     }
 
+    async getTotalSubOrdersUnitsRequested(presentationId:number,date:string){
+        await this.getConnection();
+        return await this.salesRequestRepository.query(`
+        select sum(sub.units) as units from suborders as sub where sub.order_seller_id in (
+            select order_seller_id from orders_sellers where status="ACTIVE" and
+            date between "${date}T00:00:00.000Z" and "${date}T23:59:59.000Z"
+            ) and sub.presentation_id=${presentationId};
+        `) as Array<{units:number}>;
+    }
+
+  
+
     async saveSalesProduct(sale:SubOrder){
         await this.getConnection();
         return await this.salesRequestRepository.save(sale);
@@ -99,15 +111,15 @@ export class SalesRequestRepository{
         return (await this.salesRequestRepository.query(`
         select 
         (select format(sum(amount),2) 
-        from sales where  status_str<>"CANCELED" and status_str<>"DELETED" and 
+        from sales where  status_str<>"CANCELED" and 
         date between "${dateFrom}" and "${dateTo}"
         ) as total,
         (select format(sum(amount),2) 
-        from sales where type_sale<>"CREDITO" and status_str<>"CANCELED" and status_str<>"DELETED" and 
+        from sales where type_sale<>"CREDITO" and status_str<>"CANCELED"  and 
         date between "${dateFrom}" and "${dateTo}"
         ) as contado,
         (select format(sum(amount),2) 
-        from sales where type_sale="CREDITO" and status_str<>"CANCELED" and status_str<>"DELETED" and
+        from sales where type_sale="CREDITO" and status_str<>"CANCELED" and
         date between "${dateFrom}" and "${dateTo}") as credito,
         (select format(sum(credit),2) 
         from sales where status=0 and type_sale="CREDITO" and

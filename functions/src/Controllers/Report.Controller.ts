@@ -1239,14 +1239,15 @@ async reportDocumentPackagingById(req:Request,res:Response){
         if(seller){
             report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredBySeller(productDelivered,seller,dateStart,dateEnd);
         }else if(+warehouseId==53){
-            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredByPlant(productDelivered,dateStart);
+            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredByPlant(productDelivered,dateStart,dateEnd);
         }else{
             report = "<html><body>NO EXISTE EL USUARIO VENDEDOR</body></html>"
         }
         pdf.create(report, {
             format: 'Legal',
+            orientation: (+warehouseId==53)?"landscape":"portrait",
             border: {
-                top: "2cm", 
+                top: "1cm", 
                 right: "1cm",
                 bottom: "2cm",
                 left: "1cm"

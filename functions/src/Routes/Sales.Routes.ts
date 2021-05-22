@@ -57,6 +57,12 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getDetailsOfOrderSeller"
     },
     {
+        url: "/rovianda/order-print/:orderId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getDetailsOfOrderSellerToPrint"
+    },
+    {
         url: "/rovianda/order-update/:orderId",
         method: "put",
         controller: SalesRequestController,
@@ -285,6 +291,12 @@ export const salesRoutes:Array<routeInterface>=[
         controller: SalesRequestController,
         target: "getStatusStockOffline"
     },
+    {
+        url: "/rovianda/sincronize/:sellerId",
+        method: "post",
+        controller: SalesRequestController,
+        target: "sincronizeModeOffline"
+    }   ,
     {
         url: "/rovianda/accumulated/sales",
         method: "get",

@@ -1,11 +1,12 @@
 import { Sale } from "../Models/Entity/Sales";
-import { Between, Equal, MoreThanOrEqual, Not, Repository } from "typeorm";
+import { Between, Equal, In, MoreThanOrEqual, Not, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 
 import { Client } from "../Models/Entity/Client";
 import { User } from "../Models/Entity/User";
 import { SalesToSuperAdmin } from "../Models/DTO/Sales.ProductDTO";
 import { isEqual } from "lodash";
+import { MOSRM } from "../Models/DTO/ModeOfflineDTO";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -32,6 +33,15 @@ export class SaleRepository{
         return await this.saleRepository.find({
             where:{ seller:{id:sellerId}, date:Between(from,to)},
             relations:["client"]
+        });
+    }
+
+    async getSalesBySalesIds(salesIds:number[]){
+        await this.getConnection();
+        return await this.saleRepository.find({
+            where:{
+                saleId: In(salesIds)
+            }
         });
     }
 
@@ -91,9 +101,7 @@ export class SaleRepository{
 
     async getLastSale(){
         await this.getConnection();
-        return await this.saleRepository.createQueryBuilder('sale')
-        .orderBy('sale.folio', 'DESC').limit(1)
-        .getOne();
+        return (await this.saleRepository.query(`select * from sales order by cast(folio as decimal) desc limit 1`) as any[])[0];
     }
 
     async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string,dateTo:string){
@@ -108,11 +116,11 @@ export class SaleRepository{
         let sales:Sale[]=[];
         let salesTotal:Sale[]=[];
         if(hint){
-            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",hint:+hint}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",hint:+hint}).getMany();
+            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2 and sale.status_str <> :typeSale3 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",typeSale3:"CANCELED",hint:+hint}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2 and sale.status_str <> :typeSale3 and sale.folio like '%:hint%'",{date1,date2,salesIds,typeSale:"CREDITO",typeSale3:"CANCELED",typeSale2:"DELETED",hint:+hint}).getMany();
         }else{
-            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale   and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale   and sale.status_str <> :typeSale2 and sale.status_str <> :typeSale3 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",typeSale3:"CANCELED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2 and sale.status_str <> :typeSale3 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED",typeSale3:"CANCELED"}).getMany();
         }
     let response:SalesToSuperAdmin={
         sales,
@@ -219,9 +227,90 @@ export class SaleRepository{
 
     async getLastFolioOfSeller(seller:User){
         await this.getConnection();
-        return await this.saleRepository.query(`
-            select folio_temp from sales where seller_id="${seller.id}"
+        let val1= await this.saleRepository.query(`
+        select REPLACE(folio,"${seller.cve}","") as folio from sales where seller_id="${seller.id}" 
+        and folio like "%${seller.cve}%"
+        order by CAST(REPLACE(folio,"${seller.cve}","")  AS DECIMAL) DESC  limit 1;
+        `) as {folio:string}[];
+
+        let val2= await this.saleRepository.query(`
+            select REPLACE(folio_temp,"${seller.cve}","") as folio_temp from sales where seller_id="${seller.id}" 
+            and folio_temp is not null and folio_temp like "%${seller.cve}%"
+            order by CAST(REPLACE(folio_temp,"${seller.cve}","") AS DECIMAL)  desc limit 1;            
         `) as {folio_temp:string}[];
+        let folio="";
+        if(val1.length){
+            if(val2.length){
+                if(val1[0].folio>val2[0].folio_temp){
+                    folio=seller.cve+val1[0].folio;
+                }else{
+                    folio=seller.cve+val2[0].folio_temp;
+                }
+            }else{
+                folio=seller.cve+val1[0].folio;
+            }
+        }else if(val2.length){
+            folio=seller.cve+val2[0].folio_temp;
+        }else{
+            folio=`${seller.cve}0`;
+        }
+        return folio;
     }
 
+    async createSimpleSale(sale:MOSRM,sellerId:string){
+        await this.getConnection();
+        let date = new Date(sale.date);
+        date.setHours(date.getHours()-7);
+        let hours = date.getHours().toString();
+        if(+hours<10) hours="0"+hours;
+        let minutes = date.getMinutes().toString();
+        if(+minutes<10) minutes="0"+minutes;
+        let saleFinded:any[] =[];//await this.saleRepository.query(`select * from sales where folio="${sale.folio}" and status_str<>"CANCELED"`) as any[];
+        let dateSincronized= new Date();
+        dateSincronized.setHours(dateSincronized.getHours()-5);
+        if(!saleFinded.length){
+            await this.saleRepository.query(`
+            insert into sales(date,hour,amount,payed_with,credit,type_sale,status,folio,with_debts,status_str,seller_id,client_id,new_folio,sincronized,folio_temp,date_sincronized)
+            value("${date.toISOString()}","${hours}:${minutes}",${sale.amount.toFixed(2)},${sale.payedWith.toFixed(2)},${sale.credit?sale.credit.toFixed(2):null},
+            "${sale.typeSale}",${sale.status},"${sale.folio}",0,"${sale.statusStr}","${sellerId}",${sale.clientId},"${sale.folio}",0,"${sale.folio}","${dateSincronized.toISOString()}");
+            `);
+            let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}" order by sale_id desc limit 1`) as any[];
+            let saleId=saleFinded[0].sale_id;
+            for(let sub of sale.products){
+                await this.saleRepository.query(`
+
+                    insert into sub_sales(quantity,lote_id,amount,sale_id,product_id,presentation_id,create_at)
+                    values(${sub.quantity},"desconocido",${sub.amount},${saleId},${sub.productId},${sub.presentationId},"${date.toISOString()}");
+
+                `);
+            }
+        }
+    }
+
+    async getLastSalesMaked(sellerId:string)  {
+            await this.getConnection();
+            return this.saleRepository.query(`
+            select * from sales where  seller_id="${sellerId}" and sincronized=1 and folio_temp is not null order by sale_id desc limit 1;
+            `);
+    }
+    async getSalesMaked(sellerId:string)  {
+        let date = new Date();
+        date.setHours(date.getHours()-24);
+        let month = ( date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
+        await this.getConnection();
+        return this.saleRepository.query(`
+        select * from sales where  seller_id="${sellerId}" and sincronized=0 and amount>0 and status_str<>"CANCELED" and status_str<>"DELETED" and 
+        date between "${date.getFullYear()}-${month}-${day}T00:00:00.000Z" and "${date.getFullYear()}-${month}-${day}T23:59:59.000Z";
+        `);
+}
+
+async updateSaleFolio(folio:string,saleId:number)  {
+    await this.getConnection();
+    return await this.saleRepository.query(`
+    update sales set folio_temp="${folio}" where sale_id=${saleId}
+    `);
+}
 }

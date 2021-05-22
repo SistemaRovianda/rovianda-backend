@@ -34,8 +34,8 @@ export class DeliveredProductWarehouse{
         return this.getHeader(seller,dateStart,dateEnd)+this.getBodyReport(orders)+this.getFotter();
     }
 
-    getReportWarehouseDeliveredByPlant(orders:DeliverToWarehouse[],dateStart:string){
-        return this.getHeaderPlant()+this.getBodyReportPlant(orders,dateStart)+this.getFotter();
+    getReportWarehouseDeliveredByPlant(orders:DeliverToWarehouse[],dateStart:string,dateEnd:string){
+        return this.getHeaderPlant()+this.getBodyReportPlant(orders,dateStart,dateEnd)+this.getFotter();
     }
     getHeaderPlant(){
         return `
@@ -43,7 +43,7 @@ export class DeliveredProductWarehouse{
         <head>
         <style>
         *{
-            font-size: 10px
+            font-size: 14px
         }
         
         table {
@@ -71,46 +71,39 @@ export class DeliveredProductWarehouse{
         
         `;
     }
-    getBodyReportPlant(orders:DeliverToWarehouse[],dateStart:string){
+    getBodyReportPlant(orders:DeliverToWarehouse[],dateStart:string,dateEnd:string){
 
         let content = `
         <div>
         <table width="100%">
         <tr class="without">
         <td colspan="3" style="border:none" ></td>
-        <td colspan="3">Realizó: </td>
+        <td colspan="2">Realizó: </td>
         </tr>
         <tr class="without">
-        <td colspan="3" class="without">Fecha: ${dateStart} </td>
-        <td colspan="3">Firma: </td>
+        <td colspan="3" class="without">Fecha: ${dateStart.split("-").reverse().join("/")} </td>
+        <td colspan="2">Firma: </td>
         </tr>
         <tr class="without" >
         <td colspan="3" class="without"></td>
-        <td colspan="3">Puesto: </td>
+        <td colspan="2">Puesto: </td>
         </tr>
         <tr>
         <td><strong>PRODUCTO</strong></td>
+        
         <td><strong>LOTE Y CADUCIDAD</strong></td>
         <td><strong>PIEZAS</strong></td>
-        <td><strong>PAQUETES</strong></td>
         <td><strong>PESO (KG)</strong></td>
         <td><strong>OBSERVACIONES</strong></td>
         </tr>
         `;
         for(let order of orders){
-            let date= new Date(order.EXPRATION);
-            
-            let month:string = (date.getMonth()+1).toString();
-            let day:string = date.getDate().toString();
-            if(+month<10) month="0"+month;
-            if(+day<10) day="0"+day;
             
 
             content+=`
             <tr>
             <td>${order.NAME}</td>
-            <td>${order.LOT}${order.EXPRATION?"/"+day+"-"+month+"-"+date.getFullYear():""}</td>
-            <td>${order.UNITS}</td>
+            <td>${order.LOT.slice(0,2)}  - ${order.EXPRATION.split("-").reverse().join("/")}</td>
             <td>${order.UNITS}</td>
             <td>${order.WEIGHT}</td>
             <td>${order.OBSERVATIONS}</td>
@@ -120,7 +113,7 @@ export class DeliveredProductWarehouse{
 
         content+=`
         <tr class="without">
-        <td class="without" colspan="5"></td>
+        <td class="without" colspan="4"></td>
         <td>F-CAL-RO-20</td>
         </tr>
         </table></div>

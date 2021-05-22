@@ -21,6 +21,7 @@ export interface ModeOfflineClients{
     clientName:string;
     rfc:string;
     type:string;
+    clientId:number;
 }
 
 // export interface ModeOfflineDebst{
@@ -42,10 +43,12 @@ export interface ModeOfflineInventory{
     price:number;
     presentation:string;
     presentationId:number;
+    productId:number;
     weightOriginal:number;
 }
 
 export interface ModeOfflineSaleInterface{
+    saleId:number;
     folio:string;
     sellerId:string;
     keyClient:string;
@@ -69,4 +72,47 @@ export interface ModeOfflineProductInterface{
     weightStandar:number;
     productName:string;
     productPresentationType:string;
+}
+
+export interface ModeOfflineRequestSincronization{
+    salesMaked:MOSRM[];
+    debts:MODR[],
+    sales:MOSR[]
+}
+
+export interface MOSR{
+    saleId:number;
+    folio:string;
+    statusStr:string;
+    status:boolean;
+    date:string;
+}
+
+export interface MODR{
+    saleId:number;
+    folio:string;
+    typeSale:string;
+    date:string;
+    status:boolean;
+}
+
+export interface MOSRM{
+    folio:string;
+    date:string;
+    amount:number;
+    payedWith:number;
+    credit:number;
+    typeSale:string;
+    statusStr:string;
+    status:boolean;
+    sellerId:string;
+    clientId:string;
+    products:MOSRMP[]
+}
+
+export interface MOSRMP{
+    quantity:number;
+    amount:number;
+    productId:number;
+    presentationId:number;
 }

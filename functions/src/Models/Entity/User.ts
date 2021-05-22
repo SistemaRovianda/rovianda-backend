@@ -11,6 +11,7 @@ import { Sale } from "./Sales";
 import { SellerOperation } from "./Seller.Operations";
 import { Client } from "./Client";
 import { Debts } from "./Debts";
+import { EntranceDrief } from "./Entrances.Drief";
 
 @Entity({name:"users"})
 export class User{
@@ -81,4 +82,7 @@ export class User{
 
     @Column({name:"cve",nullable:true})
     cve:string;
+
+    // @OneToMany(type=>EntranceDrief,entranceDrief=>entranceDrief.userRecepcion)
+    // entrancesDrief:EntranceDrief[];
 }

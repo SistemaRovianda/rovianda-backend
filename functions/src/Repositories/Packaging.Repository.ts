@@ -39,6 +39,14 @@ export class PackagingRepository{
         });
     }
 
+    async getTotalAvailable(productId:number,presentationId:number){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        select sum(units) as units from properties_packaging where packaging_id in 
+        (select id from packaging where active=1 and product_id=${productId}) and presentation_id=${presentationId};
+        `) as Array<{units:number}>;
+    }
+
     async getPackagingsByLotId(lotId:string){
         await this.getConnection();
         return await this.packagingRepository.find({where:lotId});

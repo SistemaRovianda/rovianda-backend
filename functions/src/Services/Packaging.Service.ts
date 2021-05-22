@@ -334,15 +334,15 @@ export class PackagingService{
                         subOrder.subOrderMetadata=new Array();
                     }
                     subOrder.subOrderMetadata.push(subOrderMetadata);
-                    let sellerInventory:SellerInventory = new SellerInventory();
-                    sellerInventory.loteId = pack.loteId;
-                    sellerInventory.presentation=presentationProducts;
-                    sellerInventory.quantity = pack.quantity
-                    sellerInventory.dateEntrance=date.toISOString();
-                    sellerInventory.product =presentationProducts.productRovianda;
-                    sellerInventory.weigth= pack.weight;
-                    let order= await this.orderSellerRepository.getOrderById(subOrder.orderSeller.id);
-                    sellerInventory.seller=order.seller;
+                    //let sellerInventory:SellerInventory = new SellerInventory();
+                    //sellerInventory.loteId = pack.loteId;
+                    //sellerInventory.presentation=presentationProducts;
+                    //sellerInventory.quantity = pack.quantity
+                    //sellerInventory.dateEntrance=date.toISOString();
+                    //sellerInventory.product =presentationProducts.productRovianda;
+                    //sellerInventory.weigth= pack.weight;
+                    //let order= await this.orderSellerRepository.getOrderById(subOrder.orderSeller.id);
+                    //sellerInventory.seller=order.seller;
                     if(pack.quantity==subOrder.units){
                         subOrder.active=false;
                     }else{
@@ -374,7 +374,7 @@ export class PackagingService{
                     }
                     
                     await this.subOrderRepository.saveSalesProduct(subOrder); 
-                    await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
+                    //await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
                     //await this.sqlRepository.updateProductInSaeBySellerWarehouseStock(+order.seller.warehouseKeySae,presentationProducts.keySae,valueToSave,order.seller.saeKey.toString(),uniMed);
         }
     }
@@ -554,6 +554,7 @@ export class PackagingService{
             devolution.lotId=devolutionRequest.lotId;
             devolution.units=devolutionRequest.units;
             devolution.presentationProduct=presentation;
+            devolution.weight = devolutionRequest.weight;
             if(ovenProduct){
                 ovenProduct.status="CLOSED";
                 await this.ovenRepository.saveOvenProduct(ovenProduct);

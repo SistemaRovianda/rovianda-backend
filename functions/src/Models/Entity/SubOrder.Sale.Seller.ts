@@ -39,4 +39,8 @@ export class SubOrder{
 
     @Column({name:"observations",nullable:true})
     observations:string;
+
+    @Column({name:"out_of_stock",default:false})
+    outOfStock:boolean;
+
 }

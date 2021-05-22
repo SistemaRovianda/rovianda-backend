@@ -9,7 +9,7 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { User } from '../Models/Entity/User';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
-import { ModeOffline } from '../Models/DTO/ModeOfflineDTO';
+import { ModeOffline, ModeOfflineRequestSincronization } from '../Models/DTO/ModeOfflineDTO';
 
 export class SalesRequestController{
 
@@ -325,7 +325,8 @@ export class SalesRequestController{
 
     async getStatusStockOffline(req:Request,res:Response){
         let sellerId:string = req.params.sellerId;
-        let modeOffline:ModeOffline = await this.salesRequestService.getModeOffline(sellerId);
+        let date:string = req.query.date;
+        let modeOffline:ModeOffline = await this.salesRequestService.getModeOffline(sellerId,date);
         return res.status(200).send(modeOffline);
     }
 
@@ -334,5 +335,18 @@ export class SalesRequestController{
         let dateTo = req.query.dateTo;
         let response = await this.salesRequestService.getAcumulatedSales(dateFrom,dateTo);
         return res.status(200).send(response);
+    }
+
+    async sincronizeModeOffline(req:Request,res:Response){
+        let sellerId:string = req.params.sellerId;
+        let MoR:ModeOfflineRequestSincronization= req.body;
+        await this.salesRequestService.sincronizeDataSeller(MoR,sellerId);
+        return res.status(201).send();
+    }
+
+    async getDetailsOfOrderSellerToPrint(req:Request,res:Response){
+        let orderId:number = +req.params.orderId;
+        let ticket:string = await this.salesRequestService.getTicketOfOrder(orderId);
+        return res.status(200).send(ticket);
     }
 } 
