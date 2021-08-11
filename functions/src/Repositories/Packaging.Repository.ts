@@ -214,10 +214,12 @@ export class PackagingRepository{
         await this.getConnection();
         return await this.packagingRepository.query(`
         select pres.key_sae as keySae,pro.output_of_warehouse as quantity,
-            pro.weight_of_warehouse as weight,pack.lot_id as lotId,pack.register_date as outputDate,pack.expiration,pro.observations,
+            pro.weight_of_warehouse as weight,op.new_lote as lotId,pack.register_date as outputDate,pack.expiration,pro.observations,
             prod.name,pres.type_presentation as presentation from properties_packaging as pro right join packaging as pack on 
             pro.packaging_id=pack.id right join products_rovianda as prod on pack.product_id=prod.id right join
-            presentation_products as pres on pro.presentation_id=pres.presentation_id where register_date between "${dateStart}" and "${dateEnd}";
+            presentation_products as pres on pro.presentation_id=pres.presentation_id
+            left join oven_products as op on pack.oven_product_id=op.id
+            where register_date between "${dateStart}" and "${dateEnd}";
         `);
     }
 
@@ -240,5 +242,69 @@ export class PackagingRepository{
         on sub.presentation_id = pp.presentation_id where output_date 
         between "${fromStr}" and "${toSTR}";
         `)) as Array<OutputsDeliveryPlant>;
+    }
+
+    async findProductsByLotAndDate(lot:string,dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.packagingRepository.query(`
+        select distinct(pr.name) as productName from packaging as pack left join products_rovianda as pr on
+        pack.product_id=pr.id
+        where pack.lot_id like "%${lot}%" and  pack.register_date between "${dateStart}" and "${dateEnd}";
+        `);
+    }
+
+    async getAllPropacksByDateAndProductNameAndLot(dateStart:string,dateEnd:string,productName:string,lot:string,offset:number,perPage:number){
+        await this.getConnection();
+        let items =[];
+        let count:{count:number}[]=[{count:0}];
+        
+            items = await this.packagingRepository.query(`
+            select propack.properties_id as id,pack.register_date as registerDate,pack.lot_id as lotId,pack.expiration,pack.product_id as productId,pr.name as productName,
+            pp.type_presentation as presentation,propack.output_of_warehouse as outputOfWarehouse,propack.weight_of_warehouse as weightOfWarehouse
+            ,pp.uni_med as uniMed
+            from properties_packaging as propack  left join   packaging as pack
+            on propack.packaging_id=pack.id left join 
+            presentation_products as pp 
+            on propack.presentation_id=pp.presentation_id
+            left join products_rovianda as pr on pack.product_id=pr.id
+            where pack.lot_id like "${lot}" and pr.name="${productName}" and pack.register_date between 
+            "${dateStart}" and "${dateEnd}" 
+            order by pack.register_date desc limit ${perPage} offset ${offset} 
+            `);
+            count = await this.packagingRepository.query(`
+            select count(*) as count
+            from properties_packaging as propack  left join   packaging as pack
+            on propack.packaging_id=pack.id left join 
+            presentation_products as pp 
+            on propack.presentation_id=pp.presentation_id
+            left join products_rovianda as pr on pack.product_id=pr.id
+            where pack.lot_id like "${lot}" and pr.name="${productName}" and pack.register_date between 
+            "${dateStart}" and "${dateEnd}" 
+            order by pack.register_date desc 
+            `) as {count:number}[];
+        
+        return {
+            items,
+            count:count[0].count
+        }
+    }
+
+    async checkToClose(lotId:string){
+        await this.getConnection();
+        await this.packagingRepository.query(`
+        update packaging set active=0 where id in (select t3.id from (select pack.id,if(t.count is null,0,t.count) as active,t2.count as allRecords from packaging as pack 
+        left join (
+            select count(propack.properties_id) as count,propack.packaging_id from properties_packaging as propack
+            left join packaging as pack on propack.packaging_id=pack.id 
+            where propack.active=1
+            group by pack.id
+        ) as t on pack.id=t.packaging_id
+        left join (
+            select count(propack.properties_id) as count,propack.packaging_id from properties_packaging as propack
+            left join packaging as pack on propack.packaging_id=pack.id 
+            group by pack.id
+        ) as t2 on pack.id=t2.packaging_id
+        where pack.lot_id="${lotId}") as t3 where t3.active=0);
+        `);
     }
 }

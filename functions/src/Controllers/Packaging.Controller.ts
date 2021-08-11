@@ -149,7 +149,8 @@ export class PackagingController{
         let warehouseId:string = req.params.warehouseId;
         let dateStart:string = req.query.dateStart;
         let dateEnd:string = req.query.dateEnd;
-        let response = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd);
+        let type:string =req.query.type;
+        let response = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd,type);
         return res.status(200).send(response);
     }
 

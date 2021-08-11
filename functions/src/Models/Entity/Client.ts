@@ -76,5 +76,8 @@ export class Client{
 
     @Column({name:"key_sae_new",nullable:true})
     keySaeNew:string;
+    
+    @Column({name:"modified",nullable:true,default:false})
+    modified:boolean;
 
 }

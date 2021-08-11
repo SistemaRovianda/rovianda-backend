@@ -43,9 +43,11 @@ import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
 import { VisitClientOperationRepository } from '../Repositories/VisitClientOperationRepository';
-import { ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineRequestSincronization, ModeOfflineSaleInterface } from '../Models/DTO/ModeOfflineDTO';
+import { DebtsRequest, ModeOffline, ModeOfflineClients, ModeOfflineInventory, ModeOfflineProductInterface, ModeOfflineRequestSincronization, ModeOfflineSaleInterface, MOSRM } from '../Models/DTO/ModeOfflineDTO';
 import { DayVisited } from '../Models/Entity/DayVisited';
 import { DayVisitedRepository } from '../Repositories/DayVisitedRepository';
+import { SaleCancelRepository } from '../Repositories/SaleCancelRepository';
+import { SaleCancel } from '../Models/Entity/SaleCancel';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -65,7 +67,7 @@ export class SalesRequestService{
     private ticketUtil:TicketUtil;
     private cheeseRepository:CheeseRepository;
     private propertiesPackagingRepository:PropertiesPackagingRepository;
-    
+    private saleCancelRepository:SaleCancelRepository;
     private dayRepository:DayVisitedRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
@@ -85,8 +87,8 @@ export class SalesRequestService{
         this.ticketUtil = new TicketUtil();
         this.cheeseRepository = new CheeseRepository();
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
-        
         this.dayRepository = new DayVisitedRepository();
+        this.saleCancelRepository= new SaleCancelRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -94,7 +96,7 @@ export class SalesRequestService{
         let user:User = await this.userRepository.getUserbyIdWithRol(uid);
         if(!user) throw new Error("[400], Usuario no existe en el sistema");
         console.log("ROL: ",user.roles.description);
-        if(user.roles.description!="SALESUSER") throw new Error("[403], Usuario no autorizado");
+        
         //let properties:PackagingProperties[] = await this.packagingRepository.getPackagingWithProperties(request.products);
         let orderDateTime = request.date.split(" ");
         let order:OrderSeller = new OrderSeller();
@@ -688,7 +690,7 @@ export class SalesRequestService{
         
         await this.clientRepository.saveClient(clientRovianda);
       }else{
-        saleGral.typeSale=saleRequestForm.typeSale;
+        saleGral.typeSale=saleRequestForm.typeSale.toUpperCase();
         saleGral.status=false;
       }
       for(let sale of saleRequestForm.products){
@@ -1026,7 +1028,10 @@ export class SalesRequestService{
         sales=await this.saleRepository.getSalesBetweenIds(salesIds[0],date);
       }
       if(sales.length){
-      
+      let cves = await sales.map(x=>{
+        let folio = x.folio.split("V");
+        return folio[0]+"cv"
+      });
       
       //sales = sales.filter(x=>!salesIds.includes(x.saleId));
 
@@ -1068,7 +1073,7 @@ export class SalesRequestService{
        return await this.ticketUtil.getAllDeletesTickets(sales);
     }
 
-    async transferAllSalesAutorized(){
+    async transferAllSalesAutorized(dateStr?:string){
       let date=new Date();
       date.setHours(date.getHours()-24);
 
@@ -1088,17 +1093,36 @@ export class SalesRequestService{
       // console.log(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
       // console.log(date.getHours()+"-"+date.getMinutes());
       
-       let sales:Sale[] =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
+       let sales:Sale[] =[];
+       if(dateStr){
+            sales= await this.saleRepository.getSalesBetweenDates(dateStr);
+       }else{
+            sales =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
+       }
       
       // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
-      for(let sale of sales){
+      for(let i=0;i<sales.length;i++){
+        let sale=sales[i];
         if(!sale.sincronized){
-        let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-        sale.subSales=subSales;
-        let folio=await this.sqlsRepository.createSaleSae(sale);
-        sale.newFolio = folio;
-        sale.sincronized=true;
-        await this.saleRepository.saveSale(sale);
+          let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+          sale.subSales=subSales;
+          try{
+            let folio=await this.sqlsRepository.createSaleSae(sale);
+            sale.newFolio = folio;
+            sale.sincronized=true;
+            await this.saleRepository.saveSale(sale);
+          }catch(err){
+            console.log("Error: "+err);
+            console.log("Eliminando folio por desconexion: "+sale.folioTemp);
+            let saleOfSae:any[] = await this.sqlsRepository.checkIfSaleAlreadyExist(sale.folioTemp,(dateStr)?(dateStr.split("-").join("")):`${year}${month}${day}`);
+            if(saleOfSae.length && saleOfSae.length==1){
+              await this.sqlsRepository.deleteSaeSale(sale.folio);
+              i=i-1;
+              console.log("Reinsertando folio: "+sale.folioTemp);
+            }
+            
+          }
+          
         }
       }
       console.log("Ventas traspasadas: "+year+"-"+month+"-"+day);
@@ -1342,11 +1366,11 @@ export class SalesRequestService{
         await this.saleRepository.saveSale(sale);
     }
 
-    async getStatusSale(sellerId:string,date:string){
+    async getStatusSale(sellerId:string,from:string,to:string){
       let seller:User =await this.userRepository.getUserById(sellerId);
       if(!seller) throw new Error("[404], el usuario no existe");
       
-      let response= await this.saleRepository.getAmountSales(date,sellerId);
+      let response= await this.saleRepository.getAmountSales(from,to,sellerId);
       
       if(response.totalSolded==null){
         response.totalSolded="0";
@@ -1368,7 +1392,7 @@ export class SalesRequestService{
       }
       let dateStr = date.getFullYear()+"-"+month+"-"+day;
 
-      let status= await this.saleRepository.getAmountSales(dateStr,sellerId);
+      let status= await this.saleRepository.getAmountSales(dateStr,dateStr,sellerId);
       console.log("Se obtuvo acumulado");
       let seller:User = await this.userRepository.getUserById(sellerId);
       console.log("Se obtuvo vendedor");
@@ -1548,6 +1572,7 @@ export class SalesRequestService{
     }
 
       let modeOffline:ModeOffline ={
+        limitOfSales: 300,
         sellerId: sellerId,
         cashAcumulated: +(status.totalSolded!=null?status.totalSolded.replace(",",""):"0"),
         weightAcumulated: +status.totalWeight,
@@ -1608,6 +1633,8 @@ export class SalesRequestService{
         if(!deb.status){
         let sale:Sale =await this.saleRepository.getSaleById(deb.saleId);
         if(sale){
+          let debSale = await this.debRepository.getBySale(sale);
+          if(!debSale){
           let date = new Date();
           date.setHours(date.getHours()-5);
           let newDeb:Debts = new Debts();
@@ -1621,6 +1648,7 @@ export class SalesRequestService{
           sale.status=false;
           await this.saleRepository.saveSale(sale);
           await this.debRepository.saveDebts(newDeb);
+          }
         }
       }
       }
@@ -1645,6 +1673,80 @@ export class SalesRequestService{
       let orderSeller: OrderSeller = await this.saleSellerRepository.getOrderById(orderId);
       let subSales = await this.salesRequestRepository.getByOrderSeller(orderSeller);
       return await this.ticketUtil.getOrderTicket(orderSeller,subSales);
+    }
+
+    async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[]}){
+      let seller:User=null;
+      let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[]}={
+        debtsSicronized:[],
+        salesSincronized:[]
+      };
+      let salesCanceled:string[] = [];
+      for(let sale of body.sales){
+        if(seller==null){
+          seller = await this.userRepository.getUserById(sale.sellerId);
+        }
+        
+        let saleEntity:Sale = await this.saleRepository.getByFolio(sale.folio);
+        if(sale.statusStr=="CANCELED"){
+          salesCanceled.push(sale.folio);
+          sale.statusStr="ACTIVE";
+          saleEntity.cancelRequest=true;
+        }
+        if(!saleEntity){
+          await this.saleRepository.createSimpleSale2(sale,sale.sellerId,salesCanceled);
+          let saleAdded:Sale = await this.saleRepository.getByFolio(sale.folio);
+          salesSicronized.salesSincronized.push({saleId:saleAdded.saleId,folio: saleAdded.folio});
+        }else if(saleEntity && (salesCanceled.includes(sale.folio))){
+          saleEntity.statusStr=sale.statusStr;
+          saleEntity.status=sale.status;
+          if(salesCanceled.includes(sale.folio)){
+            saleEntity.cancelRequest=true;
+          }
+          salesSicronized.salesSincronized.push({saleId:saleEntity.saleId,folio: saleEntity.folio});
+          await this.saleRepository.saveSale(saleEntity);
+        }else if(saleEntity && sale.statusStr==saleEntity.statusStr){
+          salesSicronized.salesSincronized.push({saleId:saleEntity.saleId,folio: saleEntity.folio});
+        }
+      }
+      if(seller!=null && salesCanceled.length){
+        for(let folio of salesCanceled){
+          let sale = await this.saleCancelRepository.findCancelRequestByFolio(folio);
+          if(!sale){
+            let saleCancel = new SaleCancel();
+            let createAtDate=new Date();
+            createAtDate.setHours(createAtDate.getHours()-5);
+            saleCancel.createAt=createAtDate.toISOString();
+            saleCancel.folio=folio;
+            saleCancel.seller = seller.id;
+            await this.saleCancelRepository.saveCancelSale(saleCancel);
+          }
+        }
+        await this.firebaseHelper.notificateToAdminSales(seller.name);
+      }
+      
+      for(let deb of body.debts){
+        console.log("Folio deuda: "+deb.folio);
+        let sale = await this.saleRepository.getByFolio(deb.folio);
+        let debts = await this.debRepository.getBySale(sale);
+        if(!debts){
+          
+          let debt = new Debts();
+          debt.amount=deb.amountPayed;
+          debt.createDay=deb.datePayed;
+          debt.days=0;
+          debt.sale=sale;
+          debt.status=false;
+          debt.typePay=deb.payedType;
+          debt.seller=sale.seller;
+          ///await this.debRepository.saveDebts(debt);
+          sale.status=false;
+          sale.debts=[debt];
+          await this.saleRepository.saveSale(sale);
+          salesSicronized.debtsSicronized.push(deb.folio);
+        }
+      }
+      return salesSicronized;
     }
 
   }

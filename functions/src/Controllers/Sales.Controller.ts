@@ -9,7 +9,7 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { User } from '../Models/Entity/User';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
-import { ModeOffline, ModeOfflineRequestSincronization } from '../Models/DTO/ModeOfflineDTO';
+import { ModeOffline, ModeOfflineRequestSincronization, MOSRM } from '../Models/DTO/ModeOfflineDTO';
 
 export class SalesRequestController{
 
@@ -310,9 +310,11 @@ export class SalesRequestController{
 
     async getStatusSale(req:Request,res:Response){
         let sellerId = req.params.sellerId;
-        if(!req.query.date) throw new Error("[404], falta el parametro date");
-        let date = req.query.date;
-        let response=await this.salesRequestService.getStatusSale(sellerId,date);
+        if(!req.query.from) throw new Error("[400], falta el parametro from");
+        let from = (req.query.from as string);
+        if(!req.query.to) throw new Error("[400], falta el parametro to");
+        let to = (req.query.to as string);
+        let response=await this.salesRequestService.getStatusSale(sellerId,from,to);
         return res.status(200).send(response);
     }
 
@@ -348,5 +350,10 @@ export class SalesRequestController{
         let orderId:number = +req.params.orderId;
         let ticket:string = await this.salesRequestService.getTicketOfOrder(orderId);
         return res.status(200).send(ticket);
+    }
+
+    async sincronizeSingleSale(req:Request,res:Response){
+        let items=await this.salesRequestService.sincronizeSingleSale(req.body);
+        return res.status(201).send(items);
     }
 } 

@@ -54,6 +54,7 @@ import { InspectionRepository } from '../Repositories/Inspection.Repository';
 import { Inspection } from '../Models/Entity/Inspection';
 import { EndedProductReport } from '../Utils/componentsReports/endedProductReports';
 import {DeliveredProductWarehouse} from "../Utils/componentsReports/DeliveredProductWarehouse";
+import ExcelHelper from '../Utils/Excel.Helper';
 const pdfMerger = require("pdf-merger-js");
 export class ReportController{
 
@@ -75,6 +76,7 @@ export class ReportController{
     private productService: ProductService;
     private pdfHelper: PdfHelper;
     private excel: Excel4Node;
+    private excelHelper:ExcelHelper;
     private  outputCoolingRepository:OutputsCoolingRepository;
     private defrostRepository:DefrostRepository;
     private defrostFormulationRepository:DefrostFormulationRepository;
@@ -110,6 +112,7 @@ export class ReportController{
         this.inspectionRepository = new InspectionRepository();
         this.endedProductReports = new EndedProductReport();
         this.deliveredProductWarehouse = new DeliveredProductWarehouse();
+        this.excelHelper=new ExcelHelper();
     }
 
     async reportEntranceDrief(req:Request, res:Response){ 
@@ -233,6 +236,14 @@ export class ReportController{
             });
             stream.pipe(res);
         }))
+    }
+
+    async reportExcelEntranceMeat(req:Request,res:Response){
+        let entranceId: number = +req.params.entranceId;
+        let meat:EntranceMeat = await this.entranceMeatService.reportEntranceMeat(entranceId);
+        let user:User = meat.qualityInspector;
+        let workbook = this.excelHelper.generateEntryMeatDocumentById(user,meat);
+        workbook.write(`entrada.xlsx`,res);
     }
 
     async reportEntrancePacking(req:Request, res:Response){
@@ -1035,11 +1046,12 @@ export class ReportController{
   }
 
   async documentReportEntryDriefById(req: Request, res: Response){
-    let user:User = await this.userService.getUserByUid(req.query.uid);
+    
     let tmp = os.tmpdir();
 
     let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
     
+    let user:User = await this.userService.getUserByUid(drief.warehouseDrief.userId);
     let workbook = this.excel.generateEntryDriefDocumentById(user,drief); 
     workbook.write(`${tmp}/Reporte-Entrada-Secos.xlsx`,(err, stats)=>{
         if(err){
@@ -1233,11 +1245,12 @@ async reportDocumentPackagingById(req:Request,res:Response){
         let warehouseId:string = req.params.warehouseId;
         let dateStart:string = req.query.dateStart;
         let dateEnd:string = req.query.dateEnd;
-        let productDelivered = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd);
+        let type:string=req.query.type;
+        let productDelivered = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd,type);
         let seller:User = await this.userService.getByWarehouseId(warehouseId);
         let report:string ="";
         if(seller){
-            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredBySeller(productDelivered,seller,dateStart,dateEnd);
+            report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredBySeller(productDelivered,seller,dateStart,dateEnd,type);
         }else if(+warehouseId==53){
             report = await this.deliveredProductWarehouse.getReportWarehouseDeliveredByPlant(productDelivered,dateStart,dateEnd);
         }else{

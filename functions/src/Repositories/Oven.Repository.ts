@@ -3,6 +3,7 @@ import { Repository, Between, In } from 'typeorm';
 import { OvenProducts } from '../Models/Entity/Oven.Products';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { OvenProductStatusEnum } from '../Models/Enum/OvenProduct.Status.Enum';
+import { OvensInventory } from '../Models/DTO/Quality.DTO';
 
 export class OvenRepository{
     private ovenRepository:Repository<OvenProducts>;
@@ -164,5 +165,31 @@ export class OvenRepository{
         `);
     }
 
+
+    async getAllOvensByDatesAndLotPaginated(offset:number,perPage:number,startDate:string,endDate:string,lot:string){
+        await this.getConnection();
+        let items:OvensInventory[]=await this.ovenRepository.query(`
+            select op.id,form.lot_day as antLot,op.new_lote as newLot,op.status,op.date as createAt,pr.name
+            from oven_products as op left join process as pro on op.processId=pro.id 
+            left join formulation as form on pro.formulationId=form.id
+            left join products_rovianda as pr on op.product_rovianda_id=pr.id
+            ${lot?` where op.new_lote like "%${lot}%" `:""}
+            ${(startDate && endDate)?((lot)?` and op.date between "${startDate}" and "${endDate}" `:` where op.date between "${startDate}" and "${endDate}"`):``}
+            limit ${perPage} offset ${offset}
+        `) as OvensInventory[];
+        let count:{count:number}[]=await this.ovenRepository.query(`
+            SELECT count(*) as count
+            from oven_products as op left join process as pro on op.processId=pro.id 
+            left join formulation as form on pro.formulationId=form.id
+            left join products_rovianda as pr on op.product_rovianda_id=pr.id
+            ${lot?` where op.new_lote like "%${lot}%" `:""}
+            ${(startDate && endDate)?((lot)?` and op.date between "${startDate}" and "${endDate}" `:` where op.date between "${startDate}" and "${endDate}"`):``}
+            limit ${perPage} offset ${offset}
+        `) as {count:number}[];
+        return {
+            items,
+            count: count[0].count
+        }
+    }
     
 }

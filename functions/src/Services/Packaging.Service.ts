@@ -126,8 +126,8 @@ export class PackagingService{
             propertiesPackaging.outputOfWarehouse=packagingDTO.products[e].units;
             propertiesPackaging.weightOfWarehouse=packagingDTO.products[e].weight;
             await this.propertiesPackagingRepository.savePropertiesPackaging(propertiesPackaging);
-            let quantity = (presentation.uniMed.toUpperCase()=="PZ")?packagingDTO.products[e].units:packagingDTO.products[e].weight;
-            this.sqlRepository.updateInventoryGeneralAspeSaeByProduct(presentation.keySae,quantity);
+            //let quantity = (presentation.uniMed.toUpperCase()=="PZ")?packagingDTO.products[e].units:packagingDTO.products[e].weight;
+            //this.sqlRepository.updateInventoryGeneralAspeSaeByProduct(presentation.keySae,quantity);
         }
         return packing.id;
    }
@@ -328,7 +328,7 @@ export class PackagingService{
                     subOrderMetadata.weigth=pack.weight;
                     subOrderMetadata.subOrder=subOrder;
                     let date= new Date();
-                    date.setHours(date.getHours()-6);
+                    date.setHours(date.getHours()-5);
                     subOrderMetadata.outputDate= date.toISOString();
                     if(!subOrder.subOrderMetadata.length){
                         subOrder.subOrderMetadata=new Array();
@@ -428,7 +428,7 @@ export class PackagingService{
         let bUrgent:boolean;
         if(urgent == "true" || urgent == "True"){ bUrgent = true;}
         if(urgent == "false" || urgent == "False"){ bUrgent = false;}
-        let orderSellers:OrderSeller[]=[];
+        let orderSellers:any[]=[];
         console.log("MODE:"+mode);
         let cheesesIds = [];
         let cheeses = await this.cheeseRepository.getAllCheeses();
@@ -441,8 +441,9 @@ export class PackagingService{
             for(let i=0;i<orderSellers2.length;i++){
                 let subOrders = await this.subOrderRepository.getByOrderSeller(orderSellers2[i]);
                 subOrders = subOrders.filter(x=>!cheesesIds.includes(+x.productRovianda.id));
+                let outOfStockItems = subOrders.filter(x=>x.outOfStock);
                 if(subOrders.length){
-                    orderSellers.push(orderSellers2[i]);
+                    orderSellers.push({...orderSellers2[i],outOfStock: outOfStockItems.length?true:false});
                 }
             }
         }else if(mode=="cheese"){
@@ -450,8 +451,9 @@ export class PackagingService{
             for(let i=0;i<orderSellers3.length;i++){
                 let subOrders = await this.subOrderRepository.getByOrderSeller(orderSellers3[i]);
                 subOrders = subOrders.filter(x=>cheesesIds.includes(+x.productRovianda.id));
+                let outOfStockItems = subOrders.filter(x=>x.outOfStock);
                 if(subOrders.length){
-                    orderSellers.push(orderSellers3[i]);
+                    orderSellers.push({...orderSellers3[i],outOfStock: outOfStockItems.length?true:false});
                 }
             }
         }
@@ -463,7 +465,8 @@ export class PackagingService{
                     date: `${orderSeller.date}`,
                     userId: `${orderSeller.seller.id}`,
                     vendedor: `${orderSeller.seller.name} `,
-                    status: `${orderSeller.status}`
+                    status: `${orderSeller.status}`,
+                    outOfStock:  order.outOfStock
                 })
         }
         
@@ -513,55 +516,64 @@ export class PackagingService{
     }
 
     async createDevolution(devolutionRequest:DevolutionRequest){
-        let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
-        if(!presentation) throw new Error("[404], no existe la presentation de ese producto");
-        let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLotAndProduct(devolutionRequest.lotId,presentation.productRovianda);
+        //let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
+        //if(!presentation) throw new Error("[404], no existe la presentation de ese producto");
+        //let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLotAndProduct(devolutionRequest.lotId,presentation.productRovianda);
         //if(!ovenProduct) throw new Error("[404], no existe el lote en salidas de hornos");
-        let packagings:Packaging[] = await this.packagingRepository.getPackagingsByLotId(devolutionRequest.lotId);
-        let totalToDiscount=devolutionRequest.units;
+        //let packagings:Packaging[] = await this.packagingRepository.getPackagingsByLotId(devolutionRequest.lotId);
+        let propertiesPackagingOfProduct = await this.propertiesPackagingRepository.getAllProductsInventoryToDiscount(devolutionRequest.presentationId,devolutionRequest.lotId);
+        
         let totalToDiscountTemp=devolutionRequest.units;
-        for(let packaging of packagings){
-            let propertyPackagings:PropertiesPackaging[] = await this.propertiesPackagingRepository.findByPackagings(packaging);
-            for(let prop of propertyPackagings){
-                if(prop.presentation.id==presentation.id){
-                    if(prop.units>totalToDiscountTemp){
-                        totalToDiscountTemp =0;
-                    }else{
-                        totalToDiscountTemp-=prop.units;
+        let totalToDiscountWeightTemp = devolutionRequest.weight;
+        let toUpdate:{id:number,units:number,weight:number}[]=[];
+        for(let properties of propertiesPackagingOfProduct){
+            if(properties.presentationId==devolutionRequest.presentationId){
+                if(totalToDiscountTemp>0){
+                    if(properties.units==totalToDiscountTemp){
+                        toUpdate.push({
+                            id: properties.id,
+                            units: 0,
+                            weight: 0
+                        });
+                        totalToDiscountTemp=0;
+                        totalToDiscountWeightTemp=0;
+                    }else if(properties.units>totalToDiscountTemp){
+                        toUpdate.push({
+                            id: properties.id,
+                            units: properties.units-totalToDiscountTemp,
+                            weight: (properties.weight-totalToDiscountWeightTemp)<0?0:(properties.weight-totalToDiscountWeightTemp)
+                        });
+                        totalToDiscountTemp=0;
+                        totalToDiscountWeightTemp=0;
+                    }else if(properties.units<totalToDiscountTemp){
+                        toUpdate.push({
+                            id: properties.id,
+                            units:0,
+                            weight:0
+                        });
+                        totalToDiscountTemp-=properties.units;
+                        totalToDiscountWeightTemp-=properties.weight;
                     }
                 }
             }
         }
-
-        if(totalToDiscountTemp==0){
-            for(let packaging of packagings){
-                let propertyPackagings:PropertiesPackaging[] = await this.propertiesPackagingRepository.findByPackagings(packaging);
-                for(let prop of propertyPackagings){
-                    if(prop.presentation.id==presentation.id){
-                        if(prop.units>totalToDiscount){
-                            prop.units-=totalToDiscount;
-                            totalToDiscount =0;
-                        }else{
-                            totalToDiscount-=prop.units;
-                            prop.units=0;
-                        }
-                        await this.propertiesPackagingRepository.savePropertiesPackaging(prop);
-                    }
-                }
-            }
+        if(totalToDiscountTemp==0){ 
             let devolution:Devolution = new Devolution();
             devolution.date=devolutionRequest.date;
             devolution.lotId=devolutionRequest.lotId;
             devolution.units=devolutionRequest.units;
+            let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
             devolution.presentationProduct=presentation;
             devolution.weight = devolutionRequest.weight;
+
+            let ovenProduct = await this.ovenRepository.getOvenProductByLot(devolutionRequest.lotId);
+
             if(ovenProduct){
                 ovenProduct.status="CLOSED";
                 await this.ovenRepository.saveOvenProduct(ovenProduct);
                 devolution.ovenProduct=ovenProduct;
             }else{
-                let presentacion = await this.presentationProductRepository.findByKeySae(devolutionRequest.lotId);
-                if(presentacion){
+                
                 let ovenProduct = new OvenProducts();
                 ovenProduct.stimatedTime="0:0";
                 ovenProduct.newLote=devolution.lotId;
@@ -572,16 +584,20 @@ export class PackagingService{
                 ovenProduct.date = date.toISOString();
                 ovenProduct.status="CLOSED";
                 ovenProduct.processId=1;
-                ovenProduct.product=presentacion.productRovianda;
+                ovenProduct.product=presentation.productRovianda;
                 ovenProduct.observations="Lote: "+devolution.lotId;
                 let ovenSaved = await this.ovenRepository.saveOvenProduct(ovenProduct);
                 devolution.ovenProduct=ovenSaved;
-                }
             }
+            for(let update of toUpdate){
+                await this.propertiesPackagingRepository.UpdateProperty(update.id,update.units,update.weight);
+            }
+            await this.packagingRepository.checkToClose(devolutionRequest.lotId);
             return await this.devolutionRepository.saveDevolution(devolution);
         }else{
             throw new Error("[409], Producto disponible insuficiente para devolver");    
         }
+        
         //await this.sqlRepository.updateInventoryGeneralAspeSaeByProduct(propertyPackaging.presentation.keySae,(devolutionRequest.units)*-1);
     }
 
@@ -635,12 +651,12 @@ export class PackagingService{
         return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mapSubOrderWeigth,mode);
     }
 
-    async getEntrancesOfWarehouseId(warehouseId:string,dateStart:string,dateEnd:string){
+    async getEntrancesOfWarehouseId(warehouseId:string,dateStart:string,dateEnd:string,type:string){
         let records:SubOrderMetadataOutputs[]=[];
         if(+warehouseId!=53){
         let seller:User = await this.userRepository.getByWarehouseId(warehouseId);
         if(!seller) return [];
-            records= await this.subOrderMetadataRepository.getAllOrdersDispached(dateStart,dateEnd,seller.id);
+            records= await this.subOrderMetadataRepository.getAllOrdersDispached(dateStart,dateEnd,seller.id,type);
        
         }else{
             records = await this.packagingRepository.getAllDispatched(dateStart,dateEnd);
@@ -652,10 +668,10 @@ export class PackagingService{
                     {
                         CODE: subOrder.keySae,
                         NAME: subOrder.name+" "+subOrder.presentation,
-                        LOT: subOrder.lotId,
+                        LOT: subOrder.lotId?subOrder.lotId:null,
                         UNITS: subOrder.quantity,
                         WEIGHT: subOrder.weight,
-                        DATE: subOrder.outputDate,
+                        DATE: subOrder.outputDate?subOrder.outputDate:null,
                         EXPRATION: subOrder.expiration,
                         OBSERVATIONS: subOrder.observations
                     }
@@ -805,10 +821,10 @@ export class PackagingService{
 export interface DeliverToWarehouse{
     CODE:string,
     NAME:string,
-    LOT:string,
+    LOT?:string,
     UNITS:number,
     WEIGHT:number,
-    DATE:string,
+    DATE?:string,
     EXPRATION?: string,
     OBSERVATIONS?:string
 }

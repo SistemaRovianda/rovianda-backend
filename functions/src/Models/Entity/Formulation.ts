@@ -8,6 +8,7 @@ import { DefrostFormulation } from "./Defrost.Formulation";
 import { Process } from "./Process";
 import { Reprocessing } from "./Reprocessing";
 import { OutputsDrief } from "./Outputs.Drief";
+import { ProcessIngredientFormulation } from "./ProcessIngredientFormulation";
 
 
 @Entity({ name: "formulation" })
@@ -56,5 +57,8 @@ export class Formulation {
 
     @Column({name:"ingredients_process_ids",nullable:true})
     ingredientsIds:string;
+
+    @OneToMany(type=>ProcessIngredientFormulation,processIngredients=>processIngredients.formulation)
+    processIngredients:ProcessIngredientFormulation[]
 
 }

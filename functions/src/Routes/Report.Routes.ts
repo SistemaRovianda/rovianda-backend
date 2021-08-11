@@ -20,6 +20,13 @@ export const reportRoutes:Array<routeInterface>=[
         method:"get",
         controller:ReportController,
         target:"reportEntranceMeat"
+    }
+    ,
+    {
+        url:"/rovianda/report-excel/entry/meat/:entranceId",
+        method:"get",
+        controller:ReportController,
+        target:"reportExcelEntranceMeat"
     },
     {
         url:"/rovianda/report/warehouse",

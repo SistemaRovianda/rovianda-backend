@@ -17,4 +17,7 @@ export class Fridge{
     @Column()
     status:string;
 
+    @Column({name:"description"})
+    description:string;
+
 }

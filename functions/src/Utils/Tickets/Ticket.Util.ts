@@ -68,13 +68,13 @@ export class TicketUtil{
 
         for(let venta of sales){
             if(venta.statusStr=="ACTIVE"){
-            if(venta.typeSale=="Efectivo"){
+            if(venta.typeSale.toLocaleLowerCase()=="Efectivo"){
                 amountContado+=venta.amount;
-            }else if(venta.typeSale=="CREDITO"){
+            }else if(venta.typeSale.toLocaleLowerCase()=="credito"){
                 amountCredito+=venta.amount;
-            }else if(venta.typeSale=="Cheque"){
+            }else if(venta.typeSale.toLocaleLowerCase()=="cheque"){
                 amountCheque+=venta.amount;
-            }else if(venta.typeSale=="Transferencia"){
+            }else if(venta.typeSale.toLocaleLowerCase()=="transferencia"){
                 amountTransferencia+=venta.amount;
             }
             for(let subOrder of venta.subSales){    

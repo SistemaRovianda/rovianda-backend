@@ -9,8 +9,15 @@ export interface FormulationDTO {
     ingredient: formulationIngredients[],
     processNormal:boolean,
     processIngredient:boolean,
-    processIngredients:[number]
+    processIngredients:processIngredient[]
 }
+export interface processIngredient{
+    processId:number,
+    dateEnded:string,
+    productName:string,
+    assigned?: boolean
+  }
+  
 
 export interface lotDefrost{
     lotId:string;

@@ -21,6 +21,8 @@ import { OrderSeller } from '../Models/Entity/Order.Seller';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { CheeseRepository } from '../Repositories/Cheese.Repository';
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from '../Models/DTO/PackagingDTO';
+import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
+import { DefrostRepository } from '../Repositories/Defrost.Repository';
 
 
 
@@ -28,9 +30,13 @@ export default class PdfHelper{
 
     private grindingRepository:GrindingRepository;
     private cheeseRepository:CheeseRepository;
+    private outputCoolingRepository:OutputsCoolingRepository;
+    private defrostRepository:DefrostRepository;
     constructor(){
         this.cheeseRepository = new CheeseRepository();
         this.grindingRepository=new GrindingRepository();
+        this.outputCoolingRepository=new OutputsCoolingRepository();
+        this.defrostRepository = new DefrostRepository();
     }
 
     getReportInventory(items:LotsStockInventoryPresentation[],name:string){
@@ -450,6 +456,10 @@ export default class PdfHelper{
             <th class="espa"  colspan="2"><font size=1>${meat.rawMaterial}</font></th>
             <th class="espa"><font size=1>${meat.loteProveedor}</font></th>
          </tr>
+         <tr>
+         <td>Total recibido: </td>
+         <td colspan="3"> ${meat.weight.value} KG</td>
+         </tr>
 <!-- ************************************************************************************************-->  
         <th><font size=1>Control</font></th>
         <th><font size=1>Estándar</font></th>
@@ -483,7 +493,7 @@ export default class PdfHelper{
             <td><font size=1>Según el empaque</font></td>
             <td><font size=1>${meat.weight.accepted ? "Ok" : ""}</font></td>
             <td><font size=1>${!meat.weight.accepted ? "No ok" : ""}</font></td>
-            <td><font size=1>${meat.weight.value ? meat.weight.value : ""}</font></td>
+            <td><font size=1>${meat.weight.observations ? meat.weight.observations : ""}</font></td>
          </tr>
          <tr>
             <td><font size=1>Materia extraña</font></td>
@@ -673,7 +683,7 @@ export default class PdfHelper{
                 <td>${formulation.lotDay}</td>
                 <td>${formulation.temp}</td>
                 <td>${formulation.waterTemp}</td>
-                <td>${ingredents[0].product.description}</td>
+                <td>${ingredents[0]?ingredents[0].product.description:""}</td>
                 <td>${new Date(formulation.date).toLocaleDateString()}</td>
             </tr>
         `;
@@ -1113,19 +1123,19 @@ export default class PdfHelper{
     footerReportOven(revisionOven:OvenProducts){
         return `
             <tr>
-                <th colspan="3" class="seg"><font size=1>Elaboró: ${revisionOven.nameElaborated} </font></th>
+                <th colspan="3" class="seg"><font size=1>Elaboró: ${revisionOven.nameElaborated||""} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobElaborated}</font> </td>
+                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobElaborated||""}</font> </td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Revisó: ${revisionOven.nameCheck} </font></th>
+                <th colspan="3" class="seg"><font size=1>Revisó: ${revisionOven.nameCheck||""} </font></th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td colspan="2"><font size=1><Puesto: ${revisionOven.jobCheck}</font></td>
+                <td colspan="2"><font size=1><Puesto: ${revisionOven.jobCheck||""}</font></td>
             </tr>
             <tr>
-                <th colspan="3" class="seg"><font size=1>Verificó: ${revisionOven.nameVerify} </font</th>
+                <th colspan="3" class="seg"><font size=1>Verificó: ${revisionOven.nameVerify||""} </font</th>
                 <th class="fir"><font size=1>Firma:</font></th>
-                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobVerify}</font></td>
+                <td colspan="2"><font size=1>Puesto: ${revisionOven.jobVerify||""}</font></td>
             </tr>
        
              <tr>  
@@ -1997,13 +2007,14 @@ export default class PdfHelper{
             <th colspan="2">HORA DE SALIDA</th>
         </tr>`;
         for(let defrost of process.formulation.defrosts){
+            let defrostEntity = await this.defrostRepository.getDefrostById(defrost.defrost.defrostId);
             content+=`<tr>
-            <td class="formacion" >${defrost.defrost.outputCooling.rawMaterial.rawMaterial}</td>
-            <td>${defrost.defrost.dateEnd}</td>
-            <td>${defrost.defrost.weigth}</td>
-            <td>${defrost.defrost.temp}</td>
-            <td>${defrost.defrost.entranceHour}</td>
-            <td colspan="2">${defrost.defrost.outputHour}</td>
+            <td class="formacion" >${defrostEntity.outputCooling.rawMaterial.rawMaterial}</td>
+            <td>${defrostEntity.dateEnd}</td>
+            <td>${defrostEntity.weigth}</td>
+            <td>${defrostEntity.temp}</td>
+            <td>${defrostEntity.entranceHour}</td>
+            <td colspan="2">${defrostEntity.outputHour}</td>
             </tr>`
         }
         content+=`<tr>
@@ -2208,15 +2219,15 @@ export default class PdfHelper{
                 <td>F-CAL-RO-07</td>
             </tr>
         <tr>
-            <th colspan="3">Elaboro: ${process.nameElaborated}  </th>
+            <th colspan="3">Elaboro: ${process.nameElaborated||""}  </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: ${process.jobElaborated}</th>
+            <th colspan="2">Puesto: ${process.jobElaborated||""}</th>
         </tr>
         <tr>
           <div id="text">
-            <th colspan="3">Verifico: ${process.nameVerify} </th>
+            <th colspan="3">Verifico: ${process.nameVerify||""} </th>
             <th colspan="2">Firma: </th>
-            <th colspan="2">Puesto: ${process.jobVerify}</th>
+            <th colspan="2">Puesto: ${process.jobVerify||""}</th>
           </div>
         </tr>
     </table>

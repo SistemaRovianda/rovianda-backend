@@ -1487,80 +1487,89 @@ export default class Excel4Node{
         worksheet.cell(9, 7, 9, 8, true).string(`${data.rawMaterial}`).style(style);
         worksheet.cell(9, 9, 9, 10, true).string(`${data.loteProveedor}`).style(style);
 
-        worksheet.cell(10, 3, 10, 4, true).string(" Control ").style(styleUser);
-        worksheet.cell(10, 5, 10, 6, true).string(" Estandar ").style(styleUser);
-        worksheet.cell(10, 7, 10, 7, true).string(" Aceptado ").style(styleUser);
-        worksheet.cell(10, 8, 10, 8, true).string(" Recahzado").style(styleUser);
-        worksheet.cell(10, 9, 10, 10, true).string(" Observaciones ").style(styleUser);
-
-        worksheet.cell(11, 3, 12, 4, true).string("Transporte").style(style);
-        worksheet.cell(11, 5, 12, 6, true).string("Limpio, sin olores, sin material ajeno, sin plagas").style(style);
-        worksheet.cell(11, 7, 12, 7, true).string(` ${data.transport.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(11, 8, 12, 8, true).string(` ${!data.transport.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(11, 9, 12, 10, true).string(` ${data.transport.observations} `).style(style);
-
-        worksheet.cell(13, 3, 13, 4, true).string("Empaque").style(style);
-        worksheet.cell(13, 5, 13, 6, true).string("Sin daños y limpio").style(style);
-        worksheet.cell(13, 7, 13, 7, true).string(` ${data.packing.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(13, 8, 13, 8, true).string(` ${!data.packing.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(13, 9, 13, 10, true).string(` ${data.packing.observations} `).style(style);
-            
-        worksheet.cell(14, 3, 14, 4, true).string("Caducidad").style(style);
-        worksheet.cell(14, 5, 14, 6, true).string("Vigente").style(style);
-        worksheet.cell(14, 7, 14, 7, true).string(` ${data.expiration.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(14, 8, 14, 8, true).string(` ${!data.expiration.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(14, 9, 14, 10, true).string(` ${data.expiration.observations} `).style(style);
-
-        worksheet.cell(15, 3, 15, 4, true).string("Peso").style(style);
-        worksheet.cell(15, 5, 15, 6, true).string("Segun el empaque").style(style);
-        worksheet.cell(15, 7, 15, 7, true).string(` ${data.weight.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(15, 8, 15, 8, true).string(` ${!data.weight.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(15, 9, 15, 10,true).string(` ${data.weight.observations} `).style(style);
-
-        worksheet.cell(16, 3, 16, 4, true).string("Materia extraña").style(style);
-        worksheet.cell(16, 5, 16, 6, true).string("Ausente").style(style);
-        worksheet.cell(16, 7, 16, 7, true).string(` ${data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(16, 8, 16, 8, true).string(` ${!data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(16, 9, 16, 10,true).string(` ${data.strangeMaterial.observations} `).style(style);
-
-        worksheet.cell(17, 3, 18, 4, true).string("Temperatura").style(style);
-        worksheet.cell(17, 5, 17, 6, true).string("Fresco: Max. 4C°").style(style);
-        worksheet.cell(17, 7, 17, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(17, 8, 17, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(18, 5, 18, 6, true).string("Congelado: Max -18C°").style(style);
-        worksheet.cell(18, 7, 18, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(18, 8, 18, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(17, 9, 18, 10,true).string(` ${data.temperature.value} `).style(style);
-
-        worksheet.cell(19, 3, 19, 4, true).string("Olor").style(style);
-        worksheet.cell(19, 5, 19, 6, true).string("Característico").style(style);
-        worksheet.cell(19, 7, 19, 7, true).string(` ${data.odor.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(19, 8, 19, 8, true).string(` ${!data.odor.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(19, 9, 19, 10,true).string(` ${data.odor.observations} `).style(style);
-
-        worksheet.cell(20, 3, 20, 4, true).string("Color").style(style);
-        worksheet.cell(20, 5, 20, 6, true).string("Característico").style(style);
-        worksheet.cell(20, 7, 20, 7, true).string(` ${data.color.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(20, 8, 20, 8, true).string(` ${!data.color.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(20, 9, 20, 10,true).string(` `).style(style);
-
-        worksheet.cell(21, 3, 21, 4, true).string("Textura").style(style);
-        worksheet.cell(21, 5, 21, 6, true).string("Firme Característico").style(style);
-        worksheet.cell(21, 7, 21, 7, true).string(` ${data.texture.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(21, 8, 21, 8, true).string(` ${!data.texture.accepted ? "xxx" : ""} `).style(style);
-        worksheet.cell(21, 9, 21, 10,true).string(` ${data.texture.observations} `).style(style);
-
-        worksheet.cell(22, 3, 22, 10,true).string("Desviación").style(style);
-        worksheet.cell(23, 3, 23, 10,true).string("").style(style);
-
-        worksheet.cell(24, 3, 24, 10, true).string("Acción correctiva").style(style);
-        worksheet.cell(25, 3, 25, 10, true).string("").style(style);
+        worksheet.cell(10, 3, 10, 4, true).string(" Total recibido ").style(styleUser);
+        worksheet.cell(10, 5, 10, 10, true).string(`${data.weight.value}`).style(styleUser);
         
-        worksheet.cell(26, 3, 26, 10, true).string("Etiqueta").style(style);
-        worksheet.cell(27, 3, 37, 10, true).string("").style(style);
+        row=11;
+        worksheet.cell(row, 3, row, 4, true).string(" Control ").style(styleUser);
+        worksheet.cell(row, 5, row, 6, true).string(" Estandar ").style(styleUser);
+        worksheet.cell(row, 7, row, 7, true).string(" Aceptado ").style(styleUser);
+        worksheet.cell(row, 8, row, 8, true).string(" Recahzado").style(styleUser);
+        worksheet.cell(row, 9, row, 10, true).string(" Observaciones ").style(styleUser);
 
-        worksheet.cell(38, 3, 38, 7, true).string(`Realizó:  ${user.name} `).style(styleUser);
-        worksheet.cell(38, 8, 38, 10, true).string("Firma:  ").style(styleUser);
+        row++;
+
+        worksheet.cell(row, 3, row, 4, true).string("Transporte").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Limpio, sin olores, sin material ajeno, sin plagas").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.transport.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.transport.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10, true).string(` ${data.transport.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Empaque").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Sin daños y limpio").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.packing.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.packing.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10, true).string(` ${data.packing.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Caducidad").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Vigente").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.expiration.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.expiration.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10, true).string(` ${data.expiration.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Peso").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Segun el empaque").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.weight.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.weight.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10,true).string(` ${data.weight.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Materia extraña").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Ausente").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.strangeMaterial.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10,true).string(` ${data.strangeMaterial.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row+1, 4, true).string("Temperatura").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Fresco: Max. 4C°").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row+1, 5, row+1, 6, true).string("Congelado: Max -18C°").style(style);
+        worksheet.cell(row+1, 7, row+1, 7, true).string(` ${data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row+1, 8, row+1, 8, true).string(` ${!data.temperature.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row+1, 10,true).string(` ${data.temperature.value} `).style(style);
+        row+=2;
+        worksheet.cell(row, 3, row, 4, true).string("Olor").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Característico").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.odor.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10,true).string(` ${data.odor.observations} `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Color").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Característico").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.color.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.color.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10,true).string(` `).style(style);
+        row++;
+        worksheet.cell(row, 3, row, 4, true).string("Textura").style(style);
+        worksheet.cell(row, 5, row, 6, true).string("Firme Característico").style(style);
+        worksheet.cell(row, 7, row, 7, true).string(` ${data.texture.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 8, row, 8, true).string(` ${!data.texture.accepted ? "xxx" : ""} `).style(style);
+        worksheet.cell(row, 9, row, 10,true).string(` ${data.texture.observations} `).style(style);
+        row++;
+        worksheet.cell(22, 3, 22, 10,true).string("Desviación").style(style);
+        row++;
+        worksheet.cell(row, 3, row, 10,true).string("").style(style);
+        row++;
+        worksheet.cell(row, 3, row, 10, true).string("Acción correctiva").style(style);
+        row++;
+        worksheet.cell(row, 3, row, 10, true).string("").style(style);
+        row++;
+        worksheet.cell(row, 3, row, 10, true).string("Etiqueta").style(style);
+        row++;
+        worksheet.cell(row, 3, row+10, 10, true).string("").style(style);
+        row+=11;
+        worksheet.cell(row, 3, row, 7, true).string(`Realizó:  ${user.name} `).style(styleUser);
+        worksheet.cell(row, 8, row, 10, true).string("Firma:  ").style(styleUser);
            
         return workbook;
     }
@@ -1664,7 +1673,10 @@ export default class Excel4Node{
             worksheet.cell(row+1, col,   row+1, col+3, true).string(`Proveedor: ${data.proveedor}`).style(style);
             worksheet.cell(row,   col+4, row+1, col+5, true).string(`Lote proveedor: ${data.loteProveedor}`).style(style);
             worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${data.date}`).style(style);
-           
+
+            worksheet.cell(row+2, col,   row+2, col+1, true).string("Total recibido: ").style(style);
+            worksheet.cell(row+2, col+2, row+2, col+7, true).string(`${data.quantity} KG/PZ`).style(style);
+            row++;
             worksheet.cell(row+2, col,   row+2, col+1, true).string("Control").style(style);
             worksheet.cell(row+2, col+2, row+2, col+3, true).string("Estándar").style(style);
             worksheet.cell(row+2, col+4, row+2, col+4, true).string("Aceptado").style(style);
@@ -2768,5 +2780,54 @@ export default class Excel4Node{
                     row++;
             }
         return workbook;
+    }
+
+    getSummaryReportBySeller(seller:User,acumulateAbarrotes:{amount:number},acumulateNormal:{amount:number},acumulatedNormalKg:{totalKg:number},acumulatedCheeses:{amount:number},acumulatedCheesesKg:{totalKg:number},ranking:{amount:number,amountKg:number,name:string,type_presentation:string}[],dateStart:string,dateEnd:string){
+        
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('VENTAS GENERALES');
+
+        worksheet.cell(1,2,1,2,true).string("Desde: "+dateStart);
+        worksheet.cell(1,4,1,4,true).string("Hasta: "+dateStart);
+
+        worksheet.cell(3,1,3,1,true).string('RUTA');
+        worksheet.cell(3,2,3,2,true).string('VENDEDOR');
+        worksheet.cell(3,3,3,3,true).string('MONTO CARNICOS');
+        worksheet.cell(3,4,3,4,true).string('KILOS CARNICOS');
+        worksheet.cell(3,5,3,5,true).string('MONTO QUESOS');
+        worksheet.cell(3,6,3,6,true).string('KILOS QUESOS');
+        worksheet.cell(3,7,3,7,true).string('MONTO ABARROTES');
+
+        worksheet.cell(4,1,4,1,true).string(seller.cve);
+        worksheet.cell(4,2,4,2,true).string(seller.name);
+        worksheet.cell(4,3,4,3,true).number(acumulateNormal.amount);
+        worksheet.cell(4,4,4,4,true).number(acumulatedNormalKg.totalKg);
+        worksheet.cell(4,5,4,5,true).number(acumulatedCheeses.amount?acumulatedCheeses.amount:0);
+        worksheet.cell(4,6,4,6,true).number(acumulatedCheesesKg.totalKg?acumulatedCheesesKg.totalKg:0);
+        worksheet.cell(4,7,4,7,true).number(acumulateAbarrotes.amount?acumulateAbarrotes.amount:0);
+         
+        const worksheet2 = workbook.addWorksheet("RANKING DE PRODUCTOS");
+
+        worksheet2.cell(1,2,1,2,true).string("Desde: "+dateStart);
+        worksheet2.cell(1,4,1,4,true).string("Hasta: "+dateStart);
+
+        worksheet2.cell(3,1,3,1,true).string('VENDEDOR');
+        worksheet2.cell(3,2,3,2,true).string('PRODUCTO');
+        worksheet2.cell(3,3,3,3,true).string('MONTO');
+        worksheet2.cell(3,4,3,4,true).string('KILOS');
+        let row = 5;
+                let totalAmount = 0;
+                let totalKg=0;
+            for(let product of ranking){
+                totalAmount+=product.amount;
+                totalKg+=product.amountKg;
+                worksheet2.cell(row,1,row,1).string(seller.name);
+                worksheet2.cell(row,2,row,2).string(product.name+ " "+product.type_presentation);
+                worksheet2.cell(row,3,row,3).number(product.amount);
+                worksheet2.cell(row,4,row,4).number(product.amountKg);
+                row++;
+            }
+            
+            return workbook;
     }
 }

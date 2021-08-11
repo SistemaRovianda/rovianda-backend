@@ -2,6 +2,7 @@ import { Between, Repository } from "typeorm";
 import { Debts } from "../Models/Entity/Debts";
 import { connect } from "../Config/Db";
 import { Client } from "../Models/Entity/Client";
+import { Sale } from "../Models/Entity/Sales";
 
 export class DebtsRepository{
     private debtsRepository:Repository<Debts>;
@@ -49,6 +50,11 @@ export class DebtsRepository{
     async payDeb(debId:number){
         await this.getConnection();
         await this.debtsRepository.query(`update debts_sale set status=0 where deb_id=${debId}`);
+    }
+
+    async getBySale(sale:Sale){
+        await this.getConnection();
+        return await this.debtsRepository.findOne({sale});
     }
     
 

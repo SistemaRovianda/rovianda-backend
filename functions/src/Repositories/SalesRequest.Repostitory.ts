@@ -73,7 +73,7 @@ export class SalesRequestRepository{
         await this.getConnection();
         return await this.salesRequestRepository.query(
             `select sub.suborder_id as subOrderId,sub.product_id as productId,(sub.units-ifnull(sm.quantity,0)) as units,pp.presentation_id as presentationId,
-            pr.name,pp.presentation,pp.type_presentation as typePresentation
+            pr.name,pp.presentation,pp.type_presentation as typePresentation,sub.out_of_stock as outOfStock
             from suborders as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id
             inner join products_rovianda as pr on pr.id=sub.product_id left join (select sum(quantity) as quantity,sub_order_id from suborder_metadata group by sub_order_id) as sm on sm.sub_order_id=sub.suborder_id
             where sub.order_seller_id=${orderId};`
@@ -110,21 +110,23 @@ export class SalesRequestRepository{
         let dateTo = to+"T23:59:59.000Z";
         return (await this.salesRequestRepository.query(`
         select 
-        (select format(sum(amount),2) 
+        (select sum(amount)
         from sales where  status_str<>"CANCELED" and 
         date between "${dateFrom}" and "${dateTo}"
         ) as total,
-        (select format(sum(amount),2) 
+        (select sum(amount)
         from sales where type_sale<>"CREDITO" and status_str<>"CANCELED"  and 
         date between "${dateFrom}" and "${dateTo}"
         ) as contado,
-        (select format(sum(amount),2) 
+        (select sum(amount)
         from sales where type_sale="CREDITO" and status_str<>"CANCELED" and
         date between "${dateFrom}" and "${dateTo}") as credito,
-        (select format(sum(credit),2) 
+        (select sum(amount)
         from sales where status=0 and type_sale="CREDITO" and
-        date between "${dateFrom}" and "${dateTo}") as cobranza;
-        `) as {total:string,contado:string,credito:string,cobranza:string}[])[0];
+        date between "${dateFrom}" and "${dateTo}") as cobranza,
+        (select sum(if(pp.uni_med='PZ',if(pp.type_product<>"ABARROTES",sub.quantity*pp.price_presentation_min,0),sub.quantity)) from sub_sales as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id
+        left join sales as sa on sub.sale_id=sa.sale_id where sa.status_str<>"CANCELED" AND sa.date between "${dateFrom}T00:00:00.000Z" and "${dateTo}T23:59:59.000Z") as totalKg
+        `) as {total:number,contado:number,credito:number,cobranza:number,totalKg:number}[])[0];
     }
    
 }

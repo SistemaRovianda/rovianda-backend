@@ -3,9 +3,12 @@ import credentials from '../Config/Credentials';
 import { userGeneric } from '../Models/UserGeneric';
 import * as UUID from 'uuid/v4';
 import { Request } from 'express';
+import { UserRepository } from '../Repositories/User.Repository';
+import { User } from '../Models/Entity/User';
 export class FirebaseHelper{
-
+    private userRepository:UserRepository;
     constructor(){
+        this.userRepository= new UserRepository();
         let credential:any = credentials;
         admin.initializeApp({
             credential: admin.credential.cert(credential),
@@ -35,6 +38,32 @@ export class FirebaseHelper{
             return req;
         }
     }
+
+    async notificateToAdminSales(sellerName:string){
+        //let adminTokens = await this.userRepository.getAllAdminSales();
+        let message:admin.messaging.Message={
+            topic:"admin_sales",
+            notification:{
+                title:`Solicitud de cancelación`,
+                body: `Cancelaciones pendientes de ${sellerName}`
+            }
+        };
+
+        await admin.messaging().send(message);
+    }
+    // async notificateToSeller(sellerId:string,status:string){
+    //     let user:User = await this.userRepository.getUserById(sellerId);
+    //     if(user.token){
+    //         let message:admin.messaging.Message={
+    //             token:user.token,
+    //             notification:{
+    //                 title:`Se a ${status} tu solicitud de cancelación`,
+    //                 body: `Revisa tu cierre`
+    //             }
+    //         };
+    //         await admin.messaging().send(message);
+    //     }   
+    // }
 
     async createUser(user:userGeneric){
         console.log("entra log")

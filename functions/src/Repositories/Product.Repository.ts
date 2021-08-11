@@ -1,7 +1,8 @@
 import {connect} from '../Config/Db';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Product } from '../Models/Entity/Product';
 import { TYPE } from '../Models/Enum/Type.Lot';
+import { OfflineNewVersionProducts } from '../Models/DTO/Admin.Sales.Request';
 
 export class ProductRepository{
     private productRepository:Repository<Product>;
@@ -41,11 +42,11 @@ export class ProductRepository{
 
     
 
-    async getProductByDescription(description:number){
+    async getProductByDescription(description:string){
         await this.getConnection();
         console.log("consulta")
         return await this.productRepository.findOne({
-            where: {description}
+            where: {description:Like(`%${description}%`)}
         });
     }
 
@@ -111,5 +112,25 @@ export class ProductRepository{
         return await this.productRepository.query(
             `delete from  ingredients where productsRoviandaId=${productRoviandaId} and productCatalogId=${ingredientId}`
         );
+    }
+    async getAllProductsCatalogByPresentation(){
+        await this.getConnection();
+        return (await this.productRepository.query(
+            `select pp.presentation_id as id,pr.name,pp.type_presentation as typePresentation,pp.key_sae as keySae from products_rovianda as pr left join presentation_products as pp on pr.id = pp.product_rovianda_id where pp.key_sae is not null;`
+        ) ) as {id:number,name:string,typePresentation:string,keySae:string}[];
+    }
+    async getProductsOfflineNewVersion(sellerId:string){
+        await this.getConnection();
+        return await this.productRepository.query(
+            `
+            select pr.id as productId,pr.name,pp.type_presentation as presentationName,pp.uni_med as uniMed,pp.price_presentation_public as price,
+            pp.key_sae as productKey,
+            pp.presentation_id as presentationId,pp.price_presentation_min as weightOriginal ,if(t.quantity is null,0,t.quantity) as quantity
+            from products_rovianda as pr left join presentation_products as pp on pr.id=pp.product_rovianda_id
+            left join 
+            (select sum(quantity) as quantity, productId,presentation_id from seller_inventory where seller_id="${sellerId}" group by productId,presentation_id) as t
+            on pp.presentation_id=t.presentation_id where pp.presentation_id is not null;
+            `
+            ) as OfflineNewVersionProducts[];
     }
 }

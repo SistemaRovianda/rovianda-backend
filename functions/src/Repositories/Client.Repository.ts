@@ -1,9 +1,10 @@
-import { Like, Repository } from "typeorm";
+import { In, Like, Repository } from "typeorm";
 import { Client } from "../Models/Entity/Client";
 import { connect } from "../Config/Db";
 import { ClientsBySeller } from "../Models/DTO/Client.DTO";
 import { response } from "express";
 import { User } from "../Models/Entity/User";
+import { OfflineNewVersionClient } from "../Models/DTO/Admin.Sales.Request";
 
 export class ClientRepository{
 
@@ -27,6 +28,12 @@ export class ClientRepository{
     async getClientById(id:number){
         await this.getConnection();
         return await this.clientRepository.findOne({id});
+    }
+
+    async updateSincronizeStatusClients(ids:number[]){
+        console.log("Ids",JSON.stringify(ids));
+        await this.getConnection();
+        return await this.clientRepository.update({id:In(ids)},{modified:false});
     }
 
     async getClientBySeller(seller:User){
@@ -90,6 +97,12 @@ export class ClientRepository{
         }
     }
 
+    
+    async getAllClientsToAdminSales(){
+        await this.getConnection();
+        return await this.clientRepository.find({where:{status:'ACTIVE'}});
+    }
+
     async getClientPublic(){
         await this.getConnection();
         return await this.clientRepository.findOne({where:{keyClient:1175}});
@@ -98,6 +111,19 @@ export class ClientRepository{
     async getLastCount(){
         await this.getConnection();
         return await this.clientRepository.query(`select clients_client_id as clientId from clients order by clients_client_id desc limit 1`) as {clientId:number}[];
+    }
+
+    async getClientsOfflineNewVersion(sellerId:string){
+        await this.getConnection();
+        return await this.clientRepository.query(
+            `
+            select cl.clients_client_id as clientId,cl.key_client as keyClient,cl.seller_owner as sellerOwner,cl.name,cl.type_cliente as type,cl.current_credit as currentCreditUsed,cl.credit as creditLimit, ad.cp,
+            if(dv.monday=1,'true','false') as monday,if(dv.tuesday=1,'true','false') as tuesday,if(dv.wednesday=1,'true','false') as wednesday,if(dv.thursday=1,'true','false') as thursday,if(dv.friday=1,'true','false') as friday,if(dv.saturday=1,'true','false') as saturday,if(dv.sunday=1,'true','false') as sunday,if(cl.modified=1,'true','false') as modified
+            from clients as cl left join days_visited as dv on dv.client_id=cl.clients_client_id
+            left join address as ad on cl.address_id=ad.address_id
+            where (cl.seller_owner="${sellerId}" and cl.status="ACTIVE") or (cl.clients_client_id=1175);
+            `
+            ) as OfflineNewVersionClient[];
     }
 
 }

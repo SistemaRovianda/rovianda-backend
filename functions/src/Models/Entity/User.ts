@@ -83,6 +83,8 @@ export class User{
     @Column({name:"cve",nullable:true})
     cve:string;
 
+    @Column({name:"token",nullable:true})
+    token:string;
     // @OneToMany(type=>EntranceDrief,entranceDrief=>entranceDrief.userRecepcion)
     // entrancesDrief:EntranceDrief[];
 }

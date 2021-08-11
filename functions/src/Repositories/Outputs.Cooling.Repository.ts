@@ -81,4 +81,6 @@ export class OutputsCoolingRepository{
         await this.getConnection();
         return await this.outputsCoolingRepository.find({loteInterno,outputDate:Between(dateStart,dateEnd)});
     }
+
+
 }

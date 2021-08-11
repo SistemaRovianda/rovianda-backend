@@ -23,6 +23,8 @@ import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostRepository } from "../Repositories/Defrost.Repository";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 import { ProcessRepository } from "../Repositories/Process.Repository";
+import { ProcessIngredientFormulation } from "../Models/Entity/ProcessIngredientFormulation";
+import { ProcessIngredientFormulationRepository } from "../Repositories/ProcessIngredientFormulation.Repository";
 
 export class FormulationService {
     private formulationRepository: FormulationRepository;
@@ -36,6 +38,7 @@ export class FormulationService {
     private rawMaterialRepository:RawRepository;
     private defrostRepository:DefrostRepository;
     private processRepository:ProcessRepository;
+    private processIngredientsFormulationRepository:ProcessIngredientFormulationRepository;
     constructor() {
         this.formulationRepository = new FormulationRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
@@ -48,6 +51,7 @@ export class FormulationService {
         this.rawMaterialRepository=new RawRepository();
         this.defrostRepository = new DefrostRepository();
         this.processRepository= new ProcessRepository();
+        this.processIngredientsFormulationRepository = new ProcessIngredientFormulationRepository();
     }
 
     async createFormulation(req: Request) {
@@ -130,13 +134,23 @@ export class FormulationService {
         }else if(formulationDTO.processNormal==true){
             formulationToSave.typeFormulation="PRODUCT";
         }
-        if(formulationDTO.processIngredients.length){
-            
-            formulationToSave.ingredientsIds = "["+formulationDTO.processIngredients.toString()+"]";
-        }else {
-            formulationToSave.ingredientsIds=null;
-        };
         let formulationSaved:Formulation=await this.formulationRepository.saveFormulation(formulationToSave);
+        if(formulationDTO.processIngredients.length){
+            for(let  process of formulationDTO.processIngredients){
+            
+                
+                
+                let processEntity = await this.processRepository.findProcessById(process.processId);
+                if(processEntity){
+                    let processIngredientFormulation:ProcessIngredientFormulation = new ProcessIngredientFormulation();
+                    processIngredientFormulation.process=processEntity;
+                    processIngredientFormulation.formulation=formulationSaved;
+                    await this.processIngredientsFormulationRepository.saveProcessIngredientFormulation(processIngredientFormulation);
+                }
+            }
+            
+        }
+        
         return formulationSaved.id;
     }
 

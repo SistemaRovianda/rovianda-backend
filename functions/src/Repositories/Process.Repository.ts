@@ -4,6 +4,7 @@ import { Process } from '../Models/Entity/Process';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
 import { ProcessAvailablesToOven } from '../Models/Enum/ProcessStatus';
 import { Formulation } from '../Models/Entity/Formulation';
+import { ProcessInventory } from '../Models/DTO/Quality.DTO';
 
 export class ProcessRepository{
     private processRepository:Repository<Process>;
@@ -207,6 +208,29 @@ fo.product_rovianda_id=pr.id where fo.id in ${ids}
         return await this.processRepository.find({
             where:{typeProcess:"INGREDIENT",status:"INACTIVE"}
         });
+    }
+
+    async getAllProcessByDatesAndLotPaginated(offset:number,perPage:number,startDate:string,endDate:string,lot:string){
+        await this.getConnection();
+        let items:ProcessInventory[]=await this.processRepository.query(`
+            SELECT pro.id,form.lot_day as lotDay,pr.name,pro.current_process as currentProcess,pro.type_process as typeProcess,pro.status as statusProcess,create_at as createAt
+            FROM process as pro left join formulation as form on pro.formulationId=form.id
+            left join products_rovianda as pr on pro.product_rovianda_id=pr.id
+            ${lot?` where form.lot_day like "%${lot}%" `:""}
+            ${(startDate && endDate)?((lot)?` and create_at between "${startDate}" and "${endDate}" `:` where create_at between "${startDate}" and "${endDate}"`):``}
+            limit ${perPage} offset ${offset}
+        `) as ProcessInventory[];
+        let count:{count:number}[]=await this.processRepository.query(`
+            SELECT count(*) as count
+            FROM process as pro left join formulation as form on pro.formulationId=form.id
+            left join products_rovianda as pr on pro.product_rovianda_id=pr.id
+            ${lot?` where form.lot_day like "%${lot}%" `:""}
+            ${(startDate && endDate)?((lot)?` and create_at between "${startDate}" and "${endDate}" `:` where create_at between "${startDate}" and "${endDate}"`):``}
+        `) as {count:number}[];
+        return {
+            items,
+            count: count[0].count
+        }
     }
 }
 

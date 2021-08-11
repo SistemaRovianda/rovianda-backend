@@ -7,6 +7,7 @@ import { ProductRovianda } from "./Product.Rovianda";
 import { User } from "./User";
 import { Formulation } from "./Formulation";
 import { Reprocessing } from "./Reprocessing";
+import { ProcessIngredientFormulation } from "./ProcessIngredientFormulation";
 
 
 @Entity({name:"process"})
@@ -84,6 +85,9 @@ export class Process{
 
     @Column({name:"ingredients_process_ids",nullable:true})
     ingredientsIds:string;
+
+    @OneToMany(type=>ProcessIngredientFormulation,processIngredientsFormulation=>processIngredientsFormulation.process)
+    processIngredientsFormulations:ProcessIngredientFormulation[]
 
 }
 

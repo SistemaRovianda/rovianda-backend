@@ -102,7 +102,8 @@ export interface LotsStockInventoryPresentation{
     price?:number,
     uni_med?:string,
     price_presentation_min:number,
-    product_rovianda_id:number
+    product_rovianda_id:number,
+    register_date:string
 }
 
 export interface UpdateStockPlant{

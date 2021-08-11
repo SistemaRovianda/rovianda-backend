@@ -66,4 +66,7 @@ export class Sale{
     @Column({name:"date_sincronized",nullable:true})
     dateSincronized:string;
 
+    @Column({name:"cancel_request",default:false})
+    cancelRequest:boolean;
+
 }

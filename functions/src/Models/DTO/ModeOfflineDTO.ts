@@ -1,6 +1,7 @@
 
 
 export interface ModeOffline{
+    limitOfSales:number,
     logedId:boolean;
     username:string;
     lastSincronization:string;
@@ -108,6 +109,13 @@ export interface MOSRM{
     sellerId:string;
     clientId:string;
     products:MOSRMP[]
+}
+
+export interface DebtsRequest{
+    folio:string,
+    payedType:string,
+    datePayed:string,
+    amountPayed:number
 }
 
 export interface MOSRMP{

@@ -296,7 +296,12 @@ export const salesRoutes:Array<routeInterface>=[
         method: "post",
         controller: SalesRequestController,
         target: "sincronizeModeOffline"
-    }   ,
+    },{
+        url: "/rovianda/sincronize-single/sale",
+        method: "post",
+        controller: SalesRequestController,
+        target: "sincronizeSingleSale"
+    },
     {
         url: "/rovianda/accumulated/sales",
         method: "get",

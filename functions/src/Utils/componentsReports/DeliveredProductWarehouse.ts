@@ -30,8 +30,8 @@ export class DeliveredProductWarehouse{
         `;
     }
 
-    getReportWarehouseDeliveredBySeller(orders:DeliverToWarehouse[],seller:User,dateStart:string,dateEnd:string){
-        return this.getHeader(seller,dateStart,dateEnd)+this.getBodyReport(orders)+this.getFotter();
+    getReportWarehouseDeliveredBySeller(orders:DeliverToWarehouse[],seller:User,dateStart:string,dateEnd:string,type:string){
+        return this.getHeader(seller,dateStart,dateEnd)+this.getBodyReport(orders,type)+this.getFotter();
     }
 
     getReportWarehouseDeliveredByPlant(orders:DeliverToWarehouse[],dateStart:string,dateEnd:string){
@@ -90,30 +90,42 @@ export class DeliveredProductWarehouse{
         </tr>
         <tr>
         <td><strong>PRODUCTO</strong></td>
-        
         <td><strong>LOTE Y CADUCIDAD</strong></td>
         <td><strong>PIEZAS</strong></td>
         <td><strong>PESO (KG)</strong></td>
         <td><strong>OBSERVACIONES</strong></td>
+      
         </tr>
         `;
+        orders=orders.sort((a,b)=>{
+            if(a.NAME<b.NAME){
+                return -1;
+            }
+            if(a.NAME>b.NAME){
+                return 1;
+            }
+            return 0;
+        });
         for(let order of orders){
             
-
+            let date = order.LOT.slice(order.LOT.length-6,order.LOT.length);
+            date = date.slice(0,2)+"/"+date.slice(2,4)+"/"+date.slice(4,6);
             content+=`
             <tr>
             <td>${order.NAME}</td>
-            <td>${order.LOT.slice(0,2)}  - ${order.EXPRATION.split("-").reverse().join("/")}</td>
+            <td>${order.LOT.slice(0,order.LOT.length-6)+" - "+ date}</td>
             <td>${order.UNITS}</td>
-            <td>${order.WEIGHT}</td>
+            <td>${order.WEIGHT.toFixed(2)}</td>
             <td>${order.OBSERVATIONS}</td>
+         
             </tr>
             `;
         }
+        // <td>${order.LOT.slice(0,order.LOT.length-6)+" - "+ date}</td>
 
         content+=`
         <tr class="without">
-        <td class="without" colspan="4"></td>
+        <td class="without" colspan="5"></td>
         <td>F-CAL-RO-20</td>
         </tr>
         </table></div>
@@ -122,37 +134,29 @@ export class DeliveredProductWarehouse{
 
     }
 
-    getBodyReport(orders:DeliverToWarehouse[]){
+    getBodyReport(orders:DeliverToWarehouse[],type:string){
 
 
         let content = `
         <table><tr>
-        <th>CODE</th>
-        <th>NAME</th>
-        <th>LOTE</th>
+        <th>CODIGO</th>
+        <th>NOMBRE</th>
+        ${type!='acumulated'?`<th>LOTE</th>`:''}
         <th>UNIDADES</th>
         <th>PESO</th>
-        <th>FECHA</th></tr>
+        ${type!='acumulated'?`<th>FECHA</th>`:''}
+        </tr>
         `;
         for(let order of orders){
-            let date= new Date(order.DATE);
-            
-            let month:string = (date.getMonth()+1).toString();
-            let day:string = date.getDate().toString();
-            if(+month<10) month="0"+month;
-            if(+day<10) day="0"+day;
-            let hours:string = date.getHours().toString();
-            let minutes:string = date.getMinutes().toString();
-            if(+hours<10) hours="0"+hours;
-            if(+minutes<10) minutes="0"+minutes;
+           
             content+=`
             <tr>
             <td>${order.CODE}</td>
             <td>${order.NAME}</td>
-            <td>${order.LOT}</td>
+            ${type!='acumulated'?`<td>${order.LOT}</td>`:''}
             <td>${order.UNITS}</td>
-            <td>${order.WEIGHT}</td>
-            <td>${date.getFullYear()+"-"+month+"-"+day+" "+((hours!="00" && minutes!="00")?hours+":"+minutes:"")}</td>
+            <td>${order.WEIGHT.toFixed(2)}</td>
+            ${type!='acumulated'?`<td>${order.DATE}</td>`:''}
             </tr>
             `;
         }

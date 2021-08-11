@@ -7,6 +7,7 @@ import { LotInternalByLotDrief } from "../Models/DTO/LotInternalByLotDrief";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
 import { Process } from "../Models/Entity/Process";
+import { OutputsByEntrance } from "../Models/DTO/Quality.DTO";
 
 export class FormulationRepository{
     private formulatioRepository: Repository<Formulation>;
@@ -133,5 +134,39 @@ export class FormulationRepository{
     async getByProcessEntity(process:Process){
         await this.getConnection();
         return await this.formulatioRepository.findOne({process});
+    }
+
+    async getFormulationsByDateAndLot(offset:number,perPage:number,lot:string,startDate:string,endDate:string){
+        await this.getConnection();
+        let lotStrQuery="";
+        let datesStrQuery="";
+        if(lot){
+            lotStrQuery+=` form.lot_day like "%${lot}%"`
+        }
+        if(startDate && endDate){
+            datesStrQuery+=` form.date between  "${startDate}T00:00:00.000Z" and "${endDate}T23:59:59.000Z" `;
+        }
+        
+        let items= await this.formulatioRepository.query(`
+            select form.id,form.temp,form.date,form.water_temp as waterTemp,
+            form.status,form.lot_day as lotDay,form.type_formulation,pr.name,us.name as verifyBy,us2.name as makedBy,
+            pr.id as productId
+            from formulation as form left join users as us on form.verifitId=us.id
+            left join users as us2 on form.makeId=us2.id
+            left join products_rovianda as pr on form.product_rovianda_id=pr.id
+            ${(lotStrQuery!="")?" where "+lotStrQuery:""} ${(datesStrQuery!=""?((lotStrQuery!="")?" and "+datesStrQuery:" where "+datesStrQuery):"")}
+            limit ${perPage} offset ${offset}
+        `) as OutputsByEntrance[];
+        let count= await this.formulatioRepository.query(`
+        select count(*) as count
+        from formulation as form left join users as us on form.verifitId=us.id
+        left join users as us2 on form.makeId=us2.id
+        left join products_rovianda as pr on form.product_rovianda_id=pr.id
+        ${(lotStrQuery!="")?" where "+lotStrQuery:""} ${(datesStrQuery!=""?((lotStrQuery!="")?" and "+datesStrQuery:" where "+datesStrQuery):"")}
+        `) as {count:number}[];
+        return {
+            items,
+            count:count[0].count
+        }
     }
 }

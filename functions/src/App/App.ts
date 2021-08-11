@@ -22,7 +22,7 @@ export class App extends ErrorHandler{
     config(){
         this.app.use(fileMiddleware);
         this.app.use(function(req, res, next) {
-            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Origin", "*");//"*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, responseType, X-Total-Count");
             res.header('Access-Control-Allow-Methods', "*");
            
@@ -39,6 +39,7 @@ export class App extends ErrorHandler{
         this.app.use(bodyp.urlencoded({extended:true}));
         this.app.use(bodyp.raw({limit:"10mb"}));
         routesToExpress.map((route:routeInterface)=>{
+            
             (this.app as express.Application)[route.method](route.url,async (req:express.Request,res:express.Response,next)=>{
                 try{
                 //this.mapMulter(route,req,res,next);
@@ -67,13 +68,25 @@ export class App extends ErrorHandler{
 }
 
 
-export const app = functions.runWith({timeoutSeconds:500}).https.onRequest( new App().app);
+export const app = functions.runWith({timeoutSeconds:540}).https.onRequest( new App().app);
 
 // export const appCron = functions.pubsub.schedule('10 0 * * *')
-// //export const appCron = functions.pubsub.schedule('51 14 * * *')
+// export const appCron = functions.pubsub.schedule('*/20 * * * *')
 // .timeZone('America/New_York').onRun(async (context)=>{
-//    console.log("Se programo una cloud function a las 11 10 pm");
-    
-//     let saleService:SalesRequestService = new SalesRequestService(null);
-//     await saleService.transferAllSalesAutorized();
+   
+//     console.log("Traspaso a: "+new Date());
+//     let date = new Date();
+//     date.setHours(date.getHours()-5);
+//     let hours=date.getHours();
+//     if(hours==11){
+//         date.setHours(date.getHours()-24)
+//         let salesService:SalesRequestService = new SalesRequestService(null);
+//         let month = (date.getMonth()+1).toString();
+//         let day = date.getDate().toString();
+//         if(+month<10) month="0"+month;
+//         if(+day<10) day="0"+day;
+//         let dateStr = date.getFullYear()+"-"+month+"-"+day;
+//         console.log("Fecha de transferencia: "+dateStr);
+//         await salesService.transferAllSalesAutorized(dateStr);
+//     }
 // }) 

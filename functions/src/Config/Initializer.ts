@@ -27,6 +27,7 @@ import { WarehouseController } from '../Controllers/Warehouse.Controller';
 import { CatalogsController } from '../Controllers/Catalogs.Controller';
 import { CheeseController } from '../Controllers/Cheese.Controller';
 import {AdminSalesController} from "../Controllers/Admin.Sales.Controller";
+import { QualityController } from '../Controllers/Quality.Controller';
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
     private pinController: PinController;
@@ -56,6 +57,7 @@ export class Initializer {
     private catalogsController: CatalogsController;
     private cheeseController:CheeseController;
     private adminSalesController:AdminSalesController;
+    private qualitytController:QualityController;
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
         this.pinController = new PinController(this.firebaseInstance);
@@ -84,7 +86,8 @@ export class Initializer {
         this.warehouseSQLSController = new WarehouseController();
         this.catalogsController = new CatalogsController();
         this.cheeseController= new CheeseController();
-        this.adminSalesController = new AdminSalesController();
+        this.adminSalesController = new AdminSalesController(this.firebaseInstance);
+        this.qualitytController = new QualityController();
     }
 
     getController(prototype: string) {
@@ -170,6 +173,9 @@ export class Initializer {
                 break;
             case AdminSalesController.name:
                 return this.adminSalesController;
+                break;
+            case QualityController.name:
+                return this.qualitytController;
                 break;
             default:
                 return null;

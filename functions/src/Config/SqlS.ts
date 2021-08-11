@@ -9,7 +9,9 @@ const configoptions:config ={
         cryptoCredentialsDetails: {
             minVersion: 'TLSv1'
         },
-        enableArithAbort: true
+        enableArithAbort: true,
+        requestTimeout:60000,
+        connectTimeout: 60000,
     }
 };
 let connectionSqlS:ConnectionPool =null;

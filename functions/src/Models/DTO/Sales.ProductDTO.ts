@@ -84,8 +84,7 @@ export interface SaleOrderDTO {
  }
 
  export interface SubOrderMetadataOutputs{
-      lotId:string,
-      outputDate:string,
+      lotId?:string,
       quantity:number,
       weight:number,
       sellerUid:string,
@@ -93,10 +92,14 @@ export interface SaleOrderDTO {
       name:string,
       keySae:string,
       expiration:string,
-      observations:string
+      observations:string,
+      outputDate:string
  }
 
  export interface OrderSellerUpdateProperties{
       subOrderId:number,
       quantity:number;
  }
+
+
+ 
