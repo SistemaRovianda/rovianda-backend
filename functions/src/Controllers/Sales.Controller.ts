@@ -1,10 +1,10 @@
-import {Request,response,Response} from 'express';
+import {request, Request,response,Response} from 'express';
 import { SalesRequestService } from '../Services/Sales.Request.Service';
 
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Sale } from '../Models/Entity/Sales';
-import { SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
+import { RequestDevolution, SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
 import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { User } from '../Models/Entity/User';
@@ -353,7 +353,17 @@ export class SalesRequestController{
     }
 
     async sincronizeSingleSale(req:Request,res:Response){
-        let items=await this.salesRequestService.sincronizeSingleSale(req.body);
+        let sellerId:string = req.query.sellerId;
+        let items=await this.salesRequestService.sincronizeSingleSale(req.body,sellerId);
         return res.status(201).send(items);
+    }
+    async getDevolutionTicket(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        return res.status(200).send(await this.salesRequestService.getDevolutionTicketOfSale(saleId));
+    }
+    async getDevolutionRequestDetails(req:Request,res:Response){
+        let saleId:number= +req.params.saleId;
+        let response:RequestDevolution= await this.salesRequestService.getRequestDevolutionDetails(saleId);
+        return res.status(200).send(response)
     }
 } 

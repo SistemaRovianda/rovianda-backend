@@ -621,4 +621,12 @@ export class QualityService{
             await this.productsRoviandaRepository.unvinculateOfIngredient(body.productId,body.ingredientId);
         }
     }
+
+    async updateStatusOfOvenProduct(ovenId:number,body:{status:string}){
+        let ovenProduct = await this.ovenRepository.getOvenProductsById(ovenId);
+        if(ovenProduct){
+            ovenProduct.status=body.status;
+            await this.ovenRepository.saveOvenProduct(ovenProduct);
+        }
+    }
 }

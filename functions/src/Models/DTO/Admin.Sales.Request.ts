@@ -1,4 +1,7 @@
+import { DevolutionOldSubSales } from "../Entity/DevolutionOldSubSales";
+import { DevolutionSellerRequest } from "../Entity/DevolutionSellerRequest";
 import { Sale } from "../Entity/Sales";
+import { DevolutionRequest } from "./PackagingDTO";
 
 export interface AdminSalesRequest{
     clientsIds:number[],
@@ -99,7 +102,9 @@ export interface OfflineNewVersionResponse{
     email:string;
     password:string;
     debts:SaleInterfaceRequest[],
-    salesOfDay:SaleInterfaceRequest[]
+    salesOfDay:SaleInterfaceRequest[],
+    devolutionsRequest:DevolutionSellerRequest[],
+    devolutionsSubSales:DevolutionOldSubSales[]
 }
 export interface SaleInterfaceRequest{
     folio:string,
@@ -120,6 +125,7 @@ export interface SaleInterfaceRequest{
  }
 
  export interface SubSaleInterface{
+    subSaleAppId:number;
     subSaleServerId:number,
     productKey:string,
     quantity: number,
@@ -176,11 +182,13 @@ export interface SalesTypes{
 }
 
 export interface CancelRequest{
+    requestId:number,
     sellerName:string,
     folio:string,
     date:string,
     saleId:number,
-    createAt:string
+    createAt:string,
+    status:string
 }
 
 export interface AdminProductsCatalog{

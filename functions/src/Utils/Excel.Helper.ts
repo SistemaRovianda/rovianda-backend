@@ -25,6 +25,7 @@ import { SubOrderMetadataRepository } from "../Repositories/SubOrder.Metadata.Re
 import { SalesSellerRepository } from "../Repositories/SaleSeller.Repository";
 import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata";
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from "../Models/DTO/PackagingDTO";
+import { DeliverToWarehouse } from "../Services/Packaging.Service";
 
 
 export default class Excel4Node{
@@ -2829,5 +2830,30 @@ export default class Excel4Node{
             }
             
             return workbook;
+    }
+
+    getReportWarehouseDeliveredBySeller(products:DeliverToWarehouse[],dateStart:string,dateEnd:string,sellerName:string){
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('PRODUCTO ENTREGADO');
+
+        worksheet.cell(1,1,1,4,true).string("PRODUCTO ENTREGADO");
+        worksheet.cell(2,1,2,4,true).string("VENDEDOR: "+sellerName);
+
+        worksheet.cell(5,1,5,1,true).string('DESDE: '+dateStart);
+        worksheet.cell(5,4,5,4,true).string('HASTA: '+dateEnd);
+
+        worksheet.cell(7,1,7,1,true).string('CÓDIGO');
+        worksheet.cell(7,2,7,2,true).string('NOMBRE');
+        worksheet.cell(7,3,7,3,true).string('UNIDADES');
+        worksheet.cell(7,4,7,4,true).string('PESO');
+        let row=8;
+        for(let product of products){
+            worksheet.cell(row,1,row,1,true).string(`${product.CODE}`);
+            worksheet.cell(row,2,row,2,true).string(`${product.NAME}`);
+            worksheet.cell(row,3,row,3,true).string(`${product.UNITS}`);
+            worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT.toFixed(2)}`);
+            row++;
+        }
+        return workbook;
     }
 }

@@ -23,4 +23,7 @@ export class OrderSeller{
 
     @OneToMany(type=> SubOrder,saleRequest=>saleRequest.orderSeller,{cascade:true})
     subOrders: SubOrder[];
+
+    @Column({name:"date_attended",nullable:true})
+    dateAttended:string;
 }

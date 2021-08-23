@@ -1246,6 +1246,7 @@ async reportDocumentPackagingById(req:Request,res:Response){
         let dateStart:string = req.query.dateStart;
         let dateEnd:string = req.query.dateEnd;
         let type:string=req.query.type;
+        let format:string = req.query.format;
         let productDelivered = await this.packagingService.getEntrancesOfWarehouseId(warehouseId,dateStart,dateEnd,type);
         let seller:User = await this.userService.getByWarehouseId(warehouseId);
         let report:string ="";
@@ -1256,24 +1257,31 @@ async reportDocumentPackagingById(req:Request,res:Response){
         }else{
             report = "<html><body>NO EXISTE EL USUARIO VENDEDOR</body></html>"
         }
-        pdf.create(report, {
-            format: 'Legal',
-            orientation: (+warehouseId==53)?"landscape":"portrait",
-            border: {
-                top: "1cm", 
-                right: "1cm",
-                bottom: "2cm",
-                left: "1cm"
-            }
-            
-        }).toStream((function (err, stream) {
-            res.writeHead(200, {
-                'Content-Type': 'application/pdf',
-                'responseType': 'blob',
-                'Content-disposition': `attachment; filename=reporteEntregaAAlmacen.pdf`
-            });
-            stream.pipe(res);
-        }));
+        if(format=="excel"){
+            let workbook = this.excel.getReportWarehouseDeliveredBySeller(productDelivered,dateStart,dateEnd,seller.name);
+            workbook.write(`Reporte-Rebanado-Empacado.xlsx`,res);
+        }else if(format=="pdf"){
+            pdf.create(report, {
+                format: 'Legal',
+                orientation: (+warehouseId==53)?"landscape":"portrait",
+                border: {
+                    top: "1cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=reporteEntregaAAlmacen.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }
+        
+        
     }
 
     async getReportPlantDelivery(req:Request,res:Response){

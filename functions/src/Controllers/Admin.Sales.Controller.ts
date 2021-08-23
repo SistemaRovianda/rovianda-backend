@@ -294,8 +294,23 @@ export class AdminSalesController{
         let type=req.query.type as string;
         let dateStart:string = req.query.dateStart as string;
         let dateEnd:string = req.query.dateEnd as string;
-        let response:CancelRequest[] = await this.adminSalesService.getAllCancelRequests(type,dateStart,dateEnd);
-        return res.status(200).send(response);
+        let page:string = req.query.page;
+        let perPage:string = req.query.perPage;
+        let response:{items:CancelRequest[],count:number} = await this.adminSalesService.getAllCancelRequests(type,dateStart,dateEnd,page,perPage);
+        res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+        res.setHeader("X-Total-Count",response.count);
+        return res.status(200).send(response.items);
+    }
+    async getDevolutionsRequest(req:Request,res:Response){
+        let type=req.query.type as string;
+        let dateStart:string = req.query.dateStart as string;
+        let dateEnd:string = req.query.dateEnd as string;
+        let page:string= req.query.page;
+        let perPage:string = req.query.perPage;
+        let response:{items:CancelRequest[],count:number} = await this.adminSalesService.getAllDevolutionsRequests(type,dateStart,dateEnd,page,perPage);
+        res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+        res.setHeader("X-Total-Count",response.count);
+        return res.status(200).send(response.items);
     }
     async updateCancelRequest(req:Request,res:Response){
         let saleId:number = +req.params.saleId;
@@ -304,6 +319,16 @@ export class AdminSalesController{
         let status:string = req.query.status;
         let adminId:string = req.query.adminId;
         await this.adminSalesService.adminSaleChangeStatus(saleId,status,adminId);
+        return res.status(204).send();
+    }
+
+    async updateDevolutionRequest(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        if(!req.query.status) throw new Error("[400], falta el parametro status");
+        if(!req.query.adminId) throw new Error("[400], falta el parametro adminId");
+        let status:string = req.query.status;
+        let adminId:string = req.query.adminId;
+        await this.adminSalesService.adminSaleDevolutionRequestStatus(saleId,status,adminId);
         return res.status(204).send();
     }
 
@@ -327,5 +352,11 @@ export class AdminSalesController{
         let presentationId:number = +req.params.presentationId;
         await this.adminSalesService.updatePreRegisterProduct(presentationId,req.body);
         return res.status(204).send();
-    }   
+    }  
+    
+    async deletePreRegisterProduct(req:Request,res:Response){
+        let presentationId:number = +req.params.presentationId;
+        await this.adminSalesService.deletePreRegistProduct(presentationId);
+        return res.status(204).send();
+    }
 }

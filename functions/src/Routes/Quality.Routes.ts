@@ -167,5 +167,11 @@ export const qualityRoutes:Array<routeInterface>=[
         method: "post",
         controller: QualityController,
         target: "getInventoryWarehouseDeliverySellersRecords"
+    },
+    {
+        url: "/rovianda/quality/oven-status/:ovenId",
+        method: "put",
+        controller: QualityController,
+        target: "updateStatusOfOvenProduct"
     }
 ];

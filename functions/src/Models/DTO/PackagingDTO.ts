@@ -72,8 +72,10 @@ export interface SubOrdersMetadataDTO{
 export interface PackagingReprocesingRequest{
     date:string;
     lotId:string;
+    productId:number;
     allergen:string;
     weight:number;
+    weightMerm:number;
     comment:string;
 }
 

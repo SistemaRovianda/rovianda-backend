@@ -25,6 +25,9 @@ export class Reprocessing{
     @Column({type:"float"})
     weigth:number;
 
+    @Column({type:"float",name:"weight_merm"})
+    weightMerm:number;
+
     @Column()
     active:boolean;
 

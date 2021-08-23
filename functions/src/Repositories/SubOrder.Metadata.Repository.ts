@@ -101,4 +101,11 @@ export class SubOrderMetadataRepository{
         }
     }
 
+    async updateDateCloseOrder(orderId:number,date:string){
+        await this.getConnection();
+        await this.repository.query(`
+            update suborder_metadata set output_date="${date}" where sub_order_id in (select suborder_id from suborders where order_seller_id=${orderId})
+        `);
+    }
+
 }

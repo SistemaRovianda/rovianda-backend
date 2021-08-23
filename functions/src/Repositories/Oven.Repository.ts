@@ -169,10 +169,18 @@ export class OvenRepository{
     async getAllOvensByDatesAndLotPaginated(offset:number,perPage:number,startDate:string,endDate:string,lot:string){
         await this.getConnection();
         let items:OvensInventory[]=await this.ovenRepository.query(`
-            select op.id,form.lot_day as antLot,op.new_lote as newLot,op.status,op.date as createAt,pr.name
+            select op.id,form.lot_day as antLot,op.new_lote as newLot,op.status,op.date as createAt,pr.name,t.oven_temp as ovenTemp
             from oven_products as op left join process as pro on op.processId=pro.id 
             left join formulation as form on pro.formulationId=form.id
             left join products_rovianda as pr on op.product_rovianda_id=pr.id
+            left join (
+                select * from revisions_oven_products where id in 
+                (SELECT max(id) as id FROM revisions_oven_products where oven_product_id in (
+                    select id from oven_products as op
+                    ${lot?` where op.new_lote like "%${lot}%" `:""}
+                    ${(startDate && endDate)?((lot)?` and op.date between "${startDate}" and "${endDate}" `:` where op.date between "${startDate}" and "${endDate}"`):``} 
+                ))
+            ) as t on op.id=t.id
             ${lot?` where op.new_lote like "%${lot}%" `:""}
             ${(startDate && endDate)?((lot)?` and op.date between "${startDate}" and "${endDate}" `:` where op.date between "${startDate}" and "${endDate}"`):``}
             limit ${perPage} offset ${offset}
@@ -184,12 +192,29 @@ export class OvenRepository{
             left join products_rovianda as pr on op.product_rovianda_id=pr.id
             ${lot?` where op.new_lote like "%${lot}%" `:""}
             ${(startDate && endDate)?((lot)?` and op.date between "${startDate}" and "${endDate}" `:` where op.date between "${startDate}" and "${endDate}"`):``}
-            limit ${perPage} offset ${offset}
         `) as {count:number}[];
         return {
             items,
             count: count[0].count
         }
+    }
+
+    async getAllLotsByProduct(productRovianda:ProductRovianda){
+        await this.getConnection();
+        return await this.ovenRepository.find({
+            product:productRovianda,
+            status: "CLOSED"
+        });
+    }
+
+    async getAllLotsByProductAndDate(productRovianda:ProductRovianda,date:string){
+        await this.getConnection();
+        return await this.ovenRepository.find({
+            where:{
+            product:productRovianda,
+            date
+            }
+        });
     }
     
 }

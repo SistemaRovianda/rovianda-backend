@@ -1,4 +1,4 @@
-import { Repository, Like } from "typeorm";
+import { Repository, Like, Between } from "typeorm";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { connect } from "../Config/Db";
 import { AdminProductsCatalog } from "../Models/DTO/Admin.Sales.Request";
@@ -32,6 +32,8 @@ export class ProductRoviandaRepository {
             relations: ["ingredients","presentationProducts"]
         });
     }
+
+   
 
     async getProductRoviandaByIds(id: number) {
         await this.getConnection();
@@ -120,7 +122,7 @@ export class ProductRoviandaRepository {
         pp.price_presentation_min as weight,pp.key_sae as keySae,pp.key_altern as keyAltern,pp.type_product as type,pp.uni_med as uniMed,pp.price_presentation_liquidation as quantityByPresentation
         from products_rovianda as pr 
         left join presentation_products as pp on pr.id=pp.product_rovianda_id
-        where ${(hint)?`concat(pr.name," ",pp.type_presentation) like "%${hint}%" and `:""} pp.type_product is not null order by pr.name;`;
+        where ${(hint)?`concat(pr.name," ",pp.type_presentation) like "%${hint}%" and `:""} pp.type_product is not null and pp.status=1 order by pr.name;`;
         console.log("Query: "+query);
         return await this.repository.query(query) as AdminProductsCatalog[];
     }

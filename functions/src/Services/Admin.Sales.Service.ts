@@ -6,6 +6,7 @@ import { ClientEditRequest } from "../Models/DTO/Client.DTO";
 import { Address } from "../Models/Entity/Address";
 import { Client } from "../Models/Entity/Client";
 import { DayVisited } from "../Models/Entity/DayVisited";
+import { DevolutionSellerRequest } from "../Models/Entity/DevolutionSellerRequest";
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Roles } from "../Models/Entity/Roles";
@@ -14,12 +15,15 @@ import { Sale } from "../Models/Entity/Sales";
 import { User } from "../Models/Entity/User";
 import { ClientRepository } from "../Repositories/Client.Repository";
 import { DayVisitedRepository } from "../Repositories/DayVisitedRepository";
+import { DevolutionOldSubSaleRepository } from "../Repositories/DevolutionOldSubSalesRepository";
+import { DevolutionSellerRequestRepository } from "../Repositories/DevolutionSellerRequestRepository";
 import { PresentationsProductsRepository } from "../Repositories/Presentation.Products.Repository";
 import { ProductRepository } from "../Repositories/Product.Repository";
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
 import { RolesRepository } from "../Repositories/Roles.Repository";
 import { SaleRepository } from "../Repositories/Sale.Repository";
 import { SaleCancelRepository } from "../Repositories/SaleCancelRepository";
+import { SellerInventoryRepository } from "../Repositories/Seller.Inventory.Repository";
 import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
 import { SubSaleRepository } from "../Repositories/SubSale.Repository";
 import { UserRepository } from "../Repositories/User.Repository";
@@ -43,6 +47,9 @@ export class AdminSalesService{
     private firebaseHelper:FirebaseHelper;
     private productRoviandaRepository:ProductRoviandaRepository;
     private sqlRepository:SqlSRepository;
+    private sellerInventoryRepository:SellerInventoryRepository;
+    private devolutionRequestRepository:DevolutionSellerRequestRepository;
+    private devolutionSubSaleRepository:DevolutionOldSubSaleRepository;
     constructor(firebaseHelper: FirebaseHelper){
         this.sellerRepository = new UserRepository();
         this.rolRepository = new RolesRepository();
@@ -59,6 +66,9 @@ export class AdminSalesService{
         this.firebaseHelper = firebaseHelper;
         this.productRoviandaRepository = new ProductRoviandaRepository();
         this.sqlRepository = new SqlSRepository();
+        this.sellerInventoryRepository= new SellerInventoryRepository();
+        this.devolutionRequestRepository=new DevolutionSellerRequestRepository();
+        this.devolutionSubSaleRepository=new DevolutionOldSubSaleRepository();
     }
 
     async getAllSellers(){
@@ -271,6 +281,10 @@ export class AdminSalesService{
         let products:OfflineNewVersionProducts[] = await this.productRepository.getProductsOfflineNewVersion(sellerId);
         let salesToDebts:SaleInterfaceRequest[]=[];
         let currentSalesList:SaleInterfaceRequest[]=[];
+        
+        let devolutionsRequestIds = await this.devolutionRequestRepository.getAllDevolutionsOfSellerAndDate(sellerId,date);
+        let devolutionsRequest= await this.devolutionRequestRepository.getEntitiesToDataInitial(devolutionsRequestIds.map(x=>x.id));
+        let devolutionsSubSales = await this.devolutionSubSaleRepository.getAllDevolutionsSubSalesBySellerAndDate(devolutionsRequest.map(x=>x.devolutionAppRequestId));
         let sales:Sale[] = await this.salesRepository.getSalesPendingBySeller(sellerId);
         let currentSales:Sale[]=await this.salesRepository.getSalleSellerByDateUser(sellerId,date);
         console.log("Current sales: "+currentSales.length);
@@ -318,7 +332,8 @@ export class AdminSalesService{
                             quantity: x.quantity,
                             subSaleServerId: x.subSaleId,
                             uniMed: x.presentation.uniMed,
-                            weightStandar: x.presentation.presentationPriceMin
+                            weightStandar: x.presentation.presentationPriceMin,
+                            subSaleAppId: x.appSubSaleId
                         };
                         return item;
                     })
@@ -369,7 +384,8 @@ export class AdminSalesService{
                             quantity: x.quantity,
                             subSaleServerId: x.subSaleId,
                             uniMed: x.presentation.uniMed,
-                            weightStandar: x.presentation.presentationPriceMin
+                            weightStandar: x.presentation.presentationPriceMin,
+                            subSaleAppId: x.appSubSaleId
                         };
                         return item;
                     })
@@ -389,7 +405,9 @@ export class AdminSalesService{
             name: seller.name,
             count: +saleOfSeller.replace(seller.cve,""),
             debts:salesToDebts,
-            salesOfDay: currentSalesList
+            salesOfDay: currentSalesList,
+            devolutionsRequest,
+            devolutionsSubSales
         }
         return response;
     }
@@ -407,6 +425,12 @@ export class AdminSalesService{
                 }
             }else if(sale.statusStr=="ACTIVE"){
                 sale.statusStr="CANCELED";
+                let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
+                if(saleCancelRequest){
+                    if(saleCancelRequest.status=="DECLINED"){
+                        saleCancelRequest.status="ACCEPTED";
+                    }
+                }
             }
             await this.salesRepository.saveSale(sale);
         }
@@ -426,8 +450,11 @@ export class AdminSalesService{
         user.token=token;
         await this.userRepository.saveUser(user);
     }
-    async getAllCancelRequests(type:string,dateStart:string,dateEnd:string){
-        return  await this.saleCancelRepository.getAllSaleCancelsPending(type,dateStart,dateEnd);
+    async getAllCancelRequests(type:string,dateStart:string,dateEnd:string,page:string,perPage:string){
+        return  await this.saleCancelRepository.getAllSaleCancelsPending(type,dateStart,dateEnd,page,perPage);
+    }
+    async getAllDevolutionsRequests(type:string,dateStart:string,dateEnd:string,page:string,perPage:string){
+        return  await this.devolutionRequestRepository.getAllSaleDevolutionsPending(type,dateStart,dateEnd,page,perPage);
     }
     async adminSaleChangeStatus(saleId:number,status:string,adminId:string){
         let sale:Sale = await this.salesRepository.getSaleById(saleId);
@@ -460,6 +487,40 @@ export class AdminSalesService{
             //     console.log("Error al enviar notification a vendedor");
             // }
             await this.salesRepository.saveSale(sale);
+        }
+    }
+
+    async adminSaleDevolutionRequestStatus(saleId:number,status:string,adminId:string){
+        let sale:Sale = await this.salesRepository.getSaleById(saleId);
+        if(sale){
+            let devolutionRequest = await this.devolutionRequestRepository.getDevolutionSellerRequestByFolio(sale.folio);
+            if(status=="ACCEPTED"){
+                
+                if(devolutionRequest){
+                    devolutionRequest.status="ACCEPTED";
+                    let date = new Date();
+                    date.setHours(date.getHours()-5);
+                    devolutionRequest.dateAttended=date.toISOString();
+                    devolutionRequest.adminId=adminId;
+                    await this.devolutionRequestRepository.saveDevolutionSellerRequest(devolutionRequest);
+                }
+            }else if(status=="DECLINED"){
+                
+                if(devolutionRequest){
+                    devolutionRequest.status="DECLINED";
+                    let date = new Date();
+                    date.setHours(date.getHours()-5);
+                    devolutionRequest.dateAttended=date.toISOString();
+                    devolutionRequest.adminId=adminId;
+                    await this.devolutionRequestRepository.saveDevolutionSellerRequest(devolutionRequest);
+                }
+            }
+            // try{
+            // await this.firebaseHelper.notificateToSeller(sale.seller.id,(status=="ACCEPTED")?"Aceptado":"Rechazado");
+            // }catch(err){
+            //     console.log("Error al enviar notification a vendedor");
+            // }
+            
         }
     }
 
@@ -517,8 +578,10 @@ export class AdminSalesService{
             presentationProduct.keySae=body.code;
         }
         presentationProduct.typeProduct=body.type;
+        presentationProduct.uniMed=body.uniMed;
         presentationProduct.productRovianda=product;
         await this.presentationProductRepository.savePresentationsProduct(presentationProduct);
+        await this.sellerInventoryRepository.insertNewProductToSellerInventory(presentationProduct.id,product.id);
     }
 
     async updatePreRegisterProduct(presentationId:number,body:RequestPreRegistProduct){
@@ -538,6 +601,14 @@ export class AdminSalesService{
         presentation.presentationPriceMin=body.weight;
         presentation.uniMed=body.uniMed;
         await this.presentationProductRepository.savePresentationsProduct(presentation);
+    }
+
+
+    async deletePreRegistProduct(presentationId:number){
+        let presentationProduct:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(presentationId);
+        presentationProduct.status=false;
+        await this.presentationProductRepository.savePresentationsProduct(presentationProduct);
+        await this.sellerInventoryRepository.deletePresentationOfInventoryOfSeller(presentationId);
     }
 
 }

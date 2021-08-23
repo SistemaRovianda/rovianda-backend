@@ -5,6 +5,8 @@ const configoptions:config ={
     database:"SAE76",//"SAE8",//"SAE70Empre01", //"SAE70Empre01",//
     password: "R1o2v3i4S5a6p7i8_2018",//"Holamundo1250",//"Holamundo1250",//
     user: "1234",//"AspelAdmin",//"sa",//
+    connectionTimeout: 60000,
+    requestTimeout: 60000,
     options:{
         cryptoCredentialsDetails: {
             minVersion: 'TLSv1'

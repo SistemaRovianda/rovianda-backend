@@ -363,15 +363,15 @@ export class PackagingService{
                     }else{
                         subOrder.weight=pack.weight;
                     }
-                    let productSae = await this.sqlRepository.getProductSaeByKey(presentationProducts.keySae);
-                    if(!productSae.length) throw new Error("[409], no existe el producto en aspel sae");
-                    let uniMed=(productSae[0].UNI_MED as string).toLowerCase();
-                    let valueToSave =0;
-                    if(uniMed=="pz"){
-                        valueToSave=pack.quantity;
-                    }else{
-                        valueToSave=pack.weight;
-                    }
+                    //let productSae = await this.sqlRepository.getProductSaeByKey(presentationProducts.keySae);
+                    //if(!productSae.length) throw new Error("[409], no existe el producto en aspel sae");
+                   // let uniMed=(productSae[0].UNI_MED as string).toLowerCase();
+                    // let valueToSave;
+                    // if(uniMed=="pz"){
+                    //     valueToSave=pack.quantity;
+                    // }else{
+                    //     valueToSave=pack.weight;
+                    // }
                     
                     await this.subOrderRepository.saveSalesProduct(subOrder); 
                     //await this.sellerInventoryRepository.saveSellerInventory(sellerInventory);
@@ -494,15 +494,17 @@ export class PackagingService{
     }
 
     async createReprocesing(request:PackagingReprocesingRequest){
-        let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLot(request.lotId);
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(request.productId);
+        let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLotAndProduct(request.lotId,productRovianda);
         if(!ovenProduct) throw new Error("[404], no existe ese lote en salidas de hornos");
         let reprocesing:Reprocessing = new Reprocessing();
         reprocesing.active=true;
         reprocesing.used=false;
         reprocesing.allergens=request.allergen;
         reprocesing.date=request.date;
+        reprocesing.weightMerm=  request.weightMerm;
         reprocesing.weigth = request.weight;
-        reprocesing.packagingProductName=ovenProduct.product.name;
+        reprocesing.packagingProductName=productRovianda.name;
         reprocesing.packagingReprocesingOvenLot=request.lotId;
         reprocesing.comment=request.comment;
         let reprocesingEntity=await this.reprocessingRepository.saveRepocessing(reprocesing);
@@ -516,6 +518,7 @@ export class PackagingService{
     }
 
     async createDevolution(devolutionRequest:DevolutionRequest){
+        console.log("JSON: "+JSON.stringify(devolutionRequest));
         //let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
         //if(!presentation) throw new Error("[404], no existe la presentation de ese producto");
         //let ovenProduct:OvenProducts = await this.ovenRepository.getOvensByNewLotAndProduct(devolutionRequest.lotId,presentation.productRovianda);
@@ -557,6 +560,7 @@ export class PackagingService{
                 }
             }
         }
+        console.log("Total discount: "+totalToDiscountTemp);
         if(totalToDiscountTemp==0){ 
             let devolution:Devolution = new Devolution();
             devolution.date=devolutionRequest.date;
@@ -565,8 +569,8 @@ export class PackagingService{
             let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
             devolution.presentationProduct=presentation;
             devolution.weight = devolutionRequest.weight;
-
-            let ovenProduct = await this.ovenRepository.getOvenProductByLot(devolutionRequest.lotId);
+            
+            let ovenProduct = await this.ovenRepository.getOvensByNewLotAndProduct(devolutionRequest.lotId,presentation.productRovianda);
 
             if(ovenProduct){
                 ovenProduct.status="CLOSED";
@@ -617,10 +621,12 @@ export class PackagingService{
         return await this.pdfHelper.getPackagingDevolution(devolution,name);
     }
 
-    async closeOrderSeller(orderSellerId:number){
+    async closeOrderSeller(orderSellerId:number,date:string){
+        console.log("Date ended: "+date);
         let orderSeller:OrderSeller= await this.orderSellerRepository.getOrderById(orderSellerId);
         let subOrders = await this.subOrderRepository.getByOrderSeller(orderSeller);
         let hasCheese =false;
+        await this.subOrderMetadataRepository.updateDateCloseOrder(orderSellerId,date);
         let cheeses = await this.cheeseRepository.getAllCheeses();
         let cheeseIds = cheeses.map(x=>x.product.id);
         for(let sub of subOrders){
@@ -633,22 +639,19 @@ export class PackagingService{
         }else if(orderSeller.status=="CHEESE" || orderSeller.status=="ACTIVE"){
             orderSeller.status="INACTIVE";
         }
+        orderSeller.dateAttended=date;
         await this.orderSellerRepository.saveSalesSeller(orderSeller);
     }
 
     async getReportOfDeliveredSeller(orderSellerId:number,mode:string){
         let orderSeller:OrderSeller = await this.orderSellerRepository.getOrderByIdWithSuborders(orderSellerId);
-        let mapSubOrderWeigth=new Map<number,number>();
+        
         let subOrders = await this.subOrderRepository.getByOrderSeller(orderSeller);
         for(let subOrder of subOrders){
             let subOrdersMetadata = await this.subOrderMetadataRepository.getSubOrderMetadataBySubOrder(subOrder);
-            
-                subOrder.units=subOrdersMetadata.map(x=>x.quantity).reduce((a,b)=>a+b,0);
-                let weigth=subOrdersMetadata.map(x=>x.weigth).reduce((a,b)=>a+b,0);
-                mapSubOrderWeigth.set(subOrder.subOrderId,weigth);
-            
+            subOrder.subOrderMetadata=subOrdersMetadata;
         }
-        return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mapSubOrderWeigth,mode);
+        return await this.pdfHelper.getPackagingDeliveredReport(orderSeller,mode);
     }
 
     async getEntrancesOfWarehouseId(warehouseId:string,dateStart:string,dateEnd:string,type:string){
@@ -684,13 +687,13 @@ export class PackagingService{
     async getLotsStockInventoryByPresentationId(presentationId:number){
         let response:LotsStockInventory[]=[];
         let presetationProduct = await this.presentationProductRepository.getPresentationProductsById(presentationId);
-        if(!presetationProduct) throw new Error("[404], no existe el producto");
-        let productSae = null;
-        productSae =await this.sqlRepository.getProductSaeByKey(presetationProduct.keySae);
-        if(!productSae.length){
-          productSae = await this.sqlRepository.getProductSaeByKeyLike(presetationProduct.keySae);
-        }
-        if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+        // if(!presetationProduct) throw new Error("[404], no existe el producto");
+        // let productSae = null;
+        // productSae =await this.sqlRepository.getProductSaeByKey(presetationProduct.keySae);
+        // if(!productSae.length){
+        //   productSae = await this.sqlRepository.getProductSaeByKeyLike(presetationProduct.keySae);
+        // }
+        //if(!productSae.length) throw new Error("[400], producto no existente en SAE");
         let packagings = await this.packagingRepository.getPackagingsByProduct(presetationProduct.productRovianda);
         let mapLotsStock = new Map<string,number>();
         for(let packaging of packagings){
@@ -717,6 +720,34 @@ export class PackagingService{
         }
       
         return response;
+    }
+
+    async getLotsStockInventoryByProductId(productId:number){
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
+        let ovensLots = await this.ovenRepository.getAllLotsByProduct(productRovianda);
+        
+        let lots:string[]=[];
+        for(let oven of ovensLots){
+            
+            if(!lots.includes(oven.newLote)){
+                lots.push(oven.newLote);
+            }
+        }
+        return lots;
+    }
+
+    async getLotsStockInventoryByProductIdAndDate(productId:number,date:string){
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(productId);
+        let ovensLots = await this.ovenRepository.getAllLotsByProductAndDate(productRovianda,date);
+        
+        let lots:string[]=[];
+        for(let oven of ovensLots){
+            
+            if(!lots.includes(oven.newLote)){
+                lots.push(oven.newLote);
+            }
+        }
+        return lots;
     }
 
     async getLotsStockInventoryByWarehouseGeneral(id:number){

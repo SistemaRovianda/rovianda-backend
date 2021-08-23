@@ -141,10 +141,22 @@ export const AdminSalesRoutes:routeInterface[]=[
         target: "getCancelationsRequest"
     },
     {
+        url: "/rovianda/admin-sales/get-devolutions",
+        method: "get",
+        controller: AdminSalesController,
+        target: "getDevolutionsRequest"
+    },
+    {
         url: "/rovianda/update-sale/request/:saleId",
         method: "put",
         controller: AdminSalesController,
         target: "updateCancelRequest"
+    },
+    {
+        url: "/rovianda/update-sale/request-devolution/:saleId",
+        method: "put",
+        controller: AdminSalesController,
+        target: "updateDevolutionRequest"
     },
     {
         url: "/rovianda/admin-products/catalog",
@@ -169,5 +181,11 @@ export const AdminSalesRoutes:routeInterface[]=[
         method: "put",
         controller: AdminSalesController,
         target: "updatePreRegisterProduct"
+    },
+    {
+        url: "/rovianda/admin-products/delete/:presentationId",
+        method: "delete",
+        controller: AdminSalesController,
+        target: "deletePreRegisterProduct"
     }
 ];

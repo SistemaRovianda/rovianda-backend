@@ -2520,6 +2520,7 @@ export default class PdfHelper{
                     <th>LOTE</th>
                     <th>PRESENTACION</th>
                     <th>UNIDADES</th>
+                    <th>PESO</th>
                     <th>FECHA</th>
                 </tr>
             
@@ -2528,6 +2529,7 @@ export default class PdfHelper{
                 <td class="cel">${devolution.lotId}</td>
                 <td class="cel">${devolution.presentationProduct.presentation} ${devolution.presentationProduct.presentationType}</td>
                 <td class="cel">${devolution.units}</td>
+                <td class="cel">${devolution.weight}</td>
                 <td class="cel">${devolution.date}</td>
                 
                 </tr>
@@ -2541,10 +2543,19 @@ export default class PdfHelper{
         </html>`;
     }
 
-    async getPackagingDeliveredReport(orderSeller:OrderSeller,mapSubOrder:Map<number,number>,mode:string){
+    async getPackagingDeliveredReport(orderSeller:OrderSeller,mode:string){
         let content="";
-        let date=new Date();
-        date.setHours(date.getHours()-6);
+        let dateSplited = orderSeller.dateAttended.split("T");
+
+        let dateStr = dateSplited[0];
+        let hour = (dateSplited[1]).split(":")[0];
+        let minutes=(dateSplited[1]).split(":")[1];
+        let timeZ="am";
+        if(+hour>=12){
+            timeZ="pm";
+        }else{
+            timeZ="am";
+        }
         let cheeses = await this.cheeseRepository.getAllCheeses();
         let cheesesIds = cheeses.map(x=>x.product.id);
         content+=` 
@@ -2601,6 +2612,7 @@ export default class PdfHelper{
                 <p align="center"> <b> EMPACADORA ROVIANDA S.A.P.I DE C.V. </b></p>
                 <p align="center"> <b> BITACORA DE CONTROL DE REBANADO Y EMPACADO </b></p>
                 <p align="center"> <b> ORDEN No. ${orderSeller.id} </b></p>
+                <p align="center"> <b> FECHA Y HORA: ${dateStr+" "+((+hour>12)?+hour-12:hour)+":"+minutes+" "+timeZ} </b></p>
             </div>
             
             <table border="1" align="center" width="90%" height="50px">
@@ -2608,10 +2620,8 @@ export default class PdfHelper{
                 <th>
                     <img src="${LOGO.data}" alt=""> 
                 </th>
-                <th colspan="3">Entrega a vendedor: ${orderSeller.seller.name}</th>
-                <th colspan="2">            
-                    <p>Fecha: ${date.getDate()}-${date.getMonth()+ 1}-${date.getFullYear()}</p>
-                </th>
+                <th colspan="5">Entrega a vendedor: ${orderSeller.seller.name}</th>
+                
             </tr>
         
                 <tr>
@@ -2620,12 +2630,11 @@ export default class PdfHelper{
                     <th>PRESENTACION</th>
                     <th>CANTIDAD</th>
                     <th>PESO</th>
-                    <th>OBSERVACIONES</th>
                     <th>PRECIO</th>
                 </tr>
         `;
         for(let subOrder of orderSeller.subOrders){
-            if(!subOrder.active){
+            
             if(mode==undefined || mode==null){
                 if(!cheesesIds.includes(subOrder.productRovianda.id)){
                 content+=`
@@ -2633,13 +2642,12 @@ export default class PdfHelper{
                 <td>${subOrder.presentation.keySae}</td>
                 <td>${subOrder.productRovianda.name}</td>
                 <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
-                <td>${subOrder.units}</td>
-                <td>${(mapSubOrder.get(subOrder.subOrderId)).toFixed(2)}</td>
-                <td>${subOrder.observations}</td>
+                <td>${subOrder.subOrderMetadata.map(x=>x.quantity).reduce((a,b)=>(a+b),0)}</td>
+                <td>${subOrder.subOrderMetadata.map(x=>x.weigth).reduce((a,b)=>(a+b),0)}</td>
                 <td>${subOrder.presentation.presentationPricePublic}</td>
                 </tr>
                 `;
-                }
+                
             }else{
                 if(cheesesIds.includes(subOrder.productRovianda.id) && mode=="cheese"){
                     content+=`
@@ -2647,9 +2655,8 @@ export default class PdfHelper{
                     <td>${subOrder.productRovianda.code}</td>
                     <td>${subOrder.productRovianda.name}</td>
                     <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
-                    <td>${subOrder.units}</td>
-                    <td>${(mapSubOrder.get(subOrder.subOrderId)).toFixed(2)}</td>
-                    <td>${subOrder.observations}</td>
+                    <td>${subOrder.subOrderMetadata.map(x=>x.quantity).reduce((a,b)=>(a+b),0)}</td>
+                    <td>${subOrder.subOrderMetadata.map(x=>x.weigth).reduce((a,b)=>(a+b),0)}</td>
                     <td>${subOrder.presentation.presentationPricePublic}</td>
                     </tr>
                     `;
@@ -2686,14 +2693,16 @@ export default class PdfHelper{
             </th>
         </tr>
         <tr>
-        <th>PESO</th>
-            <th>ALERGENO</th>
-            <th>OBSERVACIONES</th>
+            <td><strong>PESO</strong></td>
+            <td colspan="2" ><strong>PESO MERMA</strong></td>
+            <td ><strong>ALERGENO</strong></td>
+            <td colspan="2" ><strong>OBSERVACIONES</strong></td>
         </tr>
         <tr>
             <td>${reprocesing.weigth}</td>
-            <td>${reprocesing.allergens}</td>
-            <td>${reprocesing.comment}</td>
+            <td colspan="2">${reprocesing.weightMerm}</td>
+            <td >${reprocesing.allergens}</td>
+            <td colspan="2">${reprocesing.comment}</td>
         </tr>
         </table>
         </body>

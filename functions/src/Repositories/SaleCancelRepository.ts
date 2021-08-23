@@ -20,14 +20,27 @@ export class SaleCancelRepository{
         return await this.repository.save(saleCancel);
     }
 
-    async getAllSaleCancelsPending(type:string,dateStart:string,dateEnd:string){
+    async getAllSaleCancelsPending(type:string,dateStart:string,dateEnd:string,page:string,perPage:string){
         await this.getConnection();
-        return await this.repository.query(`
-            select sc.folio,us.name as sellerName,sa.date,sa.sale_id as saleId,sc.create_at as createAt
+        let items= await this.repository.query(`
+            select sc.sales_canceled_id as requestId,sc.folio,us.name as sellerName,sa.date,sa.sale_id as saleId,sc.create_at as createAt,sc.status
             from sales_canceled as sc left join users as us on sc.seller_id=us.id
             left join sales as sa on sc.folio=sa.folio
-            where sc.status="${type}" ${(type!="PENDING")?` and sc.create_at between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z"`:""};
+            where sc.status="${type}" ${(type!="PENDING" && dateStart && dateEnd)?` and sc.modified_at between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z"`:""}
+            ${page&&perPage?` limit ${+perPage} offset ${+page*+perPage} `:""}
         `) as CancelRequest[];
+
+        let count= await this.repository.query(`
+            select count(*) as count
+            from sales_canceled as sc left join users as us on sc.seller_id=us.id
+            left join sales as sa on sc.folio=sa.folio
+            where sc.status="${type}" ${(type!="PENDING" && dateStart && dateEnd)?` and sc.modified_at between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z"`:""}
+            
+        `) as {count:number}[];
+        return {
+            items,
+            count: count[0].count
+        }
     }
 
 }

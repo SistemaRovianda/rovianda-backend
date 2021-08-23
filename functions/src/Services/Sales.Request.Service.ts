@@ -1,7 +1,7 @@
 import { SalesRequestRepository } from '../Repositories/SalesRequest.Repostitory';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 
-import { OrderSellerRequest, OrderSellerUpdateProperties, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
+import { DevolutionSellerRequestBody, OrderSellerRequest, OrderSellerUpdateProperties, ProductDevolution, RequestDevolution, SaleRequestForm } from '../Models/DTO/Sales.ProductDTO';
 import { User } from '../Models/Entity/User';
 import { UserRepository } from '../Repositories/User.Repository';
 
@@ -38,7 +38,7 @@ import { Client } from '../Models/Entity/Client';
 import { DebtsPaymentRequest } from '../Models/DTO/Debts.DTO';
 import { TicketUtil } from '../Utils/Tickets/Ticket.Util';
 import { CheeseRepository } from '../Repositories/Cheese.Repository';
-import { response } from 'express';
+import { request, response } from 'express';
 import { SellerInventory } from '../Models/Entity/Seller.Inventory';
 import { PropertiesPackagingRepository } from '../Repositories/Properties.Packaging.Repository';
 import { VisitClientOperation } from '../Models/Entity/VisitClientOperation';
@@ -48,6 +48,10 @@ import { DayVisited } from '../Models/Entity/DayVisited';
 import { DayVisitedRepository } from '../Repositories/DayVisitedRepository';
 import { SaleCancelRepository } from '../Repositories/SaleCancelRepository';
 import { SaleCancel } from '../Models/Entity/SaleCancel';
+import { DevolutionSellerRequestRepository } from '../Repositories/DevolutionSellerRequestRepository';
+import { DevolutionSellerRequest } from '../Models/Entity/DevolutionSellerRequest';
+import { DevolutionOldSubSales } from '../Models/Entity/DevolutionOldSubSales';
+import { DevolutionOldSubSaleRepository } from '../Repositories/DevolutionOldSubSalesRepository';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -69,6 +73,8 @@ export class SalesRequestService{
     private propertiesPackagingRepository:PropertiesPackagingRepository;
     private saleCancelRepository:SaleCancelRepository;
     private dayRepository:DayVisitedRepository;
+    private devolutionRequestSellerRepository:DevolutionSellerRequestRepository;
+    private devolutionOldSubSalesRepository:DevolutionOldSubSaleRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -89,6 +95,8 @@ export class SalesRequestService{
         this.propertiesPackagingRepository = new PropertiesPackagingRepository();
         this.dayRepository = new DayVisitedRepository();
         this.saleCancelRepository= new SaleCancelRepository();
+        this.devolutionRequestSellerRepository=new DevolutionSellerRequestRepository();
+        this.devolutionOldSubSalesRepository=new DevolutionOldSubSaleRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -117,11 +125,11 @@ export class SalesRequestService{
           subOrder.typePrice=presentation.typePrice;
           subOrder.active=true;
           subOrder.observations = suborder.observations;
+          subOrder.weight=0;
           if(suborder.outOfStock){
             subOrder.outOfStock=suborder.outOfStock;
           }
           subOrderArr.push(subOrder);
-          
         }
         order.subOrders = subOrderArr;
         
@@ -845,19 +853,32 @@ export class SalesRequestService{
     async getTicketOfSale(saleId:number){
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       if(!sale) throw new Error("[404], no existe la venta");
-      
+      let cancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
       let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-      let ticket:string = await this.ticketUtil.TicketSale(sale,subSales);
-      ticket+=ticket;
+      let ticket:string = await this.ticketUtil.TicketSale(sale,subSales,cancelRequest);
+      
+      return ticket;
+    }
+
+    async getDevolutionTicketOfSale(saleId:number){
+      let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      if(!sale) throw new Error("[404], no existe la venta");
+      let devolutionRequest = await this.devolutionRequestSellerRepository.getDevolutionSellerRequestByFolio(sale.folio);
+      let devolutionSubSalesModified = await this.devolutionOldSubSalesRepository.getByDevolutionRequestIdAndTypeToTicket(devolutionRequest.devolutionAppRequestId,"MODIFIED");
+      let devolutionSubSalesOriginal = await this.devolutionOldSubSalesRepository.getByDevolutionRequestIdAndTypeToTicket(devolutionRequest.devolutionAppRequestId,"ORIGINAL");
+      let ticket:string = await this.ticketUtil.DevolutionTicketSale(sale,devolutionSubSalesOriginal);
+      let ticketModified:string = await this.ticketUtil.DevolutionTicketSale(sale,devolutionSubSalesModified);
+      ticket+="DEVOLUCION\nMOTIVO: "+devolutionRequest.observations+"\n\n\n";
+      ticket+=ticketModified;
       return ticket;
     }
 
     async getSingleTicketOfSale(saleId:number){
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       if(!sale) throw new Error("[404], no existe la venta");
-      
+      let cancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
       let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-      let ticket:string = await this.ticketUtil.TicketSale(sale,subSales);
+      let ticket:string = await this.ticketUtil.TicketSale(sale,subSales,cancelRequest);
       return ticket;
     }
 
@@ -1105,6 +1126,23 @@ export class SalesRequestService{
         let sale=sales[i];
         if(!sale.sincronized){
           let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+          if(sale.devolutionRequest){
+            //let mapSubSales:Map<number,number> =new Map();
+            // for(let devolution of devolutionSubSalesNew){
+            //   mapSubSales.set(devolution.subSaleIdIdentifier,devolution.quantity);
+            // }
+            for(let subSale of subSales){
+              let devolutionSubSalesNew = await this.devolutionOldSubSalesRepository.getDevolutionOldSubSalesBySubSaleId(subSale.appSubSaleId,sale.folio);
+              if(devolutionSubSalesNew.length){
+                let quantityNew = devolutionSubSalesNew[0].quantity;
+                if(quantityNew){
+                  subSale.amount=(subSale.amount/subSale.quantity)*quantityNew;
+                  subSale.quantity=quantityNew;
+                }
+              }
+            
+            }
+          }
           sale.subSales=subSales;
           try{
             let folio=await this.sqlsRepository.createSaleSae(sale);
@@ -1675,13 +1713,20 @@ export class SalesRequestService{
       return await this.ticketUtil.getOrderTicket(orderSeller,subSales);
     }
 
-    async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[]}){
+    async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[],devolutions:DevolutionSellerRequestBody[]},sellerId:string){
+      console.log("Devolutions: "+body.devolutions);
       let seller:User=null;
-      let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[]}={
+      
+      let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[],devolutionsSincronized:string[],devolutionsAccepted:string[],devolutionsRejected:string[],devolutionsPending:string[]}={
         debtsSicronized:[],
-        salesSincronized:[]
+        salesSincronized:[],
+        devolutionsSincronized:[],
+        devolutionsAccepted:[],
+        devolutionsRejected:[],
+        devolutionsPending:[]
       };
       let salesCanceled:string[] = [];
+      let devolutionsCreated:number[]=[];
       for(let sale of body.sales){
         if(seller==null){
           seller = await this.userRepository.getUserById(sale.sellerId);
@@ -1691,7 +1736,9 @@ export class SalesRequestService{
         if(sale.statusStr=="CANCELED"){
           salesCanceled.push(sale.folio);
           sale.statusStr="ACTIVE";
+          if(saleEntity){
           saleEntity.cancelRequest=true;
+          }
         }
         if(!saleEntity){
           await this.saleRepository.createSimpleSale2(sale,sale.sellerId,salesCanceled);
@@ -1722,7 +1769,7 @@ export class SalesRequestService{
             await this.saleCancelRepository.saveCancelSale(saleCancel);
           }
         }
-        await this.firebaseHelper.notificateToAdminSales(seller.name);
+        
       }
       
       for(let deb of body.debts){
@@ -1746,7 +1793,137 @@ export class SalesRequestService{
           salesSicronized.debtsSicronized.push(deb.folio);
         }
       }
+
+      if(body.devolutions && body.devolutions.length){
+        
+        for(let devolution of body.devolutions){
+          salesSicronized.devolutionsSincronized.push(devolution.folio);
+          let devolutionRequest:DevolutionSellerRequest=await this.devolutionRequestSellerRepository.getDevolutionSellerRequestByFolio(devolution.folio);
+          if(!devolutionRequest){
+            
+            let sale:Sale = await this.saleRepository.getByFolio(devolution.folio);
+            if(sale){
+              let devolutionEntity:DevolutionSellerRequest =  new DevolutionSellerRequest();
+              devolutionEntity.createAt=devolution.createAt;
+              devolutionEntity.folio=devolution.folio;
+              devolutionEntity.observations=devolution.observations;
+              devolutionEntity.saleId=sale.saleId;
+              devolutionEntity.sellerId=sale.seller.id;
+              devolutionEntity.typeDevolution=devolution.typeDevolution;
+              devolutionEntity.devolutionAppRequestId=devolution.devolutionId;
+              devolutionEntity.viewed=false;
+              devolutionEntity.status="PENDING";
+              devolutionEntity= await this.devolutionRequestSellerRepository.saveDevolutionSellerRequest(devolutionEntity);
+              devolutionsCreated.push(devolutionEntity.devolutionSellerRequestId);
+              sale.devolutionRequest=true;
+              await this.saleRepository.saveSale(sale);
+              for(let oldProduct of devolution.productsOld){
+                console.log(JSON.stringify(oldProduct));
+                let product:DevolutionOldSubSales=new DevolutionOldSubSales();
+                product.amount=oldProduct.amount;
+                product.createAt=oldProduct.createAt;
+                product.loteId="";
+                product.presentationId=oldProduct.presentationId;
+                product.productId=oldProduct.productId;
+                product.quantity=oldProduct.quantity,
+                product.saleId=sale.saleId;
+                product.subSaleIdIdentifier=oldProduct.appSubSaleId;
+                product.type="ORIGINAL";
+                product.devolutionRequestId=devolution.devolutionId;
+                await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
+              }
+              for(let newProduct of devolution.productsNew){
+                console.log(JSON.stringify(newProduct));
+                let product:DevolutionOldSubSales=new DevolutionOldSubSales();
+                product.amount=newProduct.amount;
+                product.createAt=newProduct.createAt;
+                product.loteId="";
+                product.presentationId=newProduct.presentationId;
+                product.productId=newProduct.productId;
+                product.quantity=newProduct.quantity,
+                product.saleId=sale.saleId;
+                product.subSaleIdIdentifier=newProduct.appSubSaleId;
+                product.type="MODIFIED";
+                product.devolutionRequestId=devolution.devolutionId;
+                await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
+              }
+            }
+            
+          }
+        }
+      }
+
+      let date = new Date();
+      date.setHours(date.getHours()-5);
+      let month = (date.getMonth()+1).toString();
+      let day = date.getDate().toString();
+      if(+month<10) month="0"+month;
+      if(+day<10) day="0"+day;
+      let devolutionsOfDateBySeller = await this.devolutionRequestSellerRepository.getAllDevolutionsOfSellerAndDate(sellerId,`${date.getFullYear()}-${month}-${day}`);
+      for(let devolution of devolutionsOfDateBySeller){
+        if(devolution.status=="DECLINED"){
+          salesSicronized.devolutionsRejected.push(devolution.folio);
+        }else if(devolution.status=="ACCEPTED"){
+          salesSicronized.devolutionsAccepted.push(devolution.folio);
+        }else if(devolution.status=="PENDING"){
+          salesSicronized.devolutionsPending.push(devolution.folio);
+        }
+      }
+      if(salesCanceled.length || devolutionsCreated.length){
+          await this.firebaseHelper.notificateToAdminSales();
+      }
+
       return salesSicronized;
+    }
+
+    async getRequestDevolutionDetails(saleId:number){
+      let sale = await this.saleRepository.getSaleById(saleId);
+      let devolutionRequest = await this.devolutionRequestSellerRepository.getDevolutionAcceptedSellerRequestByFolio(sale.folio);
+      if(!devolutionRequest) throw new Error("[404], No se encuentra la  solicitud de devolucion");
+      let adminAccepted:string="";
+      let sellerName:string= "";
+      let seller = await this.userRepository.getUserById(devolutionRequest.sellerId);
+      sellerName=seller.name;
+      if(devolutionRequest.status!="PENDING"){
+        let user = await this.userRepository.getUserById(devolutionRequest.adminId);
+        adminAccepted=user.name; 
+      }
+      
+      let devolutionSubSalesModified = await this.devolutionOldSubSalesRepository.getByDevolutionRequestIdAndTypeToTicket(devolutionRequest.devolutionAppRequestId,"MODIFIED");
+      let devolutionSubSalesOriginal = await this.devolutionOldSubSalesRepository.getByDevolutionRequestIdAndTypeToTicket(devolutionRequest.devolutionAppRequestId,"ORIGINAL");
+      let mapProductOriginal:Map<string,number> = new Map();
+      let mapProductOriginalPrice:Map<string,number> = new Map();
+      for(let dev of devolutionSubSalesOriginal){
+        mapProductOriginal.set(dev.name+" "+dev.presentation,dev.quantity);
+        mapProductOriginalPrice.set(dev.name+" "+dev.presentation,(dev.amount/dev.quantity));
+      }
+      let devolutionProducts:ProductDevolution[]=[];
+      for(let dev2 of devolutionSubSalesModified){
+        devolutionProducts.push({
+          productName: dev2.name+" "+dev2.presentation,
+          quantity: (mapProductOriginal.get(dev2.name+" "+dev2.presentation)-dev2.quantity),
+          price: mapProductOriginalPrice.get(dev2.name+" "+dev2.presentation)*dev2.quantity,
+          uniMed: dev2.uniMed
+        });
+      }
+      let ticket:string = await this.ticketUtil.DevolutionTicketSale(sale,devolutionSubSalesOriginal);
+      let ticketModified:string = await this.ticketUtil.DevolutionTicketSale(sale,devolutionSubSalesModified);
+      
+      let response:RequestDevolution={
+        adminAccepted,
+        folio:sale.folio,
+        sellerName,
+        dateRequest: devolutionRequest.createAt,
+        dateSale: sale.date,
+        dateAttended: devolutionRequest.dateAttended,
+        observations: devolutionRequest.observations,
+        saleId: sale.saleId,
+        status: devolutionRequest.status,
+        originalTicket: ticket,
+        modifiedTicket: ticketModified,
+        devolutionProducts
+      };
+      return response;
     }
 
   }

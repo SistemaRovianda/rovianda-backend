@@ -176,6 +176,7 @@ export interface OvensInventory{
     status:string,
     createAt:string,
     name:string;
+    ovenTemp:string;
 }
 
 export interface ProductEndedIventory{

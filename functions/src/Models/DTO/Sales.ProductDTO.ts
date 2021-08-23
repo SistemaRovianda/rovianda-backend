@@ -102,4 +102,52 @@ export interface SaleOrderDTO {
  }
 
 
+ export interface DevolutionSellerRequestBody{
+    devolutionId:number,
+    typeDevolution:string,
+    observations:string,
+    folio:string,
+    createAt:string,
+    productsNew:DevolutionSellerRequestProduct[],
+    productsOld:DevolutionSellerRequestProduct[]
+ }
+ export interface DevolutionSellerRequestProduct{
+    devolutionSellerRequestProductId:number,
+    productId:number,
+    presentationId:number,
+    appSubSaleId:number;
+    quantity:number,
+    amount:number,
+    createAt:string
+ }
+
+ export interface DevolutionEntityToDevolutionTicket{
+   quantity:number,
+   amount:number,
+   name:string,
+   presentation:string,
+   uniMed:string
+ }
+
  
+export interface RequestDevolution{
+   saleId:number,
+   folio:string,
+   sellerName:string,
+   adminAccepted:string,
+   status:string,
+   dateSale:string,
+   dateRequest:string,
+   dateAttended:string,
+   observations:string,
+   originalTicket:string,
+   modifiedTicket:string,
+   devolutionProducts:ProductDevolution[]
+}
+
+export interface ProductDevolution{
+   productName:string,
+   quantity:number,
+   price:number,
+   uniMed:string
+}

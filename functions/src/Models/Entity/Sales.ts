@@ -69,4 +69,7 @@ export class Sale{
     @Column({name:"cancel_request",default:false})
     cancelRequest:boolean;
 
+    @Column({name:"devolution_request",default:false})
+    devolutionRequest:boolean;
+
 }

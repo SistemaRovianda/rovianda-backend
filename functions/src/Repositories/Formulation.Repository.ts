@@ -149,7 +149,7 @@ export class FormulationRepository{
         
         let items= await this.formulatioRepository.query(`
             select form.id,form.temp,form.date,form.water_temp as waterTemp,
-            form.status,form.lot_day as lotDay,form.type_formulation,pr.name,us.name as verifyBy,us2.name as makedBy,
+            form.status,form.lot_day as lotDay,form.type_formulation as type,pr.name,us.name as verifyBy,us2.name as makedBy,
             pr.id as productId
             from formulation as form left join users as us on form.verifitId=us.id
             left join users as us2 on form.makeId=us2.id

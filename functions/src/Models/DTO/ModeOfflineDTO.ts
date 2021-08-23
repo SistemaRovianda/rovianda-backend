@@ -119,6 +119,7 @@ export interface DebtsRequest{
 }
 
 export interface MOSRMP{
+    appSubSaleId:number;
     quantity:number;
     amount:number;
     productId:number;

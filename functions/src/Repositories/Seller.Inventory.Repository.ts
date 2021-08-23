@@ -1,7 +1,7 @@
 import { MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { SellerInventory } from "../Models/Entity/Seller.Inventory";
 import { connect } from "../Config/Db";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { User } from "../Models/Entity/User";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
@@ -99,5 +99,28 @@ export class SellerInventoryRepository{
         where seller_id="${user.id}" group by si.lote_id,si.presentation_id,si.productId;
             `
         ) )as LotsStockInventoryPresentation[];
+    }
+
+    async insertNewProductToSellerInventory(presentationId:number,productId:number){
+        await this.getConnection();
+        let sellersIds= await this.repository.query(`
+            select id from users where rol_id=10 and cve is not null and cve <>""
+        `) as {id:string}[];
+        let dateAdded = new Date();
+        dateAdded.setHours(dateAdded.getHours()-5);
+        for(let seller of sellersIds){
+            await this.repository.query(`
+            insert into seller_inventory(quantity,lote_id,date_entrance,weigth,seller_id,productId,presentation_id)
+            values(100,'RESGUARDO','${dateAdded.toISOString()}',200,"${seller.id}",${productId},${presentationId});
+            `);
+        }
+    }
+
+    async deletePresentationOfInventoryOfSeller(presentationId:number){
+        await this.getConnection();
+        return await this.repository.query(`
+            delete from seller_inventory where 
+            seller_id in (select id from users where rol_id=10 and cve is not null and cve <>"") and presentation_id=${presentationId};
+        `);
     }
 }

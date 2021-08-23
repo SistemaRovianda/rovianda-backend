@@ -215,4 +215,10 @@ export class QualityController{
         res.setHeader("X-Total-Count",response.count);
         return res.status(200).send(response.items);
     }
+
+    async updateStatusOfOvenProduct(req:Request,res:Response){
+        let ovenId:number = +req.params.ovenId;
+        await this.qualityService.updateStatusOfOvenProduct(ovenId,req.body);
+        return res.status(204).send();
+    }
 }

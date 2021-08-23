@@ -24,4 +24,7 @@ export class SaleCancel{
     @Column({name:"status",default:"PENDING"})
     status:string;
 
+    @Column({name:"viewed",default:false})
+    viewed:boolean;
+
 }

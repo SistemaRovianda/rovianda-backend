@@ -24,7 +24,7 @@ export class SaleRepository{
 
     async getSaleById(id: number){
         await this.getConnection();
-        return await this.saleRepository.findOne({saleId:id});
+        return await this.saleRepository.findOne({saleId:id},{relations:["seller"]});
     }
 
     async getSalleSellerByDateUser(sellerId:string,date:string){
@@ -302,7 +302,7 @@ export class SaleRepository{
         //if(+hours<10) hours="0"+hours;
         //let minutes = date.getMinutes().toString();
         //if(+minutes<10) minutes="0"+minutes;
-        let saleFinded:any[] =[];//await this.saleRepository.query(`select * from sales where folio="${sale.folio}" and status_str<>"CANCELED"`) as any[];
+        let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}"`) as any[];
         let dateSincronized= new Date();
         dateSincronized.setHours(dateSincronized.getHours()-5);
         let hours = (sale.date.split("T")[1]).split(":");
@@ -318,8 +318,8 @@ export class SaleRepository{
             for(let sub of sale.products){
                 await this.saleRepository.query(`
 
-                    insert into sub_sales(quantity,lote_id,amount,sale_id,product_id,presentation_id,create_at)
-                    values(${sub.quantity},"desconocido",${sub.amount},${saleId},${sub.productId},${sub.presentationId},"${sale.date}");
+                    insert into sub_sales(quantity,lote_id,amount,sale_id,product_id,presentation_id,create_at,app_sub_sale_id)
+                    values(${sub.quantity},"desconocido",${sub.amount},${saleId},${sub.productId},${sub.presentationId},"${sale.date}",${sub.appSubSaleId?sub.appSubSaleId:null});
 
                 `);
             }
@@ -604,18 +604,18 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
             conditions+=` sa.status_str= "DELETED" and `;
         }else if(type=="CANCELED"){
             conditions+=`sa.status_str="CANCELED" and `;
-        }else if(type=="ALL"){
-            conditions+=``
         }
         if(sellers.length){
+            let toReplace="and"
             if(conditions!=""){
                 conditions+="  ("
+                toReplace=") and";
             }
             for(let seller of sellers){
             conditions+=`sa.seller_id="${seller}" or `;
             }
             conditions+=";";
-            conditions=conditions.replace("or ;",") and");
+            conditions=conditions.replace("or ;",toReplace);
         }
         return await this.saleRepository.query(`
             select sa.folio,sa.amount,sa.date,us.name as sellerName,cl.name as clientName ,sa.status_str as status

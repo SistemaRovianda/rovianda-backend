@@ -679,7 +679,7 @@ export class AdminSalesReports{
             <html>
                 <head>
                 <style>
-                    *.{
+                    *{
                         font-size: 8px
                     }
                 </style>
@@ -693,9 +693,11 @@ export class AdminSalesReports{
                             <td>Vendedor</td>
                             <td>Cliente</td>
                             <td>Folio</td>
+                            <td>Tipo</td>
                             <td>Monto</td>
                         </tr>`;
                         let amount=0;
+                        let amountCanceled=0;
             for(let sale of sales){
                 report+=`
                     <tr>
@@ -703,11 +705,16 @@ export class AdminSalesReports{
                         <td>${sale.sellerName}</td>
                         <td>${sale.clientName}</td>
                         <td>${sale.folio}</td>
+                        <td>${(sale.status=="CANCELED")?"CANCELADO":"ACTIVO"}</td>
                         <td>${sale.amount}</td>
                     </tr>
                 `;
+                if(type=="ALL" && sale.status=="CANCELED"){
+                    amountCanceled+=sale.amount;
+                }
                 if(type=="ALL" && sale.status!="CANCELED"){
                     amount+=sale.amount;
+                    
                 }else if(type=="CANCELED" && sale.status=="CANCELED"){
                     amount+=sale.amount;
                 }else if(type=="OMITED" ){
@@ -716,6 +723,7 @@ export class AdminSalesReports{
             }
                     report+=`</table>
                     <h3>Total acumulado: ${amount.toFixed(2)}</h3>
+                     ${type=="ALL" ?"<h3>Total cancelado: "+ amountCanceled.toFixed(2)+"</h3>":""}
                 </body>
             </html>
         `;
@@ -734,24 +742,38 @@ export class AdminSalesReports{
         worksheet.cell(5,2,5,2,true).string(`Vendedor`);
         worksheet.cell(5,3,5,3,true).string('Cliente');
         worksheet.cell(5,4,5,4,true).string('Folio');
-        worksheet.cell(5,5,5,5,true).string('Monto');
+        worksheet.cell(5,5,5,5,true).string('Tipo');
+        worksheet.cell(5,6,5,6,true).string('Monto');
         worksheet.column(1).setWidth(25);
         worksheet.column(2).setWidth(25);
         worksheet.column(3).setWidth(25);
         worksheet.column(4).setWidth(25);
+        worksheet.column(5).setWidth(25);
+        worksheet.column(6).setWidth(25);
         let amount=0;
+        let amountCanceled=0;
         let row=6;
         for(let sale of sales){
-            amount+=sale.amount;
+
+            
             worksheet.cell(row,1,row,1,true).string(`${sale.date.split("T")[0]}`);
             worksheet.cell(row,2,row,2,true).string(`${sale.sellerName}`);
             worksheet.cell(row,3,row,3,true).string(`${sale.clientName}`);
             worksheet.cell(row,4,row,4,true).string(`${sale.folio}`);
-            worksheet.cell(row,5,row,5,true).string(`${sale.amount}`);
+            worksheet.cell(row,5,row,5,true).string(`${sale.status=="CANCELED"?"CANCELADO":"ACTIVO"}`);
+            worksheet.cell(row,6,row,6,true).string(`${sale.amount}`);
+            if(sale.status=="CANCELED"){
+                amountCanceled+=sale.amount;
+            }else{
+                amount+=sale.amount;
+            }
             row++;
         }
         
-        worksheet.cell(row,5,row,5,true).string(`TOTAL: ${amount.toFixed(2)}`);
+        worksheet.cell(row,6,row,6,true).string(`TOTAL: ${amount.toFixed(2)}`);
+        if(type=="ALL"){
+            worksheet.cell(row+1,6,row+1,6,true).string(`TOTAL CANCELADAS: ${amountCanceled.toFixed(2)}`);
+        }
         return workbook;
     }
 

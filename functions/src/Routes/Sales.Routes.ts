@@ -203,7 +203,20 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getSaleTicket"
-    },{
+    },
+    {
+        url: "/rovianda/devolution-ticket/:saleId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getDevolutionTicket"
+    },
+    {
+        url: "/rovianda/devolution-request/details/:saleId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getDevolutionRequestDetails"
+    },
+    {
         url: "/rovianda/single-ticket/:saleId",
         method: "get",
         controller: SalesRequestController,

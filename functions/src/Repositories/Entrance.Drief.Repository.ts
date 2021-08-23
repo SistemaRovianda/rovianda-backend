@@ -345,18 +345,18 @@ export class EntranceDriefRepository{
 
     async getOutputsOfWarehouseDrief(lot:string,startDate:string,endDate:string,offset:number,perPage:number){
         await this.getConnection();
-        let items= await this.repository.query(`
-            select pc.description as name,od.date as outputDate,od.status,od.lote_proveedor as lot
-            from outputs_drief as od left join product_catalog as pc on od.productId=pc.id
-            ${(lot)?` where od.lote_proveedor like "%${lot}%"`:""} 
-            ${(startDate && endDate)?((lot)?` and od.date between "${startDate}" and "${endDate}"`:` where od.date between "${startDate}" and "${endDate}"`):""}
-            limit ${perPage} offset ${offset}
-        `) as OutputsOfWarehouse[];
+        let query =`select pc.description as name,replace(od.date,"/","-") as outputDate,od.status,od.lote_proveedor as lot
+        from outputs_drief as od left join product_catalog as pc on od.productId=pc.id
+        ${(lot)?` where od.lote_proveedor like "%${lot}%"`:""} 
+        ${(startDate && endDate)?((lot)?` and od.date between "${startDate.split("-").join("/")}" and "${endDate.split("-").join("/")}"`:` where od.date between "${startDate.split("-").join("/")}" and "${endDate.split("-").join("/")}" `):""}
+        limit ${perPage} offset ${offset}`;
+        console.log("Query to execute: "+query);
+        let items= await this.repository.query(query) as OutputsOfWarehouse[];
         let count=await this.repository.query(`
         select count(*) as count
         from outputs_drief as od left join product_catalog as pc on od.productId=pc.id
         ${(lot)?` where od.lote_proveedor like "%${lot}%"`:""} 
-            ${(startDate && endDate)?((lot)?` and od.date between "${startDate}" and "${endDate}"`:` where od.date between "${startDate}" and "${endDate}"`):""}
+            ${(startDate && endDate)?((lot)?` and od.date between "${startDate.split("-").join("/")}" and "${endDate.split("-").join("/")}"`:` where od.date between "${startDate.split("-").join("/")}" and "${endDate.split("-").join("/")}"`):""}
         `) as {count:number}[];
         return {
             items,

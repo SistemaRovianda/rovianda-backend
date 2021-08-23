@@ -142,5 +142,17 @@ export const packagingRoutes:Array<routeInterface>=[
         method: "get",
         controller: PackagingController,
         target: "getLotsStockInventory"
+    },
+    {
+        url: "/rovianda/product-rovianda/oven-lots/:productId",
+        method: "get",
+        controller: PackagingController,
+        target: "getLotsStockOvensByProduct"
+    },
+    {
+        url: "/rovianda/product-reprocesing/oven-lots/:productId",
+        method: "get",
+        controller: PackagingController,
+        target: "getLotsStockOvensByProductToReprocesing"
     }
 ];

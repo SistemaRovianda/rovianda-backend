@@ -59,15 +59,17 @@ import { VisitClientOperation } from "../Models/Entity/VisitClientOperation";
 import { DayVisited } from "../Models/Entity/DayVisited";
 import { SaleCancel } from "../Models/Entity/SaleCancel";
 import { ProcessIngredientFormulation } from "../Models/Entity/ProcessIngredientFormulation";
+import { DevolutionSellerRequest } from "../Models/Entity/DevolutionSellerRequest";
+import { DevolutionOldSubSales } from "../Models/Entity/DevolutionOldSubSales";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//"rovisapi.dyndns.tv",//
+    host: "rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
-    username: "admin",//"master_rovianda",//
-    password: "Holamundo1250",//"Sistemas2020",//
-    database: "rovianda-dev",//"bd_rovianda",//
+    username: "master_rovianda",//"admin",//
+    password: "Sistemas2020",//"Holamundo1250",//
+    database: "bd_rovianda",//"rovianda-dev",//
     connectTimeout:60000,
     charset:"utf8",
     maxQueryExecutionTime:60000,
@@ -125,7 +127,9 @@ const config: ConnectionOptions = {
         DayVisited,
         VisitClientOperation,
         SaleCancel,
-        ProcessIngredientFormulation
+        ProcessIngredientFormulation,
+        DevolutionSellerRequest,
+        DevolutionOldSubSales
     ]
 }
 let connection: Connection;

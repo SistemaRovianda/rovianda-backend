@@ -39,16 +39,15 @@ export class FirebaseHelper{
         }
     }
 
-    async notificateToAdminSales(sellerName:string){
+    async notificateToAdminSales(){
         //let adminTokens = await this.userRepository.getAllAdminSales();
         let message:admin.messaging.Message={
             topic:"admin_sales",
             notification:{
-                title:`Solicitud de cancelación`,
-                body: `Cancelaciones pendientes de ${sellerName}`
+                title:`Sistema Rovianda`,
+                body: `Hay solicitudes por atender`
             }
         };
-
         await admin.messaging().send(message);
     }
     // async notificateToSeller(sellerId:string,status:string){

@@ -38,4 +38,6 @@ export class SubSales{
     @Column({name:"create_at",nullable:true})
     createAt:string;
 
+    @Column({name:"app_sub_sale_id",nullable:true})
+    appSubSaleId:number;
 }

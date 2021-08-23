@@ -141,7 +141,8 @@ export class PackagingController{
 
     async closeOrderSeller(req:Request,res:Response){
         let orderSellerId:number = +req.params.orderSellerId;
-        await this.packagingService.closeOrderSeller(orderSellerId);
+        let dateAtempToClose:string = req.body.dateOrderAtemp;
+        await this.packagingService.closeOrderSeller(orderSellerId,dateAtempToClose);
         return res.status(204).send();
     }
 
@@ -233,6 +234,19 @@ export class PackagingController{
     async getProductsLotsCheeses(req:Request,res:Response){
         let productId:number =+req.params.productId;
         return res.status(200).send(await this.packagingService.getProductPresentationInventoryByProduct(productId));
+    }
+
+    async getLotsStockOvensByProduct(req:Request,res:Response){
+        let productId:number = +req.params.productId;
+        let response: string[] =  await this.packagingService.getLotsStockInventoryByProductId(productId);
+        return res.status(200).send(response);
+    }
+
+    async getLotsStockOvensByProductToReprocesing(req:Request,res:Response){
+        let productId:number = +req.params.productId;
+        let date = req.query.date;
+        let response:string[]= await this.packagingService.getLotsStockInventoryByProductIdAndDate(productId,date);
+        return res.status(200).send(response);
     }
 
 }
