@@ -92,7 +92,7 @@ export class ReportTrazability{
                     <tr >
                         <td colspan="3" class="bottom  center left-strong">${productInfo.productName} ${productInfo.presentation}</td>
                         <td class="bottom left center">${productInfo.lotId.slice(0,2)}</td>
-                        <td colspan="3" class="bottom left center">${productInfo.expiration}</td>
+                        <td colspan="3" class="bottom left center">${this.parseDateStr(productInfo.expiration)}</td>
                         <td class="bottom left  center">${productInfo.lotId}</td>
                     </tr>
                     <tr>
@@ -100,8 +100,8 @@ export class ReportTrazability{
                         <td class="center left">${productInfo.outputOfWarehouse}</td>
                         <td class="center left">${productInfo.weightOfWarehouse}</td>
                         <td colspan="2" class="left center"><strong>Fecha de distribución</strong></td>
-                        <td class="left">${rangeDate.length?((rangeDate[0].startDate!=null)?rangeDate[0].startDate.split("T")[0]:""):""}</td>
-                        <td class="center left">${(productInfo.active==0?(rangeDate.length?(rangeDate[0].endDate!=null?rangeDate[0].endDate.split("T")[0]:""):""):"")}</td>
+                        <td class="left">${rangeDate.length?((rangeDate[0].startDate!=null)?this.parseDateStr(rangeDate[0].startDate.split("T")[0]):""):""}</td>
+                        <td class="center left">${(productInfo.active==0?(rangeDate.length?(rangeDate[0].endDate!=null?this.parseDateStr(rangeDate[0].endDate.split("T")[0]):""):""):"")}</td>
                     </tr>
                     <tr>
                         <td colspan="8" style="text-align: center; background-color: #abb3ad; " class="top-strong bottom-strong left-strong" >
@@ -127,8 +127,6 @@ export class ReportTrazability{
                     for(let defrost of productDefrost){
                         let temp = JSON.parse(defrost.temperature);
                         let slaughter=JSON.parse(defrost.slaughterDate);
-                        let frige = JSON.parse(defrost.fridge);
-                        let frigeEntity = await this.fridgeRepository.getFridgeByIdFridge(+frige.fridgeId);
 
                         report+=`
                         <tr>
@@ -138,7 +136,7 @@ export class ReportTrazability{
                             <td class="bottom left center">${defrost.lotProvider}</td>
                             <td class="bottom left center">${slaughter.value}</td>
                             <td class="bottom left center">${defrost.rawMaterial}</td>
-                            <td class="bottom left center">${frigeEntity.temp} ${frigeEntity.description}</td>
+                            <td class="bottom left center">${defrost.temp} ${defrost.fridge}</td>
                             <td  class="bottom left center">${defrost.provider}</td>
                         </tr>
                         `;
@@ -229,4 +227,9 @@ export class ReportTrazability{
         `;
         return report;
     }
+
+    parseDateStr(date:string){
+        let dateSplited = date.split("-");
+        return `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
+      }
 }

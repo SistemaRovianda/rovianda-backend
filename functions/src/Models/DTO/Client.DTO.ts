@@ -23,23 +23,29 @@ export interface ClientsBySeller{
 }
 
 export interface ClientCreation{
-    keyClient:number;
-    name: string;
-    rfc: string;
-    curp:string;
-    phone:number;
-    //country siempre es mexico
-    typeClient: string; // CONTADO O CREDITO
-    currentCredit: number;
-    saleUid: string;
-    daysCredit: number; // dias de credito
-    dayCharge: number; // dia del mes que se cobra
-    addressClient: addressClient; 
-    cfdi:string;
-    paymentSat:string;
-    contacts:contactForm[]
-    clasification:string; // limitado a 4 letras
-    daysVisited:daysVisitedInterface    
+    clientCode:number,
+    clientCodeAssigned:number,
+    clientName:string,
+    clientType:string,
+    clientCredit:number,
+    clientCurrentCredit:number,
+    clientRfc:string,
+    clientStreet:string,
+    clientSuburb:string,
+    clientMunicipality:string,
+    clientLocality:string,
+    clientCp:string,
+    clientExtNumber:string,
+    clientSeller:string,
+    clientState:string,
+    clientNationality:string,
+    monday:boolean,
+    tuesday:boolean,
+    wednesday:boolean,
+    thursday:boolean,
+    friday:boolean,
+    saturday:boolean,
+    sunday:boolean
 }
 
 export interface contactForm{

@@ -3,6 +3,7 @@ import { EntranceDrief } from "../Models/Entity/Entrances.Drief";
 import { connect } from "../Config/Db";
 import { Product } from "../Models/Entity/Product";
 import { EntranceOutputPackingFromOven, EntranceOutputsOven, InventoryTypeQuality, OutputsByEntrance, OutputsOfWarehouse, ProcessFormulation } from "../Models/DTO/Quality.DTO";
+import { WarehouseDrief } from "../Models/Entity/Warehouse.Drief";
 
 export class EntranceDriefRepository{
     private repository:Repository<EntranceDrief>;
@@ -84,7 +85,7 @@ export class EntranceDriefRepository{
         await this.getConnection();
         return await this.repository.query(`
         select ed.id as entranceId,ed.date,ed.proveedor as provider,pc.description as productName,ed.lote_proveedor as lotItern,ed.lote_proveedor as lotProvider,
-        ed.quantity,ed.quality,ed.expiration,ed.transport,ed.strange_material as strangeMaterial,ed.paking,ed.odor,ed.color,ed.texture,ed.weight,ed.is_pz as isPz,
+        ed.quantity,ed.quality,ed.expiration,ed.transport,ed.strange_material as strangeMaterial,ed.paking,ed.odor,ed.color,ed.texture,ed.weight,ed.is_pz as isPz,ed.is_box as isBox,
         wd.status
         from entrances_drief as ed left join product_catalog as pc on ed.productId=pc.id
         left join warehouse_drief as wd on ed.warehouse_drief=wd.id
@@ -362,5 +363,10 @@ export class EntranceDriefRepository{
             items,
             count:count[0].count
         }
+    }
+
+    async getByWarehouseDrief(warehouseDrief:WarehouseDrief){
+        await this.getConnection();
+        return await this.repository.findOne({warehouseDrief},{relations:["product"]});
     }
 }

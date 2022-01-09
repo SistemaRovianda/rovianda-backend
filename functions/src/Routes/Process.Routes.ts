@@ -6,6 +6,7 @@ import { GrindingController } from "../Controllers/Grinding.Controller";
 import { SausagedController } from '../Controllers/Sausaged.Controller';
 import { UserController } from '../Controllers/User.Controller';
 import { ProcessController } from "../Controllers/Process.Controller";
+import { ProcessStatus } from "../Models/Enum/ProcessStatus";
 export const processRoutes: Array<routeInterface> = [
 
     {
@@ -184,5 +185,23 @@ export const processRoutes: Array<routeInterface> = [
         method: "get",
         controller: ProcessController,
         target: "getAllLotsReprocesing"
+    },
+    {
+        url: "/rovianda/process-subproducts",
+        method: "post",
+        controller: ProcessController,
+        target: "registerSubProductsToProcess"
+    },
+    {
+        url: "/rovianda/process-subproducts/:processId",
+        method: "get",
+        controller: ProcessController,
+        target: "getAllSubProductsOfProcess"
+    },
+    {
+        url: "/rovianda/process-subproducts/:subProductId",
+        method: "delete",
+        controller: ProcessController,
+        target: "deleteSubProduct"
     }
 ];

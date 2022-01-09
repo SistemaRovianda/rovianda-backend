@@ -117,7 +117,7 @@ export class InspectionService{
     async endedInspection(ovenProductId:number){
         let ovenProduct:OvenProducts = await this.ovenProductRepository.getOvenProductById(ovenProductId);
         if(!ovenProduct) throw new Error("[404], no existe registro en hornos de este producto");
-        ovenProduct.status=OvenProductStatusEnum.INSPECTIONED;
+        ovenProduct.inspectioned=true;
         await this.ovenProductRepository.saveOvenProduct(ovenProduct);      
     }
 }

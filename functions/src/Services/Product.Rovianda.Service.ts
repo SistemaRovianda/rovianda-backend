@@ -359,6 +359,10 @@ export class ProductRoviandaService{
         return product;
     }
 
+    async getPresentationProductById(presentationId:number){
+        return await this.presentationsProductsRepository.getPresentationProductsById(presentationId);
+    }
+
     async getProductsPresentation(productId:number){
         let productRovianda:ProductRovianda = await this.productRoviandaRepository.getByIdWithPresentations(productId);
         
@@ -367,50 +371,11 @@ export class ProductRoviandaService{
       let presentations:Array<PresentationProducts> = productRovianda.presentationProducts;
       let presentations2:Array<any>=[];
       for(let presentationEntity of presentations){
-        let productSae = await this.sqlsRepository.getProductSaeByKey(presentationEntity.keySae);
-        let presentation:any={};
-        //let claveEsq = +productSae[0].CVE_ESQIMPU;
-      /*switch(claveEsq){
         
-        case 1:
-          presentation.presentationPricePublic +=(presentation.presentationPricePublic*.16);
-          presentation.presentationPriceMin +=(presentation.presentationPriceMin*.16);
-          presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
-          break;
-          case 2: // sin IVA operaciones no necesarias
-            break;
-            case 3: // IVA EXCENTO
-              break;
-              case 4: // 16 IVA mas 8% de IEPS
-                presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
-                presentation.presentationPricePublic += (presentation.presentationPricePublic*.08)
-                presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
-                presentation.presentationPriceMin += (presentation.presentationPriceMin*.08)
-                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
-                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.08)
-                break;
-                case 5:// 16 IVA mas 25% de IEPS
-                presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
-                presentation.presentationPricePublic += (presentation.presentationPricePublic*.25)
-                presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
-                presentation.presentationPriceMin += (presentation.presentationPriceMin*.25)
-                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
-                presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.25)
-                  break;
-                  case 6:// 16 IVA mas 50% de IEPS
-                      presentation.presentationPricePublic += (presentation.presentationPricePublic*.16);
-                      presentation.presentationPricePublic += (presentation.presentationPricePublic*.50)
-                      presentation.presentationPriceMin += (presentation.presentationPriceMin*.16);
-                      presentation.presentationPriceMin += (presentation.presentationPriceMin*.50)
-                      presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.16);
-                      presentation.presentationPriceLiquidation += (presentation.presentationPriceLiquidation*.50)
-                    break;
-      }*/
-      console.log("PRESENTATION ENTITY",presentationEntity);
-      console.log("PRODUCT SAE",productSae[0]);
-      let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+        let presentation:any={};
+    
       presentation={...presentationEntity};
-        if(uniMed=="kg"){
+        if(presentationEntity.uniMed=="KG"){
           presentation.isPz=false;
           
           /*let hasKg=(presentation.presentationType as string).toLowerCase().includes("kg");
@@ -422,7 +387,7 @@ export class ProductRoviandaService{
             presentation.presentationPricePublic=presentation.presentationPricePublic*kagNumber;
           }*/
           
-        }else if(uniMed=="pz"){
+        }else if(presentationEntity.uniMed=="PZ"){
           presentation.isPz=true;
         }
         presentations2.push(presentation);
@@ -464,8 +429,16 @@ export class ProductRoviandaService{
     async deleteProductLines(cve:string){
         return await this.sqlsRepository.deleteLinesOfProductsSae(cve);
     }
-    async getClientsSae(page:number,perPage:number,hint:string){
-        return await this.clientRepository.getAllClients(page,perPage,hint);
+    async getClientsSae(page:number,perPage:number,hint:string,type:string){
+        if(type=="NAME"){
+            return await this.clientRepository.getAllClients(page,perPage,hint);
+        }else if(type=="CODE_SAE"){
+            return await this.clientRepository.getAllClientsByCodeSae(page,perPage,hint);
+        }else if(type=="CODE_SYSTEM"){
+            return await this.clientRepository.getAllClientsByCodeSystem(page,perPage,hint);
+        }else{
+            return {count:0,items:[]};
+        }
     }
     async getSalesByClient(clientId:number,page:number,perPage:number,from:string,to:string){
         let client:Client = await this.clientRepository.getClientById(clientId);

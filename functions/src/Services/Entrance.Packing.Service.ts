@@ -60,6 +60,7 @@ export class EntrancePackingService{
         entrancePacking.transport = entrancePackingDTO.transport;
         entrancePacking.make = make;
         entrancePacking.verifit = verifit;
+        entrancePacking.isBox = entrancePackingDTO.isBox;
         // if(entrancePackingDTO.quality==true && entrancePackingDTO.strageMaterial==true && entrancePackingDTO.transport==true && entrancePackingDTO.paking==true){
         //     let findWarehousePacking:WarehousePacking = await this.warehousePackingRepository.findWarehousePackingByProductLot(product,entrancePackingDTO.lotProveedor);
         //     if(findWarehousePacking){
@@ -81,6 +82,7 @@ export class EntrancePackingService{
                 warehousePacking.status = WarehouseStatus.PENDING;
                 warehousePacking.userId= entrancePackingDTO.makeId;
                 warehousePacking.date = entrancePackingDTO.date;
+                warehousePacking.isBox=entrancePackingDTO.isBox;
                 await this.warehousePackingRepository.saveWarehousePacking(warehousePacking);   
         //     } 
         // }

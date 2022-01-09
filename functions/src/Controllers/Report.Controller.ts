@@ -55,6 +55,7 @@ import { Inspection } from '../Models/Entity/Inspection';
 import { EndedProductReport } from '../Utils/componentsReports/endedProductReports';
 import {DeliveredProductWarehouse} from "../Utils/componentsReports/DeliveredProductWarehouse";
 import ExcelHelper from '../Utils/Excel.Helper';
+import { WarehouseDriefRepository } from '../Repositories/Warehouse.Drief.Repository';
 const pdfMerger = require("pdf-merger-js");
 export class ReportController{
 
@@ -85,6 +86,7 @@ export class ReportController{
     private inspectionRepository:InspectionRepository;
     private endedProductReports: EndedProductReport; 
     private deliveredProductWarehouse: DeliveredProductWarehouse;
+    private warehouseDriefRepository:WarehouseDriefRepository;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
@@ -113,12 +115,13 @@ export class ReportController{
         this.endedProductReports = new EndedProductReport();
         this.deliveredProductWarehouse = new DeliveredProductWarehouse();
         this.excelHelper=new ExcelHelper();
+        this.warehouseDriefRepository = new WarehouseDriefRepository();
     }
 
     async reportEntranceDrief(req:Request, res:Response){ 
-        
-        let drief:EntranceDrief = await this.entranceDriefService.reportEntranceDrief(+req.params.driefId);
-        let userId: string = drief.warehouseDrief.userId;
+        let warehouseDrief= await this.warehouseDriefRepository.getWarehouseDriefByWarehouseDriefId(+req.params.driefId);
+        let drief:EntranceDrief = await this.entranceDriefService.getEntranceDriefByWarehouseDrief(warehouseDrief);
+        let userId: string = warehouseDrief.userId;
         let user:User = await this.userService.getUserByUid(userId);
         let report = await this.pdfHelper.reportEntranceDrief(user,drief);
         pdf.create(report, {
@@ -1331,5 +1334,30 @@ async reportDocumentPackagingById(req:Request,res:Response){
         });
     }
     }
-
+    
+    async getReportSellerDelivered(req:Request,res:Response){
+        let endDate:string = req.body.endDate;
+        let startDate:string = req.body.startDate;
+        let sellers:string[] = req.body.sellers;
+        let type:string = req.query.type;
+        let report:string = await this.packagingService.getAllProductsDeliveredToSellers(startDate,endDate,type,sellers);
+        
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=reporteEntregaPlanta.pdf`
+                });
+                stream.pipe(res);
+            }));
+    }
 }

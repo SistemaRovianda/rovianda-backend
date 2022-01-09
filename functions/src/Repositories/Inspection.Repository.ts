@@ -74,4 +74,10 @@ export class InspectionRepository{
         
         `);
     }
+    async updateLotToInspectionProduct(oldLot:string,productId:number,newLot:string){
+        await this.getConnection();
+        await this.inspectionRepository.query(`
+            update inspection set lot_id="${newLot}" where productIdId=${productId} and lot_id="${oldLot}"
+        `);
+    }
 }

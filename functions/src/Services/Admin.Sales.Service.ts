@@ -170,27 +170,46 @@ export class AdminSalesService{
 
     async getSummaryReportBySeller(sellerId:string,from:string,to:string){
         let user:User = await this.sellerRepository.getUserById(sellerId);
-        let acumulatedAbarrotes = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to);
-        let acumulatedNormal = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to);
-        let acumulatedCheeses = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to);
-        let acumulatedNormalKg = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to);
-        let acumulatedCheeseKg = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to);
-        let rankingProducts = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to);
+        let acumulatedSales = await this.salesRepository.getCountByDates(sellerId,from,to);
+        let acumulatedAbarrotes = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to,"NORMAL");
+        let acumulatedNormal = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to,"NORMAL");
+        let acumulatedCheeses = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to,"NORMAL");
+        let acumulatedNormalKg = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to,"NORMAL");
+        let acumulatedCheeseKg = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to,"NORMAL");
+        let rankingProducts = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to,"NORMAL");
         rankingProducts = rankingProducts.sort((a,b)=>b.amount-a.amount);
-        let report:any = this.excelHelper.getSummaryReportBySeller(user,acumulatedAbarrotes,acumulatedNormal,acumulatedNormalKg,acumulatedCheeses,acumulatedCheeseKg,rankingProducts,from,to);
-        return report;
+        let workbook = this.excelHelper.getEmptyWoorbook();
+        workbook = this.excelHelper.getSummaryReportBySeller(user,acumulatedAbarrotes,acumulatedNormal,acumulatedNormalKg,acumulatedCheeses,acumulatedCheeseKg,rankingProducts,from,to,acumulatedSales,"NORMAL",workbook);
+        let acumulatedAbarrotes2 = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to,"CANCELED");
+        let acumulatedNormal2 = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to,"CANCELED");
+        let acumulatedCheeses2 = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to,"CANCELED");
+        let acumulatedNormalKg2 = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to,"CANCELED");
+        let acumulatedCheeseKg2 = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to,"CANCELED");
+        let rankingProducts2 = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to,"CANCELED");
+        let woorbook2 = this.excelHelper.getSummaryReportBySeller(user,acumulatedAbarrotes2,acumulatedNormal2,acumulatedNormalKg2,acumulatedCheeses2,acumulatedCheeseKg2,rankingProducts2,from,to,acumulatedSales,"CANCELED",workbook);
+        return woorbook2;
     }
 
     async getSummaryReportBySellerPDF(sellerId:string,from:string,to:string){
         let user:User = await this.sellerRepository.getUserById(sellerId);
-        let acumulatedAbarrotes = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to);
-        let acumulatedNormal = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to);
-        let acumulatedCheeses = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to);
-        let acumulatedNormalKg = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to);
-        let acumulatedCheeseKg = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to);
-        let rankingProducts = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to);
+        let dataCount = await this.salesRepository.getCountByDates(sellerId,from,to);
+        let acumulatedAbarrotes = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to,"NORMAL");
+        let acumulatedNormal = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to,"NORMAL");
+        let acumulatedCheeses = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to,"NORMAL");
+        let acumulatedNormalKg = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to,"NORMAL");
+        let acumulatedCheeseKg = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to,"NORMAL");
+        let rankingProducts = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to,"NORMAL");
         rankingProducts = rankingProducts.sort((a,b)=>b.amount-a.amount);
-        let report:any = this.pdfExcelUtil.getSummaryReportBySellerPDF(user,acumulatedAbarrotes,acumulatedNormal,acumulatedNormalKg,acumulatedCheeses,acumulatedCheeseKg,rankingProducts,from,to);
+        let report:any = this.pdfExcelUtil.getSummaryReportBySellerPDF(user,acumulatedAbarrotes,acumulatedNormal,acumulatedNormalKg,acumulatedCheeses,acumulatedCheeseKg,rankingProducts,from,to,dataCount,"NORMAL");
+        report+=`<br><br><div style="display:block;width:100%;text-align:center;">Cancelaciones</div>`;
+        let acumulatedAbarrotes2 = await this.sellerRepository.getAcumulatedBySellerProductAbarrotes(sellerId,from,to,"CANCELED");
+        let acumulatedNormal2 = await this.sellerRepository.getAcumulatedBySellerProductNormal(sellerId,from,to,"CANCELED");
+        let acumulatedCheeses2 = await this.sellerRepository.getAcumulatedBySellerProductCheeses(sellerId,from,to,"CANCELED");
+        let acumulatedNormalKg2 = await this.sellerRepository.getAcumulatedBySellerProductNormalKG(sellerId,from,to,"CANCELED");
+        let acumulatedCheeseKg2 = await this.sellerRepository.getAcumulatedBySellerProductCheesesKG(sellerId,from,to,"CANCELED");
+        let rankingProducts2 = await this.sellerRepository.getRankingProductBySeller(sellerId,from,to,"CANCELED");
+        rankingProducts2 = rankingProducts2.sort((a,b)=>b.amount-a.amount);
+        report+=this.pdfExcelUtil.getSummaryReportBySellerPDF(user,acumulatedAbarrotes2,acumulatedNormal2,acumulatedNormalKg2,acumulatedCheeses2,acumulatedCheeseKg2,rankingProducts2,from,to,dataCount,"CANCELED");
         return report;
     }
 
@@ -215,8 +234,69 @@ export class AdminSalesService{
         }
     }
 
-    async getGeneralChartDataSales(dateStart:string,dateEnd:string){
-        return await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd);
+    async getGeneralChartDataSales(dateStart:string,dateEnd:string,typeComparation:string){
+        let date1="";
+        let date2="";
+        let date3="";
+        let date4="";
+        let data1:ChartD3DataInterface[]=[];
+        let data2:ChartD3DataInterface[]=[];
+        if(typeComparation=="YESTERDAY"){
+            let dateP = new Date(dateStart);
+            dateP.setHours(dateP.getHours()-1);
+            let day = (dateP.getDate()).toString();
+            if(+day<10) day="0"+day;
+            date1=`${dateStart.substring(0,8)}${day}`;
+            date2=`${dateStart.substring(0,8)}${day}`;
+            data1 = await this.salesRepository.getGeneralChartDataSales(date1,date2,"COMP");
+            date3=dateStart;
+            date4=dateStart;
+            data2 = await this.salesRepository.getGeneralChartDataSales(date3,date4,"NORMAL");
+        }else if(typeComparation=="WEEK"){
+            let dates= await this.productRoviandaRepository.getWeekDatesByDate(dateStart,"week");
+            date1=dates.date1;
+            date2=dates.date2;
+            data1 = await this.salesRepository.getGeneralChartDataSales(date1,date2,"COMP");
+            date3=dates.date3;
+            date4=dates.date4;
+            data2 = await this.salesRepository.getGeneralChartDataSales(date3,date4,"NORMAL");
+        }else if(typeComparation=="LAST_MONTH"){
+            let dates= await this.productRoviandaRepository.getWeekDatesByDate(dateStart,"month");
+            date1=dates.date1;
+            date2=dates.date2;
+            data1 = await this.salesRepository.getGeneralChartDataSales(date1,date2,"COMP");
+            date3=dates.date3;
+            date4=dates.date4;
+            data2 = await this.salesRepository.getGeneralChartDataSales(date3,date4,"NORMAL");
+        }else if(typeComparation=="LAST_YEAR"){
+            let dateP = new Date(dateStart);
+            let currentYear = dateP.getFullYear();
+            let lastYear = currentYear-1;
+            date1=`${lastYear}-01-01`;
+            date2=`${lastYear}-12-31`;
+            data1 = await this.salesRepository.getGeneralChartDataSales(date1,date2,"COMP");
+            date3=`${currentYear}-01-01`;
+            date4=`${currentYear}-12-31`;
+            data2 = await this.salesRepository.getGeneralChartDataSales(date3,date4,"NORMAL");
+        }else if(typeComparation=="MONTH_LAST_YEAR"){
+            let dates= await this.productRoviandaRepository.getWeekDatesByDate(dateStart,"month");
+            let dateP = new Date(date1);
+            date1=`${dateP.getFullYear()-1}${date1.substring(4,date1.toString().length)}`;
+            date2=`${dateP.getFullYear()-1}${date2.substring(4,date2.toString().length)}`;
+            data1 = await this.salesRepository.getGeneralChartDataSales(date1,date2,"COMP");
+            date3=dates.date3;
+            date4=dates.date4;
+            data2 = await this.salesRepository.getGeneralChartDataSales(date3,date4,"NORMAL");
+        }else{
+            return await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd,"NORMAL");
+        }
+
+        let dataFinal:ChartD3DataInterface[]=[];
+        data1.forEach(x=>x.typePresentation=x.typePresentation+" (Anterior) ");
+        data2.forEach(x=>x.typePresentation=x.typePresentation+" (Actual) ")
+        dataFinal=[...data1,...data2];
+        dataFinal.sort((a,b)=>a.presentationId-b.presentationId);
+        return dataFinal;
     }
 
     async getAllClients(){
@@ -260,13 +340,13 @@ export class AdminSalesService{
     }
 
     async getGeneralChartDataSalesReportPdf(dateStart:string,dateEnd:string){
-        let data:ChartD3DataInterface[] = await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd);
+        let data:ChartD3DataInterface[] = await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd,"NORMAL");
         data=data.sort((a,b)=>b.amount-a.amount);
         let report = await this.pdfExcelUtil.getReportProductRankingByDates(dateStart,dateEnd,data);
         return report;
     }
     async getGeneralChartDataSalesReportExcel(dateStart:string,dateEnd:string){
-        let data:ChartD3DataInterface[] = await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd);
+        let data:ChartD3DataInterface[] = await this.salesRepository.getGeneralChartDataSales(dateStart,dateEnd,"NORMAL");
         data=data.sort((a,b)=>b.amount-a.amount);
         let workbook = await this.pdfExcelUtil.getReportProductRankingByDatesExcel(dateStart,dateEnd,data);
         return workbook;
@@ -333,7 +413,9 @@ export class AdminSalesService{
                             subSaleServerId: x.subSaleId,
                             uniMed: x.presentation.uniMed,
                             weightStandar: x.presentation.presentationPriceMin,
-                            subSaleAppId: x.appSubSaleId
+                            subSaleAppId: x.appSubSaleId,
+                            esqKey: x.presentation.esqKey,
+                            esqDescription: x.presentation.esqDescription
                         };
                         return item;
                     })
@@ -385,7 +467,9 @@ export class AdminSalesService{
                             subSaleServerId: x.subSaleId,
                             uniMed: x.presentation.uniMed,
                             weightStandar: x.presentation.presentationPriceMin,
-                            subSaleAppId: x.appSubSaleId
+                            subSaleAppId: x.appSubSaleId,
+                            esqKey: x.presentation.esqKey,
+                            esqDescription: x.presentation.esqDescription
                         };
                         return item;
                     })
@@ -427,9 +511,9 @@ export class AdminSalesService{
                 sale.statusStr="CANCELED";
                 let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
                 if(saleCancelRequest){
-                    if(saleCancelRequest.status=="DECLINED"){
+                   
                         saleCancelRequest.status="ACCEPTED";
-                    }
+                        await this.saleCancelRepository.saveCancelSale(saleCancelRequest);
                 }
             }
             await this.salesRepository.saveSale(sale);
@@ -540,7 +624,34 @@ export class AdminSalesService{
             }else{
                 result[0].productIdInSystem=presentation.productRovianda.id;
             }
-            
+            let iva=0;
+            let ieps=0;
+            switch(result[0].esqKey){
+                case 1:
+                    iva= result[0].price*.16;
+                    result[0].price+=iva;
+                    break;
+                case 2:// without iva 0%
+                    break;
+                case 3:// without iva exent
+                    break;
+                case 4:
+                    
+                    ieps= result[0].price*.08;
+                    iva= (result[0].price+ieps)*.16;
+                    result[0].price+=ieps+iva;
+                    break;
+                case 5:
+                    ieps= result[0].price*.25;
+                    iva= (result[0].price+ieps)*.16;
+                    result[0].price+=ieps+iva;
+                    break;
+                case 6: 
+                    ieps= result[0].price*.50;
+                    iva= (result[0].price+ieps)*.16;
+                    result[0].price+=ieps+iva;
+                    break;
+            }
            return result[0];
         }else{
             throw new Error("[404], no existe el producto con ese código")
@@ -550,12 +661,15 @@ export class AdminSalesService{
     async registerPreRegisterProduct(body:RequestPreRegistProduct){
         let product:ProductRovianda;
         if(!body.productId){
-            product  = new ProductRovianda();
-            product.name=body.name;
-            product.code=body.code;
-            product.status=true;
-            product.imgS3="";
-            product = await this.productRoviandaRepository.saveProductRovianda(product);
+            product = await this.productRoviandaRepository.getProductRoviandaByCode(body.code);
+            if(!product){
+                product  = new ProductRovianda();
+                product.name=body.name;
+                product.code=body.code;
+                product.status=true;
+                product.imgS3="";
+                product = await this.productRoviandaRepository.saveProductRovianda(product);
+            }
         }else{
             product = await this.productRoviandaRepository.getProductRoviandaById(body.productId);
         }
@@ -564,6 +678,8 @@ export class AdminSalesService{
         presentationProduct.presentationType=body.presentation;
         presentationProduct.presentationPricePublic=body.price;
         presentationProduct.presentationPriceMin=body.weight;
+        presentationProduct.esqKey=body.esqKey;
+        presentationProduct.esqDescription=body.esqDescription;
         if(body.type=="ABARROTES"){
             presentationProduct.presentationPriceLiquidation=body.quantityByPresentation
         }else{
@@ -600,6 +716,8 @@ export class AdminSalesService{
         presentation.presentationPricePublic=body.price;
         presentation.presentationPriceMin=body.weight;
         presentation.uniMed=body.uniMed;
+        presentation.esqKey=body.esqKey;
+        presentation.esqDescription=body.esqDescription;
         await this.presentationProductRepository.savePresentationsProduct(presentation);
     }
 

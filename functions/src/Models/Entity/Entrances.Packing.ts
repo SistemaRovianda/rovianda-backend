@@ -47,4 +47,8 @@ export class EntrancePacking{
 
     @ManyToOne(type=>User, make=>make.entrancePackinMake, {eager:true, onDelete:"SET NULL"})
     make:User;
+
+    @Column({name:"is_box"})
+    isBox:boolean;
+
 }

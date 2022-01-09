@@ -13,5 +13,17 @@ export const WarehouseRoutes:Array<routeInterface>=[
         method: "get",
         controller: WarehouseController,
         target: "getAllWarehouse"
+    },
+    {
+        url: "/rovianda/warehouse/:warehouseSaeId",
+        method:"get",
+        controller: WarehouseController,
+        target: "getMetricsEntranceByDate"
+    },
+    {
+        url: "/rovianda/update/users",
+        method: "get",
+        controller: WarehouseController,
+        target: "updateUsersCreationDate"
     }
 ];

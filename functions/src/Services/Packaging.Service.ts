@@ -38,6 +38,8 @@ import PdfHelper from '../Utils/Pdf.Helper';
 import { InspectionRepository } from '../Repositories/Inspection.Repository';
 import { CheeseRepository } from '../Repositories/Cheese.Repository';
 import { SubOrderMetadataOutputs } from '../Models/DTO/Sales.ProductDTO';
+import { PackagingDeliveredAcumulated, PackagingDeliveredIndividual } from '../Models/DTO/Packaging.DTO';
+import { OrderSellerInterface } from '../Models/Enum/order.seller.interface';
 
 
 export class PackagingService{
@@ -477,7 +479,7 @@ export class PackagingService{
 
     //let aPackaging:Packaging[] = await this.packagingRepository.findPackagingByProduc(packaging[i])
     async getPackagingLotProduct(){
-        let products:any[] = await this.packagingRepository.getAllProductsToInspection();
+        let products:any[] = await this.productRoviandaRepository.getOnlyProductOfQualityArea()
         let response:any = [];
         
         for(let product of products){
@@ -563,7 +565,9 @@ export class PackagingService{
         console.log("Total discount: "+totalToDiscountTemp);
         if(totalToDiscountTemp==0){ 
             let devolution:Devolution = new Devolution();
-            devolution.date=devolutionRequest.date;
+            let date = new Date();
+            date.setHours(date.getHours()-5);
+            devolution.date=date.toISOString();
             devolution.lotId=devolutionRequest.lotId;
             devolution.units=devolutionRequest.units;
             let presentation:PresentationProducts = await this.presentationProductRepository.getPresentationProductsById(devolutionRequest.presentationId);
@@ -608,39 +612,37 @@ export class PackagingService{
     async getDevolutionDetails(devolutionId:number){
         let devolution:Devolution = await this.devolutionRepository.getDevolutionById(devolutionId);
         if(!devolution) throw new Error("[404], no existe la devolucion");
-        let ovenProduct=await this.ovenRepository.getOvensByNewLot(devolution.lotId);
+        //let ovenProduct=await this.ovenRepository.getOvensByNewLot(devolution.lotId);
         let name = "";
-        if(!ovenProduct){
+        
             let presentation = devolution.presentationProduct;
             let product = await this.presentationProductRepository.getPresentationProductsById(presentation.id);
             name = product.productRovianda.name + " "+product.presentationType;
-        }else{
-            name = ovenProduct.product.name;
-        }
+        
         //if(!ovenProduct) throw new Error("[409], la devolucion no esta vinculada a un lote de hornos");
         return await this.pdfHelper.getPackagingDevolution(devolution,name);
     }
 
     async closeOrderSeller(orderSellerId:number,date:string){
-        console.log("Date ended: "+date);
         let orderSeller:OrderSeller= await this.orderSellerRepository.getOrderById(orderSellerId);
-        let subOrders = await this.subOrderRepository.getByOrderSeller(orderSeller);
-        let hasCheese =false;
+        let lastCountOrderSeller = await this.orderSellerRepository.getLastCountOrderSellerRemission();
+        orderSeller.folioRemission= (lastCountOrderSeller[0].folioRemission)+1;
         await this.subOrderMetadataRepository.updateDateCloseOrder(orderSellerId,date);
-        let cheeses = await this.cheeseRepository.getAllCheeses();
-        let cheeseIds = cheeses.map(x=>x.product.id);
-        for(let sub of subOrders){
-            if(cheeseIds.includes(+sub.productRovianda.id) && sub.active){
-                hasCheese=true;
-            }
-        }
-        if(hasCheese){
-            orderSeller.status="CHEESE";
-        }else if(orderSeller.status=="CHEESE" || orderSeller.status=="ACTIVE"){
-            orderSeller.status="INACTIVE";
-        }
+        orderSeller.status="INACTIVE";
         orderSeller.dateAttended=date;
         await this.orderSellerRepository.saveSalesSeller(orderSeller);
+        let orderSellerParsed:OrderSellerInterface[] = await this.orderSellerRepository.getAllOrdersSellersByOrderSellerId(orderSellerId);
+        if(orderSellerParsed.length){  
+            let currentOrderSeller = orderSellerParsed[0];
+            let subOrders = await this.orderSellerRepository.getAllSubOrdersSellersByOrderSellerId(orderSellerId);
+            currentOrderSeller.amount = subOrders.map(x=>x.amount).reduce((a,b)=>a+b,0);
+            currentOrderSeller.subOrders=subOrders;
+            await this.sqlRepository.transferWarehouseEntranceLikeRemission(currentOrderSeller);
+            orderSeller.sincronized=true;
+            await this.orderSellerRepository.saveSalesSeller(orderSeller);
+        }
+      
+      
     }
 
     async getReportOfDeliveredSeller(orderSellerId:number,mode:string){
@@ -676,7 +678,9 @@ export class PackagingService{
                         WEIGHT: subOrder.weight,
                         DATE: subOrder.outputDate?subOrder.outputDate:null,
                         EXPRATION: subOrder.expiration,
-                        OBSERVATIONS: subOrder.observations
+                        OBSERVATIONS: subOrder.observations,
+                        PRICE: subOrder.price,
+                        TOTAL: subOrder.total
                     }
                 );
             
@@ -847,6 +851,20 @@ export class PackagingService{
         let outputs = await this.packagingRepository.getAllOutputsByPlant(from,to);
         return outputs;
     }
+
+    async getAllProductsDeliveredToSellers(startDate:string,endDate:string,type:string,sellers:string[]){
+        
+        if(type=="ACCUMULATED"){
+            let records:PackagingDeliveredAcumulated[] = await this.packagingRepository.getAllProductsDeliveredToSellersAccumulated(startDate,endDate,sellers);
+            return await this.pdfHelper.getPackagingDeliveredAccumulated(records,startDate,endDate);
+        }else{
+            let records:PackagingDeliveredIndividual[] = await this.packagingRepository.getAllProductsDeliveredToSellersIndividual(startDate,endDate,sellers);
+            return await this.pdfHelper.getPackagingDeliveredIndividual(records,startDate,endDate);
+        }
+    }
+    async getPresentationsChangesList(page:number,perPage:number,dateStart:string,dateEnd:string){
+        return await this.devolutionRepository.getPresentationsChangesList(page,perPage,dateStart,dateEnd);
+    }
 }
 
 export interface DeliverToWarehouse{
@@ -857,5 +875,7 @@ export interface DeliverToWarehouse{
     WEIGHT:number,
     DATE?:string,
     EXPRATION?: string,
-    OBSERVATIONS?:string
+    OBSERVATIONS?:string,
+    PRICE: number,
+    TOTAL: number
 }

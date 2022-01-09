@@ -14,7 +14,7 @@ export class ClientController{
     }
 
     async getCustomerCount(req:Request,res:Response){
-        return res.status(200).send(await this.clientService.getCurrentCountCustomer());
+        return res.status(200).send({clientCode:await this.clientService.getCurrentCountCustomer()});
     }
 
     async createSellerCustomer(req:Request,res:Response){
@@ -48,5 +48,18 @@ export class ClientController{
         let clientId:number = +req.params.id;
         await this.clientService.deleteClientById(clientId);
         return res.status(204).send();
+   }
+
+   async updateKeySaeClient(req:Request,res:Response){
+        let clientId:number = +req.params.clientId;
+        let code=req.body.code;
+        await this.clientService.updateKeyClient(clientId,code);
+        return res.status(204).send();
+   }
+
+   async searchClientByCodeSae(req:Request,res:Response){
+        let code:number = +req.params.code ;
+        let clientDetails = await this.clientService.searchClientInSae(code);
+        return res.status(200).send(clientDetails);
    }
 }

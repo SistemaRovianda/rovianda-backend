@@ -19,10 +19,10 @@ import { DebtsRepository } from '../Repositories/Debts.Repository';
 import { SellerOperation } from '../Models/Entity/Seller.Operations';
 import { SellerOperationRepository } from '../Repositories/Seller.Operation.Repository';
 import { SellerOperationDTO } from '../Models/DTO/SellerOperationDTO';
-import { RelationCount } from 'typeorm';
+import { DefaultNamingStrategy, RelationCount } from 'typeorm';
 import { Sale } from '../Models/Entity/Sales';
 import { SaleRepository } from '../Repositories/Sale.Repository';
-import { isEmpty, LoDashImplicitStringWrapper, times, xorBy } from 'lodash';
+import { isEmpty, LoDashImplicitStringWrapper, subtract, times, xorBy } from 'lodash';
 import { SubSaleRepository } from '../Repositories/SubSale.Repository';
 import { SubSales } from '../Models/Entity/Sub.Sales';
 import { SqlSRepository } from '../Repositories/SqlS.Repositoy';
@@ -52,6 +52,7 @@ import { DevolutionSellerRequestRepository } from '../Repositories/DevolutionSel
 import { DevolutionSellerRequest } from '../Models/Entity/DevolutionSellerRequest';
 import { DevolutionOldSubSales } from '../Models/Entity/DevolutionOldSubSales';
 import { DevolutionOldSubSaleRepository } from '../Repositories/DevolutionOldSubSalesRepository';
+import { OrderSellerInterface } from '../Models/Enum/order.seller.interface';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -648,6 +649,7 @@ export class SalesRequestService{
         user.roles = rol;
         user.saeKey = userDTO.clave;
         user.warehouseKeySae=userDTO.warehouse;
+        user.cve=userDTO.folio;
         await this.firebaseHelper.createUser(userDTO).then(async(userRecord)=>{
           user.id= userRecord.uid;
           await this.userRepository.saveUser(user);        
@@ -1015,21 +1017,21 @@ export class SalesRequestService{
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       if(!sale) throw new Error("[404], no existe la venta");
       sale.statusStr="CANCELED";
-      let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
-      for(let subSale of subSales){
-        let sellerInventory = await this.sellerInventoryRepository.getByProductPresentationAndSeller(subSale.product,subSale.presentation,sale.seller);
-        let productSae = await this.sqlsRepository.getProductSaeByKey(subSale.presentation.keySae);
-        let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
-        if(sellerInventory.length){
-          let firstInventoryOfProduct = sellerInventory[0];  
-          if(uniMed=="pz"){
-            firstInventoryOfProduct.quantity+=subSale.quantity;
-          }else if(uniMed=="kg"){
-            firstInventoryOfProduct.weigth+=subSale.quantity;
-          }
-          await this.sellerInventoryRepository.saveSellerInventory(firstInventoryOfProduct);
-        }
-      }
+      // let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
+      // for(let subSale of subSales){
+      //   let sellerInventory = await this.sellerInventoryRepository.getByProductPresentationAndSeller(subSale.product,subSale.presentation,sale.seller);
+      //   let productSae = await this.sqlsRepository.getProductSaeByKey(subSale.presentation.keySae);
+      //   let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+      //   if(sellerInventory.length){
+      //     let firstInventoryOfProduct = sellerInventory[0];  
+      //     if(uniMed=="pz"){
+      //       firstInventoryOfProduct.quantity+=subSale.quantity;
+      //     }else if(uniMed=="kg"){
+      //       firstInventoryOfProduct.weigth+=subSale.quantity;
+      //     }
+      //     await this.sellerInventoryRepository.saveSellerInventory(firstInventoryOfProduct);
+      //   }
+      // }
       
       await this.saleRepository.saveSale(sale);
     }
@@ -1049,10 +1051,10 @@ export class SalesRequestService{
         sales=await this.saleRepository.getSalesBetweenIds(salesIds[0],date);
       }
       if(sales.length){
-      let cves = await sales.map(x=>{
-        let folio = x.folio.split("V");
-        return folio[0]+"cv"
-      });
+      // let cves = await sales.map(x=>{
+      //   let folio = x.folio.split("V");
+      //   return folio[0]+"cv"
+      // });
       
       //sales = sales.filter(x=>!salesIds.includes(x.saleId));
 
@@ -1066,23 +1068,23 @@ export class SalesRequestService{
         await this.saleRepository.saveSale(sale);
       }
 
-      let sellers:any[] = await this.userRepository.getAllSellersWithCVE();
-        console.log("Vendedores obtenidos");
-        for(let seller of sellers){
-            console.log("Obteniendo último folio");
-            let sales = await this.saleRepository.getLastSalesMaked(seller.id);
-            console.log("Ultima venta de "+seller.name+" "+sales[0].folio_temp);
-            let folio = +(sales[0].folio_temp as string).replace(seller.cve,"");
-            console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
-            let salesOfSeller = await this.saleRepository.getSalesMaked(seller.id);
-            for(let sale of salesOfSeller){
-                folio++;
-                console.log("Asignando folio: "+seller.cve+folio.toString());
-                let folioStr = seller.cve+(folio.toString());
-                await this.saleRepository.updateSaleFolio(folioStr,sale.sale_id);
-            }
-            console.log("Asignacion completa hasta :"+seller.cve+folio.toString());
-        }
+      // let sellers:any[] = await this.userRepository.getAllSellersWithCVE();
+      //   console.log("Vendedores obtenidos");
+      //   for(let seller of sellers){
+      //       console.log("Obteniendo último folio");
+      //       let sales = await this.saleRepository.getLastSalesMaked(seller.id);
+      //       console.log("Ultima venta de "+seller.name+" "+sales[0].folio_temp);
+      //       let folio = +(sales[0].folio_temp as string).replace(seller.cve,"");
+      //       console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
+      //       let salesOfSeller = await this.saleRepository.getSalesMaked(seller.id);
+      //       for(let sale of salesOfSeller){
+      //           folio++;
+      //           console.log("Asignando folio: "+seller.cve+folio.toString());
+      //           let folioStr = seller.cve+(folio.toString());
+      //           await this.saleRepository.updateSaleFolio(folioStr,sale.sale_id);
+      //       }
+      //       console.log("Asignacion completa hasta :"+seller.cve+folio.toString());
+      //   }
       
       }
 
@@ -1094,10 +1096,11 @@ export class SalesRequestService{
        return await this.ticketUtil.getAllDeletesTickets(sales);
     }
 
+
     async transferAllSalesAutorized(dateStr?:string){
       let date=new Date();
       date.setHours(date.getHours()-24);
-
+      
       let year = date.getFullYear();
       let month = (date.getMonth()+1).toString();
       if(+month<10){
@@ -1115,22 +1118,22 @@ export class SalesRequestService{
       // console.log(date.getHours()+"-"+date.getMinutes());
       
        let sales:Sale[] =[];
+       
        if(dateStr){
+            await this.renumberAllFoliosBeforeTransfer(dateStr);
             sales= await this.saleRepository.getSalesBetweenDates(dateStr);
        }else{
+            await this.renumberAllFoliosBeforeTransfer(`${year}-${month}-${day}`);
             sales =  await this.saleRepository.getSalesBetweenDates(year+"-"+month+"-"+day);
        }
       
-      // let sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
+      
       for(let i=0;i<sales.length;i++){
         let sale=sales[i];
         if(!sale.sincronized){
           let subSales = await this.subSalesRepository.getSubSalesBySale(sale);
           if(sale.devolutionRequest){
-            //let mapSubSales:Map<number,number> =new Map();
-            // for(let devolution of devolutionSubSalesNew){
-            //   mapSubSales.set(devolution.subSaleIdIdentifier,devolution.quantity);
-            // }
+            
             for(let subSale of subSales){
               let devolutionSubSalesNew = await this.devolutionOldSubSalesRepository.getDevolutionOldSubSalesBySubSaleId(subSale.appSubSaleId,sale.folio);
               if(devolutionSubSalesNew.length){
@@ -1164,9 +1167,91 @@ export class SalesRequestService{
         }
       }
       console.log("Ventas traspasadas: "+year+"-"+month+"-"+day);
-      
+      console.log("Traspasando pagos: "+year+"-"+month+"-"+day);
+      if(dateStr){
+        this.transferPayments(dateStr);
+      }else{
+        this.transferPayments(`${year}-${month}-${day}`);
+      }
     }
 
+    async transferPayments(date:string){
+        let debsPaymentRealizedInDate = await this.debRepository.getAllDebtsPaymentCreatedInDate(date);
+        for(let deb of debsPaymentRealizedInDate){
+          let debPayment = await this.sqlsRepository.getPaymentRegister(deb.folio);
+          if(!debPayment.length){
+            console.log("Registrando pago");
+            await this.sqlsRepository.registerPayment(deb);
+            console.log("Pago registrado folio: "+deb.folio);
+          }
+        }
+        console.log("Pagos transferidos");
+    }
+
+    parseDate(date:Date){
+      let month = (date.getMonth()+1).toString();
+      let day = date.getDate().toString();
+      if(+month<10) month="0"+month;
+      if(+day<10) day="0"+day;
+      return `${date.getFullYear()}-${month}-${day}`;
+    }
+
+    async renumberAllFoliosBeforeTransfer(date:string){
+      let currentDateParsed=date;
+      let dateParsed = new Date(date);
+      dateParsed.setHours(dateParsed.getHours()-12);
+      let dateParsed2 = new Date(date);
+      dateParsed2.setHours(dateParsed2.getHours()-96);
+      console.log("Renumerando folios");
+      let sellers:any[] = await this.userRepository.getAllSellersWithCVEAndOperating() as any[];
+        console.log("Vendedores obtenidos");
+        for(let seller of sellers){
+              console.log("Vendedor: "+seller.name);
+              console.log("Obteniendo último folio");
+              console.log("DateStart:"+this.parseDate(dateParsed2));
+              console.log("DateEnd:"+this.parseDate(dateParsed));
+              let sales2 = await this.saleRepository.getCountFolioBetweenDateBySeller(seller.id,this.parseDate(dateParsed2),this.parseDate(dateParsed),seller.cve) as any[];
+              let folio_temp=sales2[0].folio_temp;
+              console.log("Ultima venta de "+seller.name+" "+folio_temp);
+              let folio = +(folio_temp as string).replace(seller.cve,"");
+              console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
+              
+            let salesOfSeller = await this.saleRepository.getAllSalesOfSellerByDateToRewrite(seller.id,currentDateParsed,currentDateParsed) as any[];
+              for(let sale of salesOfSeller){
+                  folio++;
+                  console.log("Asignando folio: "+seller.cve+folio.toString()+" "+sale.folio+" "+sale.status_str);
+                  await this.saleRepository.updateRewriteFolio(sale.sale_id,seller.cve+(folio.toString()));
+              }
+              console.log("Asignacion completa hasta :"+seller.cve+folio.toString());  
+       }
+        console.log("Asignacion completada");
+
+    }
+
+    async transferAllOrdersSellers(date:string){
+      let dateParsed = new Date(date);
+      dateParsed.setHours(dateParsed.getHours()-12);
+      let dateParsed2 = new Date(date);
+      dateParsed2.setHours(dateParsed2.getHours()-96);
+      console.log("Renumerando folios",this.parseDate(dateParsed2),this.parseDate(dateParsed));
+      //let ordersSellers:OrderSellerInterface[] = await this.saleSellerRepository.getAllOrdersSellersBetweenDates(this.parseDate(dateParsed2),this.parseDate(dateParsed));
+      //let folioCount = ordersSellers[0].folioRemission;
+      let currentOrdersSellers:OrderSellerInterface[] = await this.saleSellerRepository.getAllOrdersSellersByDate(date);
+      //console.log("FOLIO COUNT: "+folioCount);
+      
+      for(let orderSeller of currentOrdersSellers){  
+          
+        let subOrders = await this.saleSellerRepository.getAllSubOrdersSellersByOrderSellerId(orderSeller.orderSellerId);
+        orderSeller.amount = subOrders.map(x=>x.amount).reduce((a,b)=>a+b,0);
+        orderSeller.subOrders=subOrders;
+        //orderSeller.folioRemission=folioCount;
+        console.log("ORDER: ",JSON.stringify(orderSeller));
+        await this.sqlsRepository.transferWarehouseEntranceLikeRemission(orderSeller);
+        await this.saleSellerRepository.updateNumberRemission(orderSeller.orderSellerId,orderSeller.folioRemission);
+        //folioCount++;
+      }
+    }
+9
     async findProduct(selleruid:string,productKey:string){
       let seller:User = await this.userRepository.getUserById(selleruid);
       if(!seller) throw new Error("[404], no existe el usuario");
@@ -1221,39 +1306,52 @@ export class SalesRequestService{
       }
       if(!productPresentation) throw new Error("[404], no existe el producto");
       
-      let productSae = null;
-      productSae =await this.sqlsRepository.getProductSaeByKey(key);
-      if(!productSae.length){
-        productSae = await this.sqlsRepository.getProductSaeByKeyLike(key);
-      }
-      if(!productSae.length) throw new Error("[400], producto no existente en SAE");
-      let uniMed:string= (productSae[0].UNI_MED as string).toLowerCase();
+      //let productSae = null;
+      //productSae =await this.sqlsRepository.getProductSaeByKey(key);
+      //if(!productSae.length){
+       // productSae = await this.sqlsRepository.getProductSaeByKeyLike(key);
+      //}
+      //if(!productSae.length) throw new Error("[400], producto no existente en SAE");
+      let uniMed:string= productPresentation.uniMed;//(productSae[0].UNI_MED as string).toLowerCase();
 
-      let packagings = await this.packagingRepository.getPackagingsByProduct(productPresentation.productRovianda);
+      //let packagings = await this.packagingRepository.getPackagingsByProduct(productPresentation.productRovianda);
       let stock = 0;
       let stockPendingToDeliver=0;
-      for(let packaging of packagings){
-          let propertiesPackaging = await this.propertiesPackagingRepository.findPropiertiesPackagings(packaging);
-          for(let pro of propertiesPackaging){
-            if(pro.presentation.id==productPresentation.id){
-              stock+=pro.units;
-            }
-          }
+      let currentStock = await this.packagingRepository.getExistenceOfProductPresentationId(productPresentation.id);
+      let currentRequested = await this.saleSellerRepository.getCurrentRequestedByProductPresentationId(productPresentation.id);
+      if(currentStock.length && currentStock[0].presentationId!=null){
+        stock=currentStock[0].unitsExistence;
+      }else{
+        stock=0;
       }
-
-      console.log("Total stock of: "+key+" : "+stock);
-
-      let ordersSellers = await this.saleSellerRepository.getAllOrdersSellers();
-      for(let orderSeller  of ordersSellers){
-        let subOrdersSeller = await this.salesRequestRepository.getByOrderSeller(orderSeller);
-        orderSeller.subOrders=subOrdersSeller;
-        for(let sub of subOrdersSeller){
-          if(sub.presentation.id==productPresentation.id){
-            stockPendingToDeliver+=sub.units;
-          }
-        }
+      if(currentRequested.length && currentRequested[0].presentationId!=null){
+        stockPendingToDeliver= currentRequested[0].unitsRequested;
+      }else{
+        stockPendingToDeliver=0;
       }
-      console.log("Total stock requested: "+stockPendingToDeliver);
+      
+      // for(let packaging of packagings){
+      //     let propertiesPackaging = await this.propertiesPackagingRepository.findPropiertiesPackagings(packaging);
+      //     for(let pro of propertiesPackaging){
+      //       if(pro.presentation.id==productPresentation.id){
+      //         stock+=pro.units;
+      //       }
+      //     }
+      // }
+
+      // console.log("Total stock of: "+key+" : "+stock);
+
+      // let ordersSellers = await this.saleSellerRepository.getAllOrdersSellers();
+      // for(let orderSeller  of ordersSellers){
+      //   let subOrdersSeller = await this.salesRequestRepository.getByOrderSeller(orderSeller);
+      //   orderSeller.subOrders=subOrdersSeller;
+      //   for(let sub of subOrdersSeller){
+      //     if(sub.presentation.id==productPresentation.id){
+      //       stockPendingToDeliver+=sub.units;
+      //     }
+      //   }
+      // }
+      // console.log("Total stock requested: "+stockPendingToDeliver);
       stock-=stockPendingToDeliver;
       let product:{
         presentationType:string,
@@ -1714,7 +1812,7 @@ export class SalesRequestService{
     }
 
     async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[],devolutions:DevolutionSellerRequestBody[]},sellerId:string){
-      console.log("Devolutions: "+body.devolutions);
+      
       let seller:User=null;
       
       let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[],devolutionsSincronized:string[],devolutionsAccepted:string[],devolutionsRejected:string[],devolutionsPending:string[]}={

@@ -42,3 +42,23 @@ export interface processIngredientItem{
     lotId:string,
     rawMaterial:string;
 }
+
+export interface ProcessSubProductToOvenRequest{
+    processId:number,
+    productRoviandaId:number,
+    quantity:number;
+    observations:string;
+    userId:string;
+}
+
+export interface ProcessSubProductItem{
+    id:number,
+    name:string,
+    quantity:number,
+    observations:string,
+    createAt:string,
+    status:string,
+    lastModification:string,
+    userModify:string,
+    createdBy:string
+}

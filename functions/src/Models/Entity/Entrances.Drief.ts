@@ -60,6 +60,8 @@ export class EntranceDrief{
 
     @OneToOne(type=>WarehouseDrief,wd=>wd.entranceDrief,{nullable:true})
     @JoinColumn({name:"warehouse_drief"})
-    warehouseDrief:WarehouseDrief;
+    warehouseDrief:WarehouseDrief
 
+    @Column({name:"is_box"})
+    isBox:boolean;
 }

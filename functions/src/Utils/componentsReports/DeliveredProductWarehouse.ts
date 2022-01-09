@@ -8,11 +8,21 @@ export class DeliveredProductWarehouse{
         <html>
         <head>
         <style>
+
         table{
         border-collapse: collapse;
         }
         table, td, th {
         border: 1px solid black;
+        }
+        th{
+            font-size: 12px
+        }
+        td{
+            font-size: 10px
+        }
+        .without{
+            border: none
         }
         </style>
         </head>
@@ -97,15 +107,7 @@ export class DeliveredProductWarehouse{
       
         </tr>
         `;
-        orders=orders.sort((a,b)=>{
-            if(a.NAME<b.NAME){
-                return -1;
-            }
-            if(a.NAME>b.NAME){
-                return 1;
-            }
-            return 0;
-        });
+        
         for(let order of orders){
             
             let date = order.LOT.slice(order.LOT.length-6,order.LOT.length);
@@ -145,8 +147,11 @@ export class DeliveredProductWarehouse{
         <th>UNIDADES</th>
         <th>PESO</th>
         ${type!='acumulated'?`<th>FECHA</th>`:''}
+        <th>PRECIO</th>
+        <th>TOTAL</th>
         </tr>
         `;
+        let total=0;
         for(let order of orders){
            
             content+=`
@@ -155,13 +160,26 @@ export class DeliveredProductWarehouse{
             <td>${order.NAME}</td>
             ${type!='acumulated'?`<td>${order.LOT}</td>`:''}
             <td>${order.UNITS}</td>
-            <td>${order.WEIGHT.toFixed(2)}</td>
+            <td>${order.WEIGHT}</td>
             ${type!='acumulated'?`<td>${order.DATE}</td>`:''}
+            <td>${order.PRICE}</td>
+            <td>${order.TOTAL}</td>
             </tr>
             `;
+            total+=order.TOTAL;
         }
 
         content+=`
+        <tr>
+            <td class="without"></td>
+            <td class="without"></td>
+            ${type!="acumulated"?'<td class="without"></td>':''}
+            <td class="without"></td>
+            <td class="without"></td>
+            ${type!="acumulated"?'<td class="without"></td>':''}
+            <td class="without"></td>
+            <td style="border: 1px solid black">Total: $ ${total.toFixed(2)}</td>
+        </tr>
         </table>
         `;
         return content;

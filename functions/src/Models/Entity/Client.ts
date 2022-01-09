@@ -26,19 +26,19 @@ export class Client{
     @Column({nullable:true})
     phone:string;
 
-    @Column()
+    @Column({default:0})
     credit:number;
 
-    @Column({nullable:false})
+    @Column({nullable:true})
     cfdi:string;
 
-    @Column({name:"payment_sat"})
+    @Column({name:"payment_sat",nullable:true})
     paymentSat:string;
 
-    @Column({name:"current_credit"})
+    @Column({name:"current_credit",nullable:true})
     currentCredit:number;
 
-    @Column({name:"days_credit"})
+    @Column({name:"days_credit",nullable:true})
     daysCredit:number;
 
     @Column({name:"day_charge",nullable:true})
@@ -64,7 +64,7 @@ export class Client{
     @Column({nullable:true})
     clasification:string;
 
-    @Column({name:"has_debts"})
+    @Column({name:"has_debts",default:false})
     hasDebts:boolean;
 
 

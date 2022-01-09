@@ -47,4 +47,7 @@ export class WarehouseDrief{
     @OneToOne(type=>EntranceDrief,ed=>ed.warehouseDrief)
     entranceDrief:EntranceDrief;
 
+    @Column({name:"is_box"})
+    isBox:boolean;
+
 }

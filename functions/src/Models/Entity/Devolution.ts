@@ -21,7 +21,7 @@ export class Devolution{
     @Column()
     date:string;
 
-    @Column({name:"weight",type:"float",nullable:true})
+    @Column({name:"weight",type:"float",nullable:false})
     weight:number;
 
     @ManyToOne(type=>OvenProducts,ovenP=>ovenP.devolutions)

@@ -103,7 +103,8 @@ export class AdminSalesController{
     async getGeneralChartDataSales(req:Request,res:Response){
         let dateStart:string = req.query.dateStart;
         let dateEnd:string = req.query.dateEnd;
-        let response:ChartD3DataInterface[]=await this.adminSalesService.getGeneralChartDataSales(dateStart,dateEnd);
+        let type:string = req.query.type;
+        let response:ChartD3DataInterface[]=await this.adminSalesService.getGeneralChartDataSales(dateStart,dateEnd,type);
         return res.status(200).send(response);
     }
 

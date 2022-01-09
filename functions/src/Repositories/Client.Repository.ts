@@ -83,12 +83,61 @@ export class ClientRepository{
         if(hint){
             count=await this.clientRepository.count({where:{status:"ACTIVE",name:Like(`%${hint}%`)}});
             items= await this.clientRepository.query(
-            `select * from clients where status='ACTIVE' and name like "%${hint}%" limit ${perPage}  offset ${skip}`
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
+            where cl.status='ACTIVE' and cl.name like "%${hint}%" limit ${perPage}  offset ${skip}`
             );
         }else{
             count=await this.clientRepository.count({where:{status:"ACTIVE"}});
             items= await this.clientRepository.query(
-            `select * from clients where status='ACTIVE' limit ${perPage}  offset ${skip}`
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
+             where cl.status='ACTIVE'  limit ${perPage}  offset ${skip}`
+            );
+        }
+        return {
+            count,
+            items: items as Array<any>
+        }
+    }
+    async getAllClientsByCodeSae(page:number,perPage:number,hint:string){
+        await this.getConnection();
+        let skip = (page)*perPage;
+        let count=0;
+        let items=[];
+        if(hint){
+            count=await this.clientRepository.count({where:{status:"ACTIVE",keySaeNew:Like("%"+hint+"%")}});
+            items= await this.clientRepository.query(
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
+            where cl.status='ACTIVE' and cl.key_sae_new like "%${hint}%" limit ${perPage}  offset ${skip}`
+            );
+        }else{
+            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            items= await this.clientRepository.query(
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
+             where cl.status='ACTIVE' limit ${perPage}  offset ${skip}`
+            );
+        }
+        return {
+            count,
+            items: items as Array<any>
+        }
+    }
+
+    async getAllClientsByCodeSystem(page:number,perPage:number,hint:string){
+        await this.getConnection();
+        let skip = (page)*perPage;
+        let count=0;
+        let items=[];
+        if(hint){
+            count=await this.clientRepository.count({where:{status:"ACTIVE",keyClient:+hint}});
+            items= await this.clientRepository.query(
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
+            where cl.status='ACTIVE' and cl.key_client = ${hint} limit ${perPage}  offset ${skip}`
+            );
+        }else{
+            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            items= await this.clientRepository.query(
+            `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
+             where cl.status='ACTIVE' limit ${perPage}  offset ${skip}`
             );
         }
         return {

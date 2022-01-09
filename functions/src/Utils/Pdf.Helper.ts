@@ -23,6 +23,7 @@ import { CheeseRepository } from '../Repositories/Cheese.Repository';
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from '../Models/DTO/PackagingDTO';
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
+import { DevolutionListItemInterface, PackagingDeliveredAcumulated, PackagingDeliveredIndividual } from '../Models/DTO/Packaging.DTO';
 
 
 
@@ -204,7 +205,7 @@ export default class PdfHelper{
             <tr>
                 <td colspan="2"><label class="label1">Materia prima:</label> <label class="label2">${drief.product.description}</label></td>
                 <td colspan="2" ><label class="label1">Lote proveedor:<label> <label class="label2">${drief.loteProveedor}</label></td>
-                <td id="fec" ><label class="label1">Fecha:</label> <label class="label2">${day}-${month}-${year}</label></td>
+                <td id="fec" ><label class="label1">Fecha:</label> <label class="label2">${day}/${month}/${year}</label></td>
             </tr>
            
             <tr>
@@ -292,7 +293,7 @@ export default class PdfHelper{
             </tr>
             <tr>
                 <td colspan="2"><label class="label1">Se recibió: </label></td>
-                <td colspan="3">${drief.quantity} KG</td>
+                <td colspan="3">${drief.quantity} ${drief.isPz&&drief.isBox?'Cajas':((drief.isPz)?'Piezas':'KG')}</td>
             </tr>
             <tr style="border:0px">
                 <td style="border:0px;"></td>
@@ -419,16 +420,18 @@ export default class PdfHelper{
     }
 
     bodyReportEntranceMeat(user:User,meat:EntranceMeat){
-        let date= new Date();
-        date.setHours(date.getHours()-6);
-        let day = date.getDate().toString();
-        let month = (date.getMonth()+1).toString();
-        if(+day<10){
-            day='0'+day;
-        }
-        if(+month<10){
-            month='0'+month;
-        }
+        let dateSplited = meat.createdAt.split("-");
+        let dateStr = `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
+        // let date= new Date();
+        // date.setHours(date.getHours()-6);
+        // let day = date.getDate().toString();
+        // let month = (date.getMonth()+1).toString();
+        // if(+day<10){
+        //     day='0'+day;
+        // }
+        // if(+month<10){
+        //     month='0'+month;
+        // }
         let conten1=`
         <body bgcolor="">
 
@@ -451,7 +454,7 @@ export default class PdfHelper{
          </tr>
 <!-- ************************************************************************************************-->
          <tr>
-            <th class="espa"><font size=1>${meat.createdAt}</font></th>
+            <th class="espa"><font size=1>${dateStr}</font></th>
             <th class="espa"><font size=1>${meat.proveedor}</font></th>
             <th class="espa"  colspan="2"><font size=1>${meat.rawMaterial}</font></th>
             <th class="espa"><font size=1>${meat.loteProveedor}</font></th>
@@ -981,7 +984,7 @@ export default class PdfHelper{
         </tr>
         <tr>
         <td colspan="2">Se recibió: </td> 
-        <td  colspan="4"> ${packing.quantity}</td>  
+        <td  colspan="4"> ${packing.quantity} ${packing.isBox&&packing.isPz?'Cajas':((packing.isPz)?'Piezas':'Kg')}</td>  
     
         </tr>
         <tr>
@@ -2763,4 +2766,287 @@ export default class PdfHelper{
         `;
         return content;
     }
+
+    async getPackagingDeliveredIndividual(outputs:PackagingDeliveredIndividual[],startDate:string,endDate:string){
+        let report=`
+        <html>
+
+        <head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          th{
+              font-size: 12px;
+          }
+          td{
+              text-align:center;
+              font-size: 9px;
+          }
+         </style>
+        </head>
+        
+        <body>
+        
+        <h1 class="main-title">Reporte de entrega de producto a tiendas y vendedores </h1>
+        <div class="dates-container">  
+        <label class="date1">Desde: ${startDate}</h3>
+        <label class="date2">Hasta: ${endDate}</h3>
+        </div>
+          <table class="title" cellspacing="0">
+                <tr>
+                    <th>Producto</th><th>Presentación</th><th>Lote</th><th>Fecha</th><th>Cantidad</th><th>Peso</th>
+                </tr>
+        
+        `;
+        if(outputs.length){
+            let seller=outputs[0].seller;
+            let quantityCount = 0;
+            let weightCount=0;
+            let added = false;
+            for(let deliver of outputs){
+                if(seller==deliver.seller){
+                    added=false;
+                    quantityCount+=(+deliver.quantity);
+                    weightCount+=(+deliver.weight);
+                    report+=`
+                        <tr>
+                            <td>${deliver.seller}</td><td>${deliver.presentation}</td><td>${deliver.lotId}</td><td>${deliver.outputDate}</td><td>${deliver.quantity}</td><td>${deliver.weight}</td>
+                        </tr>
+                    `;
+                }else{
+                    report+=`
+                        <tr>
+                            <td></td><td></td><td></td><td></td><td>${quantityCount.toFixed(2)}</td><td>${weightCount.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>${deliver.seller}</td><td>${deliver.presentation}</td><td>${deliver.lotId}</td><td>${deliver.outputDate}</td><td>${deliver.quantity}</td><td>${deliver.weight}</td>
+                        </tr>
+                    `;
+                    quantityCount=0;
+                    weightCount=0;
+                    seller=deliver.seller;
+                    added=true;
+                }
+            }
+            if(added==false){
+                report+=`
+                <tr>
+                    <td></td><td></td><td>${quantityCount.toFixed(2)}</td><td>${weightCount.toFixed(2)}</td>
+                </tr>`;
+            }
+        }
+        report+=`
+        </table>
+        </body>
+        </html>
+        `;
+        return report;
+    }
+
+    async getPackagingDeliveredAccumulated(outputs:PackagingDeliveredAcumulated[],startDate:string,endDate:string){
+        let report=`
+        <html>
+
+        <head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          
+          th{
+            font-size: 12px;
+            text-align: center;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+        </head>
+        
+        <body>
+        
+        <h1 class="main-title">Reporte de entrega de producto a tiendas y vendedores </h1>
+        <div class="dates-container">  
+        <h3 class="date1">Desde: ${startDate}</h3>
+        <h3 class="date2">Hasta: ${endDate}</h3>
+        </div>
+          <table class="title" cellspacing="0">
+                <tr>
+                    <th>Producto</th><th>Presentación</th><th>Cantidad</th><th>Peso</th>
+                </tr>
+        
+        `;
+        if(outputs.length){
+            let seller=outputs[0].seller;
+            let quantityCount = 0;
+            let weightCount=0;
+            let added = false;
+            for(let deliver of outputs){
+                if(seller==deliver.seller){
+                    added=false;
+                    quantityCount+=(+deliver.quantity);
+                    weightCount+=(+deliver.weight);
+                    report+=`
+                        <tr>
+                            <td>${deliver.seller}</td><td>${deliver.presentation}</td><td>${deliver.quantity}</td><td>${deliver.weight}</td>
+                        </tr>
+                    `;
+                    
+                }else{
+                    seller=deliver.seller;
+                    report+=`
+                        <tr>
+                            <td></td><td></td><td>${quantityCount.toFixed(2)}</td><td>${weightCount.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>${deliver.seller}</td><td>${deliver.presentation}</td><td>${deliver.quantity}</td><td>${deliver.weight}</td>
+                        </tr>
+                    `;
+                    quantityCount=(+deliver.quantity);
+                    weightCount=(+deliver.weight);
+                    added=true;
+                }
+            }
+            if(added==false){
+                report+=`
+                <tr>
+                    <td></td><td></td><td>${quantityCount.toFixed(2)}</td><td>${weightCount.toFixed(2)}</td>
+                </tr>`;
+            }
+        }
+        
+        report+=`
+        </table>
+        </body>
+        </html>
+        `;
+        return report;
+    }
+
+    getReportPdfDevolutionList(items:DevolutionListItemInterface[],dateStart:string,dateEnd:string){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">Reporte de cambios de presentación </h1>
+        <div class="dates-container">  
+        <h3 class="date1">Desde: ${dateStart}</h3>
+        <h3 class="date2">Hasta: ${dateEnd}</h3>
+        </div>
+        <table>
+        <tr>
+            <th>Producto</th>
+            <th>Presentación</th>
+            <th>Lote</th>
+            <th>Cantidad</th>
+            <th>Peso</th>
+            <th>Fecha</th>
+        <tr>
+        `;
+        for(let devolution of items){
+            report+=`
+                <tr>
+                    <td>${devolution.name}</td>
+                    <td>${devolution.presentation}</td>
+                    <td>${devolution.lot}</td>
+                    <td>${devolution.units}</td>
+                    <td>${devolution.weight}</td>
+                    <td>${this.parseDate(devolution.date)}</td>
+                </tr>
+            `;
+        }
+        
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;
+    }
+
+    parseDate(date){
+        let dateP = new Date(date);
+        let month = (dateP.getMonth()+1).toString();
+        let day = dateP.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
+        return `${day}/${month}/${dateP.getFullYear()}`;
+    }
+    
 }

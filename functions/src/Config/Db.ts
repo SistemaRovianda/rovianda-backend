@@ -61,11 +61,13 @@ import { SaleCancel } from "../Models/Entity/SaleCancel";
 import { ProcessIngredientFormulation } from "../Models/Entity/ProcessIngredientFormulation";
 import { DevolutionSellerRequest } from "../Models/Entity/DevolutionSellerRequest";
 import { DevolutionOldSubSales } from "../Models/Entity/DevolutionOldSubSales";
+import { SubProductToOven } from "../Models/Entity/SubProduct";
+import { CodeAccess } from "../Models/Entity/CodesAccess";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host: "rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
     username: "master_rovianda",//"admin",//
     password: "Sistemas2020",//"Holamundo1250",//
@@ -129,7 +131,9 @@ const config: ConnectionOptions = {
         SaleCancel,
         ProcessIngredientFormulation,
         DevolutionSellerRequest,
-        DevolutionOldSubSales
+        DevolutionOldSubSales,
+        SubProductToOven,
+        CodeAccess
     ]
 }
 let connection: Connection;

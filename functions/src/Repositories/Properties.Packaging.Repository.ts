@@ -96,7 +96,7 @@ export class PropertiesPackagingRepository{
                 left join presentation_products as pp on pp.presentation_id=prop.presentation_id 
                 left join products_rovianda as pr on pr.id=pp.product_rovianda_id left 
                 join packaging as pc on pc.id=prop.packaging_id
-                 where if(pp.uni_med="PZ",prop.units>0,prop.weight>0) and prop.active=1 and  pc.product_id not in (select productId from cheeses)
+                 where prop.units>0 and prop.active=1 and  pc.product_id not in (select productId from cheeses)
                 group by prop.presentation_id,prop.packaging_id order by prop.presentation_id,pc.lot_id;`
         )) as LotsStockInventoryPresentation[];
     }

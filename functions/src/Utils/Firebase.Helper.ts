@@ -39,6 +39,18 @@ export class FirebaseHelper{
         }
     }
 
+    // async updateUsers(){
+        
+    //     let usersList:admin.auth.ListUsersResult = await admin.auth().listUsers(1000);
+    //     for(let user of usersList.users){
+    //         let userEntity = await this.userRepository.getUserById(user.uid);
+    //         if(userEntity){
+    //             userEntity.createdAt = new Date(user.metadata.creationTime).toISOString();
+    //             await this.userRepository.saveUser(userEntity);
+    //         }
+    //     }
+    // }
+
     async notificateToAdminSales(){
         //let adminTokens = await this.userRepository.getAllAdminSales();
         let message:admin.messaging.Message={

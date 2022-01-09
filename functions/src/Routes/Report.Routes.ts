@@ -189,6 +189,12 @@ export const reportRoutes:Array<routeInterface>=[
         target: "getReportPackagingDelivered"
     },
     {
+        url: "/rovianda/report/sellers/delivered",
+        method: "post",
+        controller: ReportController,
+        target: "getReportSellerDelivered"
+    },
+    {
         url: "/rovianda/sellers/orders-list",
         method: "get",
         controller: ReportController,

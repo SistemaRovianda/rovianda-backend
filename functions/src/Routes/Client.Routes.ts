@@ -49,5 +49,16 @@ export const clientRoutes: Array<routeInterface> = [
         method: "delete",
         controller: ClientController,
         target: "deleteClient"
+    },{
+        url: "/rovianda/update-client/:clientId",
+        method: "put",
+        controller: ClientController,
+        target: "updateKeySaeClient"
+    },
+    {
+        url: "/rovianda/client/sae/search/:code",
+        method: "get",
+        controller: ClientController,
+        target: "searchClientByCodeSae"
     }
 ]

@@ -70,15 +70,13 @@ export class App extends ErrorHandler{
 
 export const app = functions.runWith({timeoutSeconds:540}).https.onRequest( new App().app);
 
-// export const appCron = functions.pubsub.schedule('10 0 * * *')
-// export const appCron = functions.pubsub.schedule('*/20 * * * *')
+// export const appCron = functions.runWith({timeoutSeconds:540}).pubsub.schedule('00 12 * * *')
 // .timeZone('America/New_York').onRun(async (context)=>{
-   
-//     console.log("Traspaso a: "+new Date());
+
+//     // console.log("Traspaso iniciado");
+
+    
 //     let date = new Date();
-//     date.setHours(date.getHours()-5);
-//     let hours=date.getHours();
-//     if(hours==11){
 //         date.setHours(date.getHours()-24)
 //         let salesService:SalesRequestService = new SalesRequestService(null);
 //         let month = (date.getMonth()+1).toString();
@@ -88,5 +86,5 @@ export const app = functions.runWith({timeoutSeconds:540}).https.onRequest( new 
 //         let dateStr = date.getFullYear()+"-"+month+"-"+day;
 //         console.log("Fecha de transferencia: "+dateStr);
 //         await salesService.transferAllSalesAutorized(dateStr);
-//     }
+    
 // }) 

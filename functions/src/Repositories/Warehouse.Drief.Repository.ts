@@ -22,6 +22,11 @@ export class WarehouseDriefRepository{
         return await this.warehouseDriefRepository.find();
     }
 
+    async getWarehouseDriefByWarehouseDriefId(warehouseDriefId:number){
+        await this.getConnection();
+        return await this.warehouseDriefRepository.findOne({where:{id:warehouseDriefId}});
+    }
+
     async getWarehouseDriefById(lotId:string){
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({
@@ -140,4 +145,5 @@ export class WarehouseDriefRepository{
         await this.getConnection();
         return await this.warehouseDriefRepository.findOne({product,loteProveedor});
     }
+
 }

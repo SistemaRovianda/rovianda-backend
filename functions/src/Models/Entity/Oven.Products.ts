@@ -69,4 +69,7 @@ export class OvenProducts {
     @OneToMany(type=>Devolution,dev=>dev.ovenProduct)
     devolutions:Devolution[];
 
+    @Column({name:"inspectioned",default:false})
+    inspectioned: boolean;
+
 }

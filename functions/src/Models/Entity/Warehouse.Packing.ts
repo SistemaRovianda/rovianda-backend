@@ -42,4 +42,7 @@ export class WarehousePacking{
     @OneToMany(type => OutputsPacking , outputsPacking => outputsPacking.warehousePacking)
     @JoinColumn({ name: "output_packing_id"})
     outputsPacking: OutputsPacking[];
+
+    @Column({name:"is_box"})
+    isBox:boolean;
 }

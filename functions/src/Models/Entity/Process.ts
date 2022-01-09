@@ -8,6 +8,7 @@ import { User } from "./User";
 import { Formulation } from "./Formulation";
 import { Reprocessing } from "./Reprocessing";
 import { ProcessIngredientFormulation } from "./ProcessIngredientFormulation";
+import { SubProductToOven } from "./SubProduct";
 
 
 @Entity({name:"process"})
@@ -88,6 +89,9 @@ export class Process{
 
     @OneToMany(type=>ProcessIngredientFormulation,processIngredientsFormulation=>processIngredientsFormulation.process)
     processIngredientsFormulations:ProcessIngredientFormulation[]
+
+    @OneToMany(type=>SubProductToOven,subProductToOven=>subProductToOven.process)
+    subProductsToOven:SubProductToOven[];
 
 }
 

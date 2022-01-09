@@ -101,6 +101,18 @@ export const packagingRoutes:Array<routeInterface>=[
         target: "createDevolution"
     },
     {
+        url: "/rovianda/devolution-list",
+        method: "get",
+        controller: PackagingController,
+        target: "getDevolutionList"
+    },
+    {
+        url:"/rovianda/devolution-list-report",
+        method: "get",
+        controller: PackagingController,
+        target: "getDevolutionListReport"
+    },
+    {
         url: "/rovianda/packaging/inventory-warehouse/:type",
         method: "get",
         controller: PackagingController,

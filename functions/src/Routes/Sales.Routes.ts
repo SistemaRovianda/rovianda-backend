@@ -320,5 +320,11 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "getAcumulatedSales"
+    },
+    {
+        url: "/rovianda/transfer-remissions",
+        method: "get",
+        controller: SalesRequestController,
+        target: "transferRemissions"
     }
 ];

@@ -9,6 +9,7 @@ import PdfHelper from "../Utils/Pdf.Helper";
 import Excel4Node from '../Utils/Excel.Helper';
 import * as os from "os";
 import * as fs from "fs";
+import { DevolutionListItemInterface } from '../Models/DTO/Packaging.DTO';
 export class PackagingController{
 
     private excel: Excel4Node;
@@ -248,5 +249,40 @@ export class PackagingController{
         let response:string[]= await this.packagingService.getLotsStockInventoryByProductIdAndDate(productId,date);
         return res.status(200).send(response);
     }
+
+   async getDevolutionList(req:Request,res:Response){
+       let page:number= req.query.page;
+       let perPage:number = req.query.perPage;
+       let dateStart:string = req.query.dateStart;
+       let dateEnd:string = req.query.dateEnd;
+       let response:{items:DevolutionListItemInterface[],count:number} = await this.packagingService.getPresentationsChangesList(page,perPage,dateStart,dateEnd);
+       res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+        res.setHeader("X-Total-Count",response.count);
+       return res.status(200).send(response.items);
+   }
+
+   async getDevolutionListReport(req:Request,res:Response){
+    let page:number= req.query.page;
+    let perPage:number = req.query.perPage;
+    let dateStart:string = req.query.dateStart;
+    let dateEnd:string = req.query.dateEnd;
+    let response:{items:DevolutionListItemInterface[],count:number} = await this.packagingService.getPresentationsChangesList(page,perPage,dateStart,dateEnd);
+    res.header('Access-Control-Expose-Headers', 'X-Total-Count')
+    let report = await this.pdfHelper.getReportPdfDevolutionList(response.items,dateStart,dateEnd);
+            pdf.create(report, {
+                format: 'Legal',
+                header: {
+                    height: "30px"
+                }
+              
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=cambiosdepresentacion.pdf`
+                });
+                stream.pipe(res);
+            }));
+   }
 
 }

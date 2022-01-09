@@ -17,9 +17,11 @@ export interface ChartD3DataInterface{
     typeProduct:string,
     name:string,
     typePresentation:string,
+    presentationId:number,
     //*dateStr:string,
     price:number,
-    uniMed:string
+    uniMed:string,
+    comparation:string
 }
 
 export interface RankingSeller{
@@ -135,7 +137,9 @@ export interface SaleInterfaceRequest{
     productPresentationType:string,
     presentationId:number,
     productId:number,
-    uniMed:string
+    uniMed:string,
+    esqKey:number,
+    esqDescription:string;
  }
 
 
@@ -150,6 +154,8 @@ export interface OfflineNewVersionProducts{
     quantity:number;
     presentationId:number;
     weightOriginal:number;
+    esqKey:number,
+    esqDescription:string;
 }
 
 
@@ -178,7 +184,8 @@ export interface SalesTypes{
     sellerName:string,
     clientName:string,
     date:string,
-    status:string
+    status:string,
+    dateSort:string,
 }
 
 export interface CancelRequest{
@@ -201,7 +208,9 @@ export interface AdminProductsCatalog{
     keyAltern:string,
     type:string,
     uniMed:string,
-    quantityByPresentation:number
+    quantityByPresentation:number,
+    esqKey:number,
+    esqDescription:string
 }
 export interface AdminPreRegisterProductDetails{
     productIdInSystem:number,
@@ -209,6 +218,8 @@ export interface AdminPreRegisterProductDetails{
     price:number,
     keySae:string,
     uniMed:string,
+    esqKey: number,
+    descriptionImp:string
 }
 
 export interface RequestPreRegistProduct{
@@ -222,4 +233,6 @@ export interface RequestPreRegistProduct{
     type:string,
     quantityByPresentation:number,
     uniMed:string
+    esqKey:number;
+    esqDescription:string;
 }

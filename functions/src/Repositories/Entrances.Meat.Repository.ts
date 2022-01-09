@@ -2,6 +2,7 @@ import {connect} from '../Config/Db';
 import { Repository, Between, MoreThanOrEqual } from 'typeorm';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
 import { EntranceOutputPackingFromOven, EntranceOutputsOven, IngredientsFormulation, InventoryTypeQuality, OutputsByEntrance, OutputsOfWarehouse, ProcessFormulation, ProductInfoFromPackDefrostTrazability, ProductInfoFromPackIngredientsTrazability, ProductInfoFromPackTrazability } from '../Models/DTO/Quality.DTO';
+import { Fridge } from '../Models/Entity/Fridges';
 
 export class EntranceMeatRepository{
     private entrancesMeatRepository:Repository<EntranceMeat>;
@@ -34,9 +35,15 @@ export class EntranceMeatRepository{
         return await this.entrancesMeatRepository.findOne({id});
     }
 
-
+    async getEntranceMeatByLotProviderAndLotInternAndQuantity(lotProvider:string,lotIntern:string,quantity:number){
+        await this.getConnection();
+        let entity:any[]= await this.entrancesMeatRepository.query(`
+        select id from entrances_meat where lote_proveedor="${lotProvider}" and lote_interno="${lotIntern}" 
+        and replace(substring(replace(weight,'{"value":"',""),1,locate('"',replace(weight,'{"value":"',""),1)),'"',"")=${quantity}
+        `);
+        return await this.entrancesMeatRepository.findOne({id:entity[0].id});
+    }
    
-
     async getEntrancesMeats(dateInit:string,dateEnd:string){
         await this.getConnection();
         return await this.entrancesMeatRepository.find({
@@ -88,8 +95,8 @@ export class EntranceMeatRepository{
         await this.getConnection();
         let items= await this.entrancesMeatRepository.query(`
             select co.id,em.created_at as createAt,co.status,co.lote_interno as lotIntern,co.lote_proveedor as lotProvider,
-            co.quantity,us.name as receiver,fri.temp,fri.description as fridgeDescription,raw.raw_material as description,em.proveedor as provider
-            from cooling as co left join entrances_meat as em on co.lote_interno=em.lote_interno and co.lote_proveedor=em.lote_proveedor
+            co.quantity,us.name as receiver,fri.fridge_id as fridgeId,fri.temp,fri.description as fridgeDescription,raw.raw_material as description,em.proveedor as provider
+            from cooling as co left join entrances_meat as em on co.lote_interno=em.lote_interno and co.lote_proveedor=em.lote_proveedor and co.quantity=replace(substring(replace(em.weight,'{"value":"',""),1,locate('"',replace(em.weight,'{"value":"',""),1)),'"',"")
             left join users as us on em.qualityInspectorId=us.id left join fridges as fri on co.fridgeFridgeId=fri.fridge_id
             left join raw on co.raw_material_id=raw.id 
             ${(lot)?`where co.lote_interno like "%${lot}%"`:""} 
@@ -98,7 +105,7 @@ export class EntranceMeatRepository{
         `) as InventoryTypeQuality[];
         let count = await this.entrancesMeatRepository.query(`
             select count(*) as count
-            from cooling as co left join entrances_meat as em on co.lote_interno=em.lote_interno and co.lote_proveedor=em.lote_proveedor
+            from cooling as co left join entrances_meat as em on co.lote_interno=em.lote_interno and co.lote_proveedor=em.lote_proveedor and co.quantity=replace(substring(replace(em.weight,'{"value":"',""),1,locate('"',replace(em.weight,'{"value":"',""),1)),'"',"")
             left join users as us on em.qualityInspectorId=us.id left join fridges as fri on co.fridgeFridgeId=fri.fridge_id
             left join raw on co.raw_material_id=raw.id 
             ${(lot)?`where co.lote_interno like "%${lot}%"`:""} 
@@ -113,7 +120,7 @@ export class EntranceMeatRepository{
     async getAllOutputsByLotProviderAndLotIntern(lotProvider:string,lotIntern:string,offset:number,perPage:number){
         await this.getConnection();
         let items= await this.entrancesMeatRepository.query(`
-        select fo.id,fo.temp,fo.date,fo.water_temp as waterTemp,fo.status,fo.lot_day as lotDay,fo.ingredients_process_ids as ingredientsProcessIds,pr.name,us.name as verifyBy,us2.name as makedBy,fo.type_formulation as typeFormulation,
+        select fo.id,fo.temp,date_format(fo.date,'%Y-%m-%d') as date,fo.water_temp as waterTemp,fo.status,fo.lot_day as lotDay,fo.ingredients_process_ids as ingredientsProcessIds,pr.name,us.name as verifyBy,us2.name as makedBy,fo.type_formulation as typeFormulation,
         pr.id as productId
         from formulation as fo left join products_rovianda as pr on fo.product_rovianda_id=pr.id left join users as us on fo.verifitId=us.id left join users as us2 on fo.makeId=us2.id
         where fo.id in (
@@ -341,7 +348,7 @@ export class EntranceMeatRepository{
         pack.register_date as registerDate,pack.expiration,pack.lot_id as lotId,
         pp.uni_med,propack.output_of_warehouse as outputOfWarehouse,propack.weight_of_warehouse as weightOfWarehouse,
         pp.presentation_id as presentationId,
-        propack.active
+        propack.active,pack.oven_product_id as ovenId
         from properties_packaging as propack 
         left join packaging as pack on propack.packaging_id=pack.id
         left join products_rovianda as pr on pack.product_id= pr.id
@@ -363,10 +370,11 @@ export class EntranceMeatRepository{
             idsStr=idsStr.replace("or ;","");
         items= await this.entrancesMeatRepository.query(`
         select em.created_at as dateEntrance,em.temperature,em.lote_proveedor as lotProvider,em.lote_interno as lotIntern,em.slaughter_date as slaughterDate,
-        em.raw_material as rawMaterial,em.proveedor as provider,em.fridge from defrost_formulation as df
+        em.raw_material as rawMaterial,em.proveedor as provider,frid.description as fridge,frid.temp from defrost_formulation as df
         left join defrost as def on df.defrostDefrostId=def.defrost_id
         left join outputs_cooling as oc on def.output_cooling=oc.id
         left join entrances_meat as em on em.lote_interno=oc.lote_interno and em.lote_proveedor=oc.lote_proveedor
+        left join fridges as frid on em.fridge->"$.fridgeId"=frid.fridge_id
         where df.formulation_id in (
         select formulationId from process where ${idsStr}
         );
@@ -379,39 +387,39 @@ export class EntranceMeatRepository{
         return items;
     }
 
-    async getProcessOfProductEndedLotProductId(lot:string,productId:number){
+    async getProcessOfProductEndedLotProductId(ovenId:number){
         await this.getConnection();
         return await this.entrancesMeatRepository.query(`
             select id as processId from process where id in (
-            select processId  from oven_products where new_lote="${lot}" and product_rovianda_id=${productId}
+            select processId  from oven_products where id=${ovenId}
             ) union
             select process_id as processId from process_ingredients_formulations where formulation_id in (
                 select formulationId from process where id in (
-                    select processId  from oven_products where new_lote="${lot}" and product_rovianda_id=${productId}
+                    select processId  from oven_products where id=${ovenId}
                     )  
             )
         `) as {processId:number}[];
     }
 
-    async getProductInfoFromPackingToTrazabilityIngredients(lot:string,productId:number){
+    async getProductInfoFromPackingToTrazabilityIngredients(ovenId:number){
         await this.getConnection();
         let items= await this.entrancesMeatRepository.query(`
-        select od.lote_proveedor as lotProvider,edr.date as entranceDate,pc.description as productName,edr.proveedor as provider from formulation_ingredients as fi 
+        select distinct lotProvider,entranceDate,productName,provider  from (select od.lote_proveedor as lotProvider,edr.date as entranceDate,pc.description as productName,edr.proveedor as provider from formulation_ingredients as fi 
         left join outputs_drief as od on fi.lot_id=od.id
         left join product_catalog as pc on od.productId=pc.id
         left join entrances_drief as edr on od.warehouseDriefId=edr.warehouse_drief
         where fi.formulation_id  in (
             select formulationId from process where id in (
-                select processId  from oven_products where new_lote="${lot}" and product_rovianda_id=${productId}
+                select processId  from oven_products where id=${ovenId}
             ) union
             select formulation_id from process where id in (
                 select process_id from process_ingredients_formulations where formulation_id in (
                     select formulationId from process where id in (
-                        select processId  from oven_products where new_lote="${lot}" and product_rovianda_id=${productId}
+                        select processId  from oven_products where id=${ovenId}
                     )
                 )
             )
-        );
+        )) as t;
         `) as ProductInfoFromPackIngredientsTrazability[];
         return items;
     }

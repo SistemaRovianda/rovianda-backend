@@ -123,6 +123,7 @@ import { ProcessService } from '../Services/Process.Service';
 import { Process } from '../Models/Entity/Process';
 import { ProcessStatus } from '../Models/Enum/ProcessStatus';
 import { GrindingService } from '../Services/Grinding.Service';
+import { ProcessSubProductItem } from '../Models/DTO/ProcessDTO';
 
 export class ProcessController {
 
@@ -266,5 +267,21 @@ export class ProcessController {
     async getProcessProcessIngredientsAvailables(req:Request,res:Response){
         
         return res.status(200).send(await this.processService.getAllProcessIngredientsAvailable());
+    }
+
+    async registerSubProductsToProcess(req:Request,res:Response){
+        await this.processService.createSubProductOfProcess(req.body);
+        return res.status(200).send();
+    }
+    async getAllSubProductsOfProcess(req:Request,res:Response){
+        let processId:number = +req.params.processId;
+        let response:ProcessSubProductItem[] = await this.processService.getAllSubProductsOfProcess(processId);
+        return res.status(200).send(response);
+    }
+
+    async deleteSubProduct(req:Request,res:Response){
+        let subProductId:number = +req.params.subProductId;
+        await this.processService.deleteSubProduct(subProductId);
+        return res.status(204).send();
     }
 }

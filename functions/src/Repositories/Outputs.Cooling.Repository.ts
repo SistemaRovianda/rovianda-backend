@@ -82,5 +82,10 @@ export class OutputsCoolingRepository{
         return await this.outputsCoolingRepository.find({loteInterno,outputDate:Between(dateStart,dateEnd)});
     }
 
-
+    async updateAllOutputsCoolingLotByLoteInternAndLotProvider(oldLotProvider:string,oldLotIntern:string,newLotProvider:string,newLotIntern:string){
+        await this.getConnection();
+        return await this.outputsCoolingRepository.query(`
+            update outputs_cooling set lote_interno="${newLotIntern}",lote_proveedor="${newLotProvider}" where lote_interno="${oldLotIntern}" and lote_proveedor="${oldLotProvider}"
+        `);
+    }
 }

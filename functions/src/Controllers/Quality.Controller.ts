@@ -1,14 +1,20 @@
 import { Request, response, Response } from "express";
-import { DeliveryToSeller, EntranceOutputPackingFromOven, EntranceOutputsOven, InventoryTypeQuality, OutputsByEntrance, OutputsOfWarehouse, OvensInventory, ProcessFormulation, ProcessInventory, ProductEndedIventory, ProductQualityDetails, ReceptionMaterialInterface } from "../Models/DTO/Quality.DTO";
+import {  DayMetricProps, DeliveryToSeller, EntranceOutputPackingFromOven, EntranceOutputsOven, InventoryTypeQuality, OutputsByEntrance, OutputsOfWarehouse, OvensInventory, PresentationMetrics, ProcessFormulation, ProcessInventory, ProductCatalogMetrics, ProductEndedIventory, ProductQualityDetails, ReceptionMaterialInterface } from "../Models/DTO/Quality.DTO";
 import { QualityService } from "../Services/Quality.Service";
 import { ReportTrazability } from "../Utils/componentsReports/ReportTrazability";
 import * as pdf from 'html-pdf';
+import { CodeAccess } from "../Models/Entity/CodesAccess";
+import Excel4Node from "../Utils/Excel.Helper";
+import { PresentationProducts } from "../Models/Entity/Presentation.Products";
+import { SaleMetricsAcumulated } from "../Models/DTO/Sales.ProductDTO";
 export class QualityController{
     private qualityService:QualityService;
     private reportTrazability:ReportTrazability;
+    private excelHelper:Excel4Node;
     constructor(){
         this.qualityService=new QualityService();
         this.reportTrazability=new ReportTrazability();
+        this.excelHelper = new Excel4Node();
     }
 
     async searchLotReceptionsProducts(req:Request,res:Response){
@@ -61,33 +67,39 @@ export class QualityController{
    
     async getHistoryReportTrazability(req:Request,res:Response){
         let id=req.query.id;
+        let type = req.query.type;
         let productInfo= await this.qualityService.getHistoryTrazabilityProductInfo(id);
         let rangeDates = await this.qualityService.getDateDistribution(productInfo.lotId,productInfo.productId,productInfo.presentationId);
-        let productdefrost = await this.qualityService.getHistoryTrazabilityProductInfoDefrost(productInfo.lotId,productInfo.productId);
-        let ingredients = await this.qualityService.getHistoryTrazabilityProductInfoIngredients(productInfo.lotId,productInfo.productId);
-        let report = await this.reportTrazability.getReportOfTrazability(productInfo,productdefrost,ingredients,rangeDates);
-        pdf.create(report, {
-            format: 'Letter',
-            border: {
-                top: "2cm", 
-                right: "2cm",
-                bottom: "2cm",
-                left: "2cm",
-            },
-            footer:{
-                height: "28mm",
-                contents:{
-                    default: '<span>Pag. {{page}}</span>/<span>{{pages}}</span>'
+        let productdefrost = await this.qualityService.getHistoryTrazabilityProductInfoDefrost(productInfo.ovenId);
+        let ingredients = await this.qualityService.getHistoryTrazabilityProductInfoIngredients(productInfo.ovenId);
+        if(type=="pdf"){
+            let report = await this.reportTrazability.getReportOfTrazability(productInfo,productdefrost,ingredients,rangeDates);
+            pdf.create(report, {
+                format: 'Letter',
+                border: {
+                    top: "2cm", 
+                    right: "2cm",
+                    bottom: "2cm",
+                    left: "2cm",
+                },
+                footer:{
+                    height: "28mm",
+                    contents:{
+                        default: '<span>Pag. {{page}}</span>/<span>{{pages}}</span>'
+                    }
                 }
-            }
-        }).toStream((function (err, stream) {
-            res.writeHead(200, {
-                'Content-Type': 'application/pdf',
-                'responseType': 'blob',
-                'Content-disposition': `attachment; filename=reporteDeTrazabilidad.pdf`
-            });
-            stream.pipe(res);
-        }));
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=reporteDeTrazabilidad.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            let report = await this.excelHelper.getReportTrazability(productInfo,productdefrost,ingredients,rangeDates);
+            report.write("Reporte de trazabilidad.xlsx",res);
+        }
     }
 
     async getHistoryProductEndedWarehouse(req:Request,res:Response){
@@ -177,9 +189,38 @@ export class QualityController{
         let response:{id:number,name:string}[] = await this.qualityService.getAllProductOnlyOfQuality();
         return res.status(200).send(response);
     }
+
+    async getAllProductCatalogWithMetrics(req:Request,res:Response){
+        let type:string = req.query.type;
+        let date = req.query.date;
+        let response:ProductCatalogMetrics[] = await this.qualityService.getAllProductsOnlyOfQualityMetrics(date,type);
+        return res.status(200).send(response);
+    }
     async getProductQualitytDetails(req:Request,res:Response){
         let productId:number = +req.params.productId;
         let response:ProductQualityDetails=await this.qualityService.getProductQualityDetails(productId);
+        return res.status(200).send(response);
+    }
+
+    async getPresentationsActiveOfProduct(req:Request,res:Response){
+        let productId:number = +req.params.productId;
+        let date:string = req.query.date as string;
+        let type:string = req.query.type as string;
+        let response:PresentationMetrics[] = await this.qualityService.getAllPresentationOfProduct(productId,date,type);
+        return res.status(200).send(response);
+    }
+
+    async getChartMetricsPresentationWeek(req:Request,res:Response){
+        let presentationId:number = +req.params.presentationId;
+        let date:string = req.query.date as string;
+        let response:DayMetricProps[]= await this.qualityService.getChartMetricsPresentationWeek(presentationId,date);
+        return res.status(200).send(response);
+    }
+
+    async getGeneralDataSalesChart(req:Request,res:Response){
+        let dateStart:string = req.query.dateStart;
+        let dateEnd:string = req.query.dateEnd;
+        let response:{amount:number,dateP:string}[] = await this.qualityService.getGeneralDataSalesChart(dateStart,dateEnd);
         return res.status(200).send(response);
     }
 
@@ -210,7 +251,8 @@ export class QualityController{
     }
 
     async getInventoryWarehouseDeliverySellersRecords(req:Request,res:Response){
-        let response:{items:DeliveryToSeller[],count:number} = await this.qualityService.getAllDelivers(req.body);
+        let type:string = req.query.type;
+        let response:{items:DeliveryToSeller[],count:number} = await this.qualityService.getAllDelivers(req.body,type);
         res.header('Access-Control-Expose-Headers', 'X-Total-Count')
         res.setHeader("X-Total-Count",response.count);
         return res.status(200).send(response.items);
@@ -220,5 +262,42 @@ export class QualityController{
         let ovenId:number = +req.params.ovenId;
         await this.qualityService.updateStatusOfOvenProduct(ovenId,req.body);
         return res.status(204).send();
+    }
+
+    async updateRecordEntrancesByType(req:Request,res:Response){
+        let entranceId:number = +req.params.entranceId;
+        let request:any= req.body;
+        let type= req.query.type;
+        await this.qualityService.updateRecordEntrancesByType(entranceId,type,request);
+        return res.status(204).send();
+    }
+    async updatePropertiesOven(req:Request,res:Response){
+        let ovenId:number = +req.params.ovenId;
+        await this.qualityService.updateOvenProperties(ovenId,req.body);
+        return res.status(204).send();
+    }
+
+    async createCodeAccess(req:Request,res:Response){
+        let userId: string =  req.params.userId;
+        await this.qualityService.createCodeAccess(userId);
+        return res.status(201).send();
+    }
+
+    async getCodeAccessByUser(req:Request,res:Response) {
+        let userId:string = req.params.userId;
+        let codeAccess:CodeAccess = await this.qualityService.getCodeAccessByUserId(userId);
+        return res.status(200).send(codeAccess);
+    }
+
+    async verifyCodeAccess(req:Request,res:Response){
+        let valid:boolean = await this.qualityService.validateCodeAccess(req.body.code);
+        return res.status(200).send({valid});
+    }
+
+    async getSalesMetricsAcumulated(req:Request,res:Response){
+        let dateStart:string = req.query.dateStart;
+        let dateEnd:string = req.query.dateEnd;
+        let response:SaleMetricsAcumulated= await this.qualityService.getSalesMetricsAcumulated(dateStart,dateEnd);
+        return res.status(200).send(response);
     }
 }

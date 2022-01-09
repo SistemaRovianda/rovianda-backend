@@ -26,6 +26,7 @@ import { SalesSellerRepository } from "../Repositories/SaleSeller.Repository";
 import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata";
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from "../Models/DTO/PackagingDTO";
 import { DeliverToWarehouse } from "../Services/Packaging.Service";
+import { ProductInfoFromPackDefrostTrazability, ProductInfoFromPackIngredientsTrazability, ProductInfoFromPackTrazability } from "../Models/DTO/Quality.DTO";
 
 
 export default class Excel4Node{
@@ -1345,48 +1346,52 @@ export default class Excel4Node{
         worksheet.cell(5, 5, 5, 8, true).string("Firma:  ").style(styleUser);
         worksheet.cell(6, 5, 6, 8, true).string(`Puesto: ${data.make ? data.make.job : "" }`).style(styleUser);
   
+        
         let row = 9;
         let col = 3;
-
+        let dateSplited = data.date.split("-");
+        let dateStr = `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
             worksheet.cell(row,   col,   row,   col+3, true).string(`Materia prima: ${data.product.description} `).style(style);
-            worksheet.cell(row+1, col,   row+1, col+3, true).string(`Proveedor: ${data.proveedor}`).style(style);
+            worksheet.cell(row+2, col,   row+2, col+3, true).string(`Proveedor: ${data.proveedor}`).style(style);
             worksheet.cell(row,   col+4, row+1, col+5, true).string(`Lote proveedor: ${data.loteProveedor}`).style(style);
-            worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${data.date}`).style(style);
-           
-            worksheet.cell(row+2, col,   row+2, col+1, true).string("Control").style(style);
-            worksheet.cell(row+2, col+2, row+2, col+3, true).string("Estándar").style(style);
-            worksheet.cell(row+2, col+4, row+2, col+4, true).string("Aceptado").style(style);
-            worksheet.cell(row+2, col+5, row+2, col+5, true).string("Rechazado").style(style);
-            worksheet.cell(row+2, col+6, row+2, col+7, true).string("Observaciones").style(style);
-            
-            worksheet.cell(row+3, col,   row+3, col+1, true).string("Certificado de calidad").style(style);
-            worksheet.cell(row+3, col+2, row+3, col+3, true).string("Entrega de Certificado").style(style);
-            worksheet.cell(row+3, col+4, row+3, col+4, true).string(` ${data.quality ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+3, col+5, row+3, col+5, true).string(` ${!data.quality ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+3, col+6, row+3, col+7, true).string(` ${data.observations} `).style(style);
-            
-            worksheet.cell(row+4, col,   row+4, col+1, true).string("Materia extraña").style(style);
-            worksheet.cell(row+4, col+2, row+4, col+3, true).string("Ausente").style(style);
-            worksheet.cell(row+4, col+4, row+4, col+4, true).string(` ${data.strangeMaterial ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+4, col+5, row+4, col+5, true).string(` ${!data.strangeMaterial ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+4, col+6, row+4, col+7, true).string(`  `).style(style);
-           
-            worksheet.cell(row+5, col,   row+5, col+1, true).string("Transporte").style(style);
-            worksheet.cell(row+5, col+2, row+5, col+3, true).string("Limpio").style(style);
-            worksheet.cell(row+5, col+4, row+5, col+4, true).string(` ${data.transport ? "xxx" : ""}`).style(style);
-            worksheet.cell(row+5, col+5, row+5, col+5, true).string(` ${!data.transport ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+5, col+6, row+5, col+7, true).string(`  `).style(style);
+            worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${dateStr}`).style(style);
 
-            worksheet.cell(row+6, col,   row+6, col+1, true).string("Empaque").style(style);
-            worksheet.cell(row+6, col+2, row+6, col+3, true).string("Sin daños y limpio").style(style);
-            worksheet.cell(row+6, col+4, row+6, col+4, true).string(` ${data.paking ? "xxx" : ""} `).style(style);
-            worksheet.cell(row+6, col+5, row+6, col+5, true).string(` ${!data.paking ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+1, col,   row+2, col+1, true).string("Cantidad recibida: "+data.quantity+` ${data.isPz&&data.isBox?'Cajas':((data.isPz)?'Piezas':'Kg')} `).style(style);
+
+            worksheet.cell(row+3, col,   row+3, col+1, true).string("Control").style(style);
+            worksheet.cell(row+3, col+2, row+3, col+3, true).string("Estándar").style(style);
+            worksheet.cell(row+3, col+4, row+3, col+4, true).string("Aceptado").style(style);
+            worksheet.cell(row+3, col+5, row+3, col+5, true).string("Rechazado").style(style);
+            worksheet.cell(row+3, col+6, row+3, col+7, true).string("Observaciones").style(style);
+            
+            worksheet.cell(row+4, col,   row+4, col+1, true).string("Certificado de calidad").style(style);
+            worksheet.cell(row+4, col+2, row+4, col+3, true).string("Entrega de Certificado").style(style);
+            worksheet.cell(row+4, col+4, row+4, col+4, true).string(` ${data.quality ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+4, col+5, row+4, col+5, true).string(` ${!data.quality ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+4, col+6, row+4, col+7, true).string(` ${data.observations} `).style(style);
+            
+            worksheet.cell(row+5, col,   row+5, col+1, true).string("Materia extraña").style(style);
+            worksheet.cell(row+5, col+2, row+5, col+3, true).string("Ausente").style(style);
+            worksheet.cell(row+5, col+4, row+5, col+4, true).string(` ${data.strangeMaterial ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+5, col+5, row+5, col+5, true).string(` ${!data.strangeMaterial ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+5, col+6, row+5, col+7, true).string(`  `).style(style);
+           
+            worksheet.cell(row+6, col,   row+6, col+1, true).string("Transporte").style(style);
+            worksheet.cell(row+6, col+2, row+6, col+3, true).string("Limpio").style(style);
+            worksheet.cell(row+6, col+4, row+6, col+4, true).string(` ${data.transport ? "xxx" : ""}`).style(style);
+            worksheet.cell(row+6, col+5, row+6, col+5, true).string(` ${!data.transport ? "xxx" : ""} `).style(style);
             worksheet.cell(row+6, col+6, row+6, col+7, true).string(`  `).style(style);
 
-           worksheet.cell(row+8, 3, row+8, 5, true).string(`Verifico:  ${data.verifit == null ? "": data.verifit.name} `).style(styleUser);
-           worksheet.cell(row+8, 6, row+8, 7, true).string("Firma:  ").style(styleUser);
-           worksheet.cell(row+8, 8, row+8, 10, true).string(`Puesto:  ${data.verifit == null ? "": data.verifit.job}`).style(styleUser);
-           worksheet.cell(row+9, 9, row+9, 10, true).string("F-CAL-RO-03").style(styleUser);
+            worksheet.cell(row+7, col,   row+7, col+1, true).string("Empaque").style(style);
+            worksheet.cell(row+7, col+2, row+7, col+3, true).string("Sin daños y limpio").style(style);
+            worksheet.cell(row+7, col+4, row+7, col+4, true).string(` ${data.paking ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+7, col+5, row+7, col+5, true).string(` ${!data.paking ? "xxx" : ""} `).style(style);
+            worksheet.cell(row+7, col+6, row+7, col+7, true).string(`  `).style(style);
+
+           worksheet.cell(row+9, 3, row+9, 5, true).string(`Verifico:  ${data.verifit == null ? "": data.verifit.name} `).style(styleUser);
+           worksheet.cell(row+9, 6, row+9, 7, true).string("Firma:  ").style(styleUser);
+           worksheet.cell(row+9, 8, row+9, 10, true).string(`Puesto:  ${data.verifit == null ? "": data.verifit.job}`).style(styleUser);
+           worksheet.cell(row+10, 9, row+10, 10, true).string("F-CAL-RO-03").style(styleUser);
         return workbook;
     }
 
@@ -1482,8 +1487,9 @@ export default class Excel4Node{
         worksheet.cell(8, 5, 8, 6, true).string(" Proveedor ").style(styleUser);
         worksheet.cell(8, 7, 8, 8, true).string(" Materia Prima ").style(styleUser);
         worksheet.cell(8, 9, 8, 10, true).string(" Lote proveedor ").style(styleUser);
-
-        worksheet.cell(9, 3, 9, 4, true).string(`${data.createdAt}`).style(style);
+        let dateSplited=data.createdAt.split("-");
+        let dateStr=`${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
+        worksheet.cell(9, 3, 9, 4, true).string(`${dateStr}`).style(style);
         worksheet.cell(9, 5, 9, 6, true).string(`${data.proveedor}`).style(style);
         worksheet.cell(9, 7, 9, 8, true).string(`${data.rawMaterial}`).style(style);
         worksheet.cell(9, 9, 9, 10, true).string(`${data.loteProveedor}`).style(style);
@@ -1669,14 +1675,15 @@ export default class Excel4Node{
   
         let row = 9;
         let col = 3;
-
+        let dateSplited = data.date.split("-");
+        let dateStr = `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
             worksheet.cell(row,   col,   row,   col+3, true).string(`Materia prima: ${data.product.description} `).style(style);
             worksheet.cell(row+1, col,   row+1, col+3, true).string(`Proveedor: ${data.proveedor}`).style(style);
             worksheet.cell(row,   col+4, row+1, col+5, true).string(`Lote proveedor: ${data.loteProveedor}`).style(style);
-            worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${data.date}`).style(style);
+            worksheet.cell(row,   col+6, row+1, col+7, true).string(`Fecha: ${dateStr}`).style(style);
 
             worksheet.cell(row+2, col,   row+2, col+1, true).string("Total recibido: ").style(style);
-            worksheet.cell(row+2, col+2, row+2, col+7, true).string(`${data.quantity} KG/PZ`).style(style);
+            worksheet.cell(row+2, col+2, row+2, col+7, true).string(`${data.quantity} ${data.isPz&&data.isBox?'Cajas':((data.isPz)?'Piezas':'Kg')}`).style(style);
             row++;
             worksheet.cell(row+2, col,   row+2, col+1, true).string("Control").style(style);
             worksheet.cell(row+2, col+2, row+2, col+3, true).string("Estándar").style(style);
@@ -2783,31 +2790,41 @@ export default class Excel4Node{
         return workbook;
     }
 
-    getSummaryReportBySeller(seller:User,acumulateAbarrotes:{amount:number},acumulateNormal:{amount:number},acumulatedNormalKg:{totalKg:number},acumulatedCheeses:{amount:number},acumulatedCheesesKg:{totalKg:number},ranking:{amount:number,amountKg:number,name:string,type_presentation:string}[],dateStart:string,dateEnd:string){
-        
-        var workbook = new excel.Workbook();
-        let worksheet = workbook.addWorksheet('VENTAS GENERALES');
+    getEmptyWoorbook(){
+        return new excel.Workbook();
+    }
 
+    getSummaryReportBySeller(seller:User,acumulateAbarrotes:{amount:number},acumulateNormal:{amount:number},acumulatedNormalKg:{totalKg:number},acumulatedCheeses:{amount:number},acumulatedCheesesKg:{totalKg:number},ranking:{amount:number,amountKg:number,name:string,type_presentation:string}[],dateStart:string,dateEnd:string,countData: {count:number}[],typeReport:string,workbook?:any){
+        let type="VENTAS GENERALES";
+        let productsTitle ="PRODUCTOS";
+        if(typeReport=="CANCELED"){
+            type="CANCELACIONES";
+            productsTitle="PRODUCTOS CANCELACIONES"
+        }
+        let worksheet = workbook.addWorksheet(type);
         worksheet.cell(1,2,1,2,true).string("Desde: "+dateStart);
-        worksheet.cell(1,4,1,4,true).string("Hasta: "+dateStart);
+        worksheet.cell(1,4,1,4,true).string("Hasta: "+dateEnd);
 
         worksheet.cell(3,1,3,1,true).string('RUTA');
         worksheet.cell(3,2,3,2,true).string('VENDEDOR');
-        worksheet.cell(3,3,3,3,true).string('MONTO CARNICOS');
-        worksheet.cell(3,4,3,4,true).string('KILOS CARNICOS');
-        worksheet.cell(3,5,3,5,true).string('MONTO QUESOS');
-        worksheet.cell(3,6,3,6,true).string('KILOS QUESOS');
-        worksheet.cell(3,7,3,7,true).string('MONTO ABARROTES');
+        worksheet.cell(3,3,3,3,true).string("TOTAL DE NOTAS");
+        worksheet.cell(3,4,3,4,true).string('MONTO CARNICOS');
+        worksheet.cell(3,5,3,5,true).string('KILOS CARNICOS');
+        worksheet.cell(3,6,3,6,true).string('MONTO QUESOS');
+        worksheet.cell(3,7,3,7,true).string('KILOS QUESOS');
+        worksheet.cell(3,8,3,8,true).string('MONTO ABARROTES');
 
         worksheet.cell(4,1,4,1,true).string(seller.cve);
         worksheet.cell(4,2,4,2,true).string(seller.name);
-        worksheet.cell(4,3,4,3,true).number(acumulateNormal.amount);
-        worksheet.cell(4,4,4,4,true).number(acumulatedNormalKg.totalKg);
-        worksheet.cell(4,5,4,5,true).number(acumulatedCheeses.amount?acumulatedCheeses.amount:0);
-        worksheet.cell(4,6,4,6,true).number(acumulatedCheesesKg.totalKg?acumulatedCheesesKg.totalKg:0);
-        worksheet.cell(4,7,4,7,true).number(acumulateAbarrotes.amount?acumulateAbarrotes.amount:0);
+        worksheet.cell(4,3,4,3,true).string(countData[0].count.toString());
+        
+        worksheet.cell(4,4,4,4,true).number(acumulateNormal.amount?acumulateNormal.amount:0);
+        worksheet.cell(4,5,4,5,true).number(acumulatedNormalKg.totalKg?acumulatedNormalKg.totalKg:0);
+        worksheet.cell(4,6,4,6,true).number(acumulatedCheeses.amount?acumulatedCheeses.amount:0);
+        worksheet.cell(4,7,4,7,true).number(acumulatedCheesesKg.totalKg?acumulatedCheesesKg.totalKg:0);
+        worksheet.cell(4,8,4,8,true).number(acumulateAbarrotes.amount?acumulateAbarrotes.amount:0);
          
-        const worksheet2 = workbook.addWorksheet("RANKING DE PRODUCTOS");
+        const worksheet2 = workbook.addWorksheet(productsTitle);
 
         worksheet2.cell(1,2,1,2,true).string("Desde: "+dateStart);
         worksheet2.cell(1,4,1,4,true).string("Hasta: "+dateStart);
@@ -2846,14 +2863,162 @@ export default class Excel4Node{
         worksheet.cell(7,2,7,2,true).string('NOMBRE');
         worksheet.cell(7,3,7,3,true).string('UNIDADES');
         worksheet.cell(7,4,7,4,true).string('PESO');
+        worksheet.cell(7,5,7,5,true).string('PRECIO');
+        worksheet.cell(7,6,7,6,true).string('TOTAL');
         let row=8;
+        let total = 0;
         for(let product of products){
             worksheet.cell(row,1,row,1,true).string(`${product.CODE}`);
             worksheet.cell(row,2,row,2,true).string(`${product.NAME}`);
             worksheet.cell(row,3,row,3,true).string(`${product.UNITS}`);
-            worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT.toFixed(2)}`);
+            worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT}`);
+            worksheet.cell(row,5,row,5,true).string(`${product.PRICE}`);
+            worksheet.cell(row,6,row,6,true).string(`${product.TOTAL}`);
+            total+=product.TOTAL;
             row++;
         }
+        worksheet.cell(row,6,row,6,true).string(`Total: $ ${total.toFixed(2)}`);
         return workbook;
     }
+
+    async getReportTrazability(productInfo:ProductInfoFromPackTrazability,productDefrost:ProductInfoFromPackDefrostTrazability[],ingredients:ProductInfoFromPackIngredientsTrazability[],rangeDate:{startDate:string,endDate:string}[]){
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('PRODUCTO TERMINADO');
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,8,true).string("REPORTE DE TRAZABILIDAD").style(style);
+        worksheet.cell(2,1,2,8,true).string(`Con el fin de rastrear la procedencia y el tipo de preparación de nuestros productos, se realizará un proceso de trazabilidad, por medio de el que se podran investigar las presentaciones de cada
+        uno de los productos como: lote,materia prima,cocimiento del producto,ingredientes,temperaturas,maquinaria por donde pasa el producto, el control de quimicos para lavar la maquinaria, como
+        también el nombre del repartidor/cliente al que se le entrego el producto`).style(style);
+
+        worksheet.cell(3,1,3,8,true).string('OBJETIVOS').style(style);;
+        worksheet.cell(4,1,8,8,true).string(`- Recopilar los números de lote y cantidades de materia prima.
+        - Localizar los mismos lotes de producto y cantidad que se han utilizado para la producción.
+        - Localizar las cantidades localizadas con las cantidades de producción registradas.
+        - Inmovilizar el producto.`).style(style);;
+
+        worksheet.cell(9,1,9,8,true).string('1.-DATOS DELPRODUCTO').style(style);;
+
+        worksheet.cell(10,1,10,3,true).string('Producto');
+        worksheet.cell(10,4,10,5,true).string('Lote');
+        worksheet.cell(10,5,10,6,true).string('Fecha de caducidad');
+        worksheet.cell(10,7,10,8,true).string('Lote de producto');
+        
+        worksheet.cell(11,1,11,3,true).string(productInfo.productName);
+        worksheet.cell(11,4,11,5,true).string(productInfo.lotId.slice(0,2));
+        worksheet.cell(11,5,11,6,true).string(this.parseDateStr(productInfo.expiration));
+        worksheet.cell(11,7,11,8,true).string(productInfo.lotId);
+
+        worksheet.cell(12,1,12,2,true).string("No de piezas o paquetes");
+        worksheet.cell(12,3,12,3,true).string(`${productInfo.outputOfWarehouse}`);
+        worksheet.cell(12,4,12,5,true).string(`${productInfo.weightOfWarehouse}`);
+        worksheet.cell(12,6,12,6,true).string("Fecha de distribución");
+        worksheet.cell(12,7,12,7,true).string(`${rangeDate.length?((rangeDate[0].startDate!=null)?this.parseDateStr(rangeDate[0].startDate.split("T")[0]):""):""}`);
+        worksheet.cell(12,8,12,8,true).string(`${(productInfo.active==0?(rangeDate.length?(rangeDate[0].endDate!=null?this.parseDateStr(rangeDate[0].endDate.split("T")[0]):""):""):"")}`);
+
+        worksheet.cell(13,1,13,8,true).string(`2.-RECEPCIÓN DE MATERIAS PRIMAS Y MATERIALES EMVASADOS`).style(style);
+        
+        worksheet.cell(14,1,14,8,true).string(`A. Entrada de materia prima`).style(style);
+
+        worksheet.cell(15,1,15,1,true).string(`Fecha`);
+        worksheet.cell(15,2,15,2,true).string(`Temperatura C`);
+        worksheet.cell(15,3,15,3,true).string(`Lote Interno`);
+        worksheet.cell(15,4,15,4,true).string(`Lote proveedor`);
+        worksheet.cell(15,5,15,5,true).string(`Fecha de matanza`);
+        worksheet.cell(15,6,15,6,true).string(`Materia prima`);
+        worksheet.cell(15,7,15,7,true).string(`Conservación/Congelador`);
+        worksheet.cell(15,8,15,8,true).string(`Proveedor`);
+
+        let row=16;
+        let currentPage = 1;
+        for(let product of productDefrost){
+            if(row>113){
+                worksheet = workbook.addWorksheet(`HOJA ${currentPage+1}`);
+                currentPage++;
+                row=1;
+                worksheet.cell(row,1,row,1,true).string(`Fecha`);
+                worksheet.cell(row,2,row,2,true).string(`Temperatura C`);
+                worksheet.cell(row,3,row,3,true).string(`Lote Interno`);
+                worksheet.cell(row,4,row,4,true).string(`Lote proveedor`);
+                worksheet.cell(row,5,row,5,true).string(`Fecha de matanza`);
+                worksheet.cell(row,6,row,6,true).string(`Materia prima`);
+                worksheet.cell(row,7,row,7,true).string(`Conservación/Congelador`);
+                worksheet.cell(row,8,row,8,true).string(`Proveedor`);
+                row++;
+            }
+            let temp = JSON.parse(product.temperature);
+            let slaughter=JSON.parse(product.slaughterDate);
+
+            worksheet.cell(row,1,row,1,true).string(`${product.dateEntrance}`);
+            worksheet.cell(row,2,row,2,true).string(`${temp.value}`);
+            worksheet.cell(row,3,row,3,true).string(`${product.lotIntern}`);
+            worksheet.cell(row,4,row,4,true).string(`${product.lotProvider}`);
+            worksheet.cell(row,5,row,5,true).string(`${slaughter.value}`);
+            worksheet.cell(row,6,row,6,true).string(`${product.rawMaterial}`);
+            worksheet.cell(row,7,row,7,true).string(`${product.temp} ${product.fridge}`);
+            worksheet.cell(row,8,row,8,true).string(`${product.provider}`);
+            row++;
+        }
+        worksheet.cell(row,1,row,8,true).string(`3.-Control de PEP´S Almacenes`).style(style);
+        row++;
+        worksheet.cell(row,1,row,2,true).string(`Ingredientes`);
+        worksheet.cell(row,3,row,3,true).string(`Nombre o marca`);
+        worksheet.cell(row,4,row,4,true).string(`Lote`);
+        worksheet.cell(row,5,row,5,true).string(`Fecha de entrada`);
+        worksheet.cell(row,6,row,8,true).string(`Distribuidora`);
+        row++;
+        let currentIndex = row;
+        let lastIndex=row;
+        let ingredientsStr = "";
+        
+        for(let ingre of ingredients){
+            if(row>100){
+                
+                    ingredientsStr+=";";
+                    ingredientsStr = ingredientsStr.replace(",;",".");
+                    worksheet.cell(currentIndex,1,lastIndex,2,true).string(ingredientsStr);            
+                    ingredientsStr="";
+                    currentIndex=2;
+                    lastIndex=2;
+                row=1;
+                worksheet = workbook.addWorksheet(`HOJA ${currentPage+1}`);
+                currentPage++;
+                worksheet.cell(row,1,row,2,true).string(`Ingredientes`);
+                worksheet.cell(row,3,row,3,true).string(`Nombre o marca`);
+                worksheet.cell(row,4,row,4,true).string(`Lote`);
+                worksheet.cell(row,5,row,5,true).string(`Fecha de entrada`);
+                worksheet.cell(row,6,row,8,true).string(`Distribuidora`);
+                row++;
+            }
+            ingredientsStr+=`${ingre.productName},`;
+            worksheet.cell(row,3,row,3,true).string(`${ingre.productName}`);
+            worksheet.cell(row,4,row,4,true).string(`${ingre.lotProvider}`);
+            worksheet.cell(row,5,row,5,true).string(`${ingre.entranceDate}`);
+            worksheet.cell(row,6,row,8,true).string(`${ingre.provider}`);
+            lastIndex=row;
+            row++;
+        }
+        ingredientsStr+=";";
+        ingredientsStr = ingredientsStr.replace(",;",".");
+        worksheet.cell(currentIndex,1,lastIndex,2,true).string(ingredientsStr);
+        let date = new Date();
+        date.setHours(date.getHours()-5);
+        let month = (date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
+        worksheet.cell(row,1,row,2,true).string(`Fecha de creación: ${date.getFullYear()}-${month}-${day}`);
+        worksheet.cell(row,8,row,8,true).string(`F-CAL-R0-64`);
+        return workbook;           
+    }
+
+    parseDateStr(date:string){
+        let dateSplited = date.split("-");
+        return `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
+      }
 }

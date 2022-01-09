@@ -190,6 +190,17 @@ fo.product_rovianda_id=pr.id where fo.id in ${ids}
         `) as ProcessAvailablesToOven[];
     }
 
+    async getAllSubProductProcessDerivations(){
+        await this.getConnection();
+        return await this.processRepository.query(`
+        select pro.id as recordId,sp.product_rovianda_id as productId,pr.name as productName,pro.end_date as dateEndedProcess,form.lot_day as lotDay
+         from process as pro 
+         left join sub_product as sp on pro.id=sp.process_id 
+         left join products_rovianda as pr on pr.id = sp.product_rovianda_id
+         left join formulation as form on pro.formulationId=form.id
+         WHERE pro.type_process ='PRODUCT' and  sp.status="ACTIVE";
+        `) as ProcessAvailablesToOven[];
+    }
     async getProcessById(processId:number){
         await this.getConnection();
         return await this.processRepository.findOne({id:processId});
@@ -231,6 +242,19 @@ fo.product_rovianda_id=pr.id where fo.id in ${ids}
             items,
             count: count[0].count
         }
+    }
+
+    async getAllSubProductsOfProcess(processId:number){
+        await this.getConnection();
+        return await this.processRepository.query(`
+        select sp.sub_product_id as id,pr.name,sp.quantity,sp.observations,sp.create_at as createAt,
+        sp.status,sp.last_modification as lastModification,us2.name as userModify,us.name as createdBy
+        from sub_product as sp left join users as us on sp.sub_product_user_creator=us.id
+        left join products_rovianda as pr on sp.product_rovianda_id=pr.id
+        left join users as us2 on sp.user_modified_id=us2.id
+        left join process as pro on sp.process_id=pro.id
+        where sp.process_id=${processId} ;
+        `);
     }
 }
 

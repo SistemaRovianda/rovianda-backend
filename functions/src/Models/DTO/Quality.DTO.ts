@@ -93,7 +93,8 @@ export interface ProductInfoFromPackTrazability{
     outputOfWarehouse:number,
     weightOfWarehouse:number,
     presentationId:number,
-    active:number
+    active:number,
+    ovenId:number
 }
 export interface ProductInfoFromPackDefrostTrazability{
     dateEntrance:string,
@@ -103,7 +104,8 @@ export interface ProductInfoFromPackDefrostTrazability{
     slaughterDate:string,
     rawMaterial:string,
     provider:string,
-    fridge:string
+    fridge:string,
+    temp:string
 }
 export interface ProductInfoFromPackIngredientsTrazability{
     lotProvider:string,
@@ -122,6 +124,7 @@ export interface InventoryTypeQuality{
     quantity:number,
     receiver:string,
     temp?:string,
+    fridgeId?:number,
     fridgeDescription?: string;
     description:string
 }
@@ -206,4 +209,33 @@ export interface DeliveryToSellerRequest{
     endDate?:string
     page:number,
     perPage:number
+}
+
+export interface ProductCatalogMetrics{
+    productId:number,
+    productName:string,
+    quantity1:number,
+    quantity2:number,
+    increase: number
+}
+export interface PresentationMetrics{
+    presentationId:number,
+    presentation:string,
+    t1Quantity:number,
+    t2Quantity:number,
+    average:number
+}
+
+export interface QueryCharMetricWeekResult{
+    amount1:number,
+    quantity1:number,
+    day:number
+}
+
+export interface DayMetricProps{
+    label:string,
+    amountOld:number,
+    amountNew:number,
+    quantityOld:number,
+    quantityNew:number
 }

@@ -13,6 +13,7 @@ import { SubOrder } from "./SubOrder.Sale.Seller";
 import { SellerInventory } from "./Seller.Inventory";
 import { SubSales } from "./Sub.Sales";
 import { Sausaged } from "./Sausaged";
+import { SubProductToOven } from "./SubProduct";
 
 @Entity({ name: "products_rovianda" })
 export class ProductRovianda {
@@ -63,5 +64,8 @@ export class ProductRovianda {
 
     @OneToMany(type=>SubSales,subSale=>subSale.product)
     subSales:SubSales[];
+
+    @OneToMany(type=>SubProductToOven,subProductOven=>subProductOven.productRovianda)
+    subProductsOvens:SubProductToOven[]
 
 }

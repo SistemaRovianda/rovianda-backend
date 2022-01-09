@@ -42,7 +42,8 @@ export class UserRepository{
     async getUserByEmail(email:string){
         await this.getConnection();
         return await this.userRepository.findOne({
-            email
+            email,
+            status:'ACTIVE'
         });
     }
 
@@ -94,58 +95,99 @@ export class UserRepository{
         return await this.userRepository.query(`select * from users where rol_id=10 and cve is not null and cve <>"";`) as any[];
     }  
 
-    async getAcumulatedBySellerProductNormal(sellerId:string,from:string,to:string){
+    async getAllSellersWithCVEAndOperating(){
+        await this.getConnection();
+        return await this.userRepository.query(`select * from users where rol_id=10 and cve is not null and cve <>"" and cve<>"10V" and cve<>"8V";`) as any[];
+    }
+
+    async getAcumulatedBySellerProductNormal(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`sa.status_str="CANCELED" and`
+        }else{
+            subQuery=` sa.status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         return ((await this.userRepository.query(`
         select sum(sub.amount) as amount from sub_sales as sub
         left join sales as sa on sub.sale_id=sa.sale_id
         left join presentation_products as pp on sub.presentation_id =pp.presentation_id
-        where sa.status_str<>"CANCELED" and sa.seller_id="${sellerId}" and pp.type_product="NORMAL"
+        where ${subQuery} sa.seller_id="${sellerId}" and pp.type_product="NORMAL"
         and sa.date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z"
         `)) as {amount:number}[])[0];
     }
-    async getAcumulatedBySellerProductAbarrotes(sellerId:string,from:string,to:string){
+    async getAcumulatedBySellerProductAbarrotes(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`sa.status_str="CANCELED" and`
+        }else{
+            subQuery=` sa.status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         return ((await this.userRepository.query(`
         select sum(sub.amount) as amount from sub_sales as sub
         left join sales as sa on sub.sale_id=sa.sale_id
         left join presentation_products as pp on sub.presentation_id =pp.presentation_id
-        where sa.status_str<>"CANCELED" and sa.seller_id="${sellerId}" and pp.type_product="ABARROTES"
+        where ${subQuery} sa.seller_id="${sellerId}" and pp.type_product="ABARROTES"
         and sa.date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z"
         `)) as {amount:number}[])[0];
     }
-    async getAcumulatedBySellerProductCheeses(sellerId:string,from:string,to:string){
+    async getAcumulatedBySellerProductCheeses(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`sa.status_str="CANCELED" and`
+        }else{
+            subQuery=` sa.status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         return ((await this.userRepository.query(`
         select sum(sub.amount) as amount from sub_sales as sub
         left join sales as sa on sub.sale_id=sa.sale_id
         left join presentation_products as pp on sub.presentation_id =pp.presentation_id
-        where sa.status_str<>"CANCELED" and sa.seller_id="${sellerId}" and pp.type_product="QUESOS"
+        where ${subQuery} sa.seller_id="${sellerId}" and pp.type_product="QUESOS"
         and sa.date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z"
         `)) as {amount:number}[])[0];
     }
 
-    async getAcumulatedBySellerProductNormalKG(sellerId:string,from:string,to:string){
+    async getAcumulatedBySellerProductNormalKG(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`status_str="CANCELED" and`
+        }else{
+            subQuery=` status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         return ((await this.userRepository.query(`
         select sum(if(pp.uni_med="PZ",sub.quantity*pp.price_presentation_min,sub.quantity)) as totalKg from sub_sales as sub left join presentation_products as pp
             on sub.presentation_id=pp.presentation_id
-            where pp.type_product="NORMAL" and sub.sale_id in (select sale_id from sales where status_str<>"CANCELED" and seller_id="${sellerId}" 
+            where pp.type_product="NORMAL" and sub.sale_id in (select sale_id from sales where ${subQuery} seller_id="${sellerId}" 
             and date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z" )
         `)) as {totalKg:number}[])[0];
     }
 
-    async getAcumulatedBySellerProductCheesesKG(sellerId:string,from:string,to:string){
+    async getAcumulatedBySellerProductCheesesKG(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`status_str="CANCELED" and`
+        }else{
+            subQuery=` status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         return ((await this.userRepository.query(`
         select sum(if(pp.uni_med="PZ",sub.quantity*pp.price_presentation_min,sub.quantity)) as totalKg from sub_sales as sub left join presentation_products as pp
             on sub.presentation_id=pp.presentation_id
-            where pp.type_product="QUESOS" and sub.sale_id in (select sale_id from sales where status_str<>"CANCELED" and seller_id="${sellerId}"
+            where pp.type_product="QUESOS" and sub.sale_id in (select sale_id from sales where ${subQuery} seller_id="${sellerId}"
             and date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z" )
         `)) as {totalKg:number}[])[0];
     }
 
-    async getRankingProductBySeller(sellerId:string,from:string,to:string){
+    async getRankingProductBySeller(sellerId:string,from:string,to:string,type:string){
+        let subQuery="";
+        if(type=="CANCELED"){
+            subQuery=`sa.status_str="CANCELED" and`
+        }else{
+            subQuery=` sa.status_str<>"CANCELED" and `
+        }
         await this.getConnection();
         let ranking = (await this.userRepository.query(`
         select sum(sub.amount) as amount,sum(if(pp.uni_med="PZ",sub.quantity*pp.price_presentation_min,sub.quantity)) as amountKg,pr.name,pp.type_presentation from sub_sales as sub left join sales as sa 
@@ -154,8 +196,7 @@ export class UserRepository{
         on sub.product_id=pr.id
         left join presentation_products as pp on
         sub.presentation_id=pp.presentation_id
-        where sa.seller_id="${sellerId}" and status_str<>"CANCELED" 
-        and sa.date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z" 
+        where sa.seller_id="${sellerId}" and ${subQuery} sa.date between "${from}T00:00:00.000Z" and "${to}T23:59:59.000Z" 
         group by sub.presentation_id,sub.product_id
         `)) as {amount:number,amountKg:number,name:string,type_presentation:string}[];
         return ranking;

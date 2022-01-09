@@ -61,4 +61,10 @@ export class PresentationProducts {
     keyAltern:string;
     @Column({name:"type_product"})
     typeProduct:string;
+
+    @Column({name:"esq_key",default:2})
+    esqKey: number;
+
+    @Column({name:"esq_description",default:"0% IVA"})
+    esqDescription: string;
 }

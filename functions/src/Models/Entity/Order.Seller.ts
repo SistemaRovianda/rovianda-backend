@@ -26,4 +26,10 @@ export class OrderSeller{
 
     @Column({name:"date_attended",nullable:true})
     dateAttended:string;
+
+    @Column({name:"sincronized",default:false})
+    sincronized:boolean;
+
+    @Column({name:"folio_remission",nullable:true})
+    folioRemission:number;
 }

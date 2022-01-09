@@ -29,7 +29,8 @@ export class FridgesService{
         friges.forEach(i => {
             response.push({
                 fridge_id: `${i.fridgeId}`,
-                temp: `${i.temp}`  
+                temp: `${i.temp}`,
+                description: i.description 
             });
         });
         return response;

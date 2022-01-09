@@ -14,6 +14,7 @@ import { UserRepository } from '../Repositories/User.Repository';
 import { ProductRoviandaRepository } from "../Repositories/Product.Rovianda.Repository";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { OvenController } from "../Controllers/Oven.Controller";
+import { SubProductToOvenRepository } from "../Repositories/SubProductToOven.Repository";
 
 export class OvenService{
 
@@ -23,6 +24,7 @@ export class OvenService{
     private userRepository: UserRepository;
     private revisionsOvenProductsRepository:RevisionsOvenProductsRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private subProductRepository:SubProductToOvenRepository;
     constructor() {
         this.ovenRepository = new OvenRepository();
         this.productRepository = new ProductRepository();
@@ -30,6 +32,7 @@ export class OvenService{
         this.userRepository = new UserRepository();
         this.revisionsOvenProductsRepository = new RevisionsOvenProductsRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
+        this.subProductRepository=new SubProductToOvenRepository();
     }
 
     async getByProcessIds(processIds:number[]){
@@ -192,18 +195,28 @@ export class OvenService{
         if(!ovenDTO.firstRevision.ovenTemp) throw new Error("[400], ovenTemp is required");
         if(!ovenDTO.firstRevision.humidity) throw new Error("[400], humidity is required");
         if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
-        console.log("se obtiene el proceso")
-        let process:any = await this.processRepository.getProcessById(+ovenDTO.newLote);
-        console.log(process)
-        console.log("se obtuvo el proceso")
+        
+        let process:Process = await this.processRepository.getProcessById(+ovenDTO.newLote);
+        
+        
         if(!process) throw new Error("[404],no existe el proceso");
-        if(process.status == "COOKING") throw new Error("[400], process is COOKING");
-        process.status = "COOKING";
-        await this.processRepository.createProcess(process);
-        console.log("hace0aaa0")
+        
+        
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
-        console.log("hace0a0ss")
         if(!product) throw new Error("[400], product not found");
+        if(process.product.id!=+ovenDTO.productId){
+            // subProduct active
+            let subProductToOven=await this.subProductRepository.getSubProductToOvenByProductIdAndProcessId(product,process);
+            if(subProductToOven){
+                subProductToOven.status="INACTIVE";
+                await this.subProductRepository.createSubProductToOven(subProductToOven);
+            }
+        }else{
+            if(process.status == "INACTIVE") {
+                process.status = "COOKING";
+                await this.processRepository.createProcess(process);
+            }
+        }
         let dateParsed=new Date(ovenDTO.assignmentLot.dateEntry);
         let day = dateParsed.getDate().toString();
         let month = (dateParsed.getMonth()+1).toString();

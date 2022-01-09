@@ -1,6 +1,6 @@
 export interface DringLabelDTO{
     productId:string;
-    lotId:number;
+    lotId:string;
     dateEntrance:string;
     dateOutput:string;
 }

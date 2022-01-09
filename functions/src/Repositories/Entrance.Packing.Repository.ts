@@ -76,11 +76,11 @@ export class EntrancePackingRepository{
         await this.getConnection();
         return await this.repository.query(`
         select ep.id as entranceId,ep.date,ep.proveedor as provider,pc.description as productName,ep.lote_proveedor as lotIntern,ep.lote_proveedor as lotProvider,us.name as qualityInspector,
-        ep.quantity,ep.observations,ep.is_pz as isPz,ep.quality,ep.strange_material as strangeMaterial,ep.paking,ep.transport ,
+        ep.quantity,ep.observations,ep.is_pz as isPz,ep.is_box as isBox,ep.quality,ep.strange_material as strangeMaterial,ep.paking,ep.transport ,
         wp.status
         from entrances_packing as ep left join product_catalog as pc on ep.productId=pc.id left join users as us on ep.makeId=us.id 
         left join warehouse_packing as wp on ep.lote_proveedor=wp.lote_proveedor and ep.productId=wp.productId
-        where pc.description ="${productName}" and ep.lote_proveedor like "%${lot}%" and date between "${dateStart}" and "${dateEnd}";
+        where pc.description ="${productName}" and ep.lote_proveedor like "%${lot}%" and ep.date between "${dateStart}" and "${dateEnd}";
         `);
     }
 

@@ -27,23 +27,17 @@ export class DryngLabelService{
         if(!dryngLabelDTO.dateEntrance) throw new Error("[400],dateEntrance is required");
         if(!dryngLabelDTO.dateOutput) throw new Error("[400],dateOutput is required");
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+dryngLabelDTO.productId)
-        let proccessbyProduct = await this.processRepository.getProceesByProductID(product);
-        if(!proccessbyProduct) throw new Error("[404],Procces not found");
-        let ovenProduct:OvenProducts = await this.ovenProductRepository.getOvenProductByLot(dryngLabelDTO.lotId.toString());
         
-        let proccessbylo:Process = await this.processRepository.getProcessById(ovenProduct.processId);
-        if(!proccessbylo) throw new Error("[404],Procces not found");
+        let ovenProduct:OvenProducts = await this.ovenProductRepository.getOvensByNewLotAndProduct(dryngLabelDTO.lotId,product);
+        if(!ovenProduct) throw new Error("[404], no existe salida de hornos con ese lote y producto");
 
         let dryngLabel:DryingLabel = new DryingLabel();
         dryngLabel.productId = +dryngLabelDTO.productId;
         dryngLabel.lotId = dryngLabelDTO.lotId.toString();
         dryngLabel.dateEntrance = dryngLabelDTO.dateEntrance;
         dryngLabel.dateOutput = dryngLabelDTO.dateOutput;
-        await this.dryngLabelRepository.createDryngLabel(dryngLabel);
-
-        let lastDryingLabel = await this.dryngLabelRepository.getLastDryngLabel();
-        let id = lastDryingLabel[0].drying_id
-        return id;
+        dryngLabel=await this.dryngLabelRepository.createDryngLabel(dryngLabel);
+        return dryngLabel.dryingId;
 
     }
 

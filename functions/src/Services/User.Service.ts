@@ -88,7 +88,8 @@ export class UserService{
                 rol: `${i.roles.description}`,
                 job: `${i.job}`,
                 status: i.status,
-                rolId: i.roles.roleId
+                rolId: i.roles.roleId,
+                createAt: i.createdAt
             })
         })
         return response;

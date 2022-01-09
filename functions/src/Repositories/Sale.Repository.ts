@@ -4,7 +4,7 @@ import { connect } from "../Config/Db";
 
 import { Client } from "../Models/Entity/Client";
 import { User } from "../Models/Entity/User";
-import { SalesToSuperAdmin } from "../Models/DTO/Sales.ProductDTO";
+import { SaleMetricsAcumulated, SalesToSuperAdmin } from "../Models/DTO/Sales.ProductDTO";
 import { isEqual } from "lodash";
 import { MOSRM } from "../Models/DTO/ModeOfflineDTO";
 import { AdminSalesRequest, ChartD3DataInterface, GeneralReportByDay, GeneralReportByMonth, GeneralReportByWeek, GeneralReportByYear, RankingSeller, RankingSellerByProduct, SalesTypes } from "../Models/DTO/Admin.Sales.Request";
@@ -110,18 +110,18 @@ export class SaleRepository{
         if(!salesIds.length){
             salesIds=[0];
         }
-        let date1=date+"T00:00:00";
+        let date1=date+"T00:00:00.000Z";
         let date2=(dateTo)?dateTo:date;
-        date2+="T23:59:59";
+        date2+="T23:59:59.000Z";
         await this.getConnection();
         let sales:Sale[]=[];
         let salesTotal:Sale[]=[];
         if(hint){
-            sales=await this.saleRepository.createQueryBuilder("sale").where(`sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2 and  sale.folio like  "%${hint}%"`,{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-            salesTotal=await this.saleRepository.createQueryBuilder("sale").where(`sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale and sale.status_str <> :typeSale2  and sale.folio like  "%${hint}%"`,{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+            sales=await this.saleRepository.createQueryBuilder("sale").where(`sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds)  and sale.status_str <> :typeSale2 and  sale.folio like  "%${hint}%"`,{date1,date2,salesIds,typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where(`sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds)  and sale.status_str <> :typeSale2  and sale.folio like  "%${hint}%"`,{date1,date2,salesIds,typeSale2:"DELETED"}).getMany();
         }else{
-            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale   and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
-            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds) and sale.typeSale <> :typeSale  and sale.status_str <> :typeSale2  ",{date1,date2,salesIds,typeSale:"CREDITO",typeSale2:"DELETED"}).getMany();
+            sales=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds)   and sale.status_str <> :typeSale2 ",{date1,date2,salesIds,typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("sale.seller","seller").getMany();
+            salesTotal=await this.saleRepository.createQueryBuilder("sale").where("sale.date between :date1 and :date2 and sale.saleId not in(:...salesIds)   and sale.status_str <> :typeSale2  ",{date1,date2,salesIds,typeSale2:"DELETED"}).getMany();
         }
     let response:SalesToSuperAdmin={
         sales,
@@ -360,15 +360,25 @@ async getDiffDates(dateStart:string,dateEnd:string){
     `) as {dateStr:string}[];
 }
 
-async getGeneralChartDataSales(dateStart:string,dateEnd:string){
+async getGeneralChartDataSales(dateStart:string,dateEnd:string,type:string){
     await this.getConnection();
     return await this.saleRepository.query(
         `
         select sum(sub.amount) as amount,sum(sub.quantity) as quantity,sum(if(pp.uni_med="PZ",sub.quantity*pp.price_presentation_min,sub.quantity)) as weight,pr.name,pp.type_presentation as typePresentation,pp.price_presentation_public as price,pp.uni_med as uniMed,pp.presentation_id as presentationId,
-        pp.type_product as typeProduct from sub_sales as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id left join products_rovianda as pr on pp.product_rovianda_id=pr.id
+        pp.type_product as typeProduct,"${type}" as comparation from sub_sales as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id left join products_rovianda as pr on pp.product_rovianda_id=pr.id
         left join sales as sa on sub.sale_id=sa.sale_id where 
         sa.status_str<>"CANCELED" and
-        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" group by pp.presentation_id;
+        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" group by pp.presentation_id
+        union (
+                select 0 as amount,0 as quantity,0 as weight,pr.name,pp.type_presentation as typePresentation,pp.price_presentation_public as price,pp.uni_med as uniMed,pp.presentation_id as presentationId,
+                pp.type_product as typeProduct,"${type}" as comparation from  presentation_products as pp left join products_rovianda as pr on pp.product_rovianda_id=pr.id
+                where pp.status=1 and pp.presentation_id not in (
+                        select pp.presentation_id from sub_sales as sub left join presentation_products as pp on sub.presentation_id = pp.presentation_id left join products_rovianda as pr on pp.product_rovianda_id=pr.id
+                        left join sales as sa on sub.sale_id=sa.sale_id where 
+                        sa.status_str<>"CANCELED" and
+                        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" group by pp.presentation_id
+                )
+        ) order by presentationId;
         `
     ) as ChartD3DataInterface[];
 }
@@ -575,8 +585,8 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
     await this.getConnection();
     return await this.saleRepository.query(`
     select pp.presentation_id as presentationId,pr.name as product,pp.type_presentation as presentation,us.name,cl.name as client,cl.clients_client_id as clientId,sum(sub.amount) as subAmount,sum(sub.quantity) as quantity,
- sum(if(pp.uni_med="PZ",if(pp.type_product<>"ABARROTES",sub.quantity*pp.price_presentation_min,0),sub.quantity)) as weight,
- pp.uni_med,year(sa.date) as year
+    sum(if(pp.uni_med="PZ",if(pp.type_product<>"ABARROTES",sub.quantity*pp.price_presentation_min,0),sub.quantity)) as weight,
+    pp.uni_med,year(sa.date) as year
     from sub_sales as sub left join 
     presentation_products as pp on sub.presentation_id=pp.presentation_id left join sales as sa 
     on sub.sale_id=sa.sale_id left join products_rovianda as pr on sub.product_id=pr.id
@@ -599,6 +609,7 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
 
     async getAllSalesByTypeDatesAndSellers(type:string,sellers:string[],dateStart:string,dateEnd:string){
         await this.getConnection();
+        
         let conditions ="";
         if(type=="OMITED"){
             conditions+=` sa.status_str= "DELETED" and `;
@@ -618,11 +629,69 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
             conditions=conditions.replace("or ;",toReplace);
         }
         return await this.saleRepository.query(`
-            select sa.folio,sa.amount,sa.date,us.name as sellerName,cl.name as clientName ,sa.status_str as status
+            select sa.folio,sa.amount,sa.date,us.name as sellerName,cl.name as clientName ,sa.status_str as status,date_format(date,'%Y-%m-%d') AS dateSort
             from sales as sa
             left join users as us on sa.seller_id=us.id left join clients as cl on 
             sa.client_id=cl.clients_client_id
-            where ${(conditions!="(")?conditions:""} sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" order by sa.seller_id,sa.date
+            where ${(conditions!="(")?conditions:""} sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" order by date_format(date,'%Y-%m-%d'),sa.seller_id
         `) as SalesTypes[];
+    }
+
+    async getCountFolioBetweenDateBySeller(sellerId:string,dateStart:string,dateEnd:string,cve:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+        select * from sales where (status_str<>"CANCELED" and status_str<>"DELETED") and seller_id="${sellerId}"  and
+        date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z"  order by cast(replace(folio_temp,"${cve}","") as decimal) desc limit 1;
+        `) as any[];
+    }
+
+    async getAllSalesOfSellerByDateToRewrite(sellerId:string,dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+            select * from sales where  seller_id="${sellerId}"
+            and amount>0 and status_str="ACTIVE"
+            and date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" order by date;
+        `) as any[];
+    }
+
+    async updateRewriteFolio(saleId:number,folio:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+        update sales set folio_temp="${folio}" where sale_id=${saleId};
+        `);
+    }
+
+    async getGeneralDataSalesChart(dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+        select round(sum(sa.amount),2) as amount,date_format(date,"%Y-%m-%d") as dateP from sales as sa 
+        where sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z"
+         group by date_format(date,"%Y-%m-%d");
+        `);
+    }
+
+    async getSalesMetricsAcumulated(dateStart:string,dateEnd:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+        select (select round(sum(sa.amount),2) as amount from sales as sa
+        where sa.status_str<>"CANCELED" and
+        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z") as amount,
+        (select count(*)  from sales as sa
+        where sa.status_str<>"CANCELED" and
+        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z") as tickets,
+        (select count(*)  from sales as sa
+        where sa.status_str="CANCELED" and
+        sa.date between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z") as ticketsCanceled;
+        `) as SaleMetricsAcumulated[];
+    }
+    async getCountByDates(sellerId:string,from:string,to:string){
+        await this.getConnection();
+        return await this.saleRepository.query(`
+        select count(*) as count 
+        from sales 
+        where 
+        seller_id = "${sellerId}" and
+        date between "${from}T00:00:00.000Z" 
+        and "${to}T23:59:59.000Z"`) as {count:number}[];
     }
 }

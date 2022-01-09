@@ -24,6 +24,10 @@ export class EntranceDriefService{
     }
 
 
+    async getEntranceDriefByWarehouseDrief(warehouseDrief:WarehouseDrief){
+        return await this.entranceDriefRepository.getByWarehouseDrief(warehouseDrief);
+    }
+
     async getEntranceByLoteId(loteId:string,date:string,page:number,peerPage:number){
         let entrances:EntranceDrief[] = await this.entranceDriefRepository.findByLotId(loteId, date, page, peerPage);
         return entrances;
@@ -65,7 +69,7 @@ export class EntranceDriefService{
         entranceDrief.isPz = entranceDriefDTO.isPz;
         entranceDrief.observations = entranceDriefDTO.observations;
         entranceDrief.odor = entranceDriefDTO.odor;
-       
+        entranceDrief.isBox=entranceDriefDTO.isBox;
         // if(entranceDriefDTO.quality==true && entranceDriefDTO.expiration==true && entranceDriefDTO.transport==true
         //     && entranceDriefDTO.strangeMaterial==true && entranceDriefDTO.paking==true && entranceDriefDTO.color==true &&
         //     entranceDriefDTO.texture==true && entranceDriefDTO.weight==true && entranceDriefDTO.odor==true){
@@ -89,6 +93,7 @@ export class EntranceDriefService{
                     warehouseDrief.product = product;
                     warehouseDrief.quantity = entranceDriefDTO.quantity;
                     warehouseDrief.status = WarehouseStatus.PENDING
+                    warehouseDrief.isBox=entranceDriefDTO.isBox;
                     let warehouseSaved = await this.warehouseDriefRepository.saveWarehouseDrief(warehouseDrief);
             //     }
             // }

@@ -71,4 +71,11 @@ export class OutputsDriefRepository{
         await this.getConnection();
         return await this.outputsDriefRepository.findOne({ id},{relations:["formulation"]});
     }
+
+    async updateAllOutputs(lot:string,warehouseDriefId:number){
+        await this.getConnection();
+        await this.outputsDriefRepository.query(`
+            update outputs_drief set lote_proveedor="${lot}" where warehouseDriefId=${warehouseDriefId};
+        `);
+    }
 }

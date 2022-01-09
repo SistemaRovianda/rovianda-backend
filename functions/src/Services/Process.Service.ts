@@ -1,7 +1,7 @@
 import { ProcessRepository } from '../Repositories/Process.Repository';
 import { Process } from "../Models/Entity/Process";
 import { Request, response } from "express";
-import { ProcessUpdateDTO, UserProcessDTO, DefrostDTO, DefrostFormUpdate, processIngredient, processIngredientItem } from '../Models/DTO/ProcessDTO';
+import { ProcessUpdateDTO, UserProcessDTO, DefrostDTO, DefrostFormUpdate, processIngredient, processIngredientItem, ProcessSubProductToOvenRequest } from '../Models/DTO/ProcessDTO';
 import { ProductRoviandaService } from './Product.Rovianda.Service';
 
 import { OutputsCoolingService } from './Outputs.Cooling.Service';
@@ -34,6 +34,9 @@ import { Tenderized } from '../Models/Entity/Tenderized';
 import { GrindingRepository } from '../Repositories/Grinding.Repository';
 import { Grinding } from '../Models/Entity/Grinding';
 import { ProductRovianda } from '../Models/Entity/Product.Rovianda';
+import { SubProductToOvenRepository } from '../Repositories/SubProductToOven.Repository';
+import { SubProductToOven } from '../Models/Entity/SubProduct';
+import { User } from '../Models/Entity/User';
 
 
 
@@ -51,6 +54,7 @@ export class ProcessService{
     private conditioningRepository:ConditioningRepository;
     private grindingRepository:GrindingRepository;
     private productRoviandaRepository:ProductRoviandaRepository;
+    private subProductToOvenRepository:SubProductToOvenRepository;
     constructor(private firebaseHelper: FirebaseHelper){
         this.processRepository = new ProcessRepository();
         
@@ -69,6 +73,7 @@ export class ProcessService{
         this.conditioningRepository = new ConditioningRepository();
         this.grindingRepository= new GrindingRepository();
         this.productRoviandaRepository = new ProductRoviandaRepository();
+        this.subProductToOvenRepository = new SubProductToOvenRepository();
     }
 
      async createProcessInter():Promise<Process>{
@@ -155,7 +160,7 @@ export class ProcessService{
     async getProcessByStatus(status:string){
         let process:Process[] = await this.processRepository.getProcessByStatus(status);
         let response:any = [];
-        console.log(process)
+        
         process.forEach(i => {
             response.push({
                 processId:`${i.id}`,
@@ -298,8 +303,21 @@ export class ProcessService{
     async getProcessAllAvailables(){
         let processAvailables:ProcessAvailablesToOven[]= await this.processRepository.getAllProcessAvailable();
         let processAvailableMap:Map<number,ProcessAvailablesByLots>=new Map();
-
+        let subProductProcessAvailables = await this.processRepository.getAllSubProductProcessDerivations();
         for(let process of processAvailables){
+            if(processAvailableMap.get(process.productId)==null){
+                processAvailableMap.set(process.productId,{
+                        lots:[{recordId:process.recordId,lotDay:process.lotDay,dateEndedProcess:process.dateEndedProcess}],
+                        productId: process.productId,
+                        productName: process.productName
+                });
+            }else{
+                let processMapped = processAvailableMap.get(process.productId);
+                processMapped.lots.push({recordId:process.recordId,lotDay:process.lotDay,dateEndedProcess:process.dateEndedProcess});
+                processAvailableMap.set(process.productId,processMapped);
+            }
+        }
+        for(let process of subProductProcessAvailables){
             if(processAvailableMap.get(process.productId)==null){
                 processAvailableMap.set(process.productId,{
                         lots:[{recordId:process.recordId,lotDay:process.lotDay,dateEndedProcess:process.dateEndedProcess}],
@@ -461,6 +479,33 @@ export class ProcessService{
             });
         }
         return processIngredients;
+    }
+
+    async createSubProductOfProcess(body:ProcessSubProductToOvenRequest){
+        let process:Process = await this.processRepository.getProcessById(body.processId);
+        if(!process) throw new Error("[404],proceso no encontrado");
+        let user:User = await this.userRepository.getUserById(body.userId);
+        if(!user) throw new Error("[404], usuario con id: "+body.userId+" no encontrado");   
+        let productRovianda:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(body.productRoviandaId);
+        if(!productRovianda) throw new Error("[404],producto con id: "+body.productRoviandaId+" no encontrado");
+        let subProductToOven:SubProductToOven = new SubProductToOven();
+        let date = new Date();
+        date.setHours(date.getHours()-5);
+        subProductToOven.createAt=date.toISOString();
+        subProductToOven.subProductUserCreator=user;
+        subProductToOven.process = process;
+        subProductToOven.productRovianda=productRovianda;
+        subProductToOven.quantity = body.quantity;
+        subProductToOven.status="ACTIVE";
+        subProductToOven.observations=body.observations;
+        subProductToOven.lastModification = date.toISOString();
+        await this.subProductToOvenRepository.createSubProductToOven(subProductToOven);
+    }
+    async getAllSubProductsOfProcess(processId:number){
+        return await this.processRepository.getAllSubProductsOfProcess(processId);
+    }
+    async deleteSubProduct(subProductId:number){
+        await this.subProductToOvenRepository.deleteSubProductToOven(subProductId);
     }
 }
 

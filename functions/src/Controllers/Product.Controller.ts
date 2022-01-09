@@ -9,12 +9,16 @@ import {keys} from "ts-transformer-keys";
 import { keysIn } from 'lodash';
 import { ClientSAE } from '../Models/DTO/Client.DTO';
 import { Client } from '../Models/Entity/Client';
+import { PresentationProducts } from '../Models/Entity/Presentation.Products';
+import { PresentationsProductsRepository } from '../Repositories/Presentation.Products.Repository';
 export class ProductController{
 
     private productService:ProductService;
     private productRoviandaService:ProductRoviandaService;
+    
     constructor(private firebaseInstance:FirebaseHelper){
         this.productService = new ProductService();
+        
         this.productRoviandaService = new ProductRoviandaService(this.firebaseInstance);
     }
 
@@ -111,6 +115,12 @@ export class ProductController{
         return res.status(200).send(response);
     }
 
+    async getPresentation(req:Request,res:Response){
+        let presentationId:number = +req.params.presentationId;
+        let presentation:PresentationProducts = await this.productRoviandaService.getPresentationProductById(presentationId);
+        return res.status(200).send(presentation);
+    }
+
     async getProductsLines(req:Request,res:Response){
         return res.status(200).send(await this.productRoviandaService.getLinesOfProductsSae());
     }
@@ -137,7 +147,8 @@ export class ProductController{
         let page=req.query.page;
         let perPage=req.query.perPage;
         let hint = req.query.hint;
-        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage,hint);
+        let type = req.query.type;
+        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage,hint,type);
         res.header('Access-Control-Expose-Headers', 'X-Total-Count')
         res.setHeader("X-Total-Count",response.count);
         return res.status(200).send(response.items);

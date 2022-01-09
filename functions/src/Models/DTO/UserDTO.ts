@@ -9,4 +9,5 @@ export interface UserDTO{
     rolId: number;
     job:string;
     warehouse:string;
+    folio:string;
 }

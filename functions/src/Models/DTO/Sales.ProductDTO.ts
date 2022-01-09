@@ -93,7 +93,9 @@ export interface SaleOrderDTO {
       keySae:string,
       expiration:string,
       observations:string,
-      outputDate:string
+      outputDate:string,
+      price:number,
+      total: number
  }
 
  export interface OrderSellerUpdateProperties{
@@ -150,4 +152,10 @@ export interface ProductDevolution{
    quantity:number,
    price:number,
    uniMed:string
+}
+
+export interface SaleMetricsAcumulated{
+   amount:number,
+   tickets:number,
+   ticketsCanceled:number
 }

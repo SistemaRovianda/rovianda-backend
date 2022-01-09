@@ -366,4 +366,9 @@ export class SalesRequestController{
         let response:RequestDevolution= await this.salesRequestService.getRequestDevolutionDetails(saleId);
         return res.status(200).send(response)
     }
+    async transferRemissions(req:Request,res:Response){
+        let date:string = req.query.date as string;
+        await this.salesRequestService.transferAllOrdersSellers(date);
+        res.status(204).send();
+    }
 } 

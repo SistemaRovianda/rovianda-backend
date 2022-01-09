@@ -248,12 +248,17 @@ export class AdminSalesReports{
             return workbook;
     }
 
-    getSummaryReportBySellerPDF(seller:User,acumulateAbarrotes:{amount:number},acumulateNormal:{amount:number},acumulatedNormalKg:{totalKg:number},acumulatedCheeses:{amount:number},acumulatedCheesesKg:{totalKg:number},ranking:{amount:number,amountKg:number,name:string,type_presentation:string}[],dateStart:string,dateEnd:string){
-        let body= `
-        <div class="report-container">
-        <h1>Resumen vendedor </h1>
-        <label>Vendedor: ${seller.name}</label><br>
-        <label>Desde: ${dateStart} Hasta:${dateEnd}</label>
+    getSummaryReportBySellerPDF(seller:User,acumulateAbarrotes:{amount:number},acumulateNormal:{amount:number},acumulatedNormalKg:{totalKg:number},acumulatedCheeses:{amount:number},acumulatedCheesesKg:{totalKg:number},ranking:{amount:number,amountKg:number,name:string,type_presentation:string}[],dateStart:string,dateEnd:string,countData:{count:number}[],type:string){
+        let body="";
+        if(type=="NORMAL"){
+            body+=this.getHead();
+            body+=`<div class="report-container">
+            <h1>Resumen vendedor </h1>
+            <label>Vendedor: ${seller.name}</label><br>
+            <label>Desde: ${dateStart} Hasta:${dateEnd}</label>
+            <label>Cantidad de notas: ${countData[0].count}</label>`;
+        }
+        body+= `
         <table class="table-ranking"><thead>
         <tr>
             <th>Kg carnicos</th>
@@ -283,8 +288,15 @@ export class AdminSalesReports{
             `;
         }
         body+=`<tr><td colspan="3"></td><td>Total Kilos: ${this.parseAmount(totalWeight)}</td><td>Monto total: ${this.parseAmount(totalBill)}</td></tr>`;
-        return this.getHead()+body+this.getFooter();
+        if(type=="CANCELED"){
+            body+="</tbody></table></div></body></html>"
+        }else{
+            body+="</tbody></table>";
+        }
+        return body;
     }
+
+    
 
     async getHistoryGeneralByDay(records:GeneralReportByDay[],dateStart:string,dateEnd:string){
         var workbook = new excel.Workbook();
@@ -320,6 +332,7 @@ export class AdminSalesReports{
             let group=1;
             let currentFolio = records[0].folio;
             let generalAdded=false;
+            let index=0;
             for(let record of records){
                 
                 if(currentFolio!=record.folio){
@@ -354,7 +367,7 @@ export class AdminSalesReports{
                         worksheet.column(8).setWidth(25);
                         worksheet.column(9).setWidth(25);
                         row=7;
-                        generalAdded=true;
+                        
                         //console.log("Escribiendo hoja: "+page+" currenDate: "+currentDate);
                     }
                 }
@@ -698,6 +711,9 @@ export class AdminSalesReports{
                         </tr>`;
                         let amount=0;
                         let amountCanceled=0;
+                        let countCanceled = 0;
+                        let countCompleted =0;
+                        
             for(let sale of sales){
                 report+=`
                     <tr>
@@ -711,18 +727,24 @@ export class AdminSalesReports{
                 `;
                 if(type=="ALL" && sale.status=="CANCELED"){
                     amountCanceled+=sale.amount;
+                    countCanceled++;
                 }
                 if(type=="ALL" && sale.status!="CANCELED"){
                     amount+=sale.amount;
+                    countCompleted++;
                     
                 }else if(type=="CANCELED" && sale.status=="CANCELED"){
                     amount+=sale.amount;
+                    countCanceled++;
                 }else if(type=="OMITED" ){
                     amount+=sale.amount;
+                    
                 }
             }
                     report+=`</table>
                     <h3>Total acumulado: ${amount.toFixed(2)}</h3>
+                    <h3>Total de notas: ${countCompleted}</h3>
+                    <h3>Total de notas canceladas: ${countCanceled}</h3>
                      ${type=="ALL" ?"<h3>Total cancelado: "+ amountCanceled.toFixed(2)+"</h3>":""}
                 </body>
             </html>
@@ -732,8 +754,8 @@ export class AdminSalesReports{
 
     async getReportOfSalesTypesBySellersExcel(type:string,sales:SalesTypes[],dateStart:string,dateEnd:string){
         var workbook = new excel.Workbook();
-    
-        let worksheet = workbook.addWorksheet(`REPORTE DE VENTAS`);
+        
+        let worksheet = workbook.addWorksheet(`PAGINA 1`);
 //            map.set(records[0].month,worksheet);
         worksheet.cell(1,1,1,3,true).string(`Reporte de ventas Filtro: ${(type=="ALL"?"TODOS":((type=="CANCELED")?"CANCELADOS":"OMITIDAS"))} `).style({alignment:{horizontal:"center"}});
         worksheet.cell(2,1,2,3,true).string(`Desde: ${dateStart} Hasta: ${dateEnd}`).style({alignment:{horizontal:"center"}});
@@ -753,26 +775,66 @@ export class AdminSalesReports{
         let amount=0;
         let amountCanceled=0;
         let row=6;
-        for(let sale of sales){
-
-            
-            worksheet.cell(row,1,row,1,true).string(`${sale.date.split("T")[0]}`);
-            worksheet.cell(row,2,row,2,true).string(`${sale.sellerName}`);
-            worksheet.cell(row,3,row,3,true).string(`${sale.clientName}`);
-            worksheet.cell(row,4,row,4,true).string(`${sale.folio}`);
-            worksheet.cell(row,5,row,5,true).string(`${sale.status=="CANCELED"?"CANCELADO":"ACTIVO"}`);
-            worksheet.cell(row,6,row,6,true).string(`${sale.amount}`);
-            if(sale.status=="CANCELED"){
-                amountCanceled+=sale.amount;
+        let countCompleted=0;
+        let countCanceled=0;
+        let page=2;
+        if(sales.length){
+        let firstDate=sales[0].dateSort;
+        for(let sale of sales){    
+            if(firstDate==sale.dateSort){    
+                worksheet.cell(row,1,row,1,true).string(`${sale.date.split("T")[0]}`);
+                worksheet.cell(row,2,row,2,true).string(`${sale.sellerName}`);
+                worksheet.cell(row,3,row,3,true).string(`${sale.clientName}`);
+                worksheet.cell(row,4,row,4,true).string(`${sale.folio}`);
+                worksheet.cell(row,5,row,5,true).string(`${sale.status=="CANCELED"?"CANCELADO":"ACTIVO"}`);
+                worksheet.cell(row,6,row,6,true).string(`${sale.amount}`);
+                if(sale.status=="CANCELED"){
+                    amountCanceled+=sale.amount;
+                    countCanceled++;
+                }else{
+                    amount+=sale.amount;
+                    countCompleted++;
+                }
+                row++;
+                
             }else{
-                amount+=sale.amount;
+                worksheet.cell(row,6,row,6,true).string(`TOTAL NOTAS: ${countCompleted}`);
+                worksheet.cell(row+1,6,row+1,6,true).string(`TOTAL NOTAS CANCELADAS: ${countCanceled}`);
+                worksheet.cell(row+2,6,row+2,6,true).string(`TOTAL: ${amount.toFixed(2)}`);
+                if(type=="ALL"){
+                    worksheet.cell(row+3,6,row+3,6,true).string(`TOTAL CANCELADAS: ${amountCanceled.toFixed(2)}`);
+                }
+                firstDate=sale.dateSort;
+                    worksheet = workbook.addWorksheet(`PAGINA ${page}`);
+                    worksheet.cell(1,1,1,3,true).string(`Reporte de ventas Filtro: ${(type=="ALL"?"TODOS":((type=="CANCELED")?"CANCELADOS":"OMITIDAS"))} `).style({alignment:{horizontal:"center"}});
+                    worksheet.cell(2,1,2,3,true).string(`Desde: ${dateStart} Hasta: ${dateEnd}`).style({alignment:{horizontal:"center"}});
+
+                    worksheet.cell(5,1,5,1,true).string('Fecha');
+                    worksheet.cell(5,2,5,2,true).string(`Vendedor`);
+                    worksheet.cell(5,3,5,3,true).string('Cliente');
+                    worksheet.cell(5,4,5,4,true).string('Folio');
+                    worksheet.cell(5,5,5,5,true).string('Tipo');
+                    worksheet.cell(5,6,5,6,true).string('Monto');
+                    worksheet.column(1).setWidth(25);
+                    worksheet.column(2).setWidth(25);
+                    worksheet.column(3).setWidth(25);
+                    worksheet.column(4).setWidth(25);
+                    worksheet.column(5).setWidth(25);
+                    worksheet.column(6).setWidth(25);
+                    row=6;
+                    amount=0;
+                    amountCanceled=0;
+                    page++;
+                    countCompleted=0;
+                    countCanceled=0;
             }
-            row++;
+        }    
         }
-        
-        worksheet.cell(row,6,row,6,true).string(`TOTAL: ${amount.toFixed(2)}`);
+        worksheet.cell(row,6,row,6,true).string(`TOTAL NOTAS: ${countCompleted}`);
+        worksheet.cell(row+1,6,row+1,6,true).string(`TOTAL NOTAS CANCELADAS: ${countCanceled}`);
+        worksheet.cell(row+2,6,row+2,6,true).string(`TOTAL: ${amount.toFixed(2)}`);
         if(type=="ALL"){
-            worksheet.cell(row+1,6,row+1,6,true).string(`TOTAL CANCELADAS: ${amountCanceled.toFixed(2)}`);
+            worksheet.cell(row+3,6,row+3,6,true).string(`TOTAL CANCELADAS: ${amountCanceled.toFixed(2)}`);
         }
         return workbook;
     }

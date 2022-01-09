@@ -21,6 +21,11 @@ export interface WarehouseCollingDTO{
     materialId:number;
 }
 
+export interface WarehouseEntranceOutputsMetrics{
+    entrance:number,
+    outputs:number
+}
+
 export interface WarehouseExitPackingDTO{
     loteId:string;
     productId:number;

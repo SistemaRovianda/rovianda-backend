@@ -15,6 +15,7 @@ export interface EntranceDriefDTO{
     weight:boolean;
     color:boolean;
     isPz:boolean;
+    isBox:boolean,
     observations:string;
     makeId:string;
 }

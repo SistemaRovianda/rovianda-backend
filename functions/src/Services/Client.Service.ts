@@ -38,86 +38,61 @@ export class ClientService {
 
     async createCustomer(req: Request) {
         let clientDTO: ClientCreation = req.body;
-        
-        let records:IResult<any> = await this.sqlSRepository.getClientsByKey(clientDTO.keyClient);
-        console.log(records);
-        if(records.recordset.length){
-            throw new Error('[409], ya existe un cliente con esa clave');
-        }
-        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.saleUid);
+        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSeller);
         if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
     
         let newAddress:Address = new Address();
-        newAddress.street = clientDTO.addressClient.street;
-        newAddress.extNumber = clientDTO.addressClient.extNumber;
-        newAddress.intNumber = clientDTO.addressClient.intNumber;
-        newAddress.intersectionOne = clientDTO.addressClient.intersectionOne;
-        newAddress.intersectionTwo = clientDTO.addressClient.intersectionTwo;
-        newAddress.suburb = clientDTO.addressClient.suburb;
-        newAddress.location = clientDTO.addressClient.location;
-        newAddress.reference = clientDTO.addressClient.reference;
-        newAddress.population = clientDTO.addressClient.population;
-        newAddress.cp = clientDTO.addressClient.cp;
-        newAddress.state = clientDTO.addressClient.state;
-        newAddress.municipality = clientDTO.addressClient.municipality;
-        newAddress.nationality = clientDTO.addressClient.nationality;
+        newAddress.street = clientDTO.clientStreet;
+        newAddress.extNumber = +clientDTO.clientExtNumber;
+        newAddress.intNumber = null;
+        newAddress.intersectionOne = "";
+        newAddress.intersectionTwo = "";
+        newAddress.suburb = clientDTO.clientSuburb;
+        newAddress.location = clientDTO.clientLocality;
+        newAddress.reference = "";
+        newAddress.population = clientDTO.clientMunicipality;
+        newAddress.cp = +clientDTO.clientCp;
+        newAddress.state = clientDTO.clientState;
+        newAddress.municipality = clientDTO.clientMunicipality;
+        newAddress.nationality = clientDTO.clientNationality;
         
         let address:Address = await this.addressRepository.saveAddress(newAddress);
         
         let newClient:Client = new Client();
-        newClient.keyClient = clientDTO.keyClient;
-
-        newClient.name = clientDTO.name;
-        
-        newClient.typeClient = clientDTO.typeClient.toString();
-        newClient.currentCredit = clientDTO.currentCredit;
+        newClient.keyClient = clientDTO.clientCodeAssigned;
+        newClient.name = clientDTO.clientName;
+        newClient.idAspel= clientDTO.clientCode;
+        newClient.typeClient = clientDTO.clientType;
+        newClient.currentCredit = clientDTO.clientCurrentCredit||0;
         newClient.address = address;
-        newClient.credit = clientDTO.currentCredit;
-        newClient.rfc = clientDTO.rfc;
+        newClient.cfdi="";
+        newClient.paymentSat="";
+        newClient.curp="";
+        newClient.clasification="";
+        newClient.credit = clientDTO.clientCredit||0;
+        newClient.rfc = clientDTO.clientRfc;
         newClient.seller = sellerOwner;
-        if(clientDTO.daysCredit) { newClient.daysCredit = clientDTO.daysCredit }
-        if(clientDTO.typeClient=="CONTADO" && clientDTO.rfc==""){
-            newClient.idAspel=713;
-        }
-        if(clientDTO.typeClient=="CREDITO" || (clientDTO.typeClient=="CONTADO" && clientDTO.rfc!="")){
-            await this.sqlSRepository.saveClient(clientDTO);
-        }
+        newClient.daysCredit=0;
+        newClient.hasDebts=false;
+        
         let clientSaved=await this.clientRepository.saveClient(newClient);
         let daysVisited:DayVisited= new DayVisited();
-        daysVisited.monday = clientDTO.daysVisited.monday;
-        daysVisited.tuesday = clientDTO.daysVisited.tuesday;
-        daysVisited.wednesday = clientDTO.daysVisited.wednesday;
-        daysVisited.thursday = clientDTO.daysVisited.thursday;
-        daysVisited.friday = clientDTO.daysVisited.friday;
-        daysVisited.saturday = clientDTO.daysVisited.saturday;
-        daysVisited.sunday = clientDTO.daysVisited.sunday;
+        daysVisited.monday = clientDTO.monday;
+        daysVisited.tuesday = clientDTO.tuesday;
+        daysVisited.wednesday = clientDTO.wednesday;
+        daysVisited.thursday = clientDTO.thursday;
+        daysVisited.friday = clientDTO.friday;
+        daysVisited.saturday = clientDTO.saturday;
+        daysVisited.sunday = clientDTO.sunday;
         daysVisited.client = clientSaved;
         this.dayRepository.saveDayVisited(daysVisited);
           
     }
 
     async getCurrentCountCustomer(){
-        let result = await this.sqlSRepository.getClientCount();
+        
         let client = await this.clientRepository.getLastClient();
-        let count =1;
-        if(result.length){
-            if(client==null){
-                count=result[0].CLAVE+1;
-            }else{
-                if(+result[0].CLAVE<client.id){
-                    count=client.id+1;
-                }else{
-                    count=+result[0].CLAVE+1;
-                }
-            }
-        }else{
-            if(client==null){
-                count=1;
-            }else{
-                count=client.id+1;
-            }
-        }
-        return {count};
+        return client.keyClient;
     }
 
     async createSellerCustomer(clientDTO:SellerClientCreation){
@@ -338,6 +313,22 @@ export class ClientService {
             h = (q + Math.floor(((13 * (m + 1)) / 5)) + Y + Math.floor((Y / 4)) - Math.floor((Y / 100)) + Math.floor((Y / 400))) % 7;
 
             return h;
+    }
+
+    async updateKeyClient(clientId:number,code:string){
+        let client:Client = await this.clientRepository.getClientById(clientId);
+        if(!client) throw new Error("[404], no se encontró al cliente con el id: "+clientId);
+        client.keySaeNew=code;
+        await this.clientRepository.saveClient(client);
+    }
+
+    async searchClientInSae(code:number){
+        let client = await this.sqlSRepository.getClientsByKey(code);
+        if(client.recordset.length){
+            return client.recordset[0];
+        }else{
+            return null;
+        }
     }
 
 }

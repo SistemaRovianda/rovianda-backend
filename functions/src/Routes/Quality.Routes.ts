@@ -109,11 +109,42 @@ export const qualityRoutes:Array<routeInterface>=[
         target: "getAllProductCatalogByQuality"
     },
     {
+        url: "/rovianda/quality/metrics/products-catalog",
+        method: "get",
+        controller: QualityController,
+        target: "getAllProductCatalogWithMetrics"
+    },
+    {
         url: "/rovianda/quality/product-details/:productId",
         method: "get",
         controller: QualityController,
         target: "getProductQualitytDetails"
     },
+    {
+        url: "/rovianda/quality/product-presentations/:productId",
+        method: "get",
+        controller: QualityController,
+        target: "getPresentationsActiveOfProduct"
+    },
+    {
+        url: "/rovianda/quality/presentation-metrics/week/:presentationId",
+        method: "get",
+        controller: QualityController,
+        target: "getChartMetricsPresentationWeek"
+    },
+    {
+        url: "/rovianda/quality/sales-metrics/acumulated",
+        method: "get",
+        controller: QualityController,
+        target: "getSalesMetricsAcumulated"
+    },
+    {
+        url: "/rovianda/sales/general-data",
+        method: "get",
+        controller: QualityController,
+        target: "getGeneralDataSalesChart"
+    }
+    ,
     {
         url: "/rovianda/quality/add-ingredient",
         method: "post",
@@ -173,5 +204,35 @@ export const qualityRoutes:Array<routeInterface>=[
         method: "put",
         controller: QualityController,
         target: "updateStatusOfOvenProduct"
+    },
+    {
+        url: "/rovianda/quality/records-entrances/:entranceId",
+        method: "put",
+        controller: QualityController,
+        target: "updateRecordEntrancesByType"
+    },
+    {
+        url: "/rovianda/quality/record-oven/:ovenId",
+        method: "put",
+        controller: QualityController,
+        target: "updatePropertiesOven"
+    },
+    {
+        url: "/rovianda/quality/code-access/:userId",
+        method: "post",
+        controller: QualityController,
+        target: "createCodeAccess"
+    },
+    {
+        url: "/rovianda/quality/code-access/:userId",
+        method: "get",
+        controller: QualityController,
+        target: "getCodeAccessByUser"
+    },
+    {
+        url: "/rovianda/quality/verify-code",
+        method: "post",
+        controller: QualityController,
+        target: "verifyCodeAccess"
     }
 ];

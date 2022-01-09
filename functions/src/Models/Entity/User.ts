@@ -12,6 +12,7 @@ import { SellerOperation } from "./Seller.Operations";
 import { Client } from "./Client";
 import { Debts } from "./Debts";
 import { EntranceDrief } from "./Entrances.Drief";
+import { SubProductToOven } from "./SubProduct";
 
 @Entity({name:"users"})
 export class User{
@@ -87,4 +88,10 @@ export class User{
     token:string;
     // @OneToMany(type=>EntranceDrief,entranceDrief=>entranceDrief.userRecepcion)
     // entrancesDrief:EntranceDrief[];
+
+    @OneToMany(type=>SubProductToOven,subProductsToOven=>subProductsToOven.subProductUserCreator)
+    subProductsToOven:SubProductToOven[];
+
+    @Column({name:"created_at",nullable:true})
+    createdAt:string;
 }
