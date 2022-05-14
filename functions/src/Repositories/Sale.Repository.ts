@@ -8,10 +8,12 @@ import { SaleMetricsAcumulated, SalesToSuperAdmin } from "../Models/DTO/Sales.Pr
 import { isEqual } from "lodash";
 import { MOSRM } from "../Models/DTO/ModeOfflineDTO";
 import { AdminSalesRequest, ChartD3DataInterface, GeneralReportByDay, GeneralReportByMonth, GeneralReportByWeek, GeneralReportByYear, RankingSeller, RankingSellerByProduct, SalesTypes } from "../Models/DTO/Admin.Sales.Request";
+import { SubSales } from "../Models/Entity/Sub.Sales";
+import { SubSaleRepository } from "./SubSale.Repository";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
-
+    
     async getConnection(){
         if (!this.saleRepository)
             this.saleRepository = (await connect()).getRepository(Sale);
@@ -294,37 +296,6 @@ export class SaleRepository{
         }
     }
 
-    async createSimpleSale2(sale:MOSRM,sellerId:string,cancelRequest:string[]){
-        await this.getConnection();
-        //let date = new Date(sale.date);
-       // date.setHours(date.getHours()+7);
-        //let hours = date.getHours().toString();
-        //if(+hours<10) hours="0"+hours;
-        //let minutes = date.getMinutes().toString();
-        //if(+minutes<10) minutes="0"+minutes;
-        let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}"`) as any[];
-        let dateSincronized= new Date();
-        dateSincronized.setHours(dateSincronized.getHours()-5);
-        let hours = (sale.date.split("T")[1]).split(":");
-        let hourStr = hours[0]+":"+hours[1];
-        if(!saleFinded.length){
-            await this.saleRepository.query(`
-            insert into sales(date,hour,amount,payed_with,credit,type_sale,status,folio,with_debts,status_str,seller_id,client_id,new_folio,sincronized,folio_temp,date_sincronized,cancel_request)
-            value("${sale.date}","${hourStr}",${sale.amount.toFixed(2)},${sale.payedWith.toFixed(2)},${sale.credit?sale.credit.toFixed(2):null},
-            "${sale.typeSale}",${sale.status},"${sale.folio}",0,"${sale.statusStr}","${sellerId}",${sale.clientId},"${sale.folio}",0,"${sale.folio}","${dateSincronized.toISOString()}",${cancelRequest.includes(sale.folio)?'1':'0'});
-            `);
-            let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}" order by sale_id desc limit 1`) as any[];
-            let saleId=saleFinded[0].sale_id;
-            for(let sub of sale.products){
-                await this.saleRepository.query(`
-
-                    insert into sub_sales(quantity,lote_id,amount,sale_id,product_id,presentation_id,create_at,app_sub_sale_id)
-                    values(${sub.quantity},"desconocido",${sub.amount},${saleId},${sub.productId},${sub.presentationId},"${sale.date}",${sub.appSubSaleId?sub.appSubSaleId:null});
-
-                `);
-            }
-        }
-    }
 
     async getLastSalesMaked(sellerId:string)  {
             await this.getConnection();

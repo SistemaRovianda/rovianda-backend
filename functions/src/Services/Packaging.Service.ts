@@ -103,7 +103,7 @@ export class PackagingService{
             if (!packagingDTO.products[i].units) throw new Error("[400],units is required");
             if (!packagingDTO.products[i].weight) throw new Error("[400],weight is required");
         }
-        let lot:OvenProducts = await this.ovenRepository.getOvenProductByIds(packagingDTO.lotId);
+        let lot:OvenProducts = await this.ovenRepository.getOvenProductByIdsAndProduct(packagingDTO.lotId,product);
         if(!lot) throw new Error("[400], lot not found");
         let packaging:Packaging = new Packaging();
         packaging.registerDate = packagingDTO.registerDate;
@@ -638,9 +638,9 @@ export class PackagingService{
             currentOrderSeller.amount = subOrders.map(x=>x.amount).reduce((a,b)=>a+b,0);
             currentOrderSeller.subOrders=subOrders;
             await this.sqlRepository.transferWarehouseEntranceLikeRemission(currentOrderSeller);
-            orderSeller.sincronized=true;
-            await this.orderSellerRepository.saveSalesSeller(orderSeller);
         }
+        orderSeller.sincronized=true;
+        await this.orderSellerRepository.saveSalesSeller(orderSeller);
       
       
     }

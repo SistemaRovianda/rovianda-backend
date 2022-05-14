@@ -74,7 +74,7 @@ export class ClientService {
         newClient.seller = sellerOwner;
         newClient.daysCredit=0;
         newClient.hasDebts=false;
-        
+        newClient.keySaeNew=clientDTO.clientCode.toString();
         let clientSaved=await this.clientRepository.saveClient(newClient);
         let daysVisited:DayVisited= new DayVisited();
         daysVisited.monday = clientDTO.monday;
@@ -329,6 +329,13 @@ export class ClientService {
         }else{
             return null;
         }
+    }
+
+    async customerReassign(clientId:number,sellerUid:string){
+        let client = await this.clientRepository.getClientById(clientId);
+        let seller = await this.userRepository.getUserById(sellerUid);
+        client.seller=seller;
+        await this.clientRepository.saveClient(client);
     }
 
 }

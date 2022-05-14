@@ -53,6 +53,8 @@ import { DevolutionSellerRequest } from '../Models/Entity/DevolutionSellerReques
 import { DevolutionOldSubSales } from '../Models/Entity/DevolutionOldSubSales';
 import { DevolutionOldSubSaleRepository } from '../Repositories/DevolutionOldSubSalesRepository';
 import { OrderSellerInterface } from '../Models/Enum/order.seller.interface';
+import { EndDayRepository } from '../Repositories/EndDay.Repository';
+import { EndDay } from '../Models/Entity/EndDay';
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 export class SalesRequestService{
     private salesRequestRepository:SalesRequestRepository;
@@ -76,6 +78,7 @@ export class SalesRequestService{
     private dayRepository:DayVisitedRepository;
     private devolutionRequestSellerRepository:DevolutionSellerRequestRepository;
     private devolutionOldSubSalesRepository:DevolutionOldSubSaleRepository;
+    private endDayRepository:EndDayRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.salesRequestRepository = new SalesRequestRepository();
         this.userRepository = new UserRepository();
@@ -98,6 +101,7 @@ export class SalesRequestService{
         this.saleCancelRepository= new SaleCancelRepository();
         this.devolutionRequestSellerRepository=new DevolutionSellerRequestRepository();
         this.devolutionOldSubSalesRepository=new DevolutionOldSubSaleRepository();
+        this.endDayRepository = new EndDayRepository();
     }
     
     async saveOrderSeller(uid:string,request:OrderSellerRequest){
@@ -1173,6 +1177,7 @@ export class SalesRequestService{
       }else{
         this.transferPayments(`${year}-${month}-${day}`);
       }
+      
     }
 
     async transferPayments(date:string){
@@ -1206,6 +1211,7 @@ export class SalesRequestService{
       let sellers:any[] = await this.userRepository.getAllSellersWithCVEAndOperating() as any[];
         console.log("Vendedores obtenidos");
         for(let seller of sellers){
+            
               console.log("Vendedor: "+seller.name);
               console.log("Obteniendo último folio");
               console.log("DateStart:"+this.parseDate(dateParsed2));
@@ -1223,7 +1229,10 @@ export class SalesRequestService{
                   await this.saleRepository.updateRewriteFolio(sale.sale_id,seller.cve+(folio.toString()));
               }
               console.log("Asignacion completa hasta :"+seller.cve+folio.toString());  
-       }
+            
+            
+      }
+      
         console.log("Asignacion completada");
 
     }
@@ -1437,7 +1446,7 @@ export class SalesRequestService{
       return orderDetails;
     }
 
-    async deleteOrderDetails(items:OrderSellerUpdateProperties[],orderId:number){
+    async updateOrder(items:OrderSellerUpdateProperties[],orderId:number){
         let ids=items.map(x=>x.subOrderId);
         let date= new Date();
         date.setHours(date.getHours()-6);
@@ -1445,25 +1454,31 @@ export class SalesRequestService{
         let day = date.getDate().toString();
         if(+month<10) month="0"+month;
         if(+day<10) day="0"+day;
-        for(let item of items){
-          //let totalRequested = item.quantity;
-          let subOrder = await this.salesRequestRepository.getSubOrderById(item.subOrderId);
-          let totalRequested = (await this.salesRequestRepository.getTotalSubOrdersUnitsRequested(subOrder.presentation.id,date.getFullYear()+"-"+month+"-"+day))[0];
-          let totalAvailable = (await this.packagingRepository.getTotalAvailable(subOrder.productRovianda.id,subOrder.presentation.id))[0];
-          let outOfStock = false;
-          if(totalRequested && totalAvailable){
-            if( ( (totalRequested.units-subOrder.units)+item.quantity) <=totalAvailable.units){
-              outOfStock=false;
-            }else{
-              outOfStock=true;
-            }
+        console.log("CURRENT DATE:" +date.getFullYear()+"-"+month+"-"+day+ " "+date.getHours());
+        let orderSeller = await this.saleSellerRepository.findOrderSellerByIdAndDate(orderId,date.getFullYear()+"-"+month+"-"+day);
+        if(orderSeller && date.getHours()<23){
+          for(let item of items){
+            //let totalRequested = item.quantity;
+            //let subOrder = await this.salesRequestRepository.getSubOrderById(item.subOrderId);
+            /*let totalRequested = (await this.salesRequestRepository.getTotalSubOrdersUnitsRequested(subOrder.presentation.id,date.getFullYear()+"-"+month+"-"+day))[0];
+            let totalAvailable = (await this.packagingRepository.getTotalAvailable(subOrder.productRovianda.id,subOrder.presentation.id))[0];
+            let outOfStock = false;
+            if(totalRequested && totalAvailable){
+              if( ( (totalRequested.units-subOrder.units)+item.quantity) <=totalAvailable.units){
+                outOfStock=false;
+              }else{
+                outOfStock=true;
+              }
+            }*/
+            //subOrder.units = item.quantity;
+            //await this.salesRequestRepository.saveSalesProduct(subOrder);
+            //console.log("Actualizar: "+item.subOrderId,item.quantity,outOfStock);
+            await this.saleSellerRepository.updateSubOrderQuantity(item.subOrderId,item.quantity,false);
           }
-          //subOrder.units = item.quantity;
-          //await this.salesRequestRepository.saveSalesProduct(subOrder);
-          console.log("Actualizar: "+item.subOrderId,item.quantity,outOfStock);
-          await this.saleSellerRepository.updateSubOrderQuantity(item.subOrderId,item.quantity,outOfStock);
+          await this.saleSellerRepository.deleteSubordersOmit(ids,orderId);
+        }else{
+          throw new Error("[409], orden no encontrada en fecha para actualización");
         }
-        await this.saleSellerRepository.deleteSubordersOmit(ids,orderId);
     }
 
     async getAllDebtsOfSeller(sellerId:string){
@@ -1811,53 +1826,52 @@ export class SalesRequestService{
       return await this.ticketUtil.getOrderTicket(orderSeller,subSales);
     }
 
-    async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[],devolutions:DevolutionSellerRequestBody[]},sellerId:string){
-      
-      let seller:User=null;
-      
-      let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[],devolutionsSincronized:string[],devolutionsAccepted:string[],devolutionsRejected:string[],devolutionsPending:string[]}={
+    async sincronizeSingleSale(body:{sales:MOSRM[],debts:DebtsRequest[],devolutions:DevolutionSellerRequestBody[],debtsOlded:string[]},sellerId:string){
+      let seller:User = await this.userRepository.getUserById(sellerId);
+      if(!seller) throw new Error("[404], No existe el usuario vendedor ");
+      let salesSicronized:{salesSincronized:{saleId:number,folio:string}[],debtsSicronized:string[],devolutionsSincronized:string[],devolutionsAccepted:string[],devolutionsRejected:string[],devolutionsPending:string[],debtsOldedPayed:string[]}={
         debtsSicronized:[],
         salesSincronized:[],
         devolutionsSincronized:[],
         devolutionsAccepted:[],
         devolutionsRejected:[],
-        devolutionsPending:[]
+        devolutionsPending:[],
+        debtsOldedPayed:[]
       };
       let salesCanceled:string[] = [];
       let devolutionsCreated:number[]=[];
+      
       for(let sale of body.sales){
-        if(seller==null){
-          seller = await this.userRepository.getUserById(sale.sellerId);
-        }
-        
         let saleEntity:Sale = await this.saleRepository.getByFolio(sale.folio);
-        if(sale.statusStr=="CANCELED"){
-          salesCanceled.push(sale.folio);
-          sale.statusStr="ACTIVE";
-          if(saleEntity){
-          saleEntity.cancelRequest=true;
-          }
-        }
         if(!saleEntity){
-          await this.saleRepository.createSimpleSale2(sale,sale.sellerId,salesCanceled);
-          let saleAdded:Sale = await this.saleRepository.getByFolio(sale.folio);
-          salesSicronized.salesSincronized.push({saleId:saleAdded.saleId,folio: saleAdded.folio});
-        }else if(saleEntity && (salesCanceled.includes(sale.folio))){
-          saleEntity.statusStr=sale.statusStr;
-          saleEntity.status=sale.status;
-          if(salesCanceled.includes(sale.folio)){
-            saleEntity.cancelRequest=true;
+          //creating new sale
+          if(sale.statusStr=="CANCELED"){
+            salesCanceled.push(sale.folio);
+            sale.statusStr="ACTIVE";
           }
-          salesSicronized.salesSincronized.push({saleId:saleEntity.saleId,folio: saleEntity.folio});
-          await this.saleRepository.saveSale(saleEntity);
-        }else if(saleEntity && sale.statusStr==saleEntity.statusStr){
-          salesSicronized.salesSincronized.push({saleId:saleEntity.saleId,folio: saleEntity.folio});
+          let saleId:number =await this.createSimpleSale2(sale,seller,salesCanceled);
+          salesSicronized.salesSincronized.push({saleId:saleId,folio: sale.folio});
+        }else{
+          //sale Already Exist
+          if(sale.statusStr=="CANCELED"){
+            let cancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
+            if(cancelRequest && cancelRequest.status=="ACCEPTED"){
+                saleEntity.statusStr="CANCELED";
+            }else {
+              saleEntity.statusStr="ACTIVE";
+              salesCanceled.push(sale.folio);
+              saleEntity.cancelRequest=true;
+            }
+            await this.saleRepository.saveSale(saleEntity);
+          }
+          salesSicronized.salesSincronized.push({saleId:saleEntity.saleId,folio: sale.folio});  
         }
       }
-      if(seller!=null && salesCanceled.length){
+      // busqueda de solicitudes de cancelacion de una venta
+      if(salesCanceled.length){
         for(let folio of salesCanceled){
-          let sale = await this.saleCancelRepository.findCancelRequestByFolio(folio);
-          if(!sale){
+          let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(folio);
+          if(!saleCancelRequest){
             let saleCancel = new SaleCancel();
             let createAtDate=new Date();
             createAtDate.setHours(createAtDate.getHours()-5);
@@ -1865,17 +1879,15 @@ export class SalesRequestService{
             saleCancel.folio=folio;
             saleCancel.seller = seller.id;
             await this.saleCancelRepository.saveCancelSale(saleCancel);
-          }
+          }  
         }
-        
       }
-      
+      // busqueda de adeudos
       for(let deb of body.debts){
         console.log("Folio deuda: "+deb.folio);
         let sale = await this.saleRepository.getByFolio(deb.folio);
         let debts = await this.debRepository.getBySale(sale);
         if(!debts){
-          
           let debt = new Debts();
           debt.amount=deb.amountPayed;
           debt.createDay=deb.datePayed;
@@ -1884,73 +1896,74 @@ export class SalesRequestService{
           debt.status=false;
           debt.typePay=deb.payedType;
           debt.seller=sale.seller;
-          ///await this.debRepository.saveDebts(debt);
           sale.status=false;
           sale.debts=[debt];
           await this.saleRepository.saveSale(sale);
           salesSicronized.debtsSicronized.push(deb.folio);
         }
       }
-
-      if(body.devolutions && body.devolutions.length){
-        
-        for(let devolution of body.devolutions){
-          salesSicronized.devolutionsSincronized.push(devolution.folio);
-          let devolutionRequest:DevolutionSellerRequest=await this.devolutionRequestSellerRepository.getDevolutionSellerRequestByFolio(devolution.folio);
-          if(!devolutionRequest){
-            
-            let sale:Sale = await this.saleRepository.getByFolio(devolution.folio);
-            if(sale){
-              let devolutionEntity:DevolutionSellerRequest =  new DevolutionSellerRequest();
-              devolutionEntity.createAt=devolution.createAt;
-              devolutionEntity.folio=devolution.folio;
-              devolutionEntity.observations=devolution.observations;
-              devolutionEntity.saleId=sale.saleId;
-              devolutionEntity.sellerId=sale.seller.id;
-              devolutionEntity.typeDevolution=devolution.typeDevolution;
-              devolutionEntity.devolutionAppRequestId=devolution.devolutionId;
-              devolutionEntity.viewed=false;
-              devolutionEntity.status="PENDING";
-              devolutionEntity= await this.devolutionRequestSellerRepository.saveDevolutionSellerRequest(devolutionEntity);
-              devolutionsCreated.push(devolutionEntity.devolutionSellerRequestId);
-              sale.devolutionRequest=true;
-              await this.saleRepository.saveSale(sale);
-              for(let oldProduct of devolution.productsOld){
-                console.log(JSON.stringify(oldProduct));
-                let product:DevolutionOldSubSales=new DevolutionOldSubSales();
-                product.amount=oldProduct.amount;
-                product.createAt=oldProduct.createAt;
-                product.loteId="";
-                product.presentationId=oldProduct.presentationId;
-                product.productId=oldProduct.productId;
-                product.quantity=oldProduct.quantity,
-                product.saleId=sale.saleId;
-                product.subSaleIdIdentifier=oldProduct.appSubSaleId;
-                product.type="ORIGINAL";
-                product.devolutionRequestId=devolution.devolutionId;
-                await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
-              }
-              for(let newProduct of devolution.productsNew){
-                console.log(JSON.stringify(newProduct));
-                let product:DevolutionOldSubSales=new DevolutionOldSubSales();
-                product.amount=newProduct.amount;
-                product.createAt=newProduct.createAt;
-                product.loteId="";
-                product.presentationId=newProduct.presentationId;
-                product.productId=newProduct.productId;
-                product.quantity=newProduct.quantity,
-                product.saleId=sale.saleId;
-                product.subSaleIdIdentifier=newProduct.appSubSaleId;
-                product.type="MODIFIED";
-                product.devolutionRequestId=devolution.devolutionId;
-                await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
-              }
-            }
-            
-          }
+      if(body.debtsOlded && body.debts){
+        let foliosAlreadyPayment = await this.debRepository.getStatusOfFolios(body.debtsOlded);
+        console.log("FOLIOS ALREADY PAYMENT: "+foliosAlreadyPayment);
+        if(foliosAlreadyPayment!=null && foliosAlreadyPayment.length){
+          salesSicronized.debtsOldedPayed=foliosAlreadyPayment.map(x=>x.folio);
+        }else{
+          salesSicronized.debtsOldedPayed=[];
         }
       }
-
+      // validacion de devoluciones
+      for(let devolution of body.devolutions){
+        salesSicronized.devolutionsSincronized.push(devolution.folio);
+        let devolutionRequest:DevolutionSellerRequest=await this.devolutionRequestSellerRepository.getDevolutionSellerRequestByFolio(devolution.folio);
+        if(!devolutionRequest){
+          let sale:Sale = await this.saleRepository.getByFolio(devolution.folio);
+          if(sale){
+            let devolutionEntity:DevolutionSellerRequest =  new DevolutionSellerRequest();
+            devolutionEntity.createAt=devolution.createAt;
+            devolutionEntity.folio=devolution.folio;
+            devolutionEntity.observations=devolution.observations;
+            devolutionEntity.saleId=sale.saleId;
+            devolutionEntity.sellerId=sale.seller.id;
+            devolutionEntity.typeDevolution=devolution.typeDevolution;
+            devolutionEntity.devolutionAppRequestId=devolution.devolutionId;
+            devolutionEntity.viewed=false;
+            devolutionEntity.status="PENDING";
+            devolutionEntity= await this.devolutionRequestSellerRepository.saveDevolutionSellerRequest(devolutionEntity);
+            devolutionsCreated.push(devolutionEntity.devolutionSellerRequestId);
+            sale.devolutionRequest=true;
+            await this.saleRepository.saveSale(sale);
+            for(let oldProduct of devolution.productsOld){
+              let product:DevolutionOldSubSales=new DevolutionOldSubSales();
+              product.amount=oldProduct.amount;
+              product.createAt=oldProduct.createAt;
+              product.loteId="";
+              product.presentationId=oldProduct.presentationId;
+              product.productId=oldProduct.productId;
+              product.quantity=oldProduct.quantity,
+              product.saleId=sale.saleId;
+              product.subSaleIdIdentifier=oldProduct.appSubSaleId;
+              product.type="ORIGINAL";
+              product.devolutionRequestId=devolution.devolutionId;
+              await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
+            }
+            for(let newProduct of devolution.productsNew){
+              let product:DevolutionOldSubSales=new DevolutionOldSubSales();
+              product.amount=newProduct.amount;
+              product.createAt=newProduct.createAt;
+              product.loteId="";
+              product.presentationId=newProduct.presentationId;
+              product.productId=newProduct.productId;
+              product.quantity=newProduct.quantity,
+              product.saleId=sale.saleId;
+              product.subSaleIdIdentifier=newProduct.appSubSaleId;
+              product.type="MODIFIED";
+              product.devolutionRequestId=devolution.devolutionId;
+              await this.devolutionOldSubSalesRepository.saveDevolutionOldSubSales(product);
+            }
+          }
+      }
+    }
+    // contador de devoluciones y envio de notificaciones a administrador
       let date = new Date();
       date.setHours(date.getHours()-5);
       let month = (date.getMonth()+1).toString();
@@ -1966,13 +1979,79 @@ export class SalesRequestService{
         }else if(devolution.status=="PENDING"){
           salesSicronized.devolutionsPending.push(devolution.folio);
         }
-      }
+      } 
+      
       if(salesCanceled.length || devolutionsCreated.length){
           await this.firebaseHelper.notificateToAdminSales();
       }
-
+      
       return salesSicronized;
     }
+
+
+    
+    async createSimpleSale2(sale:MOSRM,seller:User,cancelRequest:string[]){
+      
+      //let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}"`) as any[];
+      let dateSincronized= new Date();
+      dateSincronized.setHours(dateSincronized.getHours()-6);
+      let dateFromSale = new Date(sale.date);
+      dateFromSale.setHours(dateFromSale.getHours()-1);
+      let hours = (sale.date.split("T")[1]).split(":");
+      let hourStr = hours[0]+":"+hours[1];
+      let saleEntity= new Sale();
+      saleEntity.date= dateFromSale.toISOString();
+      saleEntity.hour=hourStr;
+      saleEntity.amount=+sale.amount.toFixed(2);
+      saleEntity.payedWith=+sale.payedWith.toFixed(2);
+      saleEntity.credit=sale.credit?+sale.credit.toFixed(2):null;
+      saleEntity.typeSale=sale.typeSale;
+      saleEntity.status=sale.status;
+      saleEntity.folio=sale.folio;
+      saleEntity.withDebts=false;
+      saleEntity.statusStr=sale.statusStr;
+      saleEntity.seller=seller;
+      let client= await this.clientRepository.getClientById(+sale.clientId);
+      saleEntity.client=client;
+      saleEntity.newFolio=sale.folio;
+      saleEntity.sincronized=false;
+      saleEntity.folioTemp=sale.folio;
+      saleEntity.dateSincronized=dateSincronized.toISOString();
+      saleEntity.cancelRequest=cancelRequest.includes(sale.folio);
+      saleEntity.subSales=[];
+      for(let sub of sale.products){
+        let subSale:SubSales = new SubSales();
+        subSale.quantity=sub.quantity;
+        subSale.loteId="desconocido";
+        subSale.amount=sub.amount;
+        let product = await this.productRoviandaRepository.getById(sub.productId);
+        subSale.product=product;
+        let presentation = await this.presentationProductsRepository.getPresentationProductsById(sub.presentationId);
+        subSale.presentation=presentation;   
+        subSale.createAt = sale.date;
+        subSale.appSubSaleId=sub.appSubSaleId?sub.appSubSaleId:null;
+        saleEntity.subSales.push(subSale);
+      }
+      saleEntity = await this.saleRepository.saveSale(saleEntity);
+      return saleEntity.saleId;
+      /*    await this.saleRepository.query(`
+          insert into sales(date,hour,amount,payed_with,credit,type_sale,status,folio,with_debts,status_str,seller_id,client_id,new_folio,sincronized,folio_temp,date_sincronized,cancel_request)
+          value("${sale.date}","${hourStr}",${sale.amount.toFixed(2)},${sale.payedWith.toFixed(2)},${sale.credit?sale.credit.toFixed(2):null},
+          "${sale.typeSale}",${sale.status},"${sale.folio}",0,"${sale.statusStr}","${sellerId}",${sale.clientId},"${sale.folio}",0,"${sale.folio}","${dateSincronized.toISOString()}",${cancelRequest.includes(sale.folio)?'1':'0'});
+          `);
+          let saleFinded:any[] =await this.saleRepository.query(`select * from sales where folio="${sale.folio}" order by sale_id desc limit 1`) as any[];
+          let saleId=saleFinded[0].sale_id;
+          
+          for(let sub of sale.products){
+              await this.saleRepository.query(`
+
+                  insert into sub_sales(quantity,lote_id,amount,sale_id,product_id,presentation_id,create_at,app_sub_sale_id)
+                  values(${sub.quantity},"desconocido",${sub.amount},${saleId},${sub.productId},${sub.presentationId},"${sale.date}",${sub.appSubSaleId?sub.appSubSaleId:null});
+
+              `);
+          }*/
+      
+  }
 
     async getRequestDevolutionDetails(saleId:number){
       let sale = await this.saleRepository.getSaleById(saleId);
@@ -2024,9 +2103,65 @@ export class SalesRequestService{
       return response;
     }
 
-  }
 
-  
+      async createCancelRequest(cancelation:MOSRM,sellerId:string){
+        let saleEntity:Sale = await this.saleRepository.getByFolio(cancelation.folio);
+        let seller:User = await this.userRepository.getUserById(sellerId);
+        let currentStatus ="ACTIVE";
+        
+        if(!saleEntity){
+          //creating new sale
+          if(cancelation.statusStr=="CANCELED"){
+            cancelation.statusStr="ACTIVE";    
+          }
+          
+          await this.createSimpleSale2(cancelation,seller,[cancelation.folio]);
+        }else{
+          saleEntity.cancelRequest=true;
+          await this.saleRepository.saveSale(saleEntity);
+        }
+          let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(cancelation.folio);
+          if(!saleCancelRequest || (saleCancelRequest && saleCancelRequest.status!="PENDING")){
+            let saleCancel = new SaleCancel();
+            let createAtDate=new Date();
+            createAtDate.setHours(createAtDate.getHours()-5);
+            saleCancel.createAt=createAtDate.toISOString();
+            saleCancel.folio=cancelation.folio;
+            saleCancel.seller = seller.id;
+            await this.saleCancelRepository.saveCancelSale(saleCancel);
+          }  
+        
+        return {folio:cancelation.folio,currentStatus};
+      }
+      async checkCancelationRequest(folio:string){
+        
+        let sale:Sale = await this.saleRepository.getByFolio(folio);
+        if(!sale) throw new Error("[404], venta no encontrada en sistema");
+        let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(folio);
+        return {folio:sale.folio,currentStatus:sale.statusStr,requestStatus:saleCancelRequest.status};
+      }
+      async registerEndDay(sellerId:string,endDay:string){
+          let endDayEntity:EndDay = await this.endDayRepository.getEndDayByDayAndSellerId(endDay,sellerId);
+          if(!endDayEntity){
+            let endDayToSave = new EndDay();
+            endDayToSave.date=endDay;
+            endDayToSave.sellerId=sellerId;
+            let date = new Date();
+            date.setHours(date.getHours()-5);
+            endDayToSave.dateSincronized=date.toISOString();
+            let saved = await this.endDayRepository.saveEndDay(endDayToSave);
+            return saved.date;
+          }else{
+            return endDay;
+          }
+      }
+      async salePayment(saleId:number){
+        let sale = await this.saleRepository.getSaleById(saleId);
+        if(!sale) throw new Error("[404], no existe la venta");
+        sale.status=false;
+        await this.saleRepository.saveSale(sale);        
+      }
+  }
 
 
 

@@ -57,6 +57,21 @@ export class DebtsRepository{
         return await this.debtsRepository.findOne({sale});
     }
 
+    async getStatusOfFolios(oldDebs:string[]){
+        await this.getConnection();
+        if(oldDebs.length){
+            let subQuery ="(";
+            for(let folio of oldDebs){
+                subQuery+=` "${folio}",`;
+            }
+            subQuery+=";"
+            subQuery=subQuery.replace(",;",");");
+            return await this.debtsRepository.query(`select folio from sales where status=0 and folio in `+subQuery) as {folio:string}[];
+        }else{
+            return [];
+        }
+    }
+
     async getAllDebtsPaymentCreatedInDate(date:string){
         await this.getConnection();
         return await this.debtsRepository.query(`

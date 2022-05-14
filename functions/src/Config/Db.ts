@@ -63,14 +63,15 @@ import { DevolutionSellerRequest } from "../Models/Entity/DevolutionSellerReques
 import { DevolutionOldSubSales } from "../Models/Entity/DevolutionOldSubSales";
 import { SubProductToOven } from "../Models/Entity/SubProduct";
 import { CodeAccess } from "../Models/Entity/CodesAccess";
+import { EndDay } from "../Models/Entity/EndDay";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host: "187.148.20.235",//"rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
     username: "master_rovianda",//"admin",//
-    password: "Sistemas2020",//"Holamundo1250",//
+    password: "Sistemas2022",//"Sistemas2022",//
     database: "bd_rovianda",//"rovianda-dev",//
     connectTimeout:60000,
     charset:"utf8",
@@ -133,7 +134,8 @@ const config: ConnectionOptions = {
         DevolutionSellerRequest,
         DevolutionOldSubSales,
         SubProductToOven,
-        CodeAccess
+        CodeAccess,
+        EndDay
     ]
 }
 let connection: Connection;

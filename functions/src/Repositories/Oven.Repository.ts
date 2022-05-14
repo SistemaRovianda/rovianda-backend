@@ -56,6 +56,11 @@ export class OvenRepository{
         console.log("consulta")
         return await this.ovenRepository.findOne({newLote:id});
     }
+    async getOvenProductByIdsAndProduct(loteId:string,product:ProductRovianda){
+        await this.getConnection();
+        console.log("consulta")
+        return await this.ovenRepository.findOne({newLote:loteId,product});
+    }
 
     async getOvenProductByProductId(product_id:number){
         await this.getConnection();

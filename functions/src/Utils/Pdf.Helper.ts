@@ -2595,7 +2595,9 @@ export default class PdfHelper{
                   width: 194px;
                margin-left: 898px;
            }
-              
+              th{
+                  font-size: 12px;
+              }
               img{
                   width: 70px;
                   height:80px;
@@ -2623,7 +2625,7 @@ export default class PdfHelper{
                 <th>
                     <img src="${LOGO.data}" alt=""> 
                 </th>
-                <th colspan="5">Entrega a vendedor: ${orderSeller.seller.name}</th>
+                <th colspan="6">Entrega a vendedor: ${orderSeller.seller.name}</th>
                 
             </tr>
         
@@ -2631,6 +2633,7 @@ export default class PdfHelper{
                     <th>ARTICULO</th>
                     <th>DESCRIPCION</th>
                     <th>PRESENTACION</th>
+                    <th>LOTE</th>
                     <th>CANTIDAD</th>
                     <th>PESO</th>
                     <th>PRECIO</th>
@@ -2645,6 +2648,7 @@ export default class PdfHelper{
                 <td>${subOrder.presentation.keySae}</td>
                 <td>${subOrder.productRovianda.name}</td>
                 <td>${subOrder.presentation.presentation} ${subOrder.presentation.presentationType}</td>
+                <td>${subOrder.subOrderMetadata.length?subOrder.subOrderMetadata.map(x=>x.loteId).join(","): ""}</td>
                 <td>${subOrder.subOrderMetadata.map(x=>x.quantity).reduce((a,b)=>(a+b),0)}</td>
                 <td>${subOrder.subOrderMetadata.map(x=>x.weigth).reduce((a,b)=>(a+b),0)}</td>
                 <td>${subOrder.presentation.presentationPricePublic}</td>

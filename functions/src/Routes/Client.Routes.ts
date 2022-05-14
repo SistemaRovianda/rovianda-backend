@@ -33,6 +33,12 @@ export const clientRoutes: Array<routeInterface> = [
         target: "endVisitToClient"
     },
     {
+        url: "/rovianda/customer/reassign",
+        method: "put",
+        controller: ClientController,
+        target: "customerReassign"
+    },
+    {
         url: "/rovianda/customer/customer-count",
         method: "get",
         controller: ClientController,

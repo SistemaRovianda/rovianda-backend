@@ -361,7 +361,6 @@ export class AdminSalesService{
         let products:OfflineNewVersionProducts[] = await this.productRepository.getProductsOfflineNewVersion(sellerId);
         let salesToDebts:SaleInterfaceRequest[]=[];
         let currentSalesList:SaleInterfaceRequest[]=[];
-        
         let devolutionsRequestIds = await this.devolutionRequestRepository.getAllDevolutionsOfSellerAndDate(sellerId,date);
         let devolutionsRequest= await this.devolutionRequestRepository.getEntitiesToDataInitial(devolutionsRequestIds.map(x=>x.id));
         let devolutionsSubSales = await this.devolutionSubSaleRepository.getAllDevolutionsSubSalesBySellerAndDate(devolutionsRequest.map(x=>x.devolutionAppRequestId));
@@ -511,10 +510,10 @@ export class AdminSalesService{
                 sale.statusStr="CANCELED";
                 let saleCancelRequest = await this.saleCancelRepository.findCancelRequestByFolio(sale.folio);
                 if(saleCancelRequest){
-                   
-                        saleCancelRequest.status="ACCEPTED";
-                        await this.saleCancelRepository.saveCancelSale(saleCancelRequest);
+                    saleCancelRequest.status="ACCEPTED";
+                    await this.saleCancelRepository.saveCancelSale(saleCancelRequest);
                 }
+                
             }
             await this.salesRepository.saveSale(sale);
         }

@@ -79,7 +79,7 @@ export class EntranceMeatRepository{
         select em.id as entranceId,em.created_at as date,em.proveedor as provider,em.raw_material as productName,em.lote_interno as lotIntern,em.lote_proveedor as lotProvider,fl.url as evidence,us.name as qualityInspector,
         em.job as area,em.weight,em.temperature,em.strangeMaterial,em.expiration,em.packing,em.odor,em.color,em.transport,em.texture,em.fridge,em.slaughter_date as slaughterDate
         from entrances_meat as em left join files as fl on em.photoFileId=fl.file_id left join users as us on em.qualityInspectorId = us.id
-        where em.lote_interno like "%${lot}%" and em.raw_material="${productName}" and created_at between "${dateStart}" and "${dateEnd}";
+        where em.lote_interno like "%${lot}%" and em.raw_material="${productName}" and em.created_at between "${dateStart}" and "${dateEnd}";
         `) as any[];
     }
 

@@ -123,6 +123,13 @@ export class SalesSellerRepository{
         `);
     }
 
+    async findOrderSellerByIdAndDate(orderSellerId:number,date:string){
+        await this.getConnection();
+        let date1 = date+"T00:00:00.000Z";
+        let date2 = date+"T23:59:59.000Z";
+        return await this.salesSellerRepository.findOne({where:{id:orderSellerId,date:Between(date1,date2)}});
+    }
+
     async getAllOrdersSellersByDate(date:string){
         await this.getConnection();
         return await this.salesSellerRepository.query(`
@@ -163,7 +170,7 @@ export class SalesSellerRepository{
         await this.getConnection();
         return await this.salesSellerRepository.query(`
         select sub.product_id as productId,sub.presentation_id as presentationId,pp.esq_key as esqImp,round((if(pp.uni_med='PZ',sm.quantity*pp.price_presentation_public,(sm.quantity*pp.price_presentation_min)*pp.price_presentation_public)),2) as amount,
-        sm.quantity,
+        round(if(pp.uni_med="PZ",sm.quantity,sm.weigth),2) as quantity,
         pp.price_presentation_liquidation as quantityByAbarrotes,pp.key_sae as presentationCode, pp.type_product as typeProduct,pp.key_altern as presentationCodeAltern,pp.uni_med as uniMed
         from suborders as sub
         left join suborder_metadata as sm on sub.suborder_id = sm.sub_order_id

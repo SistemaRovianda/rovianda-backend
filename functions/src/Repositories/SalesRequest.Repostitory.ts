@@ -36,6 +36,7 @@ export class SalesRequestRepository{
         },{relations:["orderSeller"]});
     }
 
+   
     async getTotalSubOrdersUnitsRequested(presentationId:number,date:string){
         await this.getConnection();
         return await this.salesRequestRepository.query(`

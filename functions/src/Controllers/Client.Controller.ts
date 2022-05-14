@@ -62,4 +62,13 @@ export class ClientController{
         let clientDetails = await this.clientService.searchClientInSae(code);
         return res.status(200).send(clientDetails);
    }
+   async customerReassign(req:Request,res:Response){
+        
+        if(!req.body.sellerUid) throw new Error("[400],param sellerUid is required");
+        if(!req.body.clientId) throw new Error("[400], param clientId is required");
+        let sellerUid:string = req.body.sellerUid;
+        let clientId:number = req.body.clientId;
+        await this.clientService.customerReassign(clientId,sellerUid);
+        res.status(204).send();
+   }
 }

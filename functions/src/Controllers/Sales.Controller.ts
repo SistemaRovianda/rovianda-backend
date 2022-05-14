@@ -293,7 +293,7 @@ export class SalesRequestController{
 
     async updateDetailsOfOrderSeller(req:Request,res:Response){
         let orderId:number = +req.params.orderId;
-        await this.salesRequestService.deleteOrderDetails(req.body,orderId);
+        await this.salesRequestService.updateOrder(req.body,orderId);
         return res.status(204).send();
     }
 
@@ -370,5 +370,30 @@ export class SalesRequestController{
         let date:string = req.query.date as string;
         await this.salesRequestService.transferAllOrdersSellers(date);
         res.status(204).send();
+    }
+    async createRequestCancelation(req:Request,res:Response){
+        let sellerId:string = req.query.sellerId;
+        let response=await this.salesRequestService.createCancelRequest(req.body,sellerId);
+        return res.status(200).send(response);
+    }
+    async checkCancelRequestByFolio(req:Request,res:Response){
+        
+        let folio:string = req.query.folio;
+        let response = await this.salesRequestService.checkCancelationRequest(folio);
+        return res.status(200).send(response);
+    }
+    async ping(req:Request,res:Response){
+        return res.status(200).send({msg:"pong"});
+    }
+    async saveEndDayRecord(req:Request,res:Response){
+        let sellerId:string = req.query.sellerId;
+        let endDay:string = req.body.endDay;
+        await this.salesRequestService.registerEndDay(sellerId,endDay);
+        return res.status(200).send();
+    }
+    async salePayment(req:Request,res:Response){
+        let saleId:number = +req.query.saleId;
+        await this.salesRequestService.salePayment(saleId);
+        return res.status(204).send();
     }
 } 

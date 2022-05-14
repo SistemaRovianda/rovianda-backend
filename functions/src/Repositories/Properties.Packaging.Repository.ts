@@ -66,6 +66,13 @@ export class PropertiesPackagingRepository{
             where:{ packaging,active:true}
         });
     }
+    async findPropiertiesPackagingId(packagingId: number){
+        await this.getConnection();
+        return await this.propertiesPackaginRepository.find({
+            relations:["presentation"],
+            where:{ packaging:{id:packagingId},active:true}
+        });
+    }
 
     async getPropertiesPackagingByPackagingAndPresentationAndCount(packaging:Packaging,presentation:PresentationProducts){
         await this.getConnection();

@@ -326,5 +326,36 @@ export const salesRoutes:Array<routeInterface>=[
         method: "get",
         controller: SalesRequestController,
         target: "transferRemissions"
+    },
+    {
+        url: "/rovianda/request-cancelations",
+        method: "post",
+        controller: SalesRequestController,
+        target: "createRequestCancelation"
+    },
+    {
+        url: "/rovianda/check-cancelations",
+        method: "get",
+        controller: SalesRequestController,
+        target: "checkCancelRequestByFolio"
+    },
+    {
+        url: "/rovianda/ping",
+        method: "get",
+        controller: SalesRequestController,
+        target:"ping"
+    },
+    {
+        url: "/rovianda/endday/record",
+        method: "post",
+        controller: SalesRequestController,
+        target: "saveEndDayRecord"
+    },
+    {
+        url: "/rovianda/salepayment",
+        method: "patch",
+        controller: SalesRequestController,
+        target: "salePayment"
     }
+    
 ];

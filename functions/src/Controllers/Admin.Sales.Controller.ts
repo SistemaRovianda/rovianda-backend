@@ -283,6 +283,7 @@ export class AdminSalesController{
 
     async setUserToken(req:Request,res:Response){
         let uid = req.params.uid as string;
+        console.log("BODY:"+JSON.stringify(req.body));
         await this.adminSalesService.setTokenToUser(uid,req.body.token);
         return res.status(204).send();
     }

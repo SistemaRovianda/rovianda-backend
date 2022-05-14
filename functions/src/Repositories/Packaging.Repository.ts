@@ -137,7 +137,11 @@ export class PackagingRepository{
 
     async getPackagingsByProduct(product:ProductRovianda){
         await this.getConnection();
-        return await this.packagingRepository.find({where:{productId:product,active:true}});
+        return await this.packagingRepository.query(`
+            select pack.id,pack.register_date,pack.lot_id as lotId,pack.expiration,pack.active,pack.product_id,pack.userIdId from packaging as pack
+            left join oven_products as op on pack.oven_product_id=op.id
+            where pack.product_id=${product.id} and pack.active=1 order by op.date asc
+        `); //.find({where:{productId:product,active:true}});
     };
 
     async getExistenceOfProductPresentationId(presentationId:number){
