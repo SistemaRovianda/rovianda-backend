@@ -172,7 +172,7 @@ export class PackagingController{
         
             pdf.create(content, {
                 format: 'Legal',
-                orientation:`landscape`,
+                orientation:`portrait`,
                 header: {
                     height: ".5cm"
                 },

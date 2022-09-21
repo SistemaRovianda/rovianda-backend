@@ -66,5 +66,11 @@ export const clientRoutes: Array<routeInterface> = [
         method: "get",
         controller: ClientController,
         target: "searchClientByCodeSae"
+    },
+    {
+        url: "/rovianda/customers-report/sellers",
+        method: "get",
+        controller: ClientController,
+        target: "getCustomerReportBySeller"
     }
 ]

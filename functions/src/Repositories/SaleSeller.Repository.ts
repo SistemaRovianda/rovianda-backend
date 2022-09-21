@@ -184,7 +184,7 @@ export class SalesSellerRepository{
         await this.getConnection();
         return await this.salesSellerRepository.query(
             `
-            SELECT folio_remission as folioRemission FROM bd_rovianda.orders_sellers where folio_remission is not null and sincronized=1 order by folio_remission desc limit 1;
+            SELECT folio_remission as folioRemission FROM bd_rovianda.orders_sellers where folio_remission is not null  order by folio_remission desc limit 1;
             `
         ) as { folioRemission:number}[];
     }

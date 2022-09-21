@@ -1,7 +1,7 @@
 import {config,ConnectionPool} from "mssql";
 
 const configoptions:config ={
-    server: "187.148.20.235",//"rovisapi.dyndns.tv",//
+    server: "rovianda.ddns.net",//"rovisapi.dyndns.tv",//
     database: "SAE80Empre06",//"SAE76",//
     password: "R1o2v3i4S5a6p7i8_2018",//"Holamundo1250",//
     user: "1234",//"sa",//
@@ -17,7 +17,7 @@ const configoptions:config ={
     }
 };
 const configoptions2:config ={
-    server: "187.148.20.235",//"rovisapi.dyndns.tv",//
+    server: "rovianda.ddns.net",//"rovisapi.dyndns.tv",//
     database: "SAE80Empre07",//"SAE76",//
     password: "R1o2v3i4S5a6p7i8_2018",//"Holamundo1250",//
     user: "1234",//"sa",//

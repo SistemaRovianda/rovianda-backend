@@ -84,6 +84,7 @@ export interface SaleOrderDTO {
  }
 
  export interface SubOrderMetadataOutputs{
+      presentationId:number,
       lotId?:string,
       quantity:number,
       weight:number,

@@ -148,7 +148,8 @@ export class ProductController{
         let perPage=req.query.perPage;
         let hint = req.query.hint;
         let type = req.query.type;
-        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage,hint,type);
+        let sellerId:string = req.query.sellerId as string;
+        let response:{count:number,items:Array<any>} =await this.productRoviandaService.getClientsSae(+page,+perPage,hint,type,sellerId);
         res.header('Access-Control-Expose-Headers', 'X-Total-Count')
         res.setHeader("X-Total-Count",response.count);
         return res.status(200).send(response.items);

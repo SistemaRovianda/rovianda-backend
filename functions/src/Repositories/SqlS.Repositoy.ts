@@ -1005,6 +1005,7 @@ export class SqlSRepository{
                 let imp1=0; // IVA
                 let imp2=0; // IEPS
                 let singleAmountByProduct = product.amount/product.quantity;
+                
                 switch(product.esqImp){
                     case 1:
                         imp1 = this.extractIva(singleAmountByProduct);

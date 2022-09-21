@@ -68,7 +68,7 @@ import { EndDay } from "../Models/Entity/EndDay";
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "187.148.20.235",//"rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host: "rovianda.ddns.net",//"rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
     port: 3306,
     username: "master_rovianda",//"admin",//
     password: "Sistemas2022",//"Sistemas2022",//

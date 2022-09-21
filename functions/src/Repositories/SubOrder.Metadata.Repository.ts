@@ -38,7 +38,7 @@ export class SubOrderMetadataRepository{
         let query="";
         if(type=="acumulated"){
             query =`
-            select sum(sm.quantity) as quantity ,sum(sm.weigth) as weight,os.seller_id as sellerUid,
+            select sum(sm.quantity) as quantity ,sum(sm.weigth) as weight,os.seller_id as sellerUid,ps.presentation_id as presentationId,
             ps.type_presentation as presentation,pr.name,ps.key_sae as keySae ,
             ps.price_presentation_public as price,truncate(sum(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,truncate(sm.weigth,2)*ps.price_presentation_public)),2) as total
             from suborder_metadata as sm
@@ -51,7 +51,7 @@ export class SubOrderMetadataRepository{
             `;
         }else{
             query =`
-            select sm.quantity as quantity ,truncate(sm.weigth,2) as weight,sm.lote_id as lotId,os.seller_id as sellerUid,
+            select sm.quantity as quantity ,truncate(sm.weigth,2) as weight,sm.lote_id as lotId,os.seller_id as sellerUid,ps.presentation_id as presentationId,
             ps.type_presentation as presentation,pr.name,ps.key_sae as keySae,sm.output_date as outputDate,
             ps.price_presentation_public as price,truncate(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,truncate(sm.weigth,2)*ps.price_presentation_public),2) as total
             from suborder_metadata as sm

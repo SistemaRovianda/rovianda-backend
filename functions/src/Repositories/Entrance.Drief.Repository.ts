@@ -323,7 +323,7 @@ export class EntranceDriefRepository{
         let items= await this.repository.query(`
             select wd.id,ed.date as createAt,wd.status,wd.lote_proveedor as lotProvider,wd.quantity,pc.description,
             ed.proveedor as provider,us.name as receiver
-            from warehouse_drief as wd left join entrances_drief as ed on wd.lote_proveedor=ed.lote_proveedor and
+            from warehouse_drief as wd left join entrances_drief as ed on wd.id=ed.warehouse_drief and
             ed.productId=wd.productId left join product_catalog as pc on wd.productId=pc.id
             left join users as us on wd.user_id=us.id
             ${(lot)?`where wd.lote_proveedor like "%${lot}%"`:""} 
@@ -332,7 +332,7 @@ export class EntranceDriefRepository{
         `) as InventoryTypeQuality[];
         let count = await this.repository.query(`
             select count(*) as count
-            from warehouse_drief as wd left join entrances_drief as ed on wd.lote_proveedor=ed.lote_proveedor and
+            from warehouse_drief as wd left join entrances_drief as ed on wd.id=ed.warehouse_drief and
             ed.productId=wd.productId left join product_catalog as pc on wd.productId=pc.id
             left join users as us on wd.user_id=us.id
             ${(lot)?`where wd.lote_proveedor like "%${lot}%"`:""} 

@@ -27,6 +27,7 @@ import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from "../Models/DTO/PackagingDTO";
 import { DeliverToWarehouse } from "../Services/Packaging.Service";
 import { ProductInfoFromPackDefrostTrazability, ProductInfoFromPackIngredientsTrazability, ProductInfoFromPackTrazability } from "../Models/DTO/Quality.DTO";
+import { ClientItemBySeller } from "../Models/DTO/Client.DTO";
 
 
 export default class Excel4Node{
@@ -2871,7 +2872,7 @@ export default class Excel4Node{
             worksheet.cell(row,1,row,1,true).string(`${product.CODE}`);
             worksheet.cell(row,2,row,2,true).string(`${product.NAME}`);
             worksheet.cell(row,3,row,3,true).string(`${product.UNITS}`);
-            worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT}`);
+            worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT.toFixed(2)}`);
             worksheet.cell(row,5,row,5,true).string(`${product.PRICE}`);
             worksheet.cell(row,6,row,6,true).string(`${product.TOTAL}`);
             total+=product.TOTAL;
@@ -3021,4 +3022,70 @@ export default class Excel4Node{
         let dateSplited = date.split("-");
         return `${dateSplited[2]}/${dateSplited[1]}/${dateSplited[0]}`;
       }
+
+
+    getCustomerReportBySeller(seller:User,customers:ClientItemBySeller[]){
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('Hoja 1');
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,11,true).string("Reporte de clientes de vendedor").style(style);
+        
+
+        worksheet.cell(2,1,2,11,true).string(`Vendedor: ${seller.name}`).style(style);;
+
+        worksheet.cell(3,1,3,1,true).string('Tipo');
+        worksheet.cell(3,2,3,2,true).string('Clave sistema');
+        worksheet.cell(3,3,3,3,true).string('Clave SAE');
+        worksheet.cell(3,4,3,4,true).string('Nombre');
+        worksheet.cell(3,5,3,5,true).string('RFC');
+        worksheet.cell(3,6,3,6,true).string('Calle');
+        worksheet.cell(3,7,3,7,true).string('Número exterior');
+        worksheet.cell(3,8,3,8,true).string('Colonia');
+        worksheet.cell(3,9,3,9,true).string('Ciudad');
+        worksheet.cell(3,10,3,10,true).string('Estado');
+        worksheet.cell(3,11,3,11,true).string('Código postal');
+        let row=4;
+        let currentPage = 1;
+        for(let customer of customers){
+            if(row>500){
+                worksheet = workbook.addWorksheet(`HOJA ${currentPage+1}`);
+                currentPage++;
+                worksheet.cell(1,1,1,11,true).string("Reporte de clientes de vendedor").style(style);
+                worksheet.cell(2,1,2,11,true).string(`Vendedor: ${seller.name}`).style(style);;
+                worksheet.cell(3,1,3,1,true).string('Tipo');
+                worksheet.cell(3,2,3,2,true).string('Clave sistema');
+                worksheet.cell(3,3,3,3,true).string('Clave SAE');
+                worksheet.cell(3,4,3,4,true).string('Nombre');
+                worksheet.cell(3,5,3,5,true).string('RFC');
+                worksheet.cell(3,6,3,6,true).string('Calle');
+                worksheet.cell(3,7,3,7,true).string('Número exterior');
+                worksheet.cell(3,8,3,8,true).string('Colonia');
+                worksheet.cell(3,9,3,9,true).string('Ciudad');
+                worksheet.cell(3,10,3,10,true).string('Estado');
+                worksheet.cell(3,11,3,11,true).string('Código postal');
+                row=4;
+            }
+                
+                worksheet.cell(row,1,row,1,true).string(`${customer.TIPO}`);
+                worksheet.cell(row,2,row,2,true).string(`${customer.CLAVE_SISTEMA}`);
+                worksheet.cell(row,3,row,3,true).string(`${customer.CLAVE_SAE}`);
+                worksheet.cell(row,4,row,4,true).string(`${customer.NOMBRE}`);
+                worksheet.cell(row,5,row,5,true).string(`${customer.RFC}`);
+                worksheet.cell(row,6,row,6,true).string(`${customer.CALLE}`);
+                worksheet.cell(row,7,row,7,true).string(`${customer.NUMERO_EXTERIOR}`);
+                worksheet.cell(row,8,row,8,true).string(`${customer.COLONIA}`);
+                worksheet.cell(row,9,row,9,true).string(`${customer.CIUDAD}`);
+                worksheet.cell(row,10,row,10,true).string(`${customer.ESTADO}`);
+                worksheet.cell(row,11,row,11,true).string(`${customer.CODIGO_POSTAL}`);
+
+            row++;
+        }
+        return workbook;           
+    }
 }

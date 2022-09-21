@@ -641,8 +641,7 @@ export class PackagingService{
         }
         orderSeller.sincronized=true;
         await this.orderSellerRepository.saveSalesSeller(orderSeller);
-      
-      
+    
     }
 
     async getReportOfDeliveredSeller(orderSellerId:number,mode:string){
@@ -671,6 +670,7 @@ export class PackagingService{
             
                 deliveredToWarehouse.push(
                     {
+                        PRESENTATIONID: subOrder.presentationId,
                         CODE: subOrder.keySae,
                         NAME: subOrder.name+" "+subOrder.presentation,
                         LOT: subOrder.lotId?subOrder.lotId:null,
@@ -868,6 +868,7 @@ export class PackagingService{
 }
 
 export interface DeliverToWarehouse{
+    PRESENTATIONID:number,
     CODE:string,
     NAME:string,
     LOT?:string,

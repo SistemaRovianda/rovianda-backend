@@ -92,17 +92,17 @@ export class EntrancePackingRepository{
         from warehouse_packing as wp left join entrances_packing as ep on wp.lote_proveedor=ep.lote_proveedor 
         and wp.productId =ep.productId left join users as us on wp.user_id=us.id 
         left join product_catalog as pc on wp.productId=pc.id 
-        ${(lot)?`where wp.lote_proveedor like "%${lot}%"`:""} 
-        ${(dateStart && dateEnd)?((lot)?` and ep.date between "${dateStart}" and "${dateEnd}"`:` where ep.date between "${dateStart}" and "${dateEnd}"`):""}
+        ${(lot)?`where wp.lote_proveedor like "%${lot}%" and ep.date=wp.date`:""} 
+        ${(dateStart && dateEnd)?((lot)?` and ep.date=wp.date and ep.date between "${dateStart}" and "${dateEnd}"`:` where ep.date=wp.date and ep.date between "${dateStart}" and "${dateEnd}"`):""}
         limit ${perPage} offset ${offset};
         `) as InventoryTypeQuality[]; 
         let count = await this.repository.query(`
             select count(*) as count
             from warehouse_packing as wp left join entrances_packing as ep on wp.lote_proveedor=ep.lote_proveedor 
             and wp.productId =ep.productId left join users as us on wp.user_id=us.id 
-            left join product_catalog as pc on wp.productId=pc.id 
-            ${(lot)?`where wp.lote_proveedor like "%${lot}%"`:""} 
-            ${(dateStart && dateEnd)?((lot)?` and ep.date between "${dateStart}" and "${dateEnd}"`:` where ep.date between "${dateStart}" and "${dateEnd}"`):""}
+            left join product_catalog as pc on wp.productId=pc.id and ep.date=wp.date
+            ${(lot)?`where wp.lote_proveedor like "%${lot}%" and ep.date=wp.date`:""} 
+        ${(dateStart && dateEnd)?((lot)?` and ep.date=wp.date and ep.date between "${dateStart}" and "${dateEnd}"`:` where ep.date=wp.date and ep.date between "${dateStart}" and "${dateEnd}"`):""}
         `) as {count:number}[];   
         return {
             items,

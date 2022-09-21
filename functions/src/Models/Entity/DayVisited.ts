@@ -7,25 +7,25 @@ export class DayVisited{
     @PrimaryGeneratedColumn({name:"days_visited_id"})
     daysVisitedId:number;
 
-    @Column({name:"monday"})
+    @Column({name:"monday",default:false})
     monday:boolean;
 
-    @Column({name:"tuesday"})
+    @Column({name:"tuesday",default:false})
     tuesday:boolean;
 
-    @Column({name:"wednesday"})
+    @Column({name:"wednesday",default:false})
     wednesday:boolean;
 
-    @Column({name:"thursday"})
+    @Column({name:"thursday",default:false})
     thursday:boolean;
 
-    @Column({name:"friday"})
+    @Column({name:"friday",default:false})
     friday:boolean;
 
-    @Column({name:"saturday"})
+    @Column({name:"saturday",default:false})
     saturday:boolean;
 
-    @Column({name:"sunday"})
+    @Column({name:"sunday",default:false})
     sunday:boolean;
 
     @OneToOne(type=>Client)

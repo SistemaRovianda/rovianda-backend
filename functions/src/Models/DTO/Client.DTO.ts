@@ -233,3 +233,17 @@ export interface ClientEditRequest{
     }
 }
 
+export interface ClientItemBySeller{
+    TIPO:string,
+    CLAVE_SISTEMA:string,
+    CLAVE_SAE:string,
+    NOMBRE: string,
+    RFC: string,
+    VENDEDOR:string,
+    CALLE: string,
+    NUMERO_EXTERIOR:string,
+    COLONIA:string,
+    CIUDAD:string,
+    ESTADO:string,
+    CODIGO_POSTAL:string
+}

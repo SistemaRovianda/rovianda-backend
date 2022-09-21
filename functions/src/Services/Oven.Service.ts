@@ -197,26 +197,30 @@ export class OvenService{
         if(isNaN(+ovenDTO.productId)) throw new Error("[400],El productId debe ser un numero");
         
         let process:Process = await this.processRepository.getProcessById(+ovenDTO.newLote);
-        
-        
         if(!process) throw new Error("[404],no existe el proceso");
-        
-        
         let product:ProductRovianda = await this.productRoviandaRepository.getProductRoviandaById(+ovenDTO.productId);
+        
         if(!product) throw new Error("[400], product not found");
-        if(process.product.id!=+ovenDTO.productId){
-            // subProduct active
+
+        if(process.status=="INACTIVE"){ // recien cerrado de proceso
+            if(process.product.id==+ovenDTO.productId){ // se evalua si es el producto de proceso principal o un subproducto
+                process.status = "COOKING";
+                await this.processRepository.createProcess(process);
+            }else{
+            let subProductToOven=await this.subProductRepository.getSubProductToOvenByProductIdAndProcessId(product,process);
+                if(subProductToOven){
+                    subProductToOven.status="INACTIVE";
+                    await this.subProductRepository.createSubProductToOven(subProductToOven);
+                }
+            }
+        }else if(process.status=="COOKING"){
             let subProductToOven=await this.subProductRepository.getSubProductToOvenByProductIdAndProcessId(product,process);
             if(subProductToOven){
                 subProductToOven.status="INACTIVE";
                 await this.subProductRepository.createSubProductToOven(subProductToOven);
             }
-        }else{
-            if(process.status == "INACTIVE") {
-                process.status = "COOKING";
-                await this.processRepository.createProcess(process);
-            }
         }
+
         let dateParsed=new Date(ovenDTO.assignmentLot.dateEntry);
         let day = dateParsed.getDate().toString();
         let month = (dateParsed.getMonth()+1).toString();

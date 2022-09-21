@@ -97,7 +97,7 @@ export class UserRepository{
 
     async getAllSellersWithCVEAndOperating(){
         await this.getConnection();
-        return await this.userRepository.query(`select * from users where rol_id=10 and cve is not null and cve <>"" and cve<>"10V" and cve<>"8V";`) as any[];
+        return await this.userRepository.query(`select * from users where rol_id=10 and cve is not null and cve <>"" and cve<>"10V"`) as any[];
     }
 
     async getAcumulatedBySellerProductNormal(sellerId:string,from:string,to:string,type:string){

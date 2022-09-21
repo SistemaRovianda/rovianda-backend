@@ -429,13 +429,13 @@ export class ProductRoviandaService{
     async deleteProductLines(cve:string){
         return await this.sqlsRepository.deleteLinesOfProductsSae(cve);
     }
-    async getClientsSae(page:number,perPage:number,hint:string,type:string){
+    async getClientsSae(page:number,perPage:number,hint:string,type:string,sellerId:string){
         if(type=="NAME"){
-            return await this.clientRepository.getAllClients(page,perPage,hint);
+            return await this.clientRepository.getAllClients(page,perPage,hint,sellerId);
         }else if(type=="CODE_SAE"){
-            return await this.clientRepository.getAllClientsByCodeSae(page,perPage,hint);
+            return await this.clientRepository.getAllClientsByCodeSae(page,perPage,hint,sellerId);
         }else if(type=="CODE_SYSTEM"){
-            return await this.clientRepository.getAllClientsByCodeSystem(page,perPage,hint);
+            return await this.clientRepository.getAllClientsByCodeSystem(page,perPage,hint,sellerId);
         }else{
             return {count:0,items:[]};
         }

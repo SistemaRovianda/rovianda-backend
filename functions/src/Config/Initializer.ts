@@ -80,7 +80,7 @@ export class Initializer {
         this.inspectionController = new InspectionController(this.firebaseInstance);
         this.salesRequestController = new SalesRequestController(this.firebaseInstance);
         this.rawController = new RawController(this.firebaseInstance);
-        this.clientController = new ClientController(this.firebaseInstance);
+        this.clientController = new ClientController();
         this.maintenanceController = new MaintenanceController(this.firebaseInstance);
         this.reportController = new ReportController(this.firebaseInstance);
         this.warehouseSQLSController = new WarehouseController();

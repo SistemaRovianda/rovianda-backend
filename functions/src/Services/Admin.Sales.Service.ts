@@ -160,7 +160,20 @@ export class AdminSalesService{
     async getDaysVisitedByClient(clientId:number){
         let client:Client = await this.clientRepository.getClientById(clientId);
         if(!client) throw new Error("[404], no existe el cliente con el id: "+clientId);
-        return await this.dayVisitedRepository.getByClient(client);
+        let daysVisited= await this.dayVisitedRepository.getByClient(client);
+        if(!daysVisited){
+            daysVisited = new DayVisited();
+            daysVisited.client=client;
+            daysVisited.monday=false;
+            daysVisited.tuesday=false;
+            daysVisited.wednesday=false;
+            daysVisited.thursday=false;
+            daysVisited.friday=false;
+            daysVisited.saturday=false;
+            daysVisited.sunday=false;
+            daysVisited = await this.dayVisitedRepository.saveDayVisited(daysVisited);
+        }
+        return daysVisited;
     }
 
     async getLastClientId(){

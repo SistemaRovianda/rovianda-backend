@@ -24,6 +24,7 @@ import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from '../Models/
 import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Repository';
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
 import { DevolutionListItemInterface, PackagingDeliveredAcumulated, PackagingDeliveredIndividual } from '../Models/DTO/Packaging.DTO';
+import { ClientItemBySeller } from '../Models/DTO/Client.DTO';
 
 
 
@@ -41,7 +42,23 @@ export default class PdfHelper{
     }
 
     getReportInventory(items:LotsStockInventoryPresentation[],name:string){
-        let content= `<html><body>`;
+        let content= `<html><head><style>
+            *{
+                text-align: center;
+            }
+            th{
+            font-size: 12px; 
+            width: 20%;
+            }
+            td{
+                font-size:10px
+            }
+            table{
+                with: 80%;
+                margin-left: 10%;
+                margin-right: 10%;
+            }
+        </style></head><body>`;
         let datePrint = new Date();
         let month = (datePrint.getMonth()+1).toString();
         let day = datePrint.getDate().toString();
@@ -51,7 +68,25 @@ export default class PdfHelper{
         content+=`<h1 style="text-align:center">${name}</h1>`;
         content+=`<h1 style="text-align:center">Fecha de impresión: ${day}/${month}/${year}</h1>`;
         content+=`<table><tr><th>Producto</th><th>Presentación</th><th>Lote</th><th>Unidades</th><th>Peso</th></tr>`;
+        let presentationId=0;
+        let weightCount=0;
+        let unitsCount=0;
         for(let item of items){
+            
+            if(presentationId!=0 && presentationId!=item.presentation_id){
+                content+=`<tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${unitsCount.toFixed(2)}</td>
+                <td>${weightCount.toFixed(2)}</td>
+                </tr>`; 
+                weightCount=0;
+                unitsCount=0;   
+            }
+            presentationId=item.presentation_id; 
+            weightCount+=item.weight;
+            unitsCount+=+item.units;
             content+=`<tr>
             <td>${item.name}</td>
             <td>${item.type_presentation}</td>
@@ -60,6 +95,13 @@ export default class PdfHelper{
             <td>${item.weight}</td>
             </tr>`;
         }
+        content+=`<tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${unitsCount.toFixed(2)}</td>
+                <td>${weightCount.toFixed(2)}</td>
+                </tr><table>`;    
         content+=`</body></html>`;
         return content;
     }
@@ -3051,6 +3093,90 @@ export default class PdfHelper{
         if(+month<10) month="0"+month;
         if(+day<10) day="0"+day;
         return `${day}/${month}/${dateP.getFullYear()}`;
+    }
+
+    getCustomerReportBySeller(seller:User,customers:ClientItemBySeller[]){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">Reporte de clientes de vendedor </h1>
+        <div class="dates-container">  
+            <h3 class="date1">Vendedor: ${seller.name}</h3>
+        </div>
+        <table>
+        <tr>
+            <th>Tipo</th>
+            <th>Clave Sistema</th>
+            <th>Clave SAE</th>
+            <th>Nombre</th>
+            <th>Rfc</th>
+            <th>Calle</th>
+            <th>Número exterior</th>
+            <th>Colonia</th>
+            <th>Ciudad</th>
+            <th>Estado</th>
+            <th>Código postal</th>
+        <tr>
+        `;
+        for(let customer of customers){
+            report+=`
+                <tr>
+                    <td>${customer.TIPO}</td>
+                    <td>${customer.CLAVE_SISTEMA}</td>
+                    <td>${customer.CLAVE_SAE}</td>
+                    <td>${customer.NOMBRE}</td>
+                    <td>${customer.RFC}</td>
+                    <td>${customer.CALLE}</td>
+                    <td>${customer.NUMERO_EXTERIOR}</td>
+                    <td>${customer.COLONIA}</td>
+                    <td>${customer.CIUDAD}</td>
+                    <td>${customer.ESTADO}</td>
+                    <td>${customer.CODIGO_POSTAL}</td>
+                </tr>
+            `;
+        }
+        
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;        
     }
     
 }

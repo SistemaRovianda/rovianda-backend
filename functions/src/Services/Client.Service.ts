@@ -43,7 +43,7 @@ export class ClientService {
     
         let newAddress:Address = new Address();
         newAddress.street = clientDTO.clientStreet;
-        newAddress.extNumber = +clientDTO.clientExtNumber;
+        newAddress.extNumber = isNaN(+clientDTO.clientExtNumber)?0:+clientDTO.clientExtNumber;
         newAddress.intNumber = null;
         newAddress.intersectionOne = "";
         newAddress.intersectionTwo = "";
@@ -85,7 +85,7 @@ export class ClientService {
         daysVisited.saturday = clientDTO.saturday;
         daysVisited.sunday = clientDTO.sunday;
         daysVisited.client = clientSaved;
-        this.dayRepository.saveDayVisited(daysVisited);
+        await this.dayRepository.saveDayVisited(daysVisited);
           
     }
 
@@ -167,7 +167,7 @@ export class ClientService {
         daysVisited.saturday = clientDTO.daysVisited.saturday;
         daysVisited.sunday = clientDTO.daysVisited.sunday;
         daysVisited.client = clientSaved;
-        this.dayRepository.saveDayVisited(daysVisited);
+        await this.dayRepository.saveDayVisited(daysVisited);
         return keyClientNumber;
     }
 
@@ -337,5 +337,7 @@ export class ClientService {
         client.seller=seller;
         await this.clientRepository.saveClient(client);
     }
-
+    async getCustomerReportBySeller(sellerId:string,type:string,hint:string){
+        return await this.clientRepository.getCustomerReportBySeller(sellerId,type,hint);
+    }
 }

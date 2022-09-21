@@ -1,7 +1,7 @@
 import { In, Like, Repository } from "typeorm";
 import { Client } from "../Models/Entity/Client";
 import { connect } from "../Config/Db";
-import { ClientsBySeller } from "../Models/DTO/Client.DTO";
+import { ClientItemBySeller, ClientsBySeller } from "../Models/DTO/Client.DTO";
 import { response } from "express";
 import { User } from "../Models/Entity/User";
 import { OfflineNewVersionClient } from "../Models/DTO/Admin.Sales.Request";
@@ -75,73 +75,88 @@ export class ClientRepository{
         return await this.clientRepository.find({seller,hasDebts:true,status:"ACTIVE"});
     }
 
-    async getAllClients(page:number,perPage:number,hint:string){
+    async getAllClients(page:number,perPage:number,hint:string,sellerId:string){
         await this.getConnection();
         let skip = (page)*perPage;
-        let count=0;
+        let count:any[]=[{count:0}];
         let items=[];
         if(hint){
-            count=await this.clientRepository.count({where:{status:"ACTIVE",name:Like(`%${hint}%`)}});
+            count=await this.clientRepository.query(
+                `select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id 
+                where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'"  ':""} and cl.name like "%${hint}%" `
+                ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
-            where cl.status='ACTIVE' and cl.name like "%${hint}%" limit ${perPage}  offset ${skip}`
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} and cl.name like "%${hint}%" limit ${perPage}  offset ${skip}`
             );
         }else{
-            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            count=await this.clientRepository.query(
+                `select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id
+                 where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} `
+                ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
-             where cl.status='ACTIVE'  limit ${perPage}  offset ${skip}`
+             where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} limit ${perPage}  offset ${skip}`
             );
         }
         return {
-            count,
+            count: count[0].count,
             items: items as Array<any>
         }
     }
-    async getAllClientsByCodeSae(page:number,perPage:number,hint:string){
+    async getAllClientsByCodeSae(page:number,perPage:number,hint:string,sellerId:string){
         await this.getConnection();
         let skip = (page)*perPage;
-        let count=0;
+        let count:any[]=[{count:0}];
         let items=[];
         if(hint){
-            count=await this.clientRepository.count({where:{status:"ACTIVE",keySaeNew:Like("%"+hint+"%")}});
+            count=await this.clientRepository.query(`select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id 
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} and cl.key_sae_new like "%${hint}%"`
+            ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
-            where cl.status='ACTIVE' and cl.key_sae_new like "%${hint}%" limit ${perPage}  offset ${skip}`
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} and cl.key_sae_new like "%${hint}%" limit ${perPage}  offset ${skip}`
             );
         }else{
-            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            count=await this.clientRepository.query(
+                `select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id
+                 where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} `
+                ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
-             where cl.status='ACTIVE' limit ${perPage}  offset ${skip}`
+             where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} limit ${perPage}  offset ${skip}`
             );
         }
         return {
-            count,
+            count:count[0].count,
             items: items as Array<any>
         }
     }
 
-    async getAllClientsByCodeSystem(page:number,perPage:number,hint:string){
+    async getAllClientsByCodeSystem(page:number,perPage:number,hint:string,sellerId:string){
         await this.getConnection();
         let skip = (page)*perPage;
-        let count=0;
+        let count:any[]=[{count:0}];
         let items=[];
         if(hint){
-            count=await this.clientRepository.count({where:{status:"ACTIVE",keyClient:+hint}});
+            count=await this.clientRepository.query(`select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id 
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'"  ':""} and cl.key_client = ${hint} `
+            ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id 
-            where cl.status='ACTIVE' and cl.key_client = ${hint} limit ${perPage}  offset ${skip}`
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'"  ':""} and cl.key_client = ${hint} limit ${perPage}  offset ${skip}`
             );
         }else{
-            count=await this.clientRepository.count({where:{status:"ACTIVE"}});
+            count=await this.clientRepository.query(`select count(*) as count from clients as cl left join users as us on cl.seller_owner=us.id
+            where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} `
+           ) as {count:number}[];
             items= await this.clientRepository.query(
             `select cl.*,us.name as sellerName from clients as cl left join users as us on cl.seller_owner=us.id
-             where cl.status='ACTIVE' limit ${perPage}  offset ${skip}`
+             where cl.status='ACTIVE' ${sellerId!=null?' and cl.seller_owner="'+sellerId+'" ':""} limit ${perPage}  offset ${skip}`
             );
         }
         return {
-            count,
+            count:count[0].count,
             items: items as Array<any>
         }
     }
@@ -173,6 +188,40 @@ export class ClientRepository{
             where (cl.seller_owner="${sellerId}" and cl.status="ACTIVE") or (cl.clients_client_id=1175);
             `
             ) as OfflineNewVersionClient[];
+    }
+
+    async getCustomerReportBySeller(sellerId:string,type:string,hint:string){
+        await this.getConnection();
+        let subQuery =``;
+        if(sellerId!=null && sellerId!=""){
+            subQuery=` where cl.seller_owner="${sellerId}" `;
+        }
+        if(type!="" && type!=null){
+            if(subQuery!=""){
+                subQuery+=" and "
+            }else{
+                subQuery+=" where "
+            }
+            if(type=="NAME"){
+                subQuery+=` cl.name like "%${hint}%" `
+            }else if(type=="CODE_SAE"){
+                
+                subQuery+=` cl.key_sae_new like "%${hint}%" `
+            }else if(type=="CODE_SYSTEM"){
+                
+                subQuery+=` cl.key_client =${hint} `
+            }
+        }
+        console.log(subQuery);
+        return await this.clientRepository.query(
+            `
+            select cl.type_cliente as TIPO,cl.key_client as CLAVE_SISTEMA,cl.key_sae_new as CLAVE_SAE,cl.name as NOMBRE,cl.rfc as RFC,us.name as VENDEDOR,addr.street as CALLE,addr.ext_number as NUMERO_EXTERIOR,addr.suburb as COLONIA,addr.location as CIUDAD,addr.state as ESTADO,addr.cp as CODIGO_POSTAL
+            from clients as cl
+            left join users as us on cl.seller_owner=us.id
+            left join address as addr on cl.address_id=addr.address_id
+            ${subQuery}
+            `
+            ) as ClientItemBySeller[];
     }
 
 }

@@ -16,12 +16,14 @@ import {Command} from "commander";
         await saleService.transferAllSalesAutorized(options.date);
         console.log("Script se reiniciará dentro de 24 hrs a las 11am");
     }else{
-        schedule(' * 11 * * 1,2,3,4,5,6 ',async()=>{
+        schedule(' 1 11 * * 1,2,3,4,5,6 ',async()=>{
             let date= new Date();
             date.setHours(date.getHours()-5);
             console.log(date.toISOString());
+
             let saleService = new SalesRequestService(null);   
             await saleService.transferAllSalesAutorized();
+            
             console.log("Script se reiniciará dentro de 24 hrs a las 11am");
         });
     }

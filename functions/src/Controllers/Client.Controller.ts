@@ -1,11 +1,23 @@
 import { Request, Response } from "express";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { ClientService } from "../Services/Client.Service";
-
+import PdfHelper from '../Utils/Pdf.Helper';
+import * as pdf from 'html-pdf';
+import { ClientItemBySeller } from "../Models/DTO/Client.DTO";
+import { User } from "../Models/Entity/User";
+import { UserRepository } from "../Repositories/User.Repository";
+import { UserService } from "../Services/User.Service";
+import ExcelHelper from '../Utils/Excel.Helper';
 export class ClientController{
     private clientService: ClientService;
-    constructor(private firebaseInstance:FirebaseHelper){
+    private pdfHelper:PdfHelper;
+    private userService:UserService;
+    private excelHelper:ExcelHelper;
+    constructor(){
         this.clientService = new ClientService();
+        this.pdfHelper = new PdfHelper();
+        this.userService = new UserService(null);
+        this.excelHelper = new ExcelHelper();
     }
 
     async createCustomer(req: Request, res: Response){
@@ -70,5 +82,37 @@ export class ClientController{
         let clientId:number = req.body.clientId;
         await this.clientService.customerReassign(clientId,sellerUid);
         res.status(204).send();
+   }
+   async getCustomerReportBySeller(req:Request,res:Response){
+    let sellerId:string = req.query.sellerId as string;
+    let format:string = req.query.format as string;
+    let seller:User = await this.userService.getUserByUid(sellerId);
+    let type:string = req.query.type as string;
+    let hint:string = req.query.hint as string;
+    let customers:ClientItemBySeller[] = await this.clientService.getCustomerReportBySeller(sellerId,type,hint);
+    if(format=="PDF"){
+        let report = await this.pdfHelper.getCustomerReportBySeller(seller,customers);
+        pdf.create(report, {
+            format: 'Legal',
+            header: {
+                height: "30px"
+            },
+            footer: {
+                height: "22mm"
+        },
+        }).toStream((function (err, stream) {
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'responseType': 'blob',
+                'Content-disposition': `attachment; filename=reporteSecos.pdf`
+            });
+            stream.pipe(res);
+        }));
+    }else if(format=="EXCEL"){
+        let workbook:any = this.excelHelper.getCustomerReportBySeller(seller,customers);
+        workbook.write(`entrada.xlsx`,res);
+    }else{
+        return res.status(400).send({msg:"Formato no valido"});
+    }   
    }
 }

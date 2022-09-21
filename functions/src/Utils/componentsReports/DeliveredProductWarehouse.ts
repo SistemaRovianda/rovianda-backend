@@ -112,6 +112,8 @@ export class DeliveredProductWarehouse{
             
             let date = order.LOT.slice(order.LOT.length-6,order.LOT.length);
             date = date.slice(0,2)+"/"+date.slice(2,4)+"/"+date.slice(4,6);
+            
+            
             content+=`
             <tr>
             <td>${order.NAME}</td>
@@ -119,10 +121,10 @@ export class DeliveredProductWarehouse{
             <td>${order.UNITS}</td>
             <td>${order.WEIGHT.toFixed(2)}</td>
             <td>${order.OBSERVATIONS}</td>
-         
             </tr>
             `;
         }
+
         // <td>${order.LOT.slice(0,order.LOT.length-6)+" - "+ date}</td>
 
         content+=`
@@ -152,15 +154,15 @@ export class DeliveredProductWarehouse{
         </tr>
         `;
         let total=0;
+        
         for(let order of orders){
-           
             content+=`
             <tr>
             <td>${order.CODE}</td>
             <td>${order.NAME}</td>
             ${type!='acumulated'?`<td>${order.LOT}</td>`:''}
             <td>${order.UNITS}</td>
-            <td>${order.WEIGHT}</td>
+            <td>${order.WEIGHT.toFixed(2)}</td>
             ${type!='acumulated'?`<td>${order.DATE}</td>`:''}
             <td>${order.PRICE}</td>
             <td>${order.TOTAL}</td>

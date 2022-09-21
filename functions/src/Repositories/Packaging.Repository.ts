@@ -226,7 +226,7 @@ export class PackagingRepository{
     async getAllDispatched(dateStart:string,dateEnd:string){
         await this.getConnection();
         return await this.packagingRepository.query(`
-        select pres.key_sae as keySae,pro.output_of_warehouse as quantity,
+        select pres.presentation_id as presentationId,pres.key_sae as keySae,pro.output_of_warehouse as quantity,
         pro.weight_of_warehouse as weight,pack.lot_id as lotId,pack.register_date as outputDate,pack.expiration,pro.observations,
         prod.name,pres.type_presentation as presentation,
         pres.price_presentation_public as price,
