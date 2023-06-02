@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { ClientCreation, ClientVisitedDTO, ClientVisitedStatus, SellerClientCreation } from "../Models/DTO/Client.DTO";
+import { ClientCreation, ClientCreationV2, ClientGeolocationVisits, ClientUpdateV2, ClientVisitBySellerRecord, ClientVisitBySellerRequest, ClientVisitData, ClientVisitedDTO, ClientVisitedStatus, SellerClientCreation } from "../Models/DTO/Client.DTO";
 import { Client } from "../Models/Entity/Client";
 import { Address } from "../Models/Entity/Address";
 import { AddressRepository } from "../Repositories/Address.Repository";
@@ -7,7 +7,7 @@ import { SaleRepository } from "../Repositories/Sale.Repository";
 import { ClientRepository } from "../Repositories/Client.Repository";
 import { UserRepository } from "../Repositories/User.Repository";
 import { User } from "../Models/Entity/User";
-import { validateClient } from "../Utils/Validators/Client.Validator";
+import { validateClientVisit  } from "../Utils/Validators/Client.Validator";
 import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
 import { IResult } from "mssql";
 import { DayVisited } from "../Models/Entity/DayVisited";
@@ -15,8 +15,13 @@ import { DayVisitedRepository } from "../Repositories/DayVisitedRepository";
 import { VisitClientOperationRepository } from "../Repositories/VisitClientOperationRepository";
 import { VisitClientOperation } from "../Models/Entity/VisitClientOperation";
 import {TicketUtil} from "../Utils/Tickets/Ticket.Util";
+import { VisitDto } from "../Models/DTO/VisitDTO";
+import { VisitEntity } from "../Models/Entity/VisitEntity";
+import { VisitRepository } from "../Repositories/Visit.Repository";
+import ExcelHelper from "../Utils/Excel.Helper";
 
 export class ClientService {
+    private visitRepository:VisitRepository;
     private addressRepository: AddressRepository;
     private saleRepository: SaleRepository;
     private clientRepository: ClientRepository;
@@ -25,7 +30,10 @@ export class ClientService {
     private dayRepository:DayVisitedRepository;
     private visitClientOperationRepository:VisitClientOperationRepository;
     private ticketUtil:TicketUtil;
+    private excelHelper:ExcelHelper;
     constructor() {
+        this.excelHelper = new ExcelHelper();
+        this.visitRepository = new VisitRepository();
         this.addressRepository = new AddressRepository();
         this.saleRepository = new SaleRepository();
         this.clientRepository = new ClientRepository();
@@ -87,6 +95,276 @@ export class ClientService {
         daysVisited.client = clientSaved;
         await this.dayRepository.saveDayVisited(daysVisited);
           
+    }
+
+    async createCustomerV2(clientDTO: ClientCreationV2) {
+        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
+        if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
+        let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        let newAddress:Address=null;
+        let newClient:Client=null;
+        let daysVisited:DayVisited=null;
+        if(client==null){
+            newClient=new Client();
+            newClient.keySaeNew="2152";
+            newAddress= new Address();
+            daysVisited=new DayVisited();
+        }else{
+            newClient=client;
+            newAddress=client.address;
+            daysVisited= await this.dayRepository.getByClient(client);
+        }
+            newAddress.street = clientDTO.clientStreet;
+            newAddress.extNumber = clientDTO.clientExtNumber?+(clientDTO.clientExtNumber):null;
+            newAddress.intNumber = null;
+            newAddress.intersectionOne = "";
+            newAddress.intersectionTwo = "";
+            newAddress.suburb = clientDTO.clientSuburb;
+            newAddress.location = clientDTO.clientMunicipality;
+            newAddress.reference = "";
+            newAddress.population = clientDTO.clientMunicipality;
+            newAddress.cp = +clientDTO.clientCp;
+            newAddress.state = "VERACRUZ";
+            newAddress.municipality = clientDTO.clientMunicipality;
+            newAddress.nationality = "MEXICO";
+            let address:Address = await this.addressRepository.saveAddress(newAddress);
+            newClient.name = clientDTO.clientName;
+            newClient.keyClient=clientDTO.clientMobileId;
+            newClient.idAspel= 2152;
+            newClient.typeClient = clientDTO.clientType;
+            newClient.currentCredit = 0;
+            newClient.address = address;
+            newClient.cfdi="";
+            newClient.paymentSat="";
+            newClient.curp="";
+            newClient.clasification="";
+            newClient.credit = 0;
+            newClient.rfc ="";
+            newClient.seller = sellerOwner;
+            newClient.daysCredit=0;
+            newClient.hasDebts=false;
+            
+            newClient.latitude=clientDTO.latitude;
+            newClient.longitude=clientDTO.longitude;
+            newClient.clientMobileId=clientDTO.clientMobileId;
+            let clientSaved=await this.clientRepository.saveClient(newClient);
+            clientSaved.keyClient=clientSaved.id;
+            clientSaved=await this.clientRepository.saveClient(clientSaved);
+            daysVisited.monday = clientDTO.monday;
+            daysVisited.tuesday = clientDTO.tuesday;
+            daysVisited.wednesday = clientDTO.wednesday;
+            daysVisited.thursday = clientDTO.thursday;
+            daysVisited.friday = clientDTO.friday;
+            daysVisited.saturday = clientDTO.saturday;
+            daysVisited.sunday = false;
+            daysVisited.client = clientSaved;
+            await this.dayRepository.saveDayVisited(daysVisited);
+            return {clientId:clientSaved.keyClient,clientMobileId:newClient.clientMobileId}
+        
+    }
+
+    async createCustomerV2Arr(clientDTOS: ClientCreationV2[]) {
+        let response:{clientId:number,clientMobileId:number}[]=[];
+        for(let clientDTO of clientDTOS){
+        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
+        if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
+        let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        let newAddress:Address=null;
+        let newClient:Client=null;
+        let daysVisited:DayVisited=null;
+        if(client==null){
+            newClient=new Client();
+            newClient.keySaeNew="2152";
+            newAddress= new Address();
+            daysVisited=new DayVisited();
+        }else{
+            newClient=client;
+            newAddress=client.address;
+            daysVisited= await this.dayRepository.getByClient(client);
+        }
+            newAddress.street = clientDTO.clientStreet;
+            newAddress.extNumber = clientDTO.clientExtNumber?+(clientDTO.clientExtNumber):null;
+            newAddress.intNumber = null;
+            newAddress.intersectionOne = "";
+            newAddress.intersectionTwo = "";
+            newAddress.suburb = clientDTO.clientSuburb;
+            newAddress.location = clientDTO.clientMunicipality;
+            newAddress.reference = "";
+            newAddress.population = clientDTO.clientMunicipality;
+            newAddress.cp = +clientDTO.clientCp;
+            newAddress.state = "VERACRUZ";
+            newAddress.municipality = clientDTO.clientMunicipality;
+            newAddress.nationality = "MEXICO";
+            let address:Address = await this.addressRepository.saveAddress(newAddress);
+            newClient.name = clientDTO.clientName;
+            newClient.keyClient=clientDTO.clientMobileId;
+            newClient.idAspel= 2152;
+            newClient.typeClient = clientDTO.clientType;
+            newClient.currentCredit = 0;
+            newClient.address = address;
+            newClient.cfdi="";
+            newClient.paymentSat="";
+            newClient.curp="";
+            newClient.clasification="";
+            newClient.credit = 0;
+            newClient.rfc ="";
+            newClient.seller = sellerOwner;
+            newClient.daysCredit=0;
+            newClient.hasDebts=false;
+            
+            newClient.latitude=clientDTO.latitude;
+            newClient.longitude=clientDTO.longitude;
+            newClient.clientMobileId=clientDTO.clientMobileId;
+            let clientSaved=await this.clientRepository.saveClient(newClient);
+            clientSaved.keyClient=clientSaved.id;
+            clientSaved=await this.clientRepository.saveClient(clientSaved);
+            daysVisited.monday = clientDTO.monday;
+            daysVisited.tuesday = clientDTO.tuesday;
+            daysVisited.wednesday = clientDTO.wednesday;
+            daysVisited.thursday = clientDTO.thursday;
+            daysVisited.friday = clientDTO.friday;
+            daysVisited.saturday = clientDTO.saturday;
+            daysVisited.sunday = false;
+            daysVisited.client = clientSaved;
+            await this.dayRepository.saveDayVisited(daysVisited);
+            response.push({clientId:clientSaved.keyClient,clientMobileId:newClient.clientMobileId})
+        }
+        return response;
+    }
+
+    async synchronizationCustomersV2(clientDTOS: ClientCreationV2[]) {
+        let response:{clientId:number,clientMobileId:number}[]=[];
+        for(let clientDTO of clientDTOS){
+            let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
+            if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
+            let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+            let newAddress:Address=null;
+            let newClient:Client=null;
+            let daysVisited:DayVisited=null;
+            if(client==null){
+                newClient=new Client();
+                newClient.keySaeNew="2152";
+                newAddress= new Address();
+                daysVisited=new DayVisited();
+            }else{
+                newClient=client;
+                newAddress=client.address;
+                daysVisited= await this.dayRepository.getByClient(client);
+            }
+                newAddress.street = clientDTO.clientStreet;
+                newAddress.extNumber = clientDTO.clientExtNumber?+(clientDTO.clientExtNumber):null;
+                newAddress.intNumber = null;
+                newAddress.intersectionOne = "";
+                newAddress.intersectionTwo = "";
+                newAddress.suburb = clientDTO.clientSuburb;
+                newAddress.location = clientDTO.clientMunicipality;
+                newAddress.reference = "";
+                newAddress.population = clientDTO.clientMunicipality;
+                newAddress.cp = +clientDTO.clientCp;
+                newAddress.state = "VERACRUZ";
+                newAddress.municipality = clientDTO.clientMunicipality;
+                newAddress.nationality = "MEXICO";
+                let address:Address = await this.addressRepository.saveAddress(newAddress);
+            
+                newClient.name = clientDTO.clientName;
+                newClient.keyClient=clientDTO.clientMobileId;
+                newClient.idAspel= 2152;
+                newClient.typeClient = clientDTO.clientType;
+                newClient.currentCredit = 0;
+                newClient.address = address;
+                newClient.cfdi="";
+                newClient.paymentSat="";
+                newClient.curp="";
+                newClient.clasification="";
+                newClient.credit = 0;
+                newClient.rfc ="";
+                newClient.seller = sellerOwner;
+                newClient.daysCredit=0;
+                newClient.hasDebts=false;
+                
+                newClient.latitude=clientDTO.latitude;
+                newClient.longitude=clientDTO.longitude;
+                newClient.clientMobileId=clientDTO.clientMobileId;
+                let clientSaved=await this.clientRepository.saveClient(newClient);
+                clientSaved.keyClient=clientSaved.id;
+                clientSaved=await this.clientRepository.saveClient(clientSaved);
+                daysVisited.monday = clientDTO.monday;
+                daysVisited.tuesday = clientDTO.tuesday;
+                daysVisited.wednesday = clientDTO.wednesday;
+                daysVisited.thursday = clientDTO.thursday;
+                daysVisited.friday = clientDTO.friday;
+                daysVisited.saturday = clientDTO.saturday;
+                daysVisited.sunday = false;
+                daysVisited.client = clientSaved;
+                await this.dayRepository.saveDayVisited(daysVisited);
+                response.push({clientId:clientSaved.keyClient,clientMobileId:newClient.clientMobileId})
+        }
+        return response;
+    }
+
+    async updateCustomerV2(clientDTOS: ClientUpdateV2[]){
+        let response:{clientId:number}[]=[];
+        for(let clientDTO of clientDTOS){
+            let client = await this.clientRepository.getClientById(clientDTO.clientId);
+            let newAddress:Address=null;
+            let newClient:Client=null;
+            let daysVisited:DayVisited=null;
+            if(client==null){
+                newClient=new Client();
+                newClient.keySaeNew="2152";
+                newAddress= new Address();
+                daysVisited=new DayVisited();
+            }else{
+                newClient=client;
+                newAddress=client.address;
+                daysVisited= await this.dayRepository.getByClient(client);
+                if(daysVisited==null){
+                    daysVisited=new DayVisited();
+                }
+            }
+                newAddress.street = clientDTO.clientStreet;
+                newAddress.extNumber = clientDTO.clientExtNumber?+(clientDTO.clientExtNumber):null;
+                newAddress.intNumber = null;
+                newAddress.intersectionOne = "";
+                newAddress.intersectionTwo = "";
+                newAddress.suburb = clientDTO.clientSuburb;
+                newAddress.location = clientDTO.clientMunicipality;
+                newAddress.reference = "";
+                newAddress.population = clientDTO.clientMunicipality;
+                newAddress.cp = +clientDTO.clientCp;
+                newAddress.state = "VERACRUZ";
+                newAddress.municipality = clientDTO.clientMunicipality;
+                newAddress.nationality = "MEXICO";
+                let address:Address = await this.addressRepository.saveAddress(newAddress);
+            
+                newClient.name = clientDTO.clientName;
+                newClient.idAspel= 2152;
+                newClient.currentCredit = 0;
+                newClient.address = address;
+                newClient.cfdi="";
+                newClient.paymentSat="";
+                newClient.curp="";
+                newClient.clasification="";
+                newClient.credit = 0;
+                newClient.rfc ="";
+                newClient.daysCredit=0;
+                newClient.hasDebts=false;
+                
+                newClient.latitude=clientDTO.latitude;
+                newClient.longitude=clientDTO.longitude;
+                let clientSaved=await this.clientRepository.saveClient(newClient);
+                daysVisited.monday = clientDTO.monday;
+                daysVisited.tuesday = clientDTO.tuesday;
+                daysVisited.wednesday = clientDTO.wednesday;
+                daysVisited.thursday = clientDTO.thursday;
+                daysVisited.friday = clientDTO.friday;
+                daysVisited.saturday = clientDTO.saturday;
+                daysVisited.sunday = false;
+                daysVisited.client = clientSaved;
+                await this.dayRepository.saveDayVisited(daysVisited);
+                response.push({clientId:clientSaved.keyClient})
+        }
+        return response;
     }
 
     async getCurrentCountCustomer(){
@@ -177,7 +455,6 @@ export class ClientService {
 
     async getScheduleByDate(sellerUid:string,date:string){
         let dateParsed = new Date(date);
-        //let ZellerDayNames = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
         let seller:User = await this.userRepository.getUserById(sellerUid);
         let clientsOfSeller = await this.clientRepository.getAllClientBySeller(seller);
         let day = this.zellerGregorian(dateParsed);
@@ -216,38 +493,87 @@ export class ClientService {
         return response;
     }
 
-    async createVisit(clientId:number){
-        let client = await this.clientRepository.getClientById(clientId);
-        if(!client) throw new Error("[404], no existe el cliente");
-        let date = new Date();
-        date.setHours(date.getHours()-6);
-        let month:string = (date.getMonth()+1).toString();
-        let day:string = (date.getDate()).toString();
-        if(+month<10){
-            month='0'+month;
+    async getScheduleByDateLocation(sellerUid:string,date:string){
+        let dateParsed = this.parseDate(date);
+        let day = this.zellerGregorian(new Date(date));
+        let result = await this.clientRepository.getAllClientsVisited(sellerUid,dateParsed);
+        let response:ClientGeolocationVisits[]=[];
+        for(let item of result){
+            let mustVisited:boolean=false;
+            switch(day){
+                case 0:
+                    mustVisited=item.saturday==1;
+                    break;
+                case 1:
+                    mustVisited=item.sunday==1;
+                    break;
+                case 2:
+                    mustVisited=item.monday==1;
+                    break;
+                case 3:
+                    mustVisited=item.tuesday==1;
+                    break;
+                case 4:
+                    mustVisited=item.wednesday==1;
+                    break;
+                case 5:
+                    mustVisited=item.thursday==1;
+                    break;
+                case 6:
+                    mustVisited=item.friday==1;
+                    break;
+            }
+            response.push({
+                clientId: item.clientId,
+                clientName: item.name,
+                latitude: item.latitude,
+                longitude: item.longitude,
+                visited: item.count>0?true:false,
+                mustVisited,
+                keyClient: item.keyClient
+            });
+            response=response.filter(x=>(x.visited || x.mustVisited));
         }
-        if(+day<10){
-            day='0'+day;
+        return response;
+    }
+    parseDate(date){
+        let dateP = new Date(date);
+        let month = (dateP.getMonth()+1).toString();
+        let day = dateP.getDate().toString();
+        if(+month<10) month="0"+month;
+        if(+day<10) day="0"+day;
+        return `${dateP.getFullYear()}-${month}-${day}`;
+    }
+
+    async createVisit(clientsVisits:Array<VisitDto>){
+        console.log(JSON.stringify(clientsVisits));
+        validateClientVisit(clientsVisits);
+        let response:{clientId:number,date:string}[]=[];
+        for(let visit of clientsVisits){
+            let visitEntity = await this.visitRepository.getVisit(visit.clientId,visit.date);
+            if(!visitEntity){
+                let visitEntity = new VisitEntity();
+                let client = await this.clientRepository.getClientById(visit.clientId);
+                if(!client) throw new Error("[404], No existe el cliente con el id: "+visit.clientId);
+                visitEntity.client=client;
+                visitEntity.date = visit.date;
+                visitEntity.observations=visit.observations;
+                visitEntity.visited=visit.visited;
+                visitEntity.amount=visit.amount;
+                try{
+                    await this.visitRepository.saveVisit(visitEntity);    
+                }catch(err){
+                    console.log(err.message);
+                    console.log("Error de duplicidad de visita mitigado");
+                }
+            }else{
+                visitEntity.amount =visit.amount;
+                visitEntity.observations=visit.observations;
+                await this.visitRepository.saveVisit(visitEntity);
+            }
+            response.push({clientId:visit.clientId,date:visit.date});
         }
-        let dateStr = date.getFullYear().toString()+"-"+month+"-"+day;
-        let visitOperation = await this.visitClientOperationRepository.findByDateAndClient(dateStr,client);
-        if(!visitOperation){
-        
-        let visitOperationEntity:VisitClientOperation = new VisitClientOperation();
-        visitOperationEntity.client=client;
-        visitOperationEntity.date=dateStr;
-        let hours:string = date.getHours().toString();
-        let minutes:string = date.getMinutes().toString();
-        let seconds:string = date.getSeconds().toString();
-        if(+hours<10) hours="0"+hours;
-        if(+minutes<10) minutes='0'+minutes;
-        if(+seconds<10) seconds='0'+seconds;
-        visitOperationEntity.startVisitTime=hours+":"+minutes+":"+seconds;
-        await this.visitClientOperationRepository.saveVisitClientOperation(visitOperationEntity);
-        }else{
-            visitOperation.endVisitTime=null;
-            await this.visitClientOperationRepository.saveVisitClientOperation(visitOperation);
-        }
+        return response;
     }
 
     async endVisitToClient(clientId:number){
@@ -340,4 +666,27 @@ export class ClientService {
     async getCustomerReportBySeller(sellerId:string,type:string,hint:string){
         return await this.clientRepository.getCustomerReportBySeller(sellerId,type,hint);
     }
+
+    async getVisitsBySellerAndDate(request:ClientVisitBySellerRequest){
+        let seller:User = await this.userRepository.getUserById(request.sellerId);
+        if(!seller) throw new Error("[404], No existe el vendedor");
+        let visits = await this.visitRepository.getVisitsBySellerAndDate(request.sellerId,request.date);
+        for(let visit of visits){
+            if(visit.amount>0){
+                visit.withSale=true;
+            }else{
+                visit.withSale=false;
+            }
+        }
+        return visits;
+    }
+
+    async getReportOfVisitsBySeller(request:ClientVisitBySellerRequest){
+        let seller:User = await this.userRepository.getUserById(request.sellerId);
+        if(!seller) throw new Error("[404], No existe el vendedor");
+        let visits:ClientVisitData[] = await this.getVisitsBySellerAndDate(request);
+        return await this.excelHelper.getSellerVisitsScheduled(visits,seller.name,request.date);
+    }
+
+ 
 }

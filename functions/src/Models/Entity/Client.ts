@@ -4,6 +4,7 @@ import { Debts } from "./Debts";
 import { Sale } from "./Sales";
 import { User } from "./User";
 import { VisitClientOperation } from "./VisitClientOperation";
+import { VisitEntity } from "./VisitEntity";
 
 @Entity({name:"clients"})
 export class Client{
@@ -80,4 +81,13 @@ export class Client{
     @Column({name:"modified",nullable:true,default:false})
     modified:boolean;
 
+    @Column({name:"longitude",nullable:true,type:"double"})
+    longitude:number;
+    @Column({name:"latitude",nullable:true,type:"double"})
+    latitude:number;
+    @Column({name:"client_mobile_id",nullable:true})
+    clientMobileId:number;
+
+    @OneToMany(type=>VisitEntity,visitEntity=>visitEntity.client)
+    visitsRecords:VisitEntity[];
 }

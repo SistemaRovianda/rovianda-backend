@@ -1,4 +1,4 @@
-import {Request,Response} from 'express';
+import {Request,Response, request} from 'express';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { EntranceDriefService } from '../Services/Entrance.Drief.Service';
 import { UserService } from '../Services/User.Service';
@@ -56,6 +56,8 @@ import { EndedProductReport } from '../Utils/componentsReports/endedProductRepor
 import {DeliveredProductWarehouse} from "../Utils/componentsReports/DeliveredProductWarehouse";
 import ExcelHelper from '../Utils/Excel.Helper';
 import { WarehouseDriefRepository } from '../Repositories/Warehouse.Drief.Repository';
+import { SellerClientScheduleData, SellerVisit } from '../Models/SellerReportRequests';
+import { ReportService } from '../Services/Report.Service';
 const pdfMerger = require("pdf-merger-js");
 export class ReportController{
 
@@ -87,6 +89,7 @@ export class ReportController{
     private endedProductReports: EndedProductReport; 
     private deliveredProductWarehouse: DeliveredProductWarehouse;
     private warehouseDriefRepository:WarehouseDriefRepository;
+    private reportService:ReportService;
     constructor(private firebaseInstance:FirebaseHelper){
         this.entranceDriefService = new EntranceDriefService(this.firebaseInstance);
         this.entranceMeatService = new EntranceMeatService(this.firebaseInstance);
@@ -116,6 +119,7 @@ export class ReportController{
         this.deliveredProductWarehouse = new DeliveredProductWarehouse();
         this.excelHelper=new ExcelHelper();
         this.warehouseDriefRepository = new WarehouseDriefRepository();
+        this.reportService = new ReportService();
     }
 
     async reportEntranceDrief(req:Request, res:Response){ 
@@ -1261,7 +1265,7 @@ async reportDocumentPackagingById(req:Request,res:Response){
             report = "<html><body>NO EXISTE EL USUARIO VENDEDOR</body></html>"
         }
         if(format=="excel"){
-            let workbook = this.excel.getReportWarehouseDeliveredBySeller(productDelivered,dateStart,dateEnd,seller.name);
+            let workbook = this.excel.getReportWarehouseDeliveredBySeller(productDelivered,dateStart,dateEnd,seller.name,type);
             workbook.write(`Reporte-Rebanado-Empacado.xlsx`,res);
         }else if(format=="pdf"){
             pdf.create(report, {
@@ -1360,4 +1364,38 @@ async reportDocumentPackagingById(req:Request,res:Response){
                 stream.pipe(res);
             }));
     }
+
+    async getReportVisits(req:Request,res:Response){
+        console.log("Controller: Report.Controller method getReportVisits starting");
+        let result:{items:SellerVisit[],dateString:string} = await this.reportService.getSellerVisits(req.body);
+        let workBook:any = this.excelHelper.getSellerVisits(result.items,result.dateString);
+        res.setHeader("Content-Type", "application/vnd.ms-excel");
+        res.status(200); 
+        workBook.write("reporteVisitas",res);
+        console.log("Controller: Report.Controller method getReportVisits ended");
+    }
+
+    async getReportSoldPeriod(req:Request,res:Response){
+        console.log("Controller: Report.Controller method getReportSoldPeriod starting");
+        let records = await this.reportService.getReportSoldPeriod(req.body);
+        let workBook:any = this.excelHelper.getSellerSoldsPeriod(records,req.body);
+        res.setHeader("Content-Type", "application/vnd.ms-excel");
+        res.status(200); 
+        workBook.write("reporteVisitas",res);
+        console.log("Controller: Report.Controller method getReportSoldPeriod ended");
+    }
+    async getCustomerScheduleReport(req:Request,res:Response){
+        console.log("Controller: Report.Controller method getCustomerScheduleReport starting");
+        let records:SellerClientScheduleData[] = await this.reportService.getCustomerScheduleReport(req.body);
+        let workBook:any=null;
+        if(req.body.day!="ALL"){
+            workBook= this.excelHelper.getCustomerScheduleReport(req.body.day,records);
+        }else{
+            workBook= this.excelHelper.getCustomerScheduleAllDaysReport(records);
+        }
+        res.setHeader("Content-Type", "application/vnd.ms-excel");
+        res.status(200); 
+        workBook.write("reporteAgenda",res);
+        console.log("Controller: Report.Controller method getCustomerScheduleReport ended");
+    }   
 }

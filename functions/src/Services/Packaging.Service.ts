@@ -213,7 +213,7 @@ export class PackagingService{
         console.log(countEnd.max);
 
         let boxPackaging: BoxPackaging = new BoxPackaging();
-        boxPackaging.propertiesPackaging = presentationPropierties;
+        ///boxPackaging.propertiesPackaging = presentationPropierties;
         boxPackaging.countInitial = ""+(parseInt(countEnd.max)+1);
         boxPackaging.countEnd = ""+(parseInt(countEnd.max)+packagingAssigned.boxs);
 
@@ -227,21 +227,7 @@ export class PackagingService{
 
         if (!packaging) 
             throw new Error(`[404], Properties packaging with id ${id} was not found`);
-        
-        if (!packaging.boxPackaging)
-            throw new Error(`[404], Properties packaging with id ${id} does not have a box packaging assigned`);
-        let ids: number[] = [];
-        for (let i = parseInt(packaging.boxPackaging.countInitial); i <= parseInt(packaging.boxPackaging.countEnd); i++){
-            ids.push(i);
-        }
-
-        let response = {
-            presentation: packaging.presentation.id,
-            typePresentation: packaging.presentation.presentationType,
-            ids
-        }
-
-        return response;
+    
     }
 
     async getPackaging(){
@@ -629,7 +615,9 @@ export class PackagingService{
         orderSeller.folioRemission= (lastCountOrderSeller[0].folioRemission)+1;
         await this.subOrderMetadataRepository.updateDateCloseOrder(orderSellerId,date);
         orderSeller.status="INACTIVE";
-        orderSeller.dateAttended=date;
+        let dateParsed:Date = new Date(date);
+        dateParsed.setHours(dateParsed.getHours());
+        orderSeller.dateAttended=dateParsed.toISOString();
         await this.orderSellerRepository.saveSalesSeller(orderSeller);
         let orderSellerParsed:OrderSellerInterface[] = await this.orderSellerRepository.getAllOrdersSellersByOrderSellerId(orderSellerId);
         if(orderSellerParsed.length){  
@@ -658,10 +646,9 @@ export class PackagingService{
     async getEntrancesOfWarehouseId(warehouseId:string,dateStart:string,dateEnd:string,type:string){
         let records:SubOrderMetadataOutputs[]=[];
         if(+warehouseId!=53){
-        let seller:User = await this.userRepository.getByWarehouseId(warehouseId);
-        if(!seller) return [];
-            records= await this.subOrderMetadataRepository.getAllOrdersDispached(dateStart,dateEnd,seller.id,type);
-       
+            let seller:User = await this.userRepository.getByWarehouseId(warehouseId);
+            if(!seller) return [];
+        records= await this.subOrderMetadataRepository.getAllOrdersDispached(dateStart,dateEnd,seller.id,type);
         }else{
             records = await this.packagingRepository.getAllDispatched(dateStart,dateEnd);
         }

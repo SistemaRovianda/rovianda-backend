@@ -20,12 +20,12 @@ export const clientRoutes: Array<routeInterface> = [
         controller: ClientController,
         target: "getScheduleCustomerBySeller"
     },
-    {
+    /*{
         url: "/rovianda/seller/customer/schedule/:clientId",
         method: "post",
         controller: ClientController,
         target: "createVisitToClient"    
-    },
+    },*/
     {
         url: "/rovianda/seller/customer/schedule/:clientId",
         method: "put",
@@ -72,5 +72,47 @@ export const clientRoutes: Array<routeInterface> = [
         method: "get",
         controller: ClientController,
         target: "getCustomerReportBySeller"
+    },
+    {
+        url: "/rovianda/customers/v2/register",
+        method: "post",
+        controller: ClientController,
+        target: "registerCustomerV2"
+    },
+    {
+        url: "/rovianda/customers/v2/register-arr",
+        method: "post",
+        controller: ClientController,
+        target: "registerCustomerV2Arr"
+    },
+    {
+        "url":"/rovianda/customer/v2/sychronization",
+        method:"post",
+        controller: ClientController,
+        target: "synchronizationCustomersV2"
+    },
+    {
+        url: "/rovianda/customers/v2/update",
+        method: "post",
+        controller: ClientController,
+        target: "updateCustomerV2"
+    },
+    {
+        url: "/rovianda/customer/visit",
+        method: "post",
+        controller: ClientController,
+        target: "createVisit"
+    },
+    {
+        url: "/rovianda/customer/visits",
+        method: "post",
+        controller:ClientController,
+        target: "getVisitsBySellerAndDate"
+    },
+    {
+        url: "/rovianda/customer/visits-report",
+        method: "post",
+        controller:ClientController,
+        target: "getVisitsBySellerAndDateReport"
     }
 ]

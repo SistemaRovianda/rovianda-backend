@@ -316,6 +316,18 @@ export const salesRoutes:Array<routeInterface>=[
         target: "sincronizeSingleSale"
     },
     {
+        url: "/rovianda/sincronize-presales",
+        method: "post",
+        controller: SalesRequestController,
+        target: "sincronizePreSale"
+    },
+    {
+        url: "/rovianda/sincronize-single/v2/sale",
+        method: "post",
+        controller: SalesRequestController,
+        target: "sincronizeSingleSaleV2"
+    },
+    {
         url: "/rovianda/accumulated/sales",
         method: "get",
         controller: SalesRequestController,
@@ -356,6 +368,11 @@ export const salesRoutes:Array<routeInterface>=[
         method: "patch",
         controller: SalesRequestController,
         target: "salePayment"
+    },
+    {
+        url:"/rovianda/salescredit/check",
+        method: "post",
+        controller:SalesRequestController,
+        target: "saleCreditCheck"
     }
-    
 ];

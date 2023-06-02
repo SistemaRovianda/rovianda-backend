@@ -13,6 +13,7 @@ import { Client } from "./Client";
 import { Debts } from "./Debts";
 import { EntranceDrief } from "./Entrances.Drief";
 import { SubProductToOven } from "./SubProduct";
+import { PreSale } from "./PreSale";
 
 @Entity({name:"users"})
 export class User{
@@ -65,6 +66,9 @@ export class User{
 
     @OneToMany(type=>Sale,sale=>sale.seller)
     sales:Sale[];
+
+    @OneToMany(type=>PreSale,preSale=>preSale.seller)
+    preSales:PreSale[];
 
     @OneToMany(type=>SellerOperation,sellerOp=>sellerOp.seller)
     sellerOperations:SellerOperation[];

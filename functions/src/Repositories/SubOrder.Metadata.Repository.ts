@@ -40,7 +40,7 @@ export class SubOrderMetadataRepository{
             query =`
             select sum(sm.quantity) as quantity ,sum(sm.weigth) as weight,os.seller_id as sellerUid,ps.presentation_id as presentationId,
             ps.type_presentation as presentation,pr.name,ps.key_sae as keySae ,
-            ps.price_presentation_public as price,truncate(sum(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,truncate(sm.weigth,2)*ps.price_presentation_public)),2) as total
+            ps.price_presentation_public as price,round(sum(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,round(sm.weigth,2)*ps.price_presentation_public)),2) as total
             from suborder_metadata as sm
             inner join suborders as sub on sub.suborder_id = sm.sub_order_id 
             inner join orders_sellers as os on os.order_seller_id=sub.order_seller_id
@@ -51,9 +51,9 @@ export class SubOrderMetadataRepository{
             `;
         }else{
             query =`
-            select sm.quantity as quantity ,truncate(sm.weigth,2) as weight,sm.lote_id as lotId,os.seller_id as sellerUid,ps.presentation_id as presentationId,
+            select sm.quantity as quantity ,round(sm.weigth,2) as weight,sm.lote_id as lotId,os.seller_id as sellerUid,ps.presentation_id as presentationId,
             ps.type_presentation as presentation,pr.name,ps.key_sae as keySae,sm.output_date as outputDate,
-            ps.price_presentation_public as price,truncate(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,truncate(sm.weigth,2)*ps.price_presentation_public),2) as total
+            ps.price_presentation_public as price,round(if(ps.uni_med="PZ",sm.quantity*ps.price_presentation_public,round(sm.weigth,2)*ps.price_presentation_public),2) as total
             from suborder_metadata as sm
             left join suborders as sub on sub.suborder_id = sm.sub_order_id 
             left join orders_sellers as os on os.order_seller_id=sub.order_seller_id

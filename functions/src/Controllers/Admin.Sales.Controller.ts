@@ -5,6 +5,7 @@ import { AdminSalesService } from "../Services/Admin.Sales.Service";
 import * as pdf from 'html-pdf';
 import { AdminPreRegisterProductDetails, AdminProductsCatalog, CancelRequest, ChartD3DataInterface, OfflineNewVersionResponse, RankingSeller, RankingSellerByProduct } from "../Models/DTO/Admin.Sales.Request";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
+import { ModelDebtDeliverRequest, ModelDebtDeliverResponse, ModelUpdatePresaleRequest, ModelUpdatePresaleResponse, OfflinePreSaleNewVersionResponse } from "../Models/DTO/PreSalesDTO";
 export class AdminSalesController{
     
     private adminSalesService:AdminSalesService;
@@ -245,6 +246,37 @@ export class AdminSalesController{
         let date:string = req.query.date;
         let response:OfflineNewVersionResponse=await this.adminSalesService.getOfflineNewVersion(sellerId,date);
         return res.status(200).send(response);
+    }
+    async getDataInitialForPresales(req:Request,res:Response){
+        let sellerId:string = req.params.sellerId;
+        let date:string = req.query.date;
+        let response:OfflinePreSaleNewVersionResponse=await this.adminSalesService.getDataInitialForPresales(sellerId,date);
+        return res.status(200).send(response);
+    }
+
+    async updatePresaleInfoForSale(req:Request,res:Response){
+        let sellerId:string = req.query.sellerId;
+        let request:ModelUpdatePresaleRequest[] = req.body;
+        let response:ModelUpdatePresaleResponse[]=await this.adminSalesService.updatePresaleInfoForSale(request,sellerId);
+        return res.status(200).send(response);
+    }
+
+    async registerDebtOfDeliver(req:Request,res:Response){
+        let sellerId:string = req.query.sellerId;
+        let request:ModelDebtDeliverRequest[] = req.body;
+        let response:ModelDebtDeliverResponse[]=await this.adminSalesService.registerDebtOfDeliver(request,sellerId);
+        return res.status(200).send(response);
+    }
+
+    async getDataInitialForDeliversOfPresales(req:Request,res:Response){
+        let sellerId:string = req.params.sellerId;
+        let date:string = req.query.date;
+        let response:OfflinePreSaleNewVersionResponse=await this.adminSalesService.getDataInitialForDeliversOfPresales(sellerId,date);
+        return res.status(200).send(response);
+    }
+
+    async registerPresales(req,res){
+
     }
 
     async cancelReactivateSale(req:Request,res:Response){

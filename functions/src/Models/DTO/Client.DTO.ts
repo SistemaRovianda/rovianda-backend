@@ -48,6 +48,44 @@ export interface ClientCreation{
     sunday:boolean
 }
 
+export interface ClientCreationV2{
+    clientMobileId:number,
+    clientName:string,
+    clientType:string,
+    clientStreet:string,
+    clientSuburb:string,
+    clientMunicipality:string,
+    clientCp:string,
+    clientExtNumber?:string,
+    clientSellerUid:string,
+    monday:boolean,
+    tuesday:boolean,
+    wednesday:boolean,
+    thursday:boolean,
+    friday:boolean,
+    saturday:boolean,
+    longitude:number,
+    latitude:number
+}
+export interface ClientUpdateV2{
+    clientId:number,
+    clientKey:number,
+    clientName:string,
+    clientStreet:string,
+    clientSuburb:string,
+    clientMunicipality:string,
+    clientCp:string,
+    clientExtNumber?:string,
+    monday:boolean,
+    tuesday:boolean,
+    wednesday:boolean,
+    thursday:boolean,
+    friday:boolean,
+    saturday:boolean,
+    longitude:number,
+    latitude:number
+}
+
 export interface contactForm{
     name:string;
     address:string;
@@ -246,4 +284,49 @@ export interface ClientItemBySeller{
     CIUDAD:string,
     ESTADO:string,
     CODIGO_POSTAL:string
+}
+
+export interface ClientGeolocationVisits{
+    clientId:number,
+    keyClient:number,
+    clientName:string,
+    latitude:number,
+    longitude:number,
+    visited:boolean,
+    mustVisited:boolean
+}
+export interface ClientsListVisitedResult{
+    clientId:number,
+    keyClient:number,
+    name:string,
+    latitude:number,
+    longitude:number,
+    count:number,
+    monday:number,
+    tuesday:number,
+    wednesday:number,
+    thursday:number,
+    friday:number,
+    saturday:number,
+    sunday:number
+}
+export interface ClientVisitBySellerRequest{
+    sellerId:string,
+    date:string
+}
+export interface ClientVisitBySellerRecord{
+    sellerName:string,
+    visits: ClientVisitData[]
+}
+
+export interface ClientVisitData{
+    amount:number,
+    code:string,
+    visitId:number,
+    clientName:string,
+    visited:boolean,
+    withSale:boolean,
+    observations:string,
+    latitude:number,
+    longitude:number
 }

@@ -1,7 +1,6 @@
 ﻿import "reflect-metadata";
 import { Connection, createConnection, ConnectionOptions } from 'typeorm';
 import { EntranceMeat } from '../Models/Entity/Entrances.Meat';
-import { File } from '../Models/Entity/Files';
 import { Product } from '../Models/Entity/Product';
 import { WarehouseDrief } from '../Models/Entity/Warehouse.Drief';
 import { WarehousePacking } from '../Models/Entity/Warehouse.Packing';
@@ -10,12 +9,10 @@ import { EntranceStore } from "../Models/Entity/Entrance.Store";
 import { EntranceDrief } from '../Models/Entity/Entrances.Drief';
 import { EntrancePacking } from "../Models/Entity/Entrances.Packing";
 import { Formulation } from "../Models/Entity/Formulation";
-import { OutletStore } from '../Models/Entity/Outlet.Store';
 import { Sausaged } from '../Models/Entity/Sausaged';
 import { Tenderized } from '../Models/Entity/Tenderized';
 import { Process } from '../Models/Entity/Process';
 import { Grinding } from '../Models/Entity/Grinding';
-import { Pin } from '../Models/Entity/Pin';
 import { Fridge } from '../Models/Entity/Fridges'
 import { Cooling } from '../Models/Entity/Cooling';
 import { OutputsCooling } from '../Models/Entity/outputs.cooling';
@@ -32,7 +29,6 @@ import { Inspection } from '../Models/Entity/Inspection';
 import { SubOrder } from '../Models/Entity/SubOrder.Sale.Seller';
 import { Reprocessing } from '../Models/Entity/Reprocessing';
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
-import { BoxPackaging } from "../Models/Entity/Box.Packaging";
 import { PropertiesPackaging } from "../Models/Entity/Properties.Packaging";
 import { FormulationIngredients } from "../Models/Entity/Formulation.Ingredients";
 import { Raw } from "../Models/Entity/Raw";
@@ -51,8 +47,6 @@ import { SellerOperation } from "../Models/Entity/Seller.Operations";
 import { SubSales } from "../Models/Entity/Sub.Sales";
 import { Defrost } from "../Models/Entity/Defrost";
 import { DefrostFormulation } from "../Models/Entity/Defrost.Formulation";
-import { CatCFDIUses } from "../Models/Entity/Cat.CFDI.Uses";
-import { CatPaymentTypes } from "../Models/Entity/Cat.Payment.Types";
 import { Devolution } from "../Models/Entity/Devolution";
 import { Cheese } from "../Models/Entity/Cheese";
 import { VisitClientOperation } from "../Models/Entity/VisitClientOperation";
@@ -64,15 +58,20 @@ import { DevolutionOldSubSales } from "../Models/Entity/DevolutionOldSubSales";
 import { SubProductToOven } from "../Models/Entity/SubProduct";
 import { CodeAccess } from "../Models/Entity/CodesAccess";
 import { EndDay } from "../Models/Entity/EndDay";
+import { File } from "../Models/Entity/Files";
+import { Pin } from "../Models/Entity/Pin";
+import { VisitEntity } from "../Models/Entity/VisitEntity";
+import { PreSale } from "../Models/Entity/PreSale";
+import { PreSalesVinculationSeller } from "../Models/Entity/PreSalesVinculationSeller";
 
 const config: ConnectionOptions = {
 
     type: "mysql",
-    host: "rovianda.ddns.net",//"rovianda.ddns.net",//"rovisapi.dyndns.tv",//"akatsuki-dev.cvhdnlqgutrq.us-west-2.rds.amazonaws.com",//
+    host: "rovianda.ddns.net",//"localhost",//
     port: 3306,
-    username: "master_rovianda",//"admin",//
+    username: "master_rovianda",//"master_rovianda",//
     password: "Sistemas2022",//"Sistemas2022",//
-    database: "bd_rovianda",//"rovianda-dev",//
+    database: "bd_rovianda",//"bd_rovianda",//
     connectTimeout:60000,
     charset:"utf8",
     maxQueryExecutionTime:60000,
@@ -81,10 +80,10 @@ const config: ConnectionOptions = {
     debug:false,
     entities: [
         EntranceMeat,
-        Roles,
         File,
-        User,
         Pin,
+        Roles,
+        User,
         Product,
         WarehousePacking,
         Conditioning,
@@ -95,7 +94,6 @@ const config: ConnectionOptions = {
         ProductRovianda,
         Formulation,
         FormulationIngredients,
-        OutletStore,
         Sausaged,
         Tenderized,
         Process,
@@ -113,7 +111,6 @@ const config: ConnectionOptions = {
         OrderSeller,
         Reprocessing,
         PresentationProducts,
-        BoxPackaging,
         PropertiesPackaging,
         Raw,
         Devices,
@@ -124,7 +121,7 @@ const config: ConnectionOptions = {
         SubOrderMetadata,
         SellerInventory,
         Address,Debts,Sale,SellerOperation,SubSales,
-        Defrost,DefrostFormulation, CatCFDIUses, CatPaymentTypes,
+        Defrost,DefrostFormulation,
         Client,Devolution,
         Cheese,
         DayVisited,
@@ -135,7 +132,10 @@ const config: ConnectionOptions = {
         DevolutionOldSubSales,
         SubProductToOven,
         CodeAccess,
-        EndDay
+        EndDay,
+        VisitEntity,
+        PreSale,
+        PreSalesVinculationSeller
     ]
 }
 let connection: Connection;

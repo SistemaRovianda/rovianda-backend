@@ -2,33 +2,27 @@
 import * as bodyp from 'body-parser';
 import * as functions from 'firebase-functions';
 import { routesToExpress } from '../Routes/Index';
-import { FileRequest, routeInterface } from '../Models/Route.Interface';
+import { routeInterface } from '../Models/Route.Interface';
 import { ErrorHandler } from '../Utils/Error.Handler';
 import * as fileMiddleware from 'express-multipart-file-parser';
-import { SalesRequestController } from '../Controllers/Sales.Controller';
 import { SalesRequestService } from '../Services/Sales.Request.Service';
-//const expressF=require("express-formidable");
-
+import { OrderAutomaticCreationService } from '../Services/OrderAutomaticCreation.Service';
 
 export class App extends ErrorHandler{
     public app: express.Application;
-    //public multer:multer.Multer;
+    
     constructor(){
         super();
         this.app = express();
-        
         this.config();
     }
     config(){
         this.app.use(fileMiddleware);
         this.app.use(function(req, res, next) {
-            res.header("Access-Control-Allow-Origin", "*");//"*");
+            res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, responseType, X-Total-Count");
             res.header('Access-Control-Allow-Methods', "*");
-           
             next();
-           
-            
       });
         this.app.options('*', (req, res) => {
             // allowed XHR methods  
@@ -52,39 +46,20 @@ export class App extends ErrorHandler{
             
         })
     }
-
-    // mapMulter(items:routeInterface){
-    //     console.log(items);
-    //     items.files?.forEach(item=>{
-    //         if(item.isArray){
-    //             this.multer.array(item.name,item.size);
-    //         }else{
-    //             this.multer.single(item.name);
-    //         }  
-    //         }) 
-    //     }
-      
     
 }
 
 
 export const app = functions.runWith({timeoutSeconds:540}).https.onRequest( new App().app);
 
-// export const appCron = functions.runWith({timeoutSeconds:540}).pubsub.schedule('00 12 * * *')
-// .timeZone('America/New_York').onRun(async (context)=>{
+export const checkSalesCredit = functions.pubsub.schedule('0 * * * *').timeZone("America/Mexico_City").onRun(async (context)=>{
+    let service:SalesRequestService = new SalesRequestService(null);
+    await service.validateCreditSalePaymentToUpdate();
+    return null;
+})
 
-//     // console.log("Traspaso iniciado");
-
-    
-//     let date = new Date();
-//         date.setHours(date.getHours()-24)
-//         let salesService:SalesRequestService = new SalesRequestService(null);
-//         let month = (date.getMonth()+1).toString();
-//         let day = date.getDate().toString();
-//         if(+month<10) month="0"+month;
-//         if(+day<10) day="0"+day;
-//         let dateStr = date.getFullYear()+"-"+month+"-"+day;
-//         console.log("Fecha de transferencia: "+dateStr);
-//         await salesService.transferAllSalesAutorized(dateStr);
-    
-// }) 
+export const checkPreSalesForOrders = functions.pubsub.schedule('0 23 * * *').timeZone("America/Mexico_City").onRun(async (context)=>{
+    let service:OrderAutomaticCreationService = new OrderAutomaticCreationService();
+    await service.checkForOrders();
+    return null;
+})

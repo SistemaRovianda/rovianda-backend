@@ -176,6 +176,13 @@ export interface OfflineNewVersionClient{
     sunday:boolean;
     cp:string;
     modified:boolean;
+    street:string,
+    municipality:string,
+    suburb:string,
+    extNum:number,
+    latitude:number,
+    longitud:number,
+    status:string
 }
 
 export interface SalesTypes{

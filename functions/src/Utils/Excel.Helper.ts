@@ -27,7 +27,8 @@ import { SubOrderMetadata } from "../Models/Entity/SubOrder.Sale.Seller.Metadata
 import { LotsStockInventoryPresentation, OutputsDeliveryPlant } from "../Models/DTO/PackagingDTO";
 import { DeliverToWarehouse } from "../Services/Packaging.Service";
 import { ProductInfoFromPackDefrostTrazability, ProductInfoFromPackIngredientsTrazability, ProductInfoFromPackTrazability } from "../Models/DTO/Quality.DTO";
-import { ClientItemBySeller } from "../Models/DTO/Client.DTO";
+import { ClientItemBySeller, ClientVisitData } from "../Models/DTO/Client.DTO";
+import { SellerClientScheduleData, SellerReportSoldPeriod, SellerSoldPeriod, SellerVisit } from "../Models/SellerReportRequests";
 
 
 export default class Excel4Node{
@@ -2850,7 +2851,7 @@ export default class Excel4Node{
             return workbook;
     }
 
-    getReportWarehouseDeliveredBySeller(products:DeliverToWarehouse[],dateStart:string,dateEnd:string,sellerName:string){
+    getReportWarehouseDeliveredBySeller(products:DeliverToWarehouse[],dateStart:string,dateEnd:string,sellerName:string,type:string){
         var workbook = new excel.Workbook();
         let worksheet = workbook.addWorksheet('PRODUCTO ENTREGADO');
 
@@ -2864,8 +2865,14 @@ export default class Excel4Node{
         worksheet.cell(7,2,7,2,true).string('NOMBRE');
         worksheet.cell(7,3,7,3,true).string('UNIDADES');
         worksheet.cell(7,4,7,4,true).string('PESO');
-        worksheet.cell(7,5,7,5,true).string('PRECIO');
-        worksheet.cell(7,6,7,6,true).string('TOTAL');
+        if(type!="acumulated"){
+            worksheet.cell(7,5,7,5,true).string('FECHA');
+            worksheet.cell(7,6,7,6,true).string('PRECIO');
+            worksheet.cell(7,7,7,7,true).string('TOTAL');
+        }else{
+            worksheet.cell(7,5,7,5,true).string('PRECIO');
+            worksheet.cell(7,6,7,6,true).string('TOTAL');
+        }
         let row=8;
         let total = 0;
         for(let product of products){
@@ -2873,8 +2880,15 @@ export default class Excel4Node{
             worksheet.cell(row,2,row,2,true).string(`${product.NAME}`);
             worksheet.cell(row,3,row,3,true).string(`${product.UNITS}`);
             worksheet.cell(row,4,row,4,true).string(`${product.WEIGHT.toFixed(2)}`);
-            worksheet.cell(row,5,row,5,true).string(`${product.PRICE}`);
-            worksheet.cell(row,6,row,6,true).string(`${product.TOTAL}`);
+            if(type!="acumulated"){
+                worksheet.cell(row,5,row,5,true).string(`${product.DATE}`);
+                worksheet.cell(row,6,row,6,true).string(`${product.PRICE}`);
+                worksheet.cell(row,7,row,7,true).string(`${product.TOTAL}`);
+            }else{
+                worksheet.cell(row,5,row,5,true).string(`${product.PRICE}`);
+                worksheet.cell(row,6,row,6,true).string(`${product.TOTAL}`);
+            }
+            
             total+=product.TOTAL;
             row++;
         }
@@ -3088,4 +3102,462 @@ export default class Excel4Node{
         }
         return workbook;           
     }
+
+    getSellerVisits(items:SellerVisit[],dateString:string){
+        let dateParsed = this.parseDate(new Date(dateString));
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('Reporte');
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        let style2={alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,11,true).string("Reporte de visitas de vendedor").style(style);
+        
+        let row=2;
+        let headerRow=2;
+        let dateRow=2;
+        let currentSeller = "";
+        let totalAmount =0;
+        for(let item of items){
+            if(currentSeller!=item.sellerId){
+                let lastRowBySeller = row+1;
+                if(currentSeller!=""){
+                    worksheet.cell(lastRowBySeller,4,lastRowBySeller,4).string("Total: ").style(style);
+                    worksheet.cell(lastRowBySeller,5,lastRowBySeller,5).string("$ "+(+totalAmount.toFixed(2)).toLocaleString()).style(style);
+                    totalAmount=0;
+                }
+                headerRow=row+2;
+                dateRow=headerRow+1;
+                row+=4;
+                worksheet.cell(headerRow,1,headerRow,2,true).string(`Vendedor: ${item.sellerName}`).style(style);
+                worksheet.cell(dateRow,1,dateRow,2,true).string(`Fecha: ${dateParsed}`).style(style);
+                worksheet.cell(row,1,row,1,true).string('Clave cliente').style(style);
+                worksheet.cell(row,2,row,2,true).string('Nombre cliente').style(style);
+                worksheet.cell(row,3,row,3,true).string('En agenda').style(style);
+                worksheet.cell(row,4,row,4,true).string('Status final').style(style);
+                worksheet.cell(row,5,row,5,true).string('Total vendido').style(style);
+                worksheet.cell(row,6,row,6,true).string('Observaciones').style(style);
+                currentSeller=item.sellerId;
+                row++;
+            }
+            worksheet.cell(row,1,row,1,true).string(item.keyClient.toString()).style(style2);
+            worksheet.cell(row,2,row,2,true).string(item.name).style(style2);
+            worksheet.cell(row,3,row,3,true).string(item.mustVisited==1?"Si":"No").style(style2);
+            worksheet.cell(row,4,row,4,true).string(item.amount>0?"Visitado":"No visitado").style(style2);
+            worksheet.cell(row,5,row,5,true).string((+item.amount.toFixed(2)).toLocaleString()).style(style2);
+            totalAmount+=item.amount;
+            row++;
+        }
+        worksheet.cell(row,4,row,4).string("Total: ").style(style);
+        worksheet.cell(row,5,row,5).string("$ "+(+totalAmount.toFixed(2)).toLocaleString()).style(style);
+        
+        return workbook;  
+    }
+
+    getSellerVisitsScheduled(items:ClientVisitData[],sellerName:string,date:string){
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('Reporte');
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        let style2={alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,6,true).string("Visitas programadas del vendedor").style(style);
+        worksheet.cell(2,1,2,3,true).string("Fecha: "+date).style(style);
+        worksheet.cell(2,4,2,6,true).string("Vendedor: "+sellerName).style(style);
+        let row=4;
+                worksheet.cell(row,1,row,1,true).string('Nombre').style(style);
+                worksheet.cell(row,2,row,2,true).string('Código').style(style);
+                worksheet.cell(row,3,row,3,true).string('Visitado').style(style);
+                worksheet.cell(row,4,row,4,true).string('Con venta').style(style);
+                worksheet.cell(row,5,row,5,true).string('Monto vendido').style(style);
+                worksheet.cell(row,6,row,6,true).string('Observaciones').style(style);
+                row++;
+        for(let item of items){
+            worksheet.cell(row,1,row,1,true).string(item.clientName).style(style2);
+            worksheet.cell(row,2,row,2,true).string(item.code.toString()).style(style2);
+            worksheet.cell(row,3,row,3,true).string(item.visited?"Si":"No").style(style2);
+            worksheet.cell(row,4,row,4,true).string(item.withSale?"Si":"No").style(style2);
+            worksheet.cell(row,5,row,5,true).string((+item.amount.toFixed(2)).toLocaleString()).style(style2);
+            worksheet.cell(row,6,row,6,true).string(item.observations).style(style2);
+            row++;
+        }
+    
+        return workbook;  
+    }
+
+
+    getCustomerScheduleReport(day:string,records:SellerClientScheduleData[]){
+        var workbook = new excel.Workbook();
+        let dayStr ="";
+        switch(day){
+            case "MONDAY":
+                dayStr="Lunes"
+                break;
+            case "TUESDAY":
+                dayStr="Martes"
+                break;
+            case "WEDNESDAY":
+                dayStr="Miercoles"
+                break;
+            case "THURSDAY":
+                dayStr="Jueves"
+                break;
+            case "FRIDAY":
+                dayStr="Viernes"
+                break;
+            case "SATURDAY":
+                dayStr="Sabado"
+                break;
+        }
+        let worksheet = workbook.addWorksheet('Reporte de agenda');
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        let style2={alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,6,true).string('Reporte de agenda dia: '+dayStr).style(style);
+        let currentSeller="";
+        let row=2;
+        if(records.length>0){
+            currentSeller = records[0].sellerName;
+            worksheet.cell(row,1,row,6,true).string('Vendedor: '+currentSeller).style(style);
+            row=3;
+        
+                worksheet.cell(row,1,row,1,true).string('Nombre').style(style);
+                worksheet.cell(row,2,row,2,true).string('Tipo').style(style);
+                worksheet.cell(row,3,row,3,true).string('Clave Sistema').style(style);
+                worksheet.cell(row,4,row,4,true).string('Clave SAE').style(style);
+                worksheet.cell(row,5,row,5,true).string('Estatus').style(style);
+                worksheet.cell(row,6,row,6,true).string('Ciudad').style(style);
+                worksheet.cell(row,7,row,7,true).string('Colonia').style(style);
+                worksheet.cell(row,8,row,8,true).string('Dirección').style(style);
+                row++;
+                for(let item of records){
+                    if(currentSeller!=item.sellerName){
+                        currentSeller=item.sellerName;
+                        row++;
+                        worksheet.cell(row,1,row,6,true).string('Vendedor: '+currentSeller).style(style);
+                        row++;
+                        worksheet.cell(row,1,row,1,true).string('Nombre').style(style);
+                        worksheet.cell(row,2,row,2,true).string('Tipo').style(style);
+                        worksheet.cell(row,3,row,3,true).string('Clave Sistema').style(style);
+                        worksheet.cell(row,4,row,4,true).string('Clave SAE').style(style);
+                        worksheet.cell(row,5,row,5,true).string('Estatus').style(style);
+                        worksheet.cell(row,6,row,6,true).string('Ciudad').style(style);
+                        worksheet.cell(row,7,row,7,true).string('Colonia').style(style);
+                        worksheet.cell(row,8,row,8,true).string('Dirección').style(style);
+                        row++;
+                    }
+                    worksheet.cell(row,1,row,1,true).string(item.name).style(style2);
+                    worksheet.cell(row,2,row,2,true).string(item.typeClient.toString()).style(style2);
+                    worksheet.cell(row,3,row,3,true).string(item.keyClient.toString()).style(style2);
+                    worksheet.cell(row,4,row,4,true).string(item.aspelKey.toString()).style(style2);
+                    worksheet.cell(row,5,row,5,true).string(item.status=="ACTIVE"?"Activo":"Desactivado").style(style2);
+                    worksheet.cell(row,6,row,6,true).string(item.city).style(style2);
+                    worksheet.cell(row,7,row,7,true).string(item.suburb).style(style2);
+                    worksheet.cell(row,8,row,8,true).string(item.street).style(style2);
+                    row++;
+                }
+        }
+    
+        return workbook;  
+    }
+
+    getCustomerScheduleAllDaysReport(records:SellerClientScheduleData[]){
+        var workbook = new excel.Workbook();
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        let style2={alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        if(records.length>0){
+            let monday = records.filter((x)=>x.monday==1);
+            let tuesday=records.filter((x)=>x.tuesday==1);
+            let wednesday=records.filter((x)=>x.wednesday==1);
+            let thursday=records.filter((x)=>x.thursday==1);
+            let friday =records.filter(x=>x.friday==1);
+            let saturday=records.filter((x)=>x.saturday==1);
+            let currentSeller="";
+            let days=["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
+            let worksheet=null;
+            for(let day of days){
+                worksheet = workbook.addWorksheet(day);
+                let currentArray =[];
+                switch(day){
+                    case "Lunes":
+                        currentArray=monday;
+                        break;
+                    case "Martes":
+                        currentArray=tuesday;
+                        break;
+                    case "Miercoles":
+                        currentArray=wednesday;
+                        break;
+                    case "Jueves":
+                        currentArray=thursday;
+                        break;
+                    case "Viernes":
+                        currentArray=friday;
+                        break;
+                    case "Sabado":
+                        currentArray=saturday;
+                        break;
+                }
+
+                if(currentArray.length>0){
+                    let row=1;
+                    currentSeller = records[0].sellerName;
+                    worksheet.cell(row,1,row,6,true).string('Vendedor: '+currentSeller).style(style);
+                    row=3;
+                    worksheet.cell(row,1,row,1,true).string('Nombre').style(style);
+                    worksheet.cell(row,2,row,2,true).string('Tipo').style(style);
+                    worksheet.cell(row,3,row,3,true).string('Clave Sistema').style(style);
+                    worksheet.cell(row,4,row,4,true).string('Clave SAE').style(style);
+                    worksheet.cell(row,5,row,5,true).string('Estatus').style(style);
+                    worksheet.cell(row,6,row,6,true).string('Ciudad').style(style);
+                    worksheet.cell(row,7,row,7,true).string('Colonia').style(style);
+                    worksheet.cell(row,8,row,8,true).string('Dirección').style(style);
+                    row++;
+                    for(let item of currentArray){        
+                        if(currentSeller!=item.sellerName){
+                            currentSeller=item.sellerName;
+                            row++;
+                            worksheet.cell(row,1,row,6,true).string('Vendedor: '+currentSeller).style(style);
+                            row++;
+                            worksheet.cell(row,1,row,1,true).string('Nombre').style(style);
+                            worksheet.cell(row,2,row,2,true).string('Tipo').style(style);
+                            worksheet.cell(row,3,row,3,true).string('Clave Sistema').style(style);
+                            worksheet.cell(row,4,row,4,true).string('Clave SAE').style(style);
+                            worksheet.cell(row,5,row,5,true).string('Estatus').style(style);
+                            worksheet.cell(row,6,row,6,true).string('Ciudad').style(style);
+                            worksheet.cell(row,7,row,7,true).string('Colonia').style(style);
+                            worksheet.cell(row,8,row,8,true).string('Dirección').style(style);
+                            row++;
+                        }
+                        worksheet.cell(row,1,row,1,true).string(item.name).style(style2);
+                        worksheet.cell(row,2,row,2,true).string(item.typeClient.toString()).style(style2);
+                        worksheet.cell(row,3,row,3,true).string(item.keyClient.toString()).style(style2);
+                        worksheet.cell(row,4,row,4,true).string(item.aspelKey.toString()).style(style2);
+                        worksheet.cell(row,5,row,5,true).string(item.status=="ACTIVE"?"Activo":"Desactivado").style(style2);
+                        worksheet.cell(row,6,row,6,true).string(item.city).style(style2);
+                        worksheet.cell(row,7,row,7,true).string(item.suburb).style(style2);
+                        worksheet.cell(row,8,row,8,true).string(item.street).style(style2);
+                        row++;
+                    }
+                    currentSeller="";    
+                }
+            }
+            
+            
+                            
+                
+        
+        }
+        return workbook;  
+    }
+
+    getSellerSoldsPeriod(items:SellerSoldPeriod[],request:SellerReportSoldPeriod){
+        var workbook = new excel.Workbook();
+        let worksheet = workbook.addWorksheet('Reporte');
+        let monthStr = this.getMonthByNumber(request.month);
+        let periodOne ="";
+        let periodTwo ="";
+        if(request.typePeriod==3){
+            periodOne=`Mes completo de ${monthStr} de ${request.year}`;
+            periodTwo=`Mes completo de ${monthStr} de ${request.oldYear}`;
+        }else{
+         periodOne=`${request.typePeriod} Quincena de ${monthStr} de ${request.year}`;
+         periodTwo=`${request.typePeriod} Quincena de ${monthStr} de ${request.oldYear}`;
+        }
+        let style= {font: {
+            bold: true
+        },
+        alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        let style2={alignment: {
+            wrapText: true,
+            horizontal: 'center',
+        }};
+        worksheet.cell(1,1,1,11,true).string("Reporte de crecimientos").style(style);
+        let row=2;
+        let headerRow=2;
+        let periodOneHeader=2;
+        let periodTwoHeader=2;
+        
+        let sellerMap = new Map<string,SellerSoldPeriod[]>();
+        for(let item of items){
+            let sellerMapObject = sellerMap.get(item.sellerId);
+            if(!sellerMapObject){
+                sellerMap.set(item.sellerId,[item]);
+            }else{
+                sellerMapObject.push(item);
+                sellerMap.set(item.sellerId,sellerMapObject);
+            }
+        }
+        for(let [key,value] of sellerMap.entries()){
+            let mapProducts = new Map<number,SellerSoldPeriod>();
+            let periodOneArray:SellerSoldPeriod[] =[];
+            for(let sold of value){
+                
+                if(sold.period==1){
+                    periodOneArray.push(sold);
+                }else{
+                    mapProducts.set(sold.productId,sold);
+                }
+            }
+            headerRow=row+1;
+            periodOneHeader=headerRow+1;
+            periodTwoHeader=headerRow+2;
+            row=periodTwoHeader+1;
+            let titleAdded=false;
+            if(periodOneArray.length){
+                worksheet.cell(headerRow,1,headerRow,2,true).string(`Vendedor: ${periodOneArray[0].sellerName}`).style(style);
+                worksheet.cell(periodOneHeader,1,periodOneHeader,2,true).string(`Periodo actual: ${periodOne}`).style(style);
+                worksheet.cell(periodTwoHeader,1,periodTwoHeader,2,true).string(`Periodo anterior: ${periodTwo}`).style(style);
+                worksheet.cell(row,1,row,1,true).string('Clave producto').style(style);
+                worksheet.cell(row,2,row,2,true).string('Nombre producto').style(style);
+                worksheet.cell(row,3,row,3,true).string('Total periodo Actual (Kg/Pz)').style(style);
+                worksheet.cell(row,4,row,4,true).string('Total periodo Anterior (Kg/Pz)').style(style);
+                worksheet.cell(row,5,row,5,true).string('Crecimiento').style(style);
+                titleAdded=true;
+                row++;
+            
+                for(let oldSold of periodOneArray){
+                    worksheet.cell(row,1,row,1,true).string(oldSold.code).style(style2);
+                    worksheet.cell(row,2,row,2,true).string(oldSold.product).style(style2);
+                    
+                    let newQuantity=0;
+                    let newObject = mapProducts.get(oldSold.productId);
+                    let percent = 1;
+                    if(newObject){
+                        newQuantity=newObject.quantity;
+                        let maxValue=0;
+                        let minValue=0;
+                        let mult=1;
+                        if(newQuantity<oldSold.quantity){
+                            maxValue = oldSold.quantity;
+                            minValue=newQuantity;
+                            mult=-1;
+                            percent = (((maxValue-minValue)*100)/(maxValue))*mult;
+                        }else{
+                            maxValue = newQuantity;
+                            minValue= oldSold.quantity;
+                            percent = (((maxValue-minValue)*100)/(minValue))*mult;
+                        }
+                        
+                    }else{
+                        percent=-100;
+                    }
+                    worksheet.cell(row,3,row,3,true).string((+newQuantity.toFixed(2)).toLocaleString()).style(style2);
+                    worksheet.cell(row,4,row,4,true).string((+oldSold.quantity.toFixed(2)).toLocaleString()).style(style2);
+                    worksheet.cell(row,5,row,5,true).string(`${(+percent.toFixed(2)).toLocaleString()} %`).style(style2);
+                    mapProducts.delete(oldSold.productId);
+                    row++;
+                }
+            }
+            if(mapProducts.size>1){
+                for(let [key,value] of mapProducts.entries()){
+                    if(!titleAdded){
+                        worksheet.cell(headerRow,1,headerRow,2,true).string(`Vendedor: ${value.sellerName}`).style(style);
+                        worksheet.cell(periodOneHeader,1,periodOneHeader,2,true).string(`Periodo actual: ${periodOne}`).style(style);
+                        worksheet.cell(periodTwoHeader,1,periodTwoHeader,2,true).string(`Periodo anterior: ${periodTwo}`).style(style);
+                        worksheet.cell(row,1,row,1,true).string('Clave producto').style(style);
+                        worksheet.cell(row,2,row,2,true).string('Nombre producto').style(style);
+                        worksheet.cell(row,3,row,3,true).string('Total periodo Actual (Kg/Pz)').style(style);
+                        worksheet.cell(row,4,row,4,true).string('Total periodo Anterior (Kg/Pz)').style(style);
+                        worksheet.cell(row,5,row,5,true).string('Crecimiento').style(style);
+                        titleAdded=true;
+                        row++;
+                    }
+                    worksheet.cell(row,1,row,1,true).string(value.code).style(style2);
+                    worksheet.cell(row,2,row,2,true).string(value.product).style(style2);
+                    worksheet.cell(row,3,row,3,true).string((+value.quantity.toFixed(2)).toLocaleString()).style(style2);
+                    worksheet.cell(row,4,row,4,true).string("0.00").style(style2);
+                    worksheet.cell(row,5,row,5,true).string(`100%`).style(style2);
+                    mapProducts.delete(value.productId);
+                    row++;
+                }
+            }
+            mapProducts.clear();
+        }
+        return workbook;  
+    }
+
+    parseDate(date:Date){
+        let month = date.getMonth()+1;
+        let montStr =this.getMonthByNumber(month);
+        return date.getDate()+" de "+montStr+" del "+date.getFullYear();
+    }
+
+    getMonthByNumber(month:number){
+        let montStr="";
+        switch(month){
+            case 1:
+                montStr="Enero";
+                break;
+            case 2:
+                montStr="Febrero";
+                break;
+            case 3:
+                montStr="Marzo";
+                break;
+            case 4:
+                montStr="Abril";
+                break;
+            case 5: 
+                montStr="Mayo";
+                break;
+            case 6:
+                montStr="Junio";
+                break;
+            case 7:
+                montStr="Julio";
+                break;
+            case 8:
+                montStr="Agosto";
+                break;
+            case 9:
+                montStr="Septiembre";
+                break;
+            case 10:
+                montStr="Octubre";
+                break;
+            case 11:
+                montStr="Noviembre";
+                break;
+            case 12:
+                montStr="Diciembre";
+                break;
+        }
+        return montStr;
+    }
+    
 }

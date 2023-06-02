@@ -72,4 +72,7 @@ export class Sale{
     @Column({name:"devolution_request",default:false})
     devolutionRequest:boolean;
 
+    @Column({name:"folio_index",nullable:true,unique:true})
+    folioIndex:string;
+
 }

@@ -97,6 +97,16 @@ export interface MODR{
     status:boolean;
 }
 
+export interface PreSaleRequest{
+    folio:string;
+    date:string;
+    dateToDeliver:string;
+    amount:number;
+    sellerId:string;
+    clientId:string;
+    products:MOSRMP[]
+}
+
 export interface MOSRM{
     folio:string;
     date:string;

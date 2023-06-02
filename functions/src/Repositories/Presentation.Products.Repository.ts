@@ -87,6 +87,10 @@ export class PresentationsProductsRepository{
         return await this.presentationsProductsRepository.delete({id:presentationProductId});
     }
 
+    async findByKeySaeAltern(presentationKey:string){
+        await this.getConnection();
+        return await this.presentationsProductsRepository.findOne({keyAltern:Like("%"+presentationKey)},{relations:["productRovianda"]});
+    }
     async findByKeySae(presentationKey:string){
         await this.getConnection();
         return await this.presentationsProductsRepository.findOne({keySae:presentationKey},{relations:["productRovianda"]});

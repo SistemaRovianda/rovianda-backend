@@ -1,16 +1,12 @@
-import { Response, response } from "express";
-import { times, zip } from "lodash";
-import { Request } from "mssql";
+
 import { AdminPreRegisterProductDetails, AdminSalesRequest, CancelRequest, ChartD3DataInterface, OfflineNewVersionClient, OfflineNewVersionProducts, OfflineNewVersionResponse, RequestPreRegistProduct, SaleInterfaceRequest, SubSaleInterface } from "../Models/DTO/Admin.Sales.Request";
 import { ClientEditRequest } from "../Models/DTO/Client.DTO";
 import { Address } from "../Models/Entity/Address";
 import { Client } from "../Models/Entity/Client";
 import { DayVisited } from "../Models/Entity/DayVisited";
-import { DevolutionSellerRequest } from "../Models/Entity/DevolutionSellerRequest";
 import { PresentationProducts } from "../Models/Entity/Presentation.Products";
 import { ProductRovianda } from "../Models/Entity/Product.Rovianda";
 import { Roles } from "../Models/Entity/Roles";
-import { SaleCancel } from "../Models/Entity/SaleCancel";
 import { Sale } from "../Models/Entity/Sales";
 import { User } from "../Models/Entity/User";
 import { ClientRepository } from "../Repositories/Client.Repository";
@@ -30,6 +26,12 @@ import { UserRepository } from "../Repositories/User.Repository";
 import { AdminSalesReports } from "../Utils/componentsReports/AdminSalesReports";
 import ExcelHelper from "../Utils/Excel.Helper";
 import { FirebaseHelper } from "../Utils/Firebase.Helper";
+import { ModelDebtDeliverRequest, ModelDebtDeliverResponse, ModelUpdatePresaleRequest, ModelUpdatePresaleResponse, OfflinePreSaleNewVersionResponse, SaleInterfaceRequestForPresale } from "../Models/DTO/PreSalesDTO";
+import { PreSalesVinculationSellerRepository } from "../Repositories/PreSalesVinculationSeller.Repository";
+import { PreSale } from "../Models/Entity/PreSale";
+import { PreSaleRepository } from "../Repositories/PreSale.repository";
+import { DebtsRepository } from "../Repositories/Debts.Repository";
+import { Debts } from "../Models/Entity/Debts";
 export class AdminSalesService{
 
     private sellerRepository:UserRepository;
@@ -50,6 +52,9 @@ export class AdminSalesService{
     private sellerInventoryRepository:SellerInventoryRepository;
     private devolutionRequestRepository:DevolutionSellerRequestRepository;
     private devolutionSubSaleRepository:DevolutionOldSubSaleRepository;
+    private preSaleVinculationSellerRepository:PreSalesVinculationSellerRepository;
+    private preSaleRepository:PreSaleRepository;
+    private debtRepository:DebtsRepository;
     constructor(firebaseHelper: FirebaseHelper){
         this.sellerRepository = new UserRepository();
         this.rolRepository = new RolesRepository();
@@ -69,6 +74,9 @@ export class AdminSalesService{
         this.sellerInventoryRepository= new SellerInventoryRepository();
         this.devolutionRequestRepository=new DevolutionSellerRequestRepository();
         this.devolutionSubSaleRepository=new DevolutionOldSubSaleRepository();
+        this.preSaleVinculationSellerRepository = new PreSalesVinculationSellerRepository();
+        this.preSaleRepository = new PreSaleRepository();
+        this.debtRepository = new DebtsRepository();
     }
 
     async getAllSellers(){
@@ -367,6 +375,269 @@ export class AdminSalesService{
 
     async updateClientSincronized(body:number[]){
         await this.clientRepository.updateSincronizeStatusClients(body);
+    }
+
+    async registerDebtOfDeliver(request:ModelDebtDeliverRequest[],sellerId:string){
+        let seller = await this.userRepository.getUserById(sellerId);
+        if(!seller) throw new Error("[404], No existe el usuario");
+        let response:ModelDebtDeliverResponse[]=[];
+        for(let debt of request){
+            let sale:Sale = await this.salesRepository.getByFolio(debt.folioSale);
+            if(sale!=null){
+                sale.status=false;
+                await this.salesRepository.saveSale(sale);
+                let debtEntity = await this.debtRepository.getBySale(sale);
+                if(!debtEntity){
+                    debtEntity = new Debts();
+                    debtEntity.amount=sale.amount;
+                    debtEntity.status=false;
+                    debtEntity.createDay=debt.createdAt;
+                    debtEntity.days=0;
+                    debtEntity.sale=sale;
+                    debtEntity.seller=seller;
+                    debtEntity.typePay=debt.payedType;
+                    await this.debtRepository.saveDebts(debtEntity);
+                }
+                response.push({folioPreSale: debt.folioSale});
+            }
+        }
+        return response;
+    }
+
+    async updatePresaleInfoForSale(request:ModelUpdatePresaleRequest[],sellerId:string){
+        let response:ModelUpdatePresaleResponse[]=[];
+        let seller = await this.userRepository.getUserById(sellerId);
+        if(!seller) throw new Error("[404], Usuario no encontrado");
+        for(let presale of request){
+            let preSaleEntity = await this.preSaleRepository.findPreSaleByFolio(presale.folioPresale);
+            preSaleEntity.newFolio=presale.folioForSale;
+            preSaleEntity.dateSolded=presale.dateSolded;
+            preSaleEntity.typeSale=presale.typePayment;
+            preSaleEntity.solded=true;
+            await this.preSaleRepository.registerPreSale(preSaleEntity);
+            
+            let dateSincronized= new Date();
+            dateSincronized.setHours(dateSincronized.getHours()-5);
+            let dateOfSale = new Date(presale.dateSolded);
+            dateOfSale.setHours(dateOfSale.getHours()-5);
+            let hour:string = dateOfSale.getHours().toString();
+            if(+hour<10){
+                hour="0"+hour;
+            }
+            try{
+            let saleEntity= new Sale();
+            saleEntity.date= preSaleEntity.dateSolded;
+            saleEntity.hour=hour;
+            saleEntity.amount=+preSaleEntity.amount.toFixed(2);
+            saleEntity.payedWith=+preSaleEntity.amount.toFixed(2);
+            saleEntity.typeSale=preSaleEntity.typeSale;
+            saleEntity.status=preSaleEntity.typeSale=="CREDITO"?true:false;
+            saleEntity.folio=preSaleEntity.newFolio;
+            saleEntity.withDebts=false;
+            saleEntity.statusStr="ACTIVE";
+            saleEntity.seller=seller;
+            let client= preSaleEntity.client;
+            saleEntity.client=client;
+            saleEntity.newFolio=preSaleEntity.newFolio;
+            saleEntity.sincronized=false;
+            saleEntity.folioTemp=preSaleEntity.newFolio;
+            saleEntity.dateSincronized=dateSincronized.toISOString();
+            saleEntity.cancelRequest=false;
+            saleEntity.folioIndex=preSaleEntity.newFolio;
+            let saleEntitySaved = await this.salesRepository.saveSale(saleEntity);
+            for(let sub of preSaleEntity.subSales){
+            sub.sale=saleEntitySaved;
+            await this.subSalesRepository.saveSubSale(sub);
+            }
+        }catch(err){
+            console.log("Duplicidad mitigada");
+        }
+        
+            response.push({folioPreSale:presale.folioPresale});
+        }
+        return response;
+    }
+
+        
+    
+
+    async getDataInitialForPresales(sellerId:string,date:string){
+        let preSalesSellersVinculated = await this.preSaleVinculationSellerRepository.getAllPreSalesVinculationSellerByPreSaleSellerId(sellerId);
+        let clients:OfflineNewVersionClient[]=[];
+        for(let sellerVinculated of preSalesSellersVinculated){
+            let clientsOFSeller = await this.clientRepository.getClientsOfflineNewVersion(sellerVinculated.deliverUserId);
+            clients.push(...clientsOFSeller);
+        }
+        let products:OfflineNewVersionProducts[] = await this.productRepository.getProductsOfflineNewVersion(sellerId);
+        let currentSalesList:SaleInterfaceRequestForPresale[]=[];
+        let currentPreSales:PreSale[]=await this.preSaleRepository.getPreSalesByPreSaleUserAndDate(sellerId,date);
+    
+        console.log("Current presales: "+currentPreSales.length);
+        
+        for(let currentPreSale of currentPreSales){
+            let subSales = await this.subSalesRepository.getSubSalesByPreSale(currentPreSale);
+            currentSalesList.push(
+                {
+                    preSaleId:currentPreSale.preSaleId,
+                    amount: currentPreSale.amount,
+                    clientId: currentPreSale.client.id,
+                    clientName: currentPreSale.client.name,
+                    date: currentPreSale.dateCreated,
+                    dateToDeliver: currentPreSale.dateToDeliver,
+                    folio: currentPreSale.folio,
+                    keyClient: currentPreSale.client.keyClient.toString(),
+                    payed: currentPreSale.payedWith,
+                    sellerId: sellerId,
+                    statusStr: currentPreSale.statusStr,
+                    typeSale: currentPreSale.typeSale,
+                    solded: currentPreSale.solded,
+                    folioSale: currentPreSale.newFolio,
+                    dateSolded: currentPreSale.dateSolded,
+                    products: subSales.map((x)=>{
+                        let item:SubSaleInterface= {
+                            presentationId: x.presentation.id,
+                            price: x.amount,
+                            productId: x.product.id,
+                            productKey: x.presentation.keySae,
+                            productName: x.product.name,
+                            productPresentationType: x.presentation.presentationType,
+                            quantity: x.quantity,
+                            subSaleServerId: x.subSaleId,
+                            uniMed: x.presentation.uniMed,
+                            weightStandar: x.presentation.presentationPriceMin,
+                            subSaleAppId: x.appSubSaleId,
+                            esqKey: x.presentation.esqKey,
+                            esqDescription: x.presentation.esqDescription
+                        };
+                        return item;
+                    })
+                }
+            );
+        }
+        let seller:User=await this.sellerRepository.getUserById(sellerId);
+        let preSaleOfSeller = await this.preSaleRepository.getLastFolioOfSeller(seller);
+        let response:OfflinePreSaleNewVersionResponse={
+            clients,
+            products,
+            email: seller.email,
+            password:"Rovi2023",
+            lastSincronization: new Date().toISOString(),
+            nomenclature: seller.cve,
+            uid: seller.id,
+            name: seller.name,
+            count: +preSaleOfSeller.replace(seller.cve,""),
+            preSalesOfDay: currentSalesList
+        }
+        return response;
+    }
+
+    async getDataInitialForDeliversOfPresales(sellerId:string,date:string){
+        
+        let clients:OfflineNewVersionClient[]=await this.clientRepository.getClientsOfflineNewVersion(sellerId);
+        let products:OfflineNewVersionProducts[] = await this.productRepository.getProductsOfflineNewVersion(sellerId);
+        let currentSalesList:SaleInterfaceRequestForPresale[]=[];
+        let currentPreSalesPendingPaymentList:SaleInterfaceRequestForPresale[]=[];
+        let currentPreSales:PreSale[]=await this.preSaleRepository.getPreSalesForDeliverBySellerIdAndDate(sellerId,date);
+        let pendinPreSales:PreSale[] = await this.preSaleRepository.getPreSalesCreditWithPendingPayment(sellerId);
+        console.log("Current presales: "+currentPreSales.length);
+        
+        for(let presale of pendinPreSales){
+            let subSales = await this.subSalesRepository.getSubSalesByPreSale(presale);
+            currentPreSalesPendingPaymentList.push(
+                {
+                    preSaleId:presale.preSaleId,
+                    amount: presale.amount,
+                    clientId: presale.client.id,
+                    clientName: presale.client.name,
+                    date: presale.dateCreated,
+                    dateToDeliver: presale.dateToDeliver,
+                    folio: presale.folio,
+                    keyClient: presale.client.keyClient.toString(),
+                    payed: presale.payedWith,
+                    sellerId: sellerId,
+                    statusStr: presale.statusStr,
+                    typeSale: presale.typeSale,
+                    solded: presale.solded,
+                    folioSale: presale.newFolio,
+                    dateSolded: presale.dateSolded,
+                    products: subSales.map((x)=>{
+                        let item:SubSaleInterface= {
+                            presentationId: x.presentation.id,
+                            price: x.amount,
+                            productId: x.product.id,
+                            productKey: x.presentation.keySae,
+                            productName: x.product.name,
+                            productPresentationType: x.presentation.presentationType,
+                            quantity: x.quantity,
+                            subSaleServerId: x.subSaleId,
+                            uniMed: x.presentation.uniMed,
+                            weightStandar: x.presentation.presentationPriceMin,
+                            subSaleAppId: x.appSubSaleId,
+                            esqKey: x.presentation.esqKey,
+                            esqDescription: x.presentation.esqDescription
+                        };
+                        return item;
+                    })
+                }
+            );
+        }
+
+        for(let currentPreSale of currentPreSales){
+            let subSales = await this.subSalesRepository.getSubSalesByPreSale(currentPreSale);
+            currentSalesList.push(
+                {
+                    preSaleId:currentPreSale.preSaleId,
+                    amount: currentPreSale.amount,
+                    clientId: currentPreSale.client.id,
+                    clientName: currentPreSale.client.name,
+                    date: currentPreSale.dateCreated,
+                    dateToDeliver: currentPreSale.dateToDeliver,
+                    folio: currentPreSale.folio,
+                    keyClient: currentPreSale.client.keyClient.toString(),
+                    payed: currentPreSale.payedWith,
+                    sellerId: sellerId,
+                    statusStr: currentPreSale.statusStr,
+                    typeSale: currentPreSale.typeSale,
+                    solded: currentPreSale.solded,
+                    folioSale: currentPreSale.newFolio,
+                    dateSolded: currentPreSale.dateSolded,
+                    products: subSales.map((x)=>{
+                        let item:SubSaleInterface= {
+                            presentationId: x.presentation.id,
+                            price: x.amount,
+                            productId: x.product.id,
+                            productKey: x.presentation.keySae,
+                            productName: x.product.name,
+                            productPresentationType: x.presentation.presentationType,
+                            quantity: x.quantity,
+                            subSaleServerId: x.subSaleId,
+                            uniMed: x.presentation.uniMed,
+                            weightStandar: x.presentation.presentationPriceMin,
+                            subSaleAppId: x.appSubSaleId,
+                            esqKey: x.presentation.esqKey,
+                            esqDescription: x.presentation.esqDescription
+                        };
+                        return item;
+                    })
+                }
+            );
+        }
+        let seller:User=await this.sellerRepository.getUserById(sellerId);
+        let saleOfSeller = await this.salesRepository.getLastFolioOfSeller(seller);
+        let response:OfflinePreSaleNewVersionResponse={
+            clients,
+            products,
+            email: seller.email,
+            password:"Rovi2023",
+            lastSincronization: new Date().toISOString(),
+            nomenclature: seller.cve,
+            uid: seller.id,
+            name: seller.name,
+            count: +saleOfSeller.replace(seller.cve,""),
+            preSalesOfDay: currentSalesList,
+            debts: currentPreSalesPendingPaymentList
+        }
+        return response;
     }
 
     async getOfflineNewVersion(sellerId:string,date:string){
@@ -704,6 +975,7 @@ export class AdminSalesService{
             presentationProduct.keyAltern=body.code;
         }else{
             presentationProduct.keySae=body.code;
+            presentationProduct.keyAltern=body.codeAltern;
         }
         presentationProduct.typeProduct=body.type;
         presentationProduct.uniMed=body.uniMed;
@@ -723,7 +995,7 @@ export class AdminSalesService{
             presentation.presentationPriceLiquidation=body.quantityByPresentation
         }else{
             presentation.keySae=body.code;
-            presentation.keyAltern=null;
+            presentation.keyAltern=body.codeAltern;
         }
         presentation.presentationPricePublic=body.price;
         presentation.presentationPriceMin=body.weight;

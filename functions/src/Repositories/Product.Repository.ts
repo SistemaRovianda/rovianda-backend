@@ -124,7 +124,7 @@ export class ProductRepository{
         return await this.productRepository.query(
             `
             select pr.id as productId,pr.name,pp.type_presentation as presentationName,pp.uni_med as uniMed,pp.price_presentation_public as price,
-            pp.key_sae as productKey,
+            if(pp.key_altern is not null,pp.key_altern,pp.key_sae) as productKey,
             pp.presentation_id as presentationId,pp.price_presentation_min as weightOriginal ,if(t.quantity is null,0,t.quantity) as quantity,pp.esq_key as esqKey,pp.esq_description as esqDescription
             from products_rovianda as pr left join presentation_products as pp on pr.id=pp.product_rovianda_id
             left join 

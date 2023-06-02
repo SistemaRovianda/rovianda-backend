@@ -23,8 +23,8 @@ import {Command} from "commander";
 
             let saleService = new SalesRequestService(null);   
             await saleService.transferAllSalesAutorized();
-            
             console.log("Script se reiniciará dentro de 24 hrs a las 11am");
+            process.exit();
         });
     }
 })();

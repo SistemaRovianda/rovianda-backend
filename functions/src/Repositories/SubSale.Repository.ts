@@ -3,6 +3,7 @@ import { SubSales } from "../Models/Entity/Sub.Sales";
 import { Between, In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { User } from "../Models/Entity/User";
+import { PreSale } from "../Models/Entity/PreSale";
 
 export class SubSaleRepository{
     private subSaleRepository: Repository<SubSales>;
@@ -12,10 +13,23 @@ export class SubSaleRepository{
             this.subSaleRepository = (await connect()).getRepository(SubSales);
     }
 
+    async saveSubSale(subSale:SubSales){
+        await this.getConnection();
+        return await this.subSaleRepository.save(subSale);
+    }
+
     async getSubSalesBySale(sale:Sale){
         await this.getConnection();
         return await this.subSaleRepository.find({
             where:{ sale},
+            relations:["presentation","product"]
+        });
+    }
+
+    async getSubSalesByPreSale(preSale:PreSale){
+        await this.getConnection();
+        return await this.subSaleRepository.find({
+            where:{ preSale},
             relations:["presentation","product"]
         });
     }

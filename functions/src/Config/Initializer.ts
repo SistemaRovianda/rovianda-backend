@@ -28,6 +28,7 @@ import { CatalogsController } from '../Controllers/Catalogs.Controller';
 import { CheeseController } from '../Controllers/Cheese.Controller';
 import {AdminSalesController} from "../Controllers/Admin.Sales.Controller";
 import { QualityController } from '../Controllers/Quality.Controller';
+import { GeoCodingController } from '../Controllers/GeoCoding.controller';
 export class Initializer {
     private firebaseInstance: FirebaseHelper;
     private pinController: PinController;
@@ -58,6 +59,7 @@ export class Initializer {
     private cheeseController:CheeseController;
     private adminSalesController:AdminSalesController;
     private qualitytController:QualityController;
+    private geocodingController:GeoCodingController;
     constructor() {
         this.firebaseInstance = new FirebaseHelper();
         this.pinController = new PinController(this.firebaseInstance);
@@ -88,6 +90,7 @@ export class Initializer {
         this.cheeseController= new CheeseController();
         this.adminSalesController = new AdminSalesController(this.firebaseInstance);
         this.qualitytController = new QualityController();
+        this.geocodingController = new GeoCodingController();
     }
 
     getController(prototype: string) {
@@ -176,6 +179,9 @@ export class Initializer {
                 break;
             case QualityController.name:
                 return this.qualitytController;
+                break;
+            case GeoCodingController.name:
+                return this.geocodingController;
                 break;
             default:
                 return null;

@@ -224,5 +224,23 @@ export const reportRoutes:Array<routeInterface>=[
         method: "get",
         controller: ReportController,
         target: "getReportPlantDelivery"
+    },
+    {
+        url:"/rovianda/report/visits",
+        method:"post",
+        controller:ReportController,
+        target:"getReportVisits"
+    },
+    {
+        url: "/rovianda/report/sold-period",
+        method: "post",
+        controller: ReportController,
+        target: "getReportSoldPeriod"
+    },
+    {
+        url: "/rovianda/report/customer-schedule",
+        method:"post",
+        controller: ReportController,
+        target: "getCustomerScheduleReport"
     }
 ];

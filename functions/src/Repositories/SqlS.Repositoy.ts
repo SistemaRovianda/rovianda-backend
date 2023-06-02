@@ -248,6 +248,22 @@ export class SqlSRepository{
         });
         await this.connection.close();
     }
+    async desassignedWarehouse(warehouseKey:string){
+        await this.getConnection();
+        await this.connection.connect().then(async (pool)=>{
+            let value = await pool.request().input('CVE_ALM',Int,warehouseKey).query(
+                `SELECT ENCARGADO FROM ALMACENES${EMPRESA} WHERE CVE_ALM=@CVE_ALM`
+            );
+            if(value.recordset.length){
+                let valueToAssign=value.recordset[0].ENCARGADO.replace("-ASSIGNED","");
+                await pool.request().input('CVE_ALM',Int,warehouseKey).input('ENCARGADO',VarChar,valueToAssign)
+                .query(
+                    `UPDATE  ALMACENES${EMPRESA} SET ENCARGADO=@ENCARGADO WHERE CVE_ALM=@CVE_ALM`
+                );
+            }
+        });
+        await this.connection.close();
+    }
 
     async getAllWarehouses(){
         await this.getConnection();
@@ -796,7 +812,7 @@ export class SqlSRepository{
             
             
             let foliocount:any ='0'.repeat(10-(orderSeller.folioRemission.toString().length))+`${orderSeller.folioRemission}`;
-            let foliocountNumber:number = orderSeller.folioRemission;   
+            let foliocountNumber:number = orderSeller.folioRemission;  
             let foliocountBita = (foliosBita.recordset.length)?+foliosBita.recordset[0].ULT_CVE+1:1
             let keySaeSeller = ' '.repeat(5-orderSeller.saeKey.length)+`${orderSeller.saeKey}`;
             let clienteEntityRecords = await pool.request().query(`SELECT * FROM CLIE${EMPRESA2} WHERE CLAVE='${orderSeller.clientCode}'`);
@@ -1096,8 +1112,8 @@ export class SqlSRepository{
             SELECT EXIST,UNI_MED FROM INVE${EMPRESA2} WHERE CVE_ART=@CVE_ART
             `)
             console.log(`Insertando en MINVE${EMPRESA2}`);
-            let productInMultiwarehouse= await pool.request().input('CVE_ART',VarChar,product.presentationCode).query(
-                `SELECT * FROM MULT${EMPRESA2} WHERE CVE_ART=@CVE_ART`
+            let productInMultiwarehouse= await pool.request().input('CVE_ART',VarChar,product.presentationCode).input('CVE_ALM',Int,warehouseId).query(
+                `SELECT * FROM MULT${EMPRESA2} WHERE CVE_ART=@CVE_ART and CVE_ALM=@CVE_ALM`
                 );
             let multiwarehouse= productInMultiwarehouse.recordset[0];
             
@@ -1593,7 +1609,7 @@ export class SqlSRepository{
                     let impu01=0;
                     let impu04=0;
                     let impua1pla=6;
-                    let impua4pla=6;
+                    let impua4pla=0;
                     
                     switch(product.presentation.esqKey){
                         case 1:
@@ -1674,11 +1690,13 @@ export class SqlSRepository{
                 SELECT EXIST,UNI_MED FROM INVE${EMPRESA} WHERE CVE_ART=@CVE_ART
                 `)
                 console.log(`Insertando en MINVE${EMPRESA}`);
+                //.input('CVE_ALM',Int,warehouseId)and CVE_ALM=@CVE_ALM
                 let productInMultiwarehouse= await pool.request().input('CVE_ART',VarChar,product.presentation.keySae).query(
-                    `SELECT * FROM MULT${EMPRESA} WHERE CVE_ART=@CVE_ART`
+                    `SELECT * FROM MULT${EMPRESA} WHERE CVE_ART=@CVE_ART `
                     );
+                    console.log(JSON.stringify(productInMultiwarehouse.recordset[0]));
                 let multiwarehouse= productInMultiwarehouse.recordset[0];
-                
+                    console.log(JSON.stringify(inve01.recordset[0]));
                     await pool.request().input('CVE_ART',VarChar,product.presentation.keySae).input('ALMACEN',Int,warehouseId)
                     .input('NUM_MOV',Int,numMov).input('CVE_CPTO',Int,51).input('FECHA_DOCU',VarChar,dateParse)
                     .input('TIPO_DOC',VarChar,'V').input('REFER',VarChar,`${foliocount}`).input('CLAVE_CLPV',VarChar,' '.repeat(10-(client.keySaeNew.toString().length))+client.keySaeNew.toString() )
@@ -1724,15 +1742,9 @@ export class SqlSRepository{
                     //await this.updateInventoryGeneralAspeSaeByProductOnlyBySeller(product.presentation.keySae,product.quantity,+warehouseId);
                     console.log("Removiendo de almacen de vendedor");
                     await this.removeProductFromSeller(product.presentation.keySae,product.quantity,+warehouseId);
-                    await pool.connect();
-
-                    
-                        
-                    
-                    
-			
-                
+                    await pool.connect();                
                 }
+                console.log("INSERTING PAYMENT");
                 let concept = 10;
                 if(saleRequestForm.typeSale!="CREDITO" && saleRequestForm.typeSale.toLocaleLowerCase()!="transferencia" && saleRequestForm.typeSale.toLocaleLowerCase()!="cheque"){
                     await pool.request().input('CVE_CLIE',VarChar,' '.repeat(10-client.keySaeNew.toString().length)+client.keySaeNew.toString()  ).input('REFER',VarChar,foliocount).input('ID_MOV',2)
@@ -1757,9 +1769,10 @@ export class SqlSRepository{
                 //     UPDATE TBLCONTROL${EMPRESA} SET ULT_CVE=@ULT_CVE WHERE ID_TABLA=@ID_TABLA
                 // `);
 
+                console.log("INSERTING DOCTOSIG");
                 let doctoSig = await pool.request().query(
                     `
-                    select top 1 * from MINVE${EMPRESA} WHERE ISNUMERIC(CVE_FOLIO)=1 ORDER BY CAST(CVE_FOLIO AS DECIMAL) DESC
+                    select top 1 * from MINVE${EMPRESA} WHERE ISNUMERIC(CVE_FOLIO)=1 ORDER BY FECHAELAB DESC
                     `
                     );
                 let tipDocCount=doctoSig.recordset[0].CVE_FOLIO;
@@ -1768,6 +1781,7 @@ export class SqlSRepository{
                     UPDATE TBLCONTROL${EMPRESA} SET ULT_CVE=@ULT_CVE WHERE ID_TABLA=@ID_TABLA
                 `);
 
+                console.log("INSERTING MINVE");
                 let minve = await pool.request().query(
                     `
                     select top 1 * from MINVE${EMPRESA}  ORDER BY CAST(NUM_MOV AS DECIMAL) DESC
@@ -1842,12 +1856,14 @@ export class SqlSRepository{
             await pool.request().input('EXIST',Float,(((+product.EXIST-quantity)<0?0:(+product.EXIST-quantity) )) ).input('CVE_ART',VarChar,keySae).query(
                    `UPDATE INVE${EMPRESA} set EXIST=@EXIST WHERE CVE_ART=@CVE_ART`
                );
+               //.input('CVE_ALM',Int,warehouseId)and CVE_ALM=@CVE_ALM
            let productInMultiwarehouse= await pool.request().input('CVE_ART',VarChar,keySae).query(
-            `SELECT * FROM MULT${EMPRESA} WHERE CVE_ART=@CVE_ART`
+            `SELECT * FROM MULT${EMPRESA} WHERE CVE_ART=@CVE_ART `
             );
             let multiwarehouse= productInMultiwarehouse.recordset[0];
+            //AND CVE_ALM='${warehouseId}'
            await pool.request().input('EXIST',Float,( ((+multiwarehouse.EXIST-quantity)<0?0:(+multiwarehouse.EXIST-quantity) )) ).input('CVE_ART',VarChar,keySae).query(
-            `UPDATE MULT${EMPRESA} set EXIST=@EXIST WHERE CVE_ART=@CVE_ART AND CVE_ALM='${warehouseId}' `
+            `UPDATE MULT${EMPRESA} set EXIST=@EXIST WHERE CVE_ART=@CVE_ART  `
         );
         // let lastExist = await pool.request().input('CVE_ART',VarChar,keySae)
         // .query(`SELECT TOP(1) * FROM MINVE${EMPRESA} WHERE CVE_ART='${keySae}' and ALMACEN=${warehouseId} ORDER BY CAST(NUM_MOV as decimal) DESC;`);

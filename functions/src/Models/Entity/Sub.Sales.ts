@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from "t
 import { Sale } from "./Sales";
 import { ProductRovianda } from "./Product.Rovianda";
 import { PresentationProducts } from "./Presentation.Products";
+import { PreSale } from "./PreSale";
 
 
 @Entity({name:"sub_sales"})
@@ -40,4 +41,9 @@ export class SubSales{
 
     @Column({name:"app_sub_sale_id",nullable:true})
     appSubSaleId:number;
+
+    @ManyToOne(()=>PreSale,presale=>presale.subSales)
+    @JoinColumn({name:"pre_sale_id"})
+    preSale:PreSale;
+    
 }

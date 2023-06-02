@@ -73,6 +73,11 @@ export class UserRepository{
         return await this.userRepository.find({roles});
     }
 
+    async getByCve(cve:string){
+        await this.getConnection();
+        return await this.userRepository.findOne({cve});
+    }
+
     async getUserByFullName(name:string,firstSurname:string,lastSurname:string){
         await this.getConnection();
         return await this.userRepository.findOne({

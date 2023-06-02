@@ -10,6 +10,7 @@ import { MOSRM } from "../Models/DTO/ModeOfflineDTO";
 import { AdminSalesRequest, ChartD3DataInterface, GeneralReportByDay, GeneralReportByMonth, GeneralReportByWeek, GeneralReportByYear, RankingSeller, RankingSellerByProduct, SalesTypes } from "../Models/DTO/Admin.Sales.Request";
 import { SubSales } from "../Models/Entity/Sub.Sales";
 import { SubSaleRepository } from "./SubSale.Repository";
+import { SellerSoldPeriod } from "../Models/SellerReportRequests";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -17,6 +18,11 @@ export class SaleRepository{
     async getConnection(){
         if (!this.saleRepository)
             this.saleRepository = (await connect()).getRepository(Sale);
+    }
+
+    async getAlllSalesWithPaymentPending(){
+        await this.getConnection();
+        return await this.saleRepository.query(`select sale_id as saleId,folio_temp as folio from sales where type_sale="CREDITO" and status=1 and sincronized=1`) as {saleId:number,folio:string}[];
     }
 
     async saveSale(sale:Sale){
@@ -664,5 +670,61 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
         seller_id = "${sellerId}" and
         date between "${from}T00:00:00.000Z" 
         and "${to}T23:59:59.000Z"`) as {count:number}[];
+    }
+
+    async getReportSoldPeriod(oldYear:number,newYear:number,month:string,fromDay:string,toDay:string,sellersIds:string[]){
+        await this.getConnection();
+        let subQuery = "";
+        if(sellersIds!=null && sellersIds.length){
+            subQuery+=" and (";
+            for(let sellerId  of sellersIds){
+                subQuery+=` sa.seller_id="${sellerId}" or `;
+            }
+            subQuery+=";";
+            subQuery=subQuery.replace("or ;",")");
+        }
+        let q=`select * from (select t2.*,pr.name as product,pr.code,sel.name as sellerName,1 as period from (select round(sum(t.quantity),2) as quantity,t.productId,t.sellerId from 
+        (select round(sum(if(pre.type_product="ABARROTES",sub.quantity*pre.price_presentation_liquidation,sub.quantity)),2) as quantity,sub.product_id as productId,sub.presentation_id as presentationId
+        ,pre.price_presentation_liquidation as units,sa.seller_id as sellerId,pre.type_product as typeProduct
+        from sub_sales as sub
+        left join sales as sa on sub.sale_id=sa.sale_id 
+        left join presentation_products as pre on sub.presentation_id=pre.presentation_id
+        where sa.status_str="ACTIVE" ${subQuery} and  sa.date between "${oldYear}-${month}-${fromDay}T:00:00:00.000Z" and "${oldYear}-${month}-${toDay}T23:59:59.000Z"
+        group by sub.product_id,sub.presentation_id,sa.seller_id) as t group by t.sellerId,t.productId order by t.sellerId)
+        as t2 left join products_rovianda as pr on pr.id=t2.productId
+        left join users as sel on t2.sellerId=sel.id) as periodOne union 
+        (select t2.*,pr.name as product,pr.code,sel.name as sellerName,2 as period from (select round(sum(t.quantity),2) as quantity,t.productId,t.sellerId from 
+        (select round(sum(if(pre.type_product="ABARROTES",sub.quantity*pre.price_presentation_liquidation,sub.quantity)),2) as quantity,sub.product_id as productId,sub.presentation_id as presentationId
+        ,pre.price_presentation_liquidation as units,sa.seller_id as sellerId,pre.type_product as typeProduct
+        from sub_sales as sub
+        left join sales as sa on sub.sale_id=sa.sale_id 
+        left join presentation_products as pre on sub.presentation_id=pre.presentation_id
+        where sa.status_str="ACTIVE" ${subQuery} and  sa.date between "${newYear}-${month}-${fromDay}T:00:00:00.000Z" and "${newYear}-${month}-${toDay}T23:59:59.000Z"
+        group by sub.product_id,sub.presentation_id,sa.seller_id) as t group by t.sellerId,t.productId order by t.sellerId)
+        as t2 left join products_rovianda as pr on pr.id=t2.productId
+        left join users as sel on t2.sellerId=sel.id);`;
+        
+        return await this.saleRepository.query(`
+            select * from (select t2.*,pr.name as product,pr.code,sel.name as sellerName,1 as period from (select round(sum(t.quantity),2) as quantity,t.productId,t.sellerId from 
+            (select round(sum(if(pre.type_product="ABARROTES",sub.quantity*pre.price_presentation_liquidation,sub.quantity)),2) as quantity,sub.product_id as productId,sub.presentation_id as presentationId
+            ,pre.price_presentation_liquidation as units,sa.seller_id as sellerId,pre.type_product as typeProduct
+            from sub_sales as sub
+            left join sales as sa on sub.sale_id=sa.sale_id 
+            left join presentation_products as pre on sub.presentation_id=pre.presentation_id
+            where sa.status_str="ACTIVE" ${subQuery} and  sa.date between "${oldYear}-${month}-${fromDay}T:00:00:00.000Z" and "${oldYear}-${month}-${toDay}T23:59:59.000Z"
+            group by sub.product_id,sub.presentation_id,sa.seller_id) as t group by t.sellerId,t.productId order by t.sellerId)
+            as t2 left join products_rovianda as pr on pr.id=t2.productId
+            left join users as sel on t2.sellerId=sel.id) as periodOne union 
+            (select t2.*,pr.name as product,pr.code,sel.name as sellerName,2 as period from (select round(sum(t.quantity),2) as quantity,t.productId,t.sellerId from 
+            (select round(sum(if(pre.type_product="ABARROTES",sub.quantity*pre.price_presentation_liquidation,sub.quantity)),2) as quantity,sub.product_id as productId,sub.presentation_id as presentationId
+            ,pre.price_presentation_liquidation as units,sa.seller_id as sellerId,pre.type_product as typeProduct
+            from sub_sales as sub
+            left join sales as sa on sub.sale_id=sa.sale_id 
+            left join presentation_products as pre on sub.presentation_id=pre.presentation_id
+            where sa.status_str="ACTIVE" ${subQuery} and  sa.date between "${newYear}-${month}-${fromDay}T:00:00:00.000Z" and "${newYear}-${month}-${toDay}T23:59:59.000Z"
+            group by sub.product_id,sub.presentation_id,sa.seller_id) as t group by t.sellerId,t.productId order by t.sellerId)
+            as t2 left join products_rovianda as pr on pr.id=t2.productId
+            left join users as sel on t2.sellerId=sel.id);
+        `) as SellerSoldPeriod[];
     }
 }

@@ -125,6 +125,7 @@ export default class PdfHelper{
                 </head><body>
                 <h3 style="text-align:center">Reporte de ordenes de vendedores</h3>
                 <h3 style="text-align:center">Orden No. ${order.id}</h3>
+                <h3 style="text-align:center">Fecha de registro: ${this.parseDateWithHourWithoutTZ(new Date(order.date))}</h3>
                 <table border=1>
                 <tr><th>Vendedor</th>
                 <th>Producto</th>
@@ -164,6 +165,31 @@ export default class PdfHelper{
         return reports;
     }
     
+    parseDateWithHourWithoutTZ(date: Date) {
+        let month = (date.getMonth() + 1).toString();
+        let day = date.getDate().toString();
+        if (+month < 10) month = "0" + month;
+        if (+day < 10) day = "0" + day;
+        let hours=date.getHours();
+        let med ="";
+        let minutes=date.getMinutes().toString();
+        if(hours>=12){
+            med="pm";
+            if(hours>12){
+                hours=(+hours-12)
+            }
+        }else{
+            if(hours==0){
+                hours=12;
+            }
+            med="am";
+        }
+        if(+minutes<10){
+            minutes="0"+minutes;
+        }
+        return date.getFullYear() + "-" + month + "-" + day+ " "+hours+":"+minutes+" "+med;
+      }
+
     headReportEntranceDrief(){
         return`
         <!DOCTYPE html>

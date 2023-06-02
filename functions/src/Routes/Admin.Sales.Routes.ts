@@ -1,4 +1,5 @@
 import { AdminSalesController } from "../Controllers/Admin.Sales.Controller";
+import { UserController } from "../Controllers/User.Controller";
 import { routeInterface } from "../Models/Route.Interface";
 
 export const AdminSalesRoutes:routeInterface[]=[
@@ -105,6 +106,30 @@ export const AdminSalesRoutes:routeInterface[]=[
         target: "getDataInitial"
     },
     {
+        url: "/rovianda/presale/sincronization/:sellerId",
+        controller: AdminSalesController,
+        method: "get",
+        target: "getDataInitialForPresales"
+    },
+    {
+        url: "/rovianda/delivers/update-presale",
+        controller: AdminSalesController,
+        method: "put",
+        target: "updatePresaleInfoForSale"
+    },
+    {
+        url: "/rovianda/delivers/register-debt",
+        controller: AdminSalesController,
+        method: "post",
+        target: "registerDebtOfDeliver"
+    },
+    {
+        url:"/rovianda/delivers/sincronization/:sellerId",
+        controller:AdminSalesController,
+        method:"get",
+        target: "getDataInitialForDeliversOfPresales"
+    },
+    {
         url: "/rovianda/status-sincronized/client",
         controller: AdminSalesController,
         method: "post",
@@ -187,5 +212,65 @@ export const AdminSalesRoutes:routeInterface[]=[
         method: "delete",
         controller: AdminSalesController,
         target: "deletePreRegisterProduct"
+    },
+    {
+        url: "/rovianda/user-password",
+        method: "post",
+        controller: UserController,
+        target: "updateUserPassword"
+    },
+    {
+        url: "/rovianda/user-register",
+        method: "post",
+        controller: UserController,
+        target: "userRegister"
+    },
+    {
+        url: "/rovianda/simple-user/details/:uid",
+        method: "get",
+        controller: UserController,
+        target: "simpleUserDetails"
+    },
+    {
+        url: "/rovianda/simple-user/update/:uid",
+        method:"put",
+        controller: UserController,
+        target: "simpleUserUpdate"
+    },
+    {
+        url: "/rovianda/user-seller/register",
+        method: "post",
+        controller: UserController,
+        target: "userRegisterSeller"
+    },
+    {
+        url: "/rovianda/user-seller/details/:uid",
+        method: "get",
+        controller: UserController,
+        target: "sellerUserDetails"
+    },
+    {
+        url:"/rovianda/user-seller/update/:uid",
+        method:"put",
+        controller: UserController,
+        target: "sellerUserUpdate"
+    },
+    {
+        url: "/rovianda/user-presale/register",
+        method: "post",
+        controller: UserController,
+        target: "createPreSaleUser"
+    },
+    {
+        url: "/rovianda/user-presale/details/:uid",
+        method: "get",
+        controller: UserController,
+        target: "preSaleUserDetails"
+    },
+    {
+        url: "/rovianda/user-presale/update/:uid",
+        method:"put",
+        controller: UserController,
+        target: "preSaleUserUpdate"
     }
 ];

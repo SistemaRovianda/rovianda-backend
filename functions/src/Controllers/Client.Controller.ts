@@ -3,7 +3,7 @@ import { FirebaseHelper } from "../Utils/Firebase.Helper";
 import { ClientService } from "../Services/Client.Service";
 import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
-import { ClientItemBySeller } from "../Models/DTO/Client.DTO";
+import { ClientItemBySeller, ClientVisitBySellerRecord, ClientVisitData } from "../Models/DTO/Client.DTO";
 import { User } from "../Models/Entity/User";
 import { UserRepository } from "../Repositories/User.Repository";
 import { UserService } from "../Services/User.Service";
@@ -44,11 +44,11 @@ export class ClientController{
         return res.status(200).send(await this.clientService.getScheduleByDate(sellerUid,date));
     }
 
-    async createVisitToClient(req:Request,res:Response){
+    /*async createVisitToClient(req:Request,res:Response){
         let clientId:number = +req.params.clientId;
         await this.clientService.createVisit(clientId);
         return res.status(201).send();
-    }
+    }*/
 
     async endVisitToClient(req:Request,res:Response){
         let clientId:number = +req.params.clientId;
@@ -115,4 +115,37 @@ export class ClientController{
         return res.status(400).send({msg:"Formato no valido"});
     }   
    }
+
+   async registerCustomerV2(req:Request,res:Response){
+        let response:{clientId:number,clientMobileId:number}= await this.clientService.createCustomerV2(req.body);
+        res.status(200).send(response);    
+   }
+   async registerCustomerV2Arr(req:Request,res:Response){
+    let response:{clientId:number,clientMobileId:number}[]= await this.clientService.createCustomerV2Arr(req.body);
+    res.status(200).send(response);    
+}
+   async synchronizationCustomersV2(req:Request,res:Response){
+        let response:{clientId:number,clientMobileId:number}[]= await this.clientService.synchronizationCustomersV2(req.body);
+        res.status(200).send(response);    
+   }
+   async updateCustomerV2(req:Request,res:Response){
+        let response:{clientId:number}[]= await this.clientService.updateCustomerV2(req.body);
+        res.status(200).send(response);
+   }
+   
+
+   async createVisit(req:Request,res:Response){
+        let response:{clientId:number,date:string}[]=await this.clientService.createVisit(req.body);
+        res.status(200).send(response);
+   }
+
+   async getVisitsBySellerAndDate(req:Request,res:Response){
+        let response:ClientVisitData[] = await this.clientService.getVisitsBySellerAndDate(req.body);
+        res.status(200).send(response);
+   }
+   async getVisitsBySellerAndDateReport(req:Request,res:Response){
+    let book= await this.clientService.getReportOfVisitsBySeller(req.body);
+    book.write("ReporteVisitasDelDia.xlsx",res);
+    }
+    
 }

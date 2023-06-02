@@ -22,6 +22,11 @@ export class SalesRequestController{
         this.productRoviandaService = new ProductRoviandaService(firebaseHelper);
         
     }
+
+    async saleCreditCheck(req:Request,res:Response){
+        let response = await this.salesRequestService.validatingSaleCreditPayed(req.body);
+        return res.status(200).send(response);
+    }
     
     async createSeller(req:Request,res:Response){
         await this.salesRequestService.createSeller(req.body);
@@ -355,6 +360,14 @@ export class SalesRequestController{
     async sincronizeSingleSale(req:Request,res:Response){
         let sellerId:string = req.query.sellerId;
         let items=await this.salesRequestService.sincronizeSingleSale(req.body,sellerId);
+        return res.status(201).send(items);
+    }
+    async sincronizePreSale(req:Request,res:Response){
+        let items = await this.salesRequestService.sincronizePreSales(req.body);
+        return res.status(200).send(items);
+    }
+    async sincronizeSingleSaleV2(req:Request,res:Response){
+        let items=await this.salesRequestService.sincronizeSingleSaleV2(req.body);
         return res.status(201).send(items);
     }
     async getDevolutionTicket(req:Request,res:Response){

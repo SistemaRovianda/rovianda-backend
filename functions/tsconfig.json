@@ -18,6 +18,7 @@
      "experimentalDecorators": true,
      "sourceMap": true,
      "strict": false,
-     "esModuleInterop": true
+     "esModuleInterop": false,
+     "downlevelIteration":true
   }
 }

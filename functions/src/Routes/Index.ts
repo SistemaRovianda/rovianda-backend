@@ -22,11 +22,12 @@ import {WarehouseRoutes} from "./Warehouse.Routes";
 import { catalogsRoutes } from "./Catalogs.Routes";
 import { CheeseRoutes } from "./Cheese.Routes";
 import { AdminSalesRoutes } from "./Admin.Sales.Routes";
+import { GeocodingRoutes } from "./Geocoding.Route";
 const init:Initializer = new Initializer();
 const routes:Array<Array<routeInterface>>=[
     pinRoutes,fridgesRoutes,lotRoutes,productRoutes,entrancesRoutes,processRoutes,formulationRoutes,ovenRoutes,packagingRoutes,qualityRoutes,dryngLabelRoutes,inspectionRoutes,salesRoutes,maintenanceRoutes,reportRoutes,clientRoutes,
     WarehouseRoutes,catalogsRoutes,CheeseRoutes,
-    AdminSalesRoutes
+    AdminSalesRoutes,GeocodingRoutes
 ];
 
 export const routesToExpress: Array<routeInterface> = _.flattenDepth(routes,2).map((route:routeInterface)=>{

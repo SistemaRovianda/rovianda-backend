@@ -1,20 +1,33 @@
 import { UserRepository } from "../Repositories/User.Repository";
 import { RolesRepository } from "../Repositories/Roles.Repository";
 import { User } from '../Models/Entity/User';
-import { UserDTO } from '../Models/DTO/UserDTO';
+import { SimpleUserUpdateRequest, UpdatePassword, UserDTO, UserPreSaleRegisterRequest, UserPreSaleRegisterResponse, UserPreSaleUpdateRequest, UserRegisterRequest, UserRegisterResponse, UserSellerRegisterRequest, UserSellerRegisterResponse, UserSellerUpdateRequest } from '../Models/DTO/UserDTO';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { userGeneric } from '../Models/UserGeneric';
 import { Request } from 'express';
 import { Roles } from "../Models/Entity/Roles";
 import { UserStatus } from "../Models/Enum/UserStatus";
+import { PreSalesVinculationSellerRepository } from "../Repositories/PreSalesVinculationSeller.Repository";
+import { PreSalesVinculationSeller } from "../Models/Entity/PreSalesVinculationSeller";
+import { SqlSRepository } from "../Repositories/SqlS.Repositoy";
 
 export class UserService{
     private userRepository:UserRepository;
-    private rolesRepository:RolesRepository
+    private rolesRepository:RolesRepository;
+    private preSaleVinculationSellerRepository:PreSalesVinculationSellerRepository;
+    private sqlRepository:SqlSRepository;
     constructor(private firebaseHelper:FirebaseHelper){
         this.userRepository = new UserRepository();
         this.rolesRepository = new RolesRepository();
-        
+        this.preSaleVinculationSellerRepository = new PreSalesVinculationSellerRepository();
+        this.sqlRepository = new SqlSRepository();
+    }
+
+    async updateUserPassword(userPassword:UpdatePassword){
+        let user  = await this.userRepository.getUserById(userPassword.uid);
+        if(user){
+            this.firebaseHelper.updateUserFirebasePassword(userPassword.uid,userPassword.password);
+        }
     }
 
     async createUserF(userDTO:UserDTO, userGeneric:userGeneric){
@@ -51,6 +64,175 @@ export class UserService{
 
     async createUser(user:User){
         return await this.userRepository.saveUser(user);
+    }
+
+    async createSimpleUser(request:UserRegisterRequest){
+        let userAlreadyExist = await this.userRepository.getUserByEmail(request.email);
+        if(userAlreadyExist) throw new Error("[409], El correo ya existe");
+        let user:User = new User();
+        let userFirebase = await this.firebaseHelper.createUser({name: request.name,email: request.email,password: request.password,firstName:'',lastName:''});
+        user.id = userFirebase.uid;
+        user.createdAt=new Date().toISOString();
+        user.name=request.name;
+        user.saeKey=0;
+        user.email=request.email;
+        user.job=request.jobDescription;
+        user.warehouseKeySae=null;
+        let rol = await this.rolesRepository.getRolByDescription(request.rol);
+        if(!rol) throw new Error("[404],No existe el rol");
+        user.roles=rol;
+        user.status="ACTIVE";
+        user.cve=null;
+        await this.userRepository.saveUser(user);
+    }
+
+    async getSimpleUserDetails(uid:string){
+        let user:User = await this.userRepository.getUserbyIdWithRol(uid);
+        if(!user) throw new Error("[404], No existe el usuario");
+        let response:UserRegisterResponse = {
+            email: user.email,
+            jobDescription: user.job,
+            name: user.name,
+            rol: user.roles.description,
+            password:""
+        };
+        return response;
+    }
+    async updateSimpleUser(uid:string,request:SimpleUserUpdateRequest){
+        let user:User = await this.userRepository.getUserById(uid);
+        if(!user) throw new Error("[404],El usuario no existo");
+        user.name=request.name;
+        user.job=request.jobDescription;
+        if(request.password!=""){
+            await this.firebaseHelper.updateUserFirebasePassword(uid,request.password);
+        }
+        await this.userRepository.saveUser(user);
+    }
+
+    async createSellerUser(request:UserSellerRegisterRequest){
+        let userAlreadyExist = await this.userRepository.getUserByEmail(request.email);
+        if(userAlreadyExist) throw new Error("[409], El correo ya existe");
+        userAlreadyExist = await this.userRepository.getByCve(request.folio);
+        if(userAlreadyExist) throw new Error("[409], El folio ya esta siendo utilizado por otro vendedor/repartidor folio:"+request.folio);
+        let user:User = new User();
+        let userFirebase = await this.firebaseHelper.createUser({name: request.name,email: request.email,password: request.password,firstName:'',lastName:''});
+        user.id = userFirebase.uid;
+        user.createdAt=new Date().toISOString();
+        user.name=request.name;
+        user.saeKey=request.keySae;
+        user.email=request.email;
+        user.job="";
+        user.warehouseKeySae=request.warehouseId;
+        let rol = await this.rolesRepository.getRolByDescription(request.rol);
+        if(!rol) throw new Error("[404],No existe el rol");
+        user.roles=rol;
+        user.status="ACTIVE";
+        user.cve=request.folio;
+        await this.sqlRepository.updateWarehouse(request.warehouseId,request.name);
+        await this.userRepository.saveUser(user);
+    }
+
+    async getSellerUserDetails(uid:string){
+        let user:User = await this.userRepository.getUserbyIdWithRol(uid);
+        if(!user) throw new Error("[404], No existe el usuario");
+        let response:UserSellerRegisterResponse={
+            email: user.email,
+            folio:user.cve,
+            keySae: user.saeKey,
+            name: user.name,
+            password: "",
+            rol: user.roles.description,
+            warehouseId: user.warehouseKeySae
+        };
+        return response;
+    }
+
+    async updateSellerUser(uid:string,request:UserSellerUpdateRequest){
+        let user:User = await this.userRepository.getUserbyIdWithRol(uid);
+        if(!user) throw new Error("[404], No existe el usuario");
+        user.name=request.name;
+        if(user.warehouseKeySae!=request.warehouseId){
+            await this.sqlRepository.desassignedWarehouse(user.warehouseKeySae);
+            user.warehouseKeySae=request.warehouseId;
+            await this.sqlRepository.updateWarehouse(request.warehouseId,request.name);
+        }
+        user.saeKey=request.keySae;
+        user.cve=request.folio;
+        if(request.password!=""){
+            await this.firebaseHelper.updateUserFirebasePassword(uid,request.password);
+        }
+        await this.userRepository.saveUser(user);
+    }
+
+    async createPreSaleUser(request:UserPreSaleRegisterRequest){
+        let userAlreadyExist = await this.userRepository.getUserByEmail(request.email);
+        if(userAlreadyExist) throw new Error("[409], El correo ya existe");
+        userAlreadyExist = await this.userRepository.getByCve(request.folio);
+        if(userAlreadyExist) throw new Error("[409], El folio ya esta siendo utilizado por otro vendedor/repartidor folio: "+request.folio);
+        let user:User = new User();
+        let userFirebase = await this.firebaseHelper.createUser({name: request.name,email: request.email,password: request.password,firstName:'',lastName:''});
+        user.id = userFirebase.uid;
+        user.createdAt=new Date().toISOString();
+        user.name=request.name;
+        user.saeKey=0;
+        user.email=request.email;
+        user.job="";
+        user.warehouseKeySae=null;
+        let rol = await this.rolesRepository.getRolByDescription(request.rol);
+        if(!rol) throw new Error("[404],No existe el rol");
+        user.roles=rol;
+        user.status="ACTIVE";
+        user.cve=request.folio;
+        await this.userRepository.saveUser(user);
+        for(let sellerId of request.sellers){
+            let preSaleVinculationSeller:PreSalesVinculationSeller = new PreSalesVinculationSeller();
+            preSaleVinculationSeller.preSaleSellerId=user.id;
+            preSaleVinculationSeller.deliverUserId=sellerId;
+            await this.preSaleVinculationSellerRepository.savePreSaleVinculationSeller(preSaleVinculationSeller);
+        }
+    }
+
+    async getPreSaleUserDetails(uid:string){
+        let user:User = await this.userRepository.getUserbyIdWithRol(uid);
+        if(!user) throw new Error("[404], El usuario no existe");
+        let preSalesSellersVinculated = await this.preSaleVinculationSellerRepository.getAllPreSalesVinculationSellerByPreSaleSellerId(uid);
+        let response:UserPreSaleRegisterResponse={
+            email: user.email,
+            folio: user.cve,
+            keySae: user.saeKey,
+            name: user.name,
+            password: "",
+            rol: user.roles.description,
+            sellers: preSalesSellersVinculated.map(x=>x.deliverUserId),
+            warehouseId: user.warehouseKeySae
+        };
+        return response;   
+    }
+
+    async updatePreSaleUser(uid:string,request:UserPreSaleUpdateRequest){
+        let user:User = await this.userRepository.getUserbyIdWithRol(uid);
+        if(!user) throw new Error("[404], El usuario no existe");
+        let preSalesSellersVinculated = await this.preSaleVinculationSellerRepository.getAllPreSalesVinculationSellerByPreSaleSellerId(uid);
+        let toDelete:PreSalesVinculationSeller[] = preSalesSellersVinculated.filter(x=>!request.sellers.includes(x.deliverUserId));
+        let deleteIds = toDelete.map(x=>x.deliverUserId);
+        let ids = preSalesSellersVinculated.filter(x=>!deleteIds.includes(x.deliverUserId)).map(x=>x.deliverUserId);
+        let toAdd:string[]= request.sellers.filter(x=>!ids.includes(x))
+        for(let item of toDelete){
+            await this.preSaleVinculationSellerRepository.deletePreSaleVinculation(item);
+        }
+        for(let uid of toAdd){
+            let preSaleVinculationSeller:PreSalesVinculationSeller = new PreSalesVinculationSeller();
+            preSaleVinculationSeller.deliverUserId=uid;
+            preSaleVinculationSeller.preSaleSellerId=user.id;
+            await this.preSaleVinculationSellerRepository.savePreSaleVinculationSeller(preSaleVinculationSeller);
+        }
+        
+        user.name=request.name;
+        user.cve=request.folio;
+        if(request.password!=null){
+            await this.firebaseHelper.updateUserFirebasePassword(uid,request.password);
+        }
+        await this.userRepository.saveUser(user);
     }
 
     async getUserByName(name:string){

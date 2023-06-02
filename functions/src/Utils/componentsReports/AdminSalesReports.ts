@@ -778,6 +778,8 @@ export class AdminSalesReports{
         let countCompleted=0;
         let countCanceled=0;
         let page=2;
+        let mapSellerInactiveCount = new Map();
+        let mapSellerActiveCount=new Map();
         if(sales.length){
         let firstDate=sales[0].dateSort;
         for(let sale of sales){    
@@ -791,12 +793,23 @@ export class AdminSalesReports{
                 if(sale.status=="CANCELED"){
                     amountCanceled+=sale.amount;
                     countCanceled++;
+                    let amountCanceledBySeller=mapSellerInactiveCount.get(sale.sellerName);
+                    if(amountCanceledBySeller==null){
+                        mapSellerInactiveCount.set(sale.sellerName,1);
+                    }else{
+                        mapSellerInactiveCount.set(sale.sellerName,amountCanceledBySeller+1);
+                    }
                 }else{
                     amount+=sale.amount;
                     countCompleted++;
+                    let amountActive= mapSellerActiveCount.get(sale.sellerName);
+                    if(amountActive==null){
+                        mapSellerActiveCount.set(sale.sellerName,1);
+                    }else{
+                        mapSellerActiveCount.set(sale.sellerName,amountActive+1);
+                    }
                 }
                 row++;
-                
             }else{
                 worksheet.cell(row,6,row,6,true).string(`TOTAL NOTAS: ${countCompleted}`);
                 worksheet.cell(row+1,6,row+1,6,true).string(`TOTAL NOTAS CANCELADAS: ${countCanceled}`);
@@ -835,6 +848,39 @@ export class AdminSalesReports{
         worksheet.cell(row+2,6,row+2,6,true).string(`TOTAL: ${amount.toFixed(2)}`);
         if(type=="ALL"){
             worksheet.cell(row+3,6,row+3,6,true).string(`TOTAL CANCELADAS: ${amountCanceled.toFixed(2)}`);
+        }
+        worksheet = workbook.addWorksheet(`TOTALDENOTAS`);
+        worksheet.cell(1,1,1,3,true).string(`Total de notas`).style({alignment:{horizontal:"center"}});
+        worksheet.cell(2,1,2,1,true).string('Vendedor');
+        worksheet.cell(2,2,2,2,true).string('Notas activas');
+        worksheet.cell(2,3,2,3,true).string('Notas canceladas');
+        let keysMapSellers = mapSellerActiveCount.keys();
+        let keysMapSellersCanceled= mapSellerInactiveCount.keys();
+        let keys = [];
+        for(let sellerName of keysMapSellers){
+            if(!keys.includes(sellerName)){
+                keys.push(sellerName);
+            }
+        }
+        for(let sellerName of keysMapSellersCanceled){
+            if(!keys.includes(sellerName)){
+                keys.push(sellerName);
+            }
+        }
+        let rowEnd=3;
+        for(let sellerName of keys){
+            let active:number = mapSellerActiveCount.get(sellerName);
+            let canceled:number = mapSellerInactiveCount.get(sellerName);
+            if(!active){
+                active=0;
+            }
+            if(!canceled){
+                canceled=0;
+            }
+            worksheet.cell(rowEnd,1,rowEnd,1,true).string(` ${sellerName} `);
+            worksheet.cell(rowEnd,2,rowEnd,2,true).string(`${active}`);
+            worksheet.cell(rowEnd,3,rowEnd,3,true).string(` ${canceled} `);
+            rowEnd++;
         }
         return workbook;
     }

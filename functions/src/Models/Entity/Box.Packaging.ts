@@ -16,7 +16,5 @@ export class BoxPackaging {
     @Column({ name: "count_end" })
     countEnd: string;
 
-    @OneToOne(type => PropertiesPackaging, propertiesPackaging => propertiesPackaging.boxPackaging)
-    @JoinColumn({name: "property_id"})
-    propertiesPackaging: PropertiesPackaging;
+    
 }

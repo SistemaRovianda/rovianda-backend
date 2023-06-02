@@ -87,6 +87,14 @@ export class FirebaseHelper{
         });
     }
 
+    async updateUserFirebasePassword(uid:string,password:string) {
+        return await admin.auth().updateUser(uid,{password}).then((userRecord)=>{
+             return userRecord.uid;
+         }).catch((e)=>{
+             throw new Error(`[400], ${e}`)
+         })
+     }
+
     async deleteUser(userId:string){
         return admin.auth().deleteUser(userId);
     }
