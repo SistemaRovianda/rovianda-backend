@@ -32,4 +32,7 @@ export class OrderSeller{
 
     @Column({name:"folio_remission",nullable:true})
     folioRemission:number;
+
+    @Column({name:"index_noduplicate",nullable:true,unique:true})
+    indexNoDuplicate:string;
 }

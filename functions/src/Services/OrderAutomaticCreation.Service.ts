@@ -22,30 +22,39 @@ export class OrderAutomaticCreationService{
 
     async checkForOrders(){
         let dateToSearch =this.getDateStr();
-        let items:OrderAutomaticDTO[]= await this.orderSellerRepository.getOrdersForPreSales(dateToSearch);
+        console.log("Fecha a sincronizar: "+dateToSearch);
+        let items:OrderAutomaticDTO[]= await this.orderSellerRepository.getOrdersForPreSales("2023-08-29");
+        console.log("items: "+items);
         let currentSellerId="";
-        let orderSellers:OrderSeller[]=[];
-        let subOrders:SubOrder[]=[];
         let orderSeller:OrderSeller = null;
         for(let item of items){
             if(currentSellerId!=item.id){
                 if(currentSellerId!=""){
+                    await this.orderSellerRepository.saveSalesSeller(orderSeller);
+                    orderSeller=  new OrderSeller();
+                    orderSeller.indexNoDuplicate=dateToSearch+"-"+item.id;
+                    orderSeller.subOrders=[];
+                    currentSellerId=item.id;
                     let seller:User = await this.userRepository.getUserById(currentSellerId);
-                    orderSeller.subOrders=subOrders;
-                    orderSeller.date=this.getDateStr()+"T00:00:00.000Z"
+                    orderSeller.date=dateToSearch+"T00:00:00.000Z"
                     orderSeller.seller=seller;
                     orderSeller.sincronized=false;
                     orderSeller.status="ACTIVE";
                     orderSeller.urgent=false;
-                    orderSeller.subOrders=subOrders;
-                    orderSellers.push(orderSeller);
-                    orderSeller=new OrderSeller();
-                    subOrders=[];
-                    currentSellerId=item.id;
-                }else{
-                    orderSeller=  new OrderSeller();
-                }
 
+                }else{
+                    currentSellerId=item.id;
+                    orderSeller=  new OrderSeller();
+                    orderSeller.indexNoDuplicate=dateToSearch+"-"+item.id;
+                    orderSeller.subOrders=[];
+                    let seller:User = await this.userRepository.getUserById(currentSellerId);
+                    orderSeller.date=dateToSearch+"T00:00:00.000Z"
+                    orderSeller.seller=seller;
+                    orderSeller.sincronized=false;
+                    orderSeller.status="ACTIVE";
+                    orderSeller.urgent=false;
+                }
+                
             }
             let subOrder:SubOrder = new SubOrder();
             subOrder.active=true;
@@ -59,27 +68,19 @@ export class OrderAutomaticCreationService{
             subOrder.presentation=presentation;
             let product = await this.productRepository.getProductRoviandaById(item.productId);
             subOrder.productRovianda=product;
-            subOrders.push(subOrder);
+            orderSeller.subOrders.push(subOrder);
         }
-        if(orderSellers.length>0){
-            let seller:User = await this.userRepository.getUserById(currentSellerId);
-            orderSeller.subOrders=subOrders;
-            orderSeller.date=this.getDateStr()+"T00:00:00.000Z"
-            orderSeller.seller=seller;
-            orderSeller.sincronized=false;
-            orderSeller.status="ACTIVE";
-            orderSeller.urgent=false;
-            orderSeller.subOrders=subOrders;
-            orderSellers.push(orderSeller);
-        }
-        for(let orderSeller of orderSellers){
+        if(orderSeller.subOrders.length>0) {
             await this.orderSellerRepository.saveSalesSeller(orderSeller);
         }
+       
     }
 
     getDateStr(){
         let date = new Date();
-        date.setDate(date.getDate()+1);
+        console.log("Hora: "+date.getHours());
+         date.setHours(date.getHours()-6);
+         date.setDate(date.getDate()+1);
         let monthStr =(date.getMonth()+1).toString();
         let dayStr= date.getDate().toString();
         if(+monthStr<10){
@@ -88,6 +89,7 @@ export class OrderAutomaticCreationService{
         if(+dayStr<10){
             dayStr="0"+dayStr;
         }
+        
         return date.getFullYear()+"-"+monthStr+"-"+dayStr;
     }
 }

@@ -7,7 +7,7 @@ export async function validateOrderSeller(order:OrderSellerRequest){
     let dateHour = new Date(order.date);
     dateHour.setHours(dateHour.getHours()-6);
     console.log("HOURS",dateHour.getHours(),order.urgent==true);
-    if(order.urgent==true && (dateHour.getHours())>=12 ) throw new Error("[400], no se puede solicitar una orden urgente despues de las 12");
+    if(order.urgent==true && (dateHour.getHours())>=23 ) throw new Error("[400], no se puede solicitar una orden urgente despues de las 12");
     await validateOrderSellerProducts(order.products);
 }
 

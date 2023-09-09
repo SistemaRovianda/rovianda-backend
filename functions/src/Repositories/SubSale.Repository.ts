@@ -46,4 +46,9 @@ export class SubSaleRepository{
         return await this.subSaleRepository.findOne({where:{sale:{saleId}},relations:["sale"]});
     }
 
+    async deleteSubSale(subSale:SubSales){
+        await this.getConnection();
+        return await this.subSaleRepository.delete(subSale);
+    }
+
 }

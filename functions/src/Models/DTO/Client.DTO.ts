@@ -50,14 +50,19 @@ export interface ClientCreation{
 
 export interface ClientCreationV2{
     clientMobileId:number,
+    clientRovId:number;
     clientName:string,
     clientType:string,
     clientStreet:string,
     clientSuburb:string,
     clientMunicipality:string,
     clientCp:string,
+    clientContact:string,
+    clientPhoneNumber:string,
+    clientReference:string,
     clientExtNumber?:string,
     clientSellerUid:string,
+    isTemp:boolean,
     monday:boolean,
     tuesday:boolean,
     wednesday:boolean,
@@ -76,6 +81,9 @@ export interface ClientUpdateV2{
     clientMunicipality:string,
     clientCp:string,
     clientExtNumber?:string,
+    clientContact:string,
+    clientPhoneNumber:string,
+    clientReference:string,
     monday:boolean,
     tuesday:boolean,
     wednesday:boolean,
@@ -283,7 +291,9 @@ export interface ClientItemBySeller{
     COLONIA:string,
     CIUDAD:string,
     ESTADO:string,
-    CODIGO_POSTAL:string
+    CODIGO_POSTAL:string,
+    REFERENCIA: string,
+    CONTACTO: string
 }
 
 export interface ClientGeolocationVisits{

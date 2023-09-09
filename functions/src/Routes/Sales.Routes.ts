@@ -205,6 +205,12 @@ export const salesRoutes:Array<routeInterface>=[
         target: "getSaleTicket"
     },
     {
+        url: "/rovianda/presale-ticket/:saleId",
+        method: "get",
+        controller: SalesRequestController,
+        target: "getPreSaleTicket"
+    },
+    {
         url: "/rovianda/devolution-ticket/:saleId",
         method: "get",
         controller: SalesRequestController,
@@ -238,6 +244,12 @@ export const salesRoutes:Array<routeInterface>=[
         method:"post",
         controller: SalesRequestController,
         target: "getAllSalesSuperadmin"
+    },
+    {
+        url: "/rovianda/sales-superadmin/presales",
+        method:"post",
+        controller: SalesRequestController,
+        target: "getAllPreSalesSuperadmin"
     },
     {
         url: "/rovianda/sales-history/:sellerUid",
@@ -374,5 +386,11 @@ export const salesRoutes:Array<routeInterface>=[
         method: "post",
         controller:SalesRequestController,
         target: "saleCreditCheck"
+    },
+    {
+        url: "/rovianda/ordersync",
+        method: "post",
+        controller: SalesRequestController,
+        target: "ordersync"
     }
 ];

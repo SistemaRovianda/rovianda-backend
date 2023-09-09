@@ -3064,6 +3064,8 @@ export default class Excel4Node{
         worksheet.cell(3,9,3,9,true).string('Ciudad');
         worksheet.cell(3,10,3,10,true).string('Estado');
         worksheet.cell(3,11,3,11,true).string('Código postal');
+        worksheet.cell(3,12,3,12,true).string('Referencia');
+        worksheet.cell(3,13,3,13,true).string('Contacto');
         let row=4;
         let currentPage = 1;
         for(let customer of customers){
@@ -3083,6 +3085,8 @@ export default class Excel4Node{
                 worksheet.cell(3,9,3,9,true).string('Ciudad');
                 worksheet.cell(3,10,3,10,true).string('Estado');
                 worksheet.cell(3,11,3,11,true).string('Código postal');
+                worksheet.cell(3,12,3,12,true).string('Referencia');
+                worksheet.cell(3,13,3,13,true).string('Contacto');
                 row=4;
             }
                 
@@ -3097,7 +3101,8 @@ export default class Excel4Node{
                 worksheet.cell(row,9,row,9,true).string(`${customer.CIUDAD}`);
                 worksheet.cell(row,10,row,10,true).string(`${customer.ESTADO}`);
                 worksheet.cell(row,11,row,11,true).string(`${customer.CODIGO_POSTAL}`);
-
+                worksheet.cell(row,12,row,12,true).string(`${customer.REFERENCIA}`);
+                worksheet.cell(row,13,row,13,true).string(`${customer.CONTACTO}`);
             row++;
         }
         return workbook;           

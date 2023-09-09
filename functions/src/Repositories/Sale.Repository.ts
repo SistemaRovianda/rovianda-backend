@@ -138,6 +138,7 @@ export class SaleRepository{
         return response;
     }
 
+    
     async getAllSalesOfSellerUid(seller:User,date:string){
         let date1=date+"T00:00:00";
         let date2=date+"T23:59:59";

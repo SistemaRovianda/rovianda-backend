@@ -104,6 +104,7 @@ export interface PreSaleRequest{
     amount:number;
     sellerId:string;
     clientId:string;
+    urgent:boolean,
     products:MOSRMP[]
 }
 

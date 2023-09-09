@@ -151,6 +151,7 @@ export interface OfflineNewVersionProducts{
     presentationName:string;
     uniMed:string;
     price:number;
+    secondPrice:number;
     quantity:number;
     presentationId:number;
     weightOriginal:number;
@@ -182,7 +183,10 @@ export interface OfflineNewVersionClient{
     extNum:number,
     latitude:number,
     longitud:number,
-    status:string
+    status:string,
+    phone:string,
+    reference:string,
+    contact:string
 }
 
 export interface SalesTypes{

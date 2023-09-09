@@ -69,8 +69,8 @@ const config: ConnectionOptions = {
     type: "mysql",
     host: "rovianda.ddns.net",//"localhost",//
     port: 3306,
-    username: "master_rovianda",//"master_rovianda",//
-    password: "Sistemas2022",//"Sistemas2022",//
+    username: "master_rovianda",//"root",//
+    password: "Sistemas2022",//"Holamundo1250",//
     database: "bd_rovianda",//"bd_rovianda",//
     connectTimeout:60000,
     charset:"utf8",

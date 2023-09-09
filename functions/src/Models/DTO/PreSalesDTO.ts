@@ -29,6 +29,7 @@ export interface SaleInterfaceRequestForPresale{
     statusStr:string,
     clientId:number,
     solded:boolean,
+    urgent:boolean,
     products:SubSaleInterfaceForPresale[],
     dateSolded:string
  }
@@ -54,6 +55,14 @@ export interface SaleInterfaceRequestForPresale{
     folioForSale:string,
     typePayment:string,
     dateSolded:string,
+    modificated:boolean,
+    modifications:ModificationsPreSale[]
+ }
+
+ export interface ModificationsPreSale{
+   presentationId:number,
+   quantity:number,
+   amount:number
  }
  export interface ModelUpdatePresaleResponse{
     folioPreSale:string

@@ -53,4 +53,10 @@ export class PreSale{
     @Column({name:"solded",default:false})
     solded:boolean;
 
+    @Column({name:"modificated",default:false})
+    modificated:boolean;
+
+    @Column({name:"urgent",default:false})
+    urgent:boolean;
+
 }

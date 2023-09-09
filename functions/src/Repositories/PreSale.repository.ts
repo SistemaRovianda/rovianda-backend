@@ -2,6 +2,7 @@ import { Between, In, Repository } from "typeorm";
 import { connect } from "../Config/Db";
 import { PreSale } from "../Models/Entity/PreSale";
 import { User } from "../Models/Entity/User";
+import { PreSalesToSuperAdmin, SalesToSuperAdmin } from "../Models/DTO/Sales.ProductDTO";
 
 export class PreSaleRepository{
     private repository:Repository<PreSale>;
@@ -17,6 +18,11 @@ export class PreSaleRepository{
     async findPreSaleByFolio(folio:string){
         await this.getConnection();
         return await this.repository.findOne({folio});
+    }
+
+    async getPreSaleById(preSaleId:number){
+        await this.getConnection();
+        return await this.repository.findOne({preSaleId},{relations:["seller"]});
     }
     async getPreSalesByPreSaleUserAndDate(preSaleSellerId:string,date:string){
         let from = date+"T00:00:00.000Z";
@@ -38,6 +44,28 @@ export class PreSaleRepository{
         where cl.seller_owner="${sellerId}" and ps.date_to_deliver="${dateToDeliver}";
         `) as {preSaleId:number}[];
         return items.map(x=>x.preSaleId);    
+    }
+
+    async getAllPreSalesForSuperAdmin(page:number,peerPage:number,date:string,hint:string,dateTo:string){
+        
+        let date1=date+"T00:00:00.000Z";
+        let date2=(dateTo)?dateTo:date;
+        date2+="T23:59:59.000Z";
+        await this.getConnection();
+        let sales:PreSale[]=[];
+        let salesTotal:PreSale[]=[];
+        if(hint){
+            sales=await this.repository.createQueryBuilder("presale").where(`presale.date_created between :date1 and :date2  and presale.status_str <> :typeSale2 and  presale.folio like  "%${hint}%"`,{date1,date2,typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("presale.seller","seller").getMany();
+            salesTotal=await this.repository.createQueryBuilder("presale").where(`presale.date_created between :date1 and :date2   and presale.status_str <> :typeSale2  and presale.folio like  "%${hint}%"`,{date1,date2,typeSale2:"DELETED"}).getMany();
+        }else{
+            sales=await this.repository.createQueryBuilder("presale").where("presale.date_created between :date1 and :date2  and presale.status_str <> :typeSale2 ",{date1,date2,typeSale2:"DELETED"}).skip(page*peerPage).take(peerPage).leftJoinAndSelect("presale.seller","seller").getMany();
+            salesTotal=await this.repository.createQueryBuilder("presale").where("presale.date_created between :date1 and :date2   and presale.status_str <> :typeSale2  ",{date1,date2,typeSale2:"DELETED"}).getMany();
+        }
+    let response:PreSalesToSuperAdmin={
+        sales,
+        totalCount:salesTotal.length
+    };
+        return response;
     }
 
     async getPreSalesForDeliverBySellerIdAndDate(sellerId:string,date:string){

@@ -10,6 +10,7 @@ import { SubOrder } from "../../Models/Entity/SubOrder.Sale.Seller";
 import { User } from "../../Models/Entity/User";
 import { VisitClientOperation } from "../../Models/Entity/VisitClientOperation";
 import { SqlSRepository } from "../../Repositories/SqlS.Repositoy";
+import { PreSale } from "../../Models/Entity/PreSale";
 
 export class TicketUtil{
 
@@ -55,6 +56,35 @@ export class TicketUtil{
         ticket+=`--------------------------------\nTOTAL: $ ${total.toFixed(2)}\n`;
         ticket+=`Piezas: ${pieces.toFixed(2)}\n\n*** GRACIAS POR SU COMPRA ***\n
         ${sale.typeSale=="CREDITO"?`\nEsta venta se incluye en la\nventa global del dia, por el\npresente reconozco deber\ny me obligo a pagar en esta\nciudad y cualquier otra que\nse me de pago a la orden de\nROVIANDA S.A.P.I. de C.V. la\ncantidad que se estipula como\ntotal en el presente documento.\n-------------------\n      Firma\n\n${sale.status==true?"SE ADEUDA":"PAGADO"}`:""}\n\n `;
+        return ticket;
+    }
+
+    async TicketPreSale(sale:PreSale,subSales:SubSales[]){
+        let date=new Date();
+        date.setHours(date.getHours()-6);
+        let month = (date.getMonth()+1).toString();
+        let day = date.getDate().toString();
+        if(+month<10){
+            month="0"+month;
+        }
+        if(+day<10){
+            day="0"+day;
+        }
+        let ticket =`ROVIANDA SAPI DE CV\nAV.1 #5 Esquina Calle 1\nCongregación Donato Guerra\nParque Industrial Valle de Orizaba\nC.P 94780\nRFC 8607056P8\nTEL 272 72 46077, 72 4 5690\n`
+        ticket+=`Pago en una Sola Exhibición\nLugar de Expedición: Ruta\nNota No. ${sale.folio}\nFecha: ${day+"/"+month+"/"+date.getFullYear()} ${date.getHours()+":"+date.getMinutes()}\n\n`;
+        ticket+=`Vendedor: ${sale.seller.name}\n`;
+        ticket+=`\nCliente: ${sale.client.keyClient}\n${sale.client.name}\nColonia: ${sale.client.address.suburb}\nCp: ${sale.client.address.cp}\n`;
+        
+        ticket+=`Tipo de venta: PREVENTA\n--------------------------------\nDESCR   CANT    PRECIO  IMPORTE\n--------------------------------\n`;
+        let total=0;
+        let pieces =0;
+        for(let saleItem of subSales){
+            ticket+=`${saleItem.product.name} ${saleItem.presentation.presentationType} \n${saleItem.quantity} $${this.pipeNumber(saleItem.amount)}\n`;
+            total+=saleItem.amount;
+            pieces+=saleItem.quantity;
+        }
+        ticket+=`--------------------------------\nTOTAL: $ ${total.toFixed(2)}\n`;
+        ticket+=`Piezas: ${pieces.toFixed(2)}\n\n*** GRACIAS POR SU COMPRA ***\n`;
         return ticket;
     }
 

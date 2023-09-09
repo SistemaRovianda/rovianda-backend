@@ -44,6 +44,7 @@ export interface UserSellerRegisterRequest{
     email:string,
     password:string,
     warehouseId:string,
+    jobDescription:string,
     rol:string,
     keySae:number,
     folio:string
@@ -54,6 +55,7 @@ export interface UserSellerRegisterResponse{
     email:string,
     password:string,
     warehouseId:string,
+    jobDescription:string,
     rol:string,
     keySae:number,
     folio:string
@@ -63,6 +65,7 @@ export interface UserSellerUpdateRequest{
     name:string,
     password:string,
     warehouseId:string,
+    jobDescription:string,
     keySae:number,
     folio:string
 }
@@ -72,6 +75,7 @@ export interface UserPreSaleRegisterRequest{
     email:string,
     password:string,
     warehouseId:string,
+    jobDescription:string,
     rol:string,
     folio:string,
     sellers:string[]
@@ -82,6 +86,7 @@ export interface UserPreSaleRegisterResponse{
     email:string,
     password:string,
     warehouseId:string,
+    jobDescription:string,
     rol:string,
     keySae:number,
     folio:string,
@@ -92,5 +97,6 @@ export interface UserPreSaleUpdateRequest{
     name:string,
     password:string,
     folio:string,
+    jobDescription: string,
     sellers:string[]
 }

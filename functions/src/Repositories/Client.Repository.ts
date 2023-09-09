@@ -194,10 +194,10 @@ export class ClientRepository{
             `
             select cl.clients_client_id as clientId,cl.key_client as keyClient,cl.seller_owner as sellerOwner,cl.name,cl.type_cliente as type,cl.current_credit as currentCreditUsed,cl.credit as creditLimit, ad.cp,
             if(dv.monday=1,'true','false') as monday,if(dv.tuesday=1,'true','false') as tuesday,if(dv.wednesday=1,'true','false') as wednesday,if(dv.thursday=1,'true','false') as thursday,if(dv.friday=1,'true','false') as friday,if(dv.saturday=1,'true','false') as saturday,if(dv.sunday=1,'true','false') as sunday,if(cl.modified=1,'true','false') as modified,
-            ad.street,ad.ext_number as extNum,ad.suburb,ad.municipality,cl.latitude,cl.longitude,cl.status
+            ad.street,ad.ext_number as extNum,ad.suburb,ad.municipality,cl.latitude,cl.longitude,cl.status,cl.phone,cl.reference,cl.contact
             from clients as cl left join days_visited as dv on dv.client_id=cl.clients_client_id
             left join address as ad on cl.address_id=ad.address_id
-            where (cl.seller_owner="${sellerId}" and cl.status="ACTIVE") or (cl.clients_client_id=1175);
+            where (cl.seller_owner="${sellerId}" and cl.status="ACTIVE");
             `
             ) as OfflineNewVersionClient[];
     }
@@ -227,7 +227,7 @@ export class ClientRepository{
         console.log(subQuery);
         return await this.clientRepository.query(
             `
-            select cl.type_cliente as TIPO,cl.key_client as CLAVE_SISTEMA,cl.key_sae_new as CLAVE_SAE,cl.name as NOMBRE,cl.rfc as RFC,us.name as VENDEDOR,addr.street as CALLE,addr.ext_number as NUMERO_EXTERIOR,addr.suburb as COLONIA,addr.location as CIUDAD,addr.state as ESTADO,addr.cp as CODIGO_POSTAL
+            select cl.type_cliente as TIPO,cl.key_client as CLAVE_SISTEMA,cl.key_sae_new as CLAVE_SAE,cl.name as NOMBRE,cl.rfc as RFC,us.name as VENDEDOR,addr.street as CALLE,addr.ext_number as NUMERO_EXTERIOR,addr.suburb as COLONIA,addr.location as CIUDAD,addr.state as ESTADO,addr.cp as CODIGO_POSTAL,cl.reference as REFERENCIA,cl.contact as CONTACTO
             from clients as cl
             left join users as us on cl.seller_owner=us.id
             left join address as addr on cl.address_id=addr.address_id

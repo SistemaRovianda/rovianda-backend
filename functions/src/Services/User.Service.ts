@@ -121,7 +121,7 @@ export class UserService{
         user.name=request.name;
         user.saeKey=request.keySae;
         user.email=request.email;
-        user.job="";
+        user.job=request.jobDescription;
         user.warehouseKeySae=request.warehouseId;
         let rol = await this.rolesRepository.getRolByDescription(request.rol);
         if(!rol) throw new Error("[404],No existe el rol");
@@ -139,6 +139,7 @@ export class UserService{
             email: user.email,
             folio:user.cve,
             keySae: user.saeKey,
+            jobDescription: user.job,
             name: user.name,
             password: "",
             rol: user.roles.description,
@@ -158,6 +159,7 @@ export class UserService{
         }
         user.saeKey=request.keySae;
         user.cve=request.folio;
+        user.job=request.jobDescription;
         if(request.password!=""){
             await this.firebaseHelper.updateUserFirebasePassword(uid,request.password);
         }
@@ -176,7 +178,7 @@ export class UserService{
         user.name=request.name;
         user.saeKey=0;
         user.email=request.email;
-        user.job="";
+        user.job=request.jobDescription;
         user.warehouseKeySae=null;
         let rol = await this.rolesRepository.getRolByDescription(request.rol);
         if(!rol) throw new Error("[404],No existe el rol");
@@ -200,6 +202,7 @@ export class UserService{
             email: user.email,
             folio: user.cve,
             keySae: user.saeKey,
+            jobDescription: user.job,
             name: user.name,
             password: "",
             rol: user.roles.description,
@@ -229,6 +232,7 @@ export class UserService{
         
         user.name=request.name;
         user.cve=request.folio;
+        user.job=request.jobDescription;
         if(request.password!=null){
             await this.firebaseHelper.updateUserFirebasePassword(uid,request.password);
         }
@@ -282,6 +286,7 @@ export class UserService{
         let roles:Roles = await this.rolesRepository.getRolByDescription(rol.toUpperCase());
         if(!roles) throw new Error("[404], rol not found");
         let response:any = [];
+        roles.users=roles.users.filter(x=>x.status=="ACTIVE");
         roles.users.forEach(i =>{
             response.push({
                 userId: `${i.id}`,

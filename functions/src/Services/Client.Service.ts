@@ -19,6 +19,8 @@ import { VisitDto } from "../Models/DTO/VisitDTO";
 import { VisitEntity } from "../Models/Entity/VisitEntity";
 import { VisitRepository } from "../Repositories/Visit.Repository";
 import ExcelHelper from "../Utils/Excel.Helper";
+import { PreSalesVinculationSellerRepository } from "../Repositories/PreSalesVinculationSeller.Repository";
+import { PreSalesVinculationSeller } from "../Models/Entity/PreSalesVinculationSeller";
 
 export class ClientService {
     private visitRepository:VisitRepository;
@@ -31,6 +33,7 @@ export class ClientService {
     private visitClientOperationRepository:VisitClientOperationRepository;
     private ticketUtil:TicketUtil;
     private excelHelper:ExcelHelper;
+    private preSaleVinculationSeller:PreSalesVinculationSellerRepository;
     constructor() {
         this.excelHelper = new ExcelHelper();
         this.visitRepository = new VisitRepository();
@@ -42,6 +45,7 @@ export class ClientService {
         this.dayRepository = new DayVisitedRepository();
         this.visitClientOperationRepository = new VisitClientOperationRepository();
         this.ticketUtil= new TicketUtil();
+        this.preSaleVinculationSeller = new PreSalesVinculationSellerRepository();
     }
 
     async createCustomer(req: Request) {
@@ -98,9 +102,21 @@ export class ClientService {
     }
 
     async createCustomerV2(clientDTO: ClientCreationV2) {
-        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
+        console.log(JSON.stringify(clientDTO));
+        let sellerOwner:User = await this.userRepository.getUserbyIdWithRol(clientDTO.clientSellerUid);
         if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
-        let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        if(sellerOwner.roles.description=="PRESALE"){
+            let newUsers:PreSalesVinculationSeller[] = await this.preSaleVinculationSeller.getAllPreSalesVinculationSellerByPreSaleSellerId(sellerOwner.id);
+            if(newUsers.length){
+                sellerOwner = await this.userRepository.getUserById(newUsers[0].deliverUserId);
+            }
+        }
+        let client:Client =null;
+        if(!clientDTO.isTemp){
+            client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        }else{
+            client = await this.clientRepository.getClientById(clientDTO.clientRovId);
+        }
         let newAddress:Address=null;
         let newClient:Client=null;
         let daysVisited:DayVisited=null;
@@ -143,7 +159,9 @@ export class ClientService {
             newClient.seller = sellerOwner;
             newClient.daysCredit=0;
             newClient.hasDebts=false;
-            
+            newClient.contact=clientDTO.clientContact;
+            newClient.phone=clientDTO.clientPhoneNumber;
+            newClient.reference = clientDTO.clientReference;
             newClient.latitude=clientDTO.latitude;
             newClient.longitude=clientDTO.longitude;
             newClient.clientMobileId=clientDTO.clientMobileId;
@@ -166,9 +184,20 @@ export class ClientService {
     async createCustomerV2Arr(clientDTOS: ClientCreationV2[]) {
         let response:{clientId:number,clientMobileId:number}[]=[];
         for(let clientDTO of clientDTOS){
-        let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
+        let sellerOwner:User = await this.userRepository.getUserbyIdWithRol(clientDTO.clientSellerUid);
         if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
-        let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        if(sellerOwner.roles.description=="PRESALE"){
+            let newUsers:PreSalesVinculationSeller[] = await this.preSaleVinculationSeller.getAllPreSalesVinculationSellerByPreSaleSellerId(sellerOwner.id);
+            if(newUsers.length){
+                sellerOwner = await this.userRepository.getUserById(newUsers[0].deliverUserId);
+            }
+        }
+        let client:Client =null;
+        if(!clientDTO.isTemp){
+            client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
+        }else{
+            client = await this.clientRepository.getClientById(clientDTO.clientRovId);
+        }
         let newAddress:Address=null;
         let newClient:Client=null;
         let daysVisited:DayVisited=null;
@@ -211,7 +240,9 @@ export class ClientService {
             newClient.seller = sellerOwner;
             newClient.daysCredit=0;
             newClient.hasDebts=false;
-            
+            newClient.contact=clientDTO.clientContact;
+            newClient.phone=clientDTO.clientPhoneNumber;
+            newClient.reference = clientDTO.clientReference;
             newClient.latitude=clientDTO.latitude;
             newClient.longitude=clientDTO.longitude;
             newClient.clientMobileId=clientDTO.clientMobileId;
@@ -235,6 +266,7 @@ export class ClientService {
     async synchronizationCustomersV2(clientDTOS: ClientCreationV2[]) {
         let response:{clientId:number,clientMobileId:number}[]=[];
         for(let clientDTO of clientDTOS){
+            
             let sellerOwner:User = await this.userRepository.getUserById(clientDTO.clientSellerUid);
             if (!sellerOwner) throw new Error(`[404], sellerOwner not found`);
             let client = await this.clientRepository.getClientByMobileIdAndSeller(clientDTO.clientMobileId,sellerOwner);
@@ -305,6 +337,7 @@ export class ClientService {
     async updateCustomerV2(clientDTOS: ClientUpdateV2[]){
         let response:{clientId:number}[]=[];
         for(let clientDTO of clientDTOS){
+            console.log(JSON.stringify(clientDTO));
             let client = await this.clientRepository.getClientById(clientDTO.clientId);
             let newAddress:Address=null;
             let newClient:Client=null;
@@ -349,7 +382,9 @@ export class ClientService {
                 newClient.rfc ="";
                 newClient.daysCredit=0;
                 newClient.hasDebts=false;
-                
+                newClient.contact=clientDTO.clientContact;
+                newClient.phone=clientDTO.clientPhoneNumber;
+                newClient.reference=clientDTO.clientReference;
                 newClient.latitude=clientDTO.latitude;
                 newClient.longitude=clientDTO.longitude;
                 let clientSaved=await this.clientRepository.saveClient(newClient);
@@ -362,7 +397,7 @@ export class ClientService {
                 daysVisited.sunday = false;
                 daysVisited.client = clientSaved;
                 await this.dayRepository.saveDayVisited(daysVisited);
-                response.push({clientId:clientSaved.keyClient})
+                response.push({clientId:clientSaved.id})
         }
         return response;
     }

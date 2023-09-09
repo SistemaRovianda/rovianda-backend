@@ -4,12 +4,13 @@ import { SalesRequestService } from '../Services/Sales.Request.Service';
 import { ProductRoviandaService } from '../Services/Product.Rovianda.Service';
 import { FirebaseHelper } from '../Utils/Firebase.Helper';
 import { Sale } from '../Models/Entity/Sales';
-import { RequestDevolution, SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
+import { PreSalesToSuperAdmin, RequestDevolution, SalesToSuperAdmin } from '../Models/DTO/Sales.ProductDTO';
 import PdfHelper from '../Utils/Pdf.Helper';
 import * as pdf from 'html-pdf';
 import { User } from '../Models/Entity/User';
 import { OrderSeller } from '../Models/Entity/Order.Seller';
 import { ModeOffline, ModeOfflineRequestSincronization, MOSRM } from '../Models/DTO/ModeOfflineDTO';
+import { OrderAutomaticCreationService } from '../Services/OrderAutomaticCreation.Service';
 
 export class SalesRequestController{
 
@@ -193,6 +194,11 @@ export class SalesRequestController{
         return res.status(200).send(await this.salesRequestService.getTicketOfSale(saleId));
     }
 
+    async getPreSaleTicket(req:Request,res:Response){
+        let saleId:number = +req.params.saleId;
+        return res.status(200).send(await this.salesRequestService.getTicketOfPreSale(saleId));
+    }
+
     async getSingleTicket(req:Request,res:Response){
         let saleId:number = +req.params.saleId;
         return res.status(200).send(await this.salesRequestService.getSingleTicketOfSale(saleId));
@@ -212,6 +218,18 @@ export class SalesRequestController{
         let hint = req.query.hint;
         let dateTo=req.query.dateTo;
         let response:SalesToSuperAdmin = await this.salesRequestService.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint,dateTo);
+        res.header('Access-Control-Expose-Headers','x-total-count');
+        res.setHeader('x-total-count',response.totalCount);
+        return res.status(200).send(response.sales);
+    }
+
+    async getAllPreSalesSuperadmin(req:Request,res:Response){
+        let page=req.query.page;
+        let peerPage=req.query.peerPage;
+        let date=req.query.date;
+        let hint = req.query.hint;
+        let dateTo=req.query.dateTo;
+        let response:PreSalesToSuperAdmin = await this.salesRequestService.getAllPreSalesForSuperAdmin(page,peerPage,date,hint,dateTo);
         res.header('Access-Control-Expose-Headers','x-total-count');
         res.setHeader('x-total-count',response.totalCount);
         return res.status(200).send(response.sales);
@@ -408,5 +426,11 @@ export class SalesRequestController{
         let saleId:number = +req.query.saleId;
         await this.salesRequestService.salePayment(saleId);
         return res.status(204).send();
+    }
+
+    async ordersync(req:Request,res:Response){
+        let service: OrderAutomaticCreationService = new OrderAutomaticCreationService();
+        await service.checkForOrders();
+        return res.status(200).send();
     }
 } 

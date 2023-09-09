@@ -32,6 +32,7 @@ import { PreSale } from "../Models/Entity/PreSale";
 import { PreSaleRepository } from "../Repositories/PreSale.repository";
 import { DebtsRepository } from "../Repositories/Debts.Repository";
 import { Debts } from "../Models/Entity/Debts";
+import { SubSales } from "../Models/Entity/Sub.Sales";
 export class AdminSalesService{
 
     private sellerRepository:UserRepository;
@@ -445,9 +446,43 @@ export class AdminSalesService{
             saleEntity.cancelRequest=false;
             saleEntity.folioIndex=preSaleEntity.newFolio;
             let saleEntitySaved = await this.salesRepository.saveSale(saleEntity);
-            for(let sub of preSaleEntity.subSales){
-            sub.sale=saleEntitySaved;
-            await this.subSalesRepository.saveSubSale(sub);
+            let presentationIds = presale.modifications.map(x=>x.presentationId);
+            let subSales = await this.subSalesRepository.getSubSalesByPreSale(preSaleEntity);
+            if(presale.modificated){
+                preSaleEntity.modificated=true;
+                await this.preSaleRepository.registerPreSale(preSaleEntity);
+                subSales=subSales.filter(x=>presentationIds.includes(x.presentation.id));
+                /*let subSalesToDelete=subSales.filter(x=>presentationIds.includes(x.presentation.id));
+                for(let subSaleToDel of subSalesToDelete){
+                    await this.subSalesRepository.deleteSubSale(subSaleToDel);
+                }*/
+                let mapProductsToAssign = new Map();
+                for(let product of presale.modifications){
+                    mapProductsToAssign.set(product.presentationId,product);
+                }
+                for(let sub of subSales){
+                    let product = mapProductsToAssign.get(sub.presentation.id);
+                    if(product!=null){
+                        let subSale:SubSales = new SubSales(); 
+                        subSale.amount=product.amount;
+                        subSale.presentation=sub.presentation;
+                        subSale.product=sub.product;
+                        subSale.loteId="";
+                        subSale.quantity=product.quantity;
+                        subSale.createAt=presale.dateSolded;
+                        subSale.sale=saleEntitySaved;
+                        await this.subSalesRepository.saveSubSale(subSale);
+                    }
+                }
+                let amount = presale.modifications.map(x=>x.amount).reduce((a,b)=>a+b,0);
+                saleEntitySaved.amount=amount;
+                saleEntitySaved.payedWith=amount;
+                await this.salesRepository.saveSale(saleEntitySaved);
+            }else{
+                for(let sub of preSaleEntity.subSales){
+                sub.sale=saleEntitySaved;
+                await this.subSalesRepository.saveSubSale(sub);
+                }
             }
         }catch(err){
             console.log("Duplicidad mitigada");
@@ -493,6 +528,7 @@ export class AdminSalesService{
                     solded: currentPreSale.solded,
                     folioSale: currentPreSale.newFolio,
                     dateSolded: currentPreSale.dateSolded,
+                    urgent: currentPreSale.urgent,
                     products: subSales.map((x)=>{
                         let item:SubSaleInterface= {
                             presentationId: x.presentation.id,
@@ -543,6 +579,11 @@ export class AdminSalesService{
         
         for(let presale of pendinPreSales){
             let subSales = await this.subSalesRepository.getSubSalesByPreSale(presale);
+            if(presale.modificated){
+                let sale:Sale = await this.salesRepository.getByFolio(presale.newFolio);
+                presale.amount=sale.amount;
+                subSales=await this.subSalesRepository.getSubSalesBySale(sale);
+            }
             currentPreSalesPendingPaymentList.push(
                 {
                     preSaleId:presale.preSaleId,
@@ -560,6 +601,7 @@ export class AdminSalesService{
                     solded: presale.solded,
                     folioSale: presale.newFolio,
                     dateSolded: presale.dateSolded,
+                    urgent: presale.urgent,
                     products: subSales.map((x)=>{
                         let item:SubSaleInterface= {
                             presentationId: x.presentation.id,
@@ -583,7 +625,13 @@ export class AdminSalesService{
         }
 
         for(let currentPreSale of currentPreSales){
-            let subSales = await this.subSalesRepository.getSubSalesByPreSale(currentPreSale);
+            let subSales =  await this.subSalesRepository.getSubSalesByPreSale(currentPreSale);
+            if(currentPreSale.modificated){
+                let sale:Sale = await this.salesRepository.getByFolio(currentPreSale.newFolio);
+                currentPreSale.amount=sale.amount;
+                subSales=await this.subSalesRepository.getSubSalesBySale(sale);
+            }
+            
             currentSalesList.push(
                 {
                     preSaleId:currentPreSale.preSaleId,
@@ -601,6 +649,7 @@ export class AdminSalesService{
                     solded: currentPreSale.solded,
                     folioSale: currentPreSale.newFolio,
                     dateSolded: currentPreSale.dateSolded,
+                    urgent: currentPreSale.urgent,
                     products: subSales.map((x)=>{
                         let item:SubSaleInterface= {
                             presentationId: x.presentation.id,

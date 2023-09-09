@@ -193,15 +193,15 @@ export class SalesSellerRepository{
     async getOrdersForPreSales(nextDate:string){
         await this.getConnection();
         return await this.salesSellerRepository.query(`
-        select round(sum(ss.quantity)/pp.price_presentation_min,0) as quantity,ss.product_id as productId,ss.presentation_id as presentationId,us.name as sellerName,us.id 
+        select * from (select if(pp.uni_med='KG',round(sum(ss.quantity)/pp.price_presentation_min,0),sum(ss.quantity)) as quantity,ss.product_id as productId,ss.presentation_id as presentationId,us.name as sellerName,us.id 
         from sub_sales as ss
         left join pre_sales as ps
         on ss.pre_sale_id=ps.pre_sale_id
         left join clients as cl on ps.client_id=cl.clients_client_id
         left join users as us on cl.seller_owner=us.id
         left join presentation_products as pp on ss.presentation_id=pp.presentation_id
-        where ss.pre_sale_id in( select pre_sale_id from pre_sales where date_to_deliver= "${nextDate}")
-        group by ss.product_id,ss.presentation_id,us.id;
+        where ss.pre_sale_id in( select pre_sale_id from pre_sales where urgent=0 and date_to_deliver= "${nextDate}") 
+        group by ss.product_id,ss.presentation_id,us.id) as t order by id;
         `) as OrderAutomaticDTO[];
     }
 }

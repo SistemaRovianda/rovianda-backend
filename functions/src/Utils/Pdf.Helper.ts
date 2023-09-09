@@ -3178,6 +3178,8 @@ export default class PdfHelper{
             <th>Ciudad</th>
             <th>Estado</th>
             <th>Código postal</th>
+            <th>Rerefencia</th>
+            <th>Contacto</th>
         <tr>
         `;
         for(let customer of customers){
@@ -3194,6 +3196,8 @@ export default class PdfHelper{
                     <td>${customer.CIUDAD}</td>
                     <td>${customer.ESTADO}</td>
                     <td>${customer.CODIGO_POSTAL}</td>
+                    <td>${customer.REFERENCIA}</td>
+                    <td>${customer.CONTACTO}</td>
                 </tr>
             `;
         }

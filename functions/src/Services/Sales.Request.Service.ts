@@ -105,16 +105,13 @@ export class SalesRequestService{
         await validateOrderSeller(request);
         let user:User = await this.userRepository.getUserbyIdWithRol(uid);
         if(!user) throw new Error("[400], Usuario no existe en el sistema");
-        console.log("ROL: ",user.roles.description);
-        
-        //let properties:PackagingProperties[] = await this.packagingRepository.getPackagingWithProperties(request.products);
         let orderDateTime = request.date.split(" ");
         let order:OrderSeller = new OrderSeller();
         order.date = orderDateTime[0]+"T"+orderDateTime[1];
         order.status="ACTIVE";
         order.urgent=request.urgent;
         order.seller=user;
-        
+        order.indexNoDuplicate=orderDateTime[0]+"-"+user.id;
         let subOrderArr:Array<SubOrder> = new Array<SubOrder>();
         for(let suborder of request.products){
           let presentation:PresentationProducts =null;
@@ -137,8 +134,11 @@ export class SalesRequestService{
           subOrderArr.push(subOrder);
         }
         order.subOrders = subOrderArr;
-        
+        try{
         await this.saleSellerRepository.saveSalesSeller(order);
+        }catch(err){
+          console.log("Duplicidad mitigada");
+        }
     }
 
     async getOrdersBySeller(uid:string){
@@ -866,6 +866,14 @@ export class SalesRequestService{
       return ticket;
     }
 
+    async getTicketOfPreSale(saleId:number){
+      let presale:PreSale = await this.preSaleRepository.getPreSaleById(saleId);
+      if(!presale) throw new Error("[404], no existe la preventa");
+      let subSales = await this.subSalesRepository.getSubSalesByPreSale(presale);
+      let ticket:string = await this.ticketUtil.TicketPreSale(presale,subSales);
+      return ticket;
+    }
+
     async getDevolutionTicketOfSale(saleId:number){
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
       if(!sale) throw new Error("[404], no existe la venta");
@@ -1016,6 +1024,9 @@ export class SalesRequestService{
     async getAllSalesForSuperAdmin(page:number,peerPage:number,salesIds:Array<number>,date:string,hint:string,dateTo:string){
         return await this.saleRepository.getAllSalesForSuperAdmin(page,peerPage,salesIds,date,hint,dateTo);
     }
+    async getAllPreSalesForSuperAdmin(page:number,peerPage:number,date:string,hint:string,dateTo:string){
+      return await this.preSaleRepository.getAllPreSalesForSuperAdmin(page,peerPage,date,hint,dateTo);
+  }
 
     async cancelSale(saleId:number){
       let sale:Sale = await this.saleRepository.getSaleByIdWithClientAndSeller(saleId);
@@ -2228,6 +2239,7 @@ export class SalesRequestService{
       preSaleEntity.seller=seller;
       let client= await this.clientRepository.getClientById(+preSale.clientId);
       preSaleEntity.client=client;
+      preSaleEntity.urgent=(preSale.urgent!=null)?preSale.urgent:false;
       preSaleEntity.dateSincronized=dateSincronized.toISOString();
       preSaleEntity.subSales=[];
       for(let sub of preSale.products){

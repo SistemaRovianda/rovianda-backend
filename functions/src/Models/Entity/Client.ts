@@ -90,4 +90,10 @@ export class Client{
 
     @OneToMany(type=>VisitEntity,visitEntity=>visitEntity.client)
     visitsRecords:VisitEntity[];
+
+    @Column({name:"reference",nullable:true})
+    reference:string;
+
+    @Column({name:"contact",nullable:true})
+    contact:string;
 }

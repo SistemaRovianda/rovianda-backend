@@ -1,5 +1,6 @@
 import { String } from "lodash";
 import { Sale } from "../Entity/Sales";
+import { PreSale } from "../Entity/PreSale";
 
 export interface SalesProductDTO{
     userId: string,
@@ -80,6 +81,10 @@ export interface SaleOrderDTO {
 
  export interface SalesToSuperAdmin{
    sales:Sale[],
+   totalCount:number
+ }
+ export interface PreSalesToSuperAdmin{
+   sales:PreSale[],
    totalCount:number
  }
 
