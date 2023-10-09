@@ -25,6 +25,7 @@ import { OutputsCoolingRepository } from '../Repositories/Outputs.Cooling.Reposi
 import { DefrostRepository } from '../Repositories/Defrost.Repository';
 import { DevolutionListItemInterface, PackagingDeliveredAcumulated, PackagingDeliveredIndividual } from '../Models/DTO/Packaging.DTO';
 import { ClientItemBySeller } from '../Models/DTO/Client.DTO';
+import { DailyReportRecord, DailyReportSalesADayRecord, EffectiveDeliverPreSalesReport, VisitDailyRecord } from '../Models/DTO/DailyReport';
 
 
 
@@ -3208,5 +3209,473 @@ export default class PdfHelper{
         </html>`;
         return report;        
     }
+    getDailyPreSaleReport(records:DailyReportRecord[]){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">Reporte de venta diaria por cliente por prevendedor  </h1>
+        <table>
+        <tr>
+            <th>Nombre</th>
+            <th>Vendedor</th>
+            <th>Dirección</th>
+            <th>Contacto</th>
+            <th>Fecha</th>
+            <th>total en KG</th>
+            <th>total en $</th>
+            <th>Dias de visita</th>
+        <tr>
+        `;
+        let vendedorId="";
+        let totalKgGlobal = 0;
+        let totalMontoGlobal=0;
+        for(let i=0;i<records.length;i++){
+            let item=records[i];
+            if(vendedorId==""){
+                vendedorId=item.vendedorId;
+            }else if(vendedorId!=item.vendedorId){
+                report+=`
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total: ${totalKgGlobal.toFixed(2)}</td>
+                    <td>Total: $${(+totalMontoGlobal.toFixed(2)).toLocaleString()}</td>
+                    <td></td>
+                </tr>
+            `;
+            totalKgGlobal=0;
+            totalMontoGlobal=0;
+            }
+            report+=`
+                <tr>
+                    <td>${item.nombre}</td>
+                    <td>${item.vendedor}</td>
+                    <td>${getParseAddress(item)}</td>
+                    <td>${item.contacto?item.contacto:""}</td>
+                    <td>${item.fecha}</td>
+                    <td>${item.totalKg.toFixed(2)}</td>
+                    <td>$${(+item.totalMonto.toFixed(2)).toLocaleString()}</td>
+                    <td>${getParseDays(item)}</td>
+                </tr>
+            `;
+            totalKgGlobal+=item.totalKg;
+            totalMontoGlobal+=item.totalMonto;
+        }
+        report+=`
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total: ${totalKgGlobal.toFixed(2)}</td>
+                    <td>Total: $${(+totalMontoGlobal.toFixed(2)).toLocaleString()}</td>
+                    <td></td>
+                </tr>
+            `;
+            totalKgGlobal=0;
+            totalMontoGlobal=0;
+        
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;  
+    }
+    getDailySaleReport(dateStart:string,dateEnd:string,records:DailyReportSalesADayRecord[],title:string){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">${title} </h1>
+        <div class="dates-container">  
+        <h3 class="date1">Desde: ${dateStart}</h3>
+        <h3 class="date2">Hasta: ${dateEnd}</h3>
+        </div>
+        <table>
+        <tr>
+            <th>Vendedor</th>
+            <th>Folio</th>
+            <th colspan="3"></th>
+        <tr>
+        `;
+        let vendedorId="";
+        let currentFolio="";
+        let amountASeller=0;
+        let totalPerSale=0;
+        for(let i=0;i<records.length;i++){
+            let item=records[i];
+            if(currentFolio==""){
+                    currentFolio=item.folio;
+                    report+=`
+                    <tr>
+                        <td>${item.vendedor}</td>
+                        <td></td>
+                        <td><strong>${item.section}</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                `;
+                report+=`
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Producto</td>
+                        <td>Cantidad</td>
+                        <td>Monto</td>
+                    </tr>
+                `;
+                
+                }else if(currentFolio!=item.folio){
+                    currentFolio=item.folio;
+                    report+=`
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Total:</td>
+                        <td>$${((+totalPerSale.toFixed(2))).toLocaleString()}</td>
+                    </tr>
+                `;
+                amountASeller+=totalPerSale;
+                totalPerSale=0;
+                }
+                if(vendedorId==""){
+                    vendedorId=item.vendedorId;
+                }else if(vendedorId!=item.vendedorId){
+                    vendedorId=item.vendedorId;
+                    report+=`
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Total por vendedor: </td>
+                            <td>$${(+amountASeller.toFixed(2)).toLocaleString()}</td>
+                        </tr>
+                    `;
+                    amountASeller=0;
+                    report+=`
+                    <tr>
+                        <td>${item.vendedor}</td>
+                        <td><strong>${(item.modificated!=null && item.modificated)?"Preventa Modificada":""}</strong></td>
+                        <td><strong>${item.section}</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                `;
+                report+=`
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Producto</td>
+                        <td>Cantidad</td>
+                        <td>Monto</td>
+                    </tr>
+                `;
+                }
+                let modificated=false;
+                for(let h=i;h<records.length;h++){
+                    let record = records[h];
+                    if(currentFolio!=records[h].folio){
+                        i=(h-1);
+                        break;
+                    }
+                    
+                    report+=`
+                    <tr>
+                        <td>${(record.modificated && !modificated)?"Preventa Modificada":""}</td>
+                        <td>${record.folio}</td>
+                        <td>${record.producto} ${record.presentacion}</td>
+                        <td>${record.cantidad.toFixed(2)}</td>
+                        <td>$${(+record.monto.toFixed(2)).toLocaleString()}</td>
+                    </tr>
+                `;
+                if(record.modificated){
+                    modificated=true;
+                }
+                totalPerSale+=record.monto;
+                }
+                
+        }
+      
+        
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;  
+    }
+
+    getDailyEffectiveDeliverReport(dateStart:string,dateEnd:string,records:EffectiveDeliverPreSalesReport[],title:string){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">${title} </h1>
+        <div class="dates-container">  
+        <h3 class="date1">Desde: ${dateStart}</h3>
+        <h3 class="date2">Hasta: ${dateEnd}</h3>
+        </div>
+        <table>
+        <tr>
+            <th>Fecha</th>
+            <th>Vendedor</th>
+            <th>Folio de Prevenve</th>
+            <th>Monto Preventa</th>
+            <th>Folio de Venta</th>
+            <th>Monto Venta</th>
+            <th>Modifico</th>
+            <th>Entregado</th>
+        <tr>
+        `;
     
+        for(let i=0;i<records.length;i++){
+            let item=records[i];
+            report+=`
+            <tr>
+                <td>${item.section}</td>
+                <td>${item.vendedor}</td>
+                <td>${item.folio}</td>
+                <td>$${(+item.monto.toFixed(2)).toLocaleString()}</td>
+                <td>${item.folioVenta?item.folioVenta:""}</td>
+                <td>$${item.montoVenta!=null?(+item.montoVenta.toFixed(2)).toLocaleString():""}</td>
+                <td>${item.modificado?"SI":"NO"}</td>
+                <td>${item.folioVenta!=null?"SI":"NO"}</td>
+            </tr>
+        `;      
+        }  
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;  
+    }
+
+    getVisitsADaySellersReport(dateStart:string,dateEnd:string,records:VisitDailyRecord[]){
+        let report =`<html><head>
+        <style>
+          .main-title{
+              width: 100%;
+              display: block;
+              text-align: center;
+          }
+          .dates-container{
+            width: 100%;
+            display: block;
+        }
+        .date1{
+            width: 50%;
+            text-align: center;
+          float: left;
+        }
+        .date2{
+            float: right;
+            width: 50%;
+            text-align: center;
+        }
+          .title{
+          width: 90%;
+          margin-left: 5%;
+          }
+          table{
+            width: 90%;
+            margin-left: 5%;
+        }
+          th{
+            font-size: 12px;
+        }
+        td{
+            text-align:center;
+            font-size: 9px;
+        }
+         </style>
+         </head>
+         <body>
+        <h1 class="main-title">Reporte de Visitas por Fechas</h1>
+        <div class="dates-container">  
+        <h3 class="date1">Desde: ${dateStart}</h3>
+        <h3 class="date2">Hasta: ${dateEnd}</h3>
+        </div>
+        <table>
+        <tr>
+            <th>Fecha</th>
+            <th>Vendedor</th>
+            <th>Cliente</th>
+            <th>Visito</th>
+        <tr>
+        `;
+    
+        for(let i=0;i<records.length;i++){
+            let item=records[i];
+            report+=`
+            <tr>
+                <td>${item.section}</td>
+                <td>${item.vendedor}</td>
+                <td>${item.cliente}</td>
+                <td>${item.visito==1?"SI":"NO"}</td>
+            </tr>
+        `;      
+        }  
+        report+=`
+        </body>
+        </table>
+        </html>`;
+        return report;  
+    }
+}
+export function getParseAddress(dailyRecord:DailyReportRecord){
+    let addressStr="";
+    if(dailyRecord.calle!="" && dailyRecord.calle!=null){
+        addressStr+=dailyRecord.calle+" ";
+    }
+    if(dailyRecord.numero_exterior!="" && dailyRecord.numero_exterior!=null){
+        addressStr+=" #"+dailyRecord.numero_exterior+", ";
+    }
+    if(dailyRecord.colonia!="" && dailyRecord.colonia!=null){
+        addressStr+=dailyRecord.colonia+", ";
+    }
+    if(dailyRecord.colonia!="" && dailyRecord.colonia!=null){
+        addressStr+=dailyRecord.colonia+", ";
+    }
+    if(dailyRecord.estado!="" && dailyRecord.estado!=null){
+        addressStr+=dailyRecord.estado+", ";
+    }
+    if(dailyRecord.codigo_postal!="" && dailyRecord.codigo_postal!=null){
+        addressStr+=dailyRecord.codigo_postal+", ";
+    }
+    if(dailyRecord.referencia!="" && dailyRecord.referencia!=null){
+        addressStr+="Referencia: "+dailyRecord.referencia+", ";
+    }
+    return addressStr;
+}
+export function getParseDays(dailyRecord:DailyReportRecord):string{
+    let strDays="";
+    if(dailyRecord.lunes){
+        strDays+="L,";
+    }
+    if(dailyRecord.martes){
+        strDays+="M,";
+    }
+    if(dailyRecord.miercoles){
+        strDays+="MI,";
+    }
+    if(dailyRecord.jueves){
+        strDays+="J,";
+    }
+    if(dailyRecord.viernes){
+        strDays+="V,";
+    }
+    if(dailyRecord.sabado){
+        strDays+="S,";
+    }
+    strDays+=";";
+    strDays=strDays.replace(",;","");
+    return strDays;
 }

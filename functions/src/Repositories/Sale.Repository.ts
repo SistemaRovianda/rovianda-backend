@@ -11,6 +11,7 @@ import { AdminSalesRequest, ChartD3DataInterface, GeneralReportByDay, GeneralRep
 import { SubSales } from "../Models/Entity/Sub.Sales";
 import { SubSaleRepository } from "./SubSale.Repository";
 import { SellerSoldPeriod } from "../Models/SellerReportRequests";
+import { VisitDailyRecord } from "../Models/DTO/DailyReport";
 
 export class SaleRepository{
     private saleRepository: Repository<Sale>;
@@ -727,5 +728,42 @@ async getHistoryGeneralByYear(body:AdminSalesRequest,dateStart:string,dateEnd:st
             as t2 left join products_rovianda as pr on pr.id=t2.productId
             left join users as sel on t2.sellerId=sel.id);
         `) as SellerSoldPeriod[];
+    }
+
+    async getVisitsADaySellersReport(date:string,day:number){
+        await this.getConnection();
+        let dayStr = "";
+        switch(day){
+            case 2:
+                dayStr=` dv.monday=1 `;
+                break;
+            case 3:
+                dayStr=` dv.tuesday=1 `;
+                break;
+            case 4:
+                dayStr=` dv.wednesday=1 `;
+                break;
+            case 5:
+                dayStr=` dv.thursday=1 `;
+                break;
+            case 6:
+                dayStr=` dv.friday=1 `;
+                break;
+            case 0:
+                dayStr=` dv.saturday=1 `;
+                break;
+        }
+        return await this.saleRepository.query(`
+        select t.vendedorId,t.vendedor,t.cliente,if(t2.client_id is null,0,1) as visito,"${date}" as section
+        from (select cl.name as cliente,us.id as vendedorId,us.name as vendedor,cl.clients_client_id as client_id
+            from clients as cl
+            left join days_visited as dv on cl.clients_client_id=dv.client_id
+            left join users as us on cl.seller_owner=us.id
+            where ${dayStr} order by cl.seller_owner) as t
+        left join (select sa.client_id
+            from sales as sa 
+            where sa.date between "${date}T00:00:00.000Z" and "${date}T23:59:59.000Z") as t2
+            on t.client_id=t2.client_id;
+        `) as VisitDailyRecord[];
     }
 }

@@ -242,5 +242,35 @@ export const reportRoutes:Array<routeInterface>=[
         method:"post",
         controller: ReportController,
         target: "getCustomerScheduleReport"
+    },
+    {
+        url: "/rovianda/daily-sale/presales/report",
+        method:"post",
+        controller: ReportController,
+        target: "getDailyPreSaleReport"
+    },
+    {
+        url: "/rovianda/daily-sale/details/sales/report",
+        method:"post",
+        controller: ReportController,
+        target: "getDailySaleReport"
+    },
+    {
+        url: "/rovianda/daily-sale/details/presales/report",
+        method:"post",
+        controller: ReportController,
+        target: "getDailyPreSalesASellerReport"
+    },
+    {
+        url: "/rovianda/effective-delivery/presales/report",
+        method:"post",
+        controller: ReportController,
+        target: "getDailyEffectiveDeliverReport"
+    },
+    {
+        url: "/rovianda/visits-aday/sellers/report",
+        method: "post",
+        controller: ReportController,
+        target: "getVisitsADaySellersReport"
     }
 ];

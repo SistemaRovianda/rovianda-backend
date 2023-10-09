@@ -1266,19 +1266,20 @@ export class SalesRequestService{
                 console.log("DateStart:"+this.parseDate(dateParsed2));
                 console.log("DateEnd:"+this.parseDate(dateParsed));
                 let sales2 = await this.saleRepository.getCountFolioBetweenDateBySeller(seller.id,this.parseDate(dateParsed2),this.parseDate(dateParsed),seller.cve) as any[];
-                let folio_temp=sales2[0].folio_temp;
-                console.log("Ultima venta de "+seller.name+" "+folio_temp);
-                let folio = +(folio_temp as string).replace(seller.cve,"");
-                console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
-                
-              let salesOfSeller = await this.saleRepository.getAllSalesOfSellerByDateToRewrite(seller.id,currentDateParsed,currentDateParsed) as any[];
-                for(let sale of salesOfSeller){
-                    folio++;
-                    console.log("Asignando folio: "+seller.cve+folio.toString()+" "+sale.folio+" "+sale.status_str);
-                    await this.saleRepository.updateRewriteFolio(sale.sale_id,seller.cve+(folio.toString()));
+                if(sales2.length>0){
+                  let folio_temp=sales2[0].folio_temp;
+                  console.log("Ultima venta de "+seller.name+" "+folio_temp);
+                  let folio = +(folio_temp as string).replace(seller.cve,"");
+                  console.log("Obteniendo todas las ventas del vendedor para reasignar folio");
+                  
+                  let salesOfSeller = await this.saleRepository.getAllSalesOfSellerByDateToRewrite(seller.id,currentDateParsed,currentDateParsed) as any[];
+                  for(let sale of salesOfSeller){
+                      folio++;
+                      console.log("Asignando folio: "+seller.cve+folio.toString()+" "+sale.folio+" "+sale.status_str);
+                      await this.saleRepository.updateRewriteFolio(sale.sale_id,seller.cve+(folio.toString()));
+                  }
+                  console.log("Asignacion completa hasta :"+seller.cve+folio.toString());  
                 }
-                console.log("Asignacion completa hasta :"+seller.cve+folio.toString());  
-              
               }
       
       

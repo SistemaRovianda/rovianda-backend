@@ -1398,4 +1398,153 @@ async reportDocumentPackagingById(req:Request,res:Response){
         workBook.write("reporteAgenda",res);
         console.log("Controller: Report.Controller method getCustomerScheduleReport ended");
     }   
+
+    async getDailyPreSaleReport(req:Request,res:Response){
+        console.log("Controller: getDailyPreSaleReport method started");
+        let format:string= req.query.format as string;
+        let report:any = await this.reportService.getDailyPreSaleReport(req.body,format);
+        if(format=="PDF"){
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=ReporteDePreVentasDiaria.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            report.write("ReporteDePreVentasDiaria.xlsx",res);
+        }
+        console.log("Controller: getDailyPreSaleReport method ended");
+    }
+
+    async getDailySaleReport(req:Request,res:Response){
+        console.log("Controller: getDailySaleReport method started");
+        let format:string= req.query.format as string;
+        let report:any = await this.reportService.getDailySaleReport(req.body,format);
+        if(format=="PDF"){
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=ReporteDeVentasDiaria.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            report.write("ReporteDeVentasDiaria.xlsx",res);
+        }
+        console.log("Controller: getDailySaleReport method ended");
+    }
+
+    async getDailyPreSalesASellerReport(req:Request,res:Response){
+        console.log("Controller: getDailyPreSalesASellerReport method started");
+        let format:string= req.query.format as string;
+        let report:any = await this.reportService.getDailyPreSalesASellerReport(req.body,format);
+        if(format=="PDF"){
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=ReporteDePreVentasDiarias.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            report.write("ReporteDePreVentasDiarias.xlsx",res);
+        }
+        console.log("Controller: getDailyPreSalesASellerReport method ended");
+    }
+    async getDailyEffectiveDeliverReport(req:Request,res:Response){
+        console.log("Controller: getDailyEffectiveDeliverReport method started");
+        let format:string= req.query.format as string;
+        let report:any = await this.reportService.getDailyEffectiveDeliverReport(req.body,format);
+        if(format=="PDF"){
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=ReporteDeEfectividadPreventaEntrega.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            report.write("ReporteDeEfectividadPreventaEntrega.xlsx",res);
+        }
+        console.log("Controller: getDailyEffectiveDeliverReport method ended");
+    }
+
+    async getVisitsADaySellersReport(req:Request,res:Response){
+        console.log("Controller: getVisitsADaySellersReport method started");
+        let format:string = req.query.format as string;
+        let report:any=await this.reportService.getVisitsADaySellersReport(req.body,format);
+        if(format=="PDF"){
+            pdf.create(report, {
+                format: 'letter',
+                border: {
+                    top: "2cm", 
+                    right: "1cm",
+                    bottom: "2cm",
+                    left: "1cm"
+                }
+                
+            }).toStream((function (err, stream) {
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'responseType': 'blob',
+                    'Content-disposition': `attachment; filename=ReporteDeVisitas.pdf`
+                });
+                stream.pipe(res);
+            }));
+        }else{
+            res.setHeader("Content-Type", "application/vnd.ms-excel");
+            res.status(200); 
+            report.write("ReporteDeVisitas.xlsx",res);
+        }
+        console.log("Controller: getVisitsADaySellersReport method ended");
+    }
 }

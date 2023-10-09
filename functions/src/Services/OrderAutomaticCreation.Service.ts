@@ -23,7 +23,7 @@ export class OrderAutomaticCreationService{
     async checkForOrders(){
         let dateToSearch =this.getDateStr();
         console.log("Fecha a sincronizar: "+dateToSearch);
-        let items:OrderAutomaticDTO[]= await this.orderSellerRepository.getOrdersForPreSales("2023-08-29");
+        let items:OrderAutomaticDTO[]= await this.orderSellerRepository.getOrdersForPreSales("2023-09-26");
         console.log("items: "+items);
         let currentSellerId="";
         let orderSeller:OrderSeller = null;

@@ -1,14 +1,29 @@
+import { Response } from "express";
+import { DailyReportRecord, DailyReportRequest, DailyReportSalesADayRecord, EffectiveDeliverPreSalesReport, VisitDailyRecord } from "../Models/DTO/DailyReport";
 import { SellerVisitsReportRequest } from "../Models/DTO/SellerOperationDTO";
 import { SellerClientScheduleData, SellerReportSoldPeriod, SellerScheduleReport, SellerSoldPeriod, SellerVisit } from "../Models/SellerReportRequests";
 import { ClientRepository } from "../Repositories/Client.Repository";
 import { SaleRepository } from "../Repositories/Sale.Repository";
+import { SubSaleRepository } from "../Repositories/SubSale.Repository";
+import Excel4Node from "../Utils/Excel.Helper";
+import PdfHelper from "../Utils/Pdf.Helper";
+
+const Moment = require('moment');
+const MomentRange =require('moment-range');
+const moment = MomentRange.extendMoment(Moment);
 
 export class ReportService{
     private clientRepository:ClientRepository;
     private salesRepository:SaleRepository;
+    private subSalesRepository:SubSaleRepository;
+    private pdfHelper:PdfHelper;
+    private excelHelper:Excel4Node;
     constructor(){
         this.clientRepository = new ClientRepository();
         this.salesRepository = new SaleRepository();
+        this.subSalesRepository = new SubSaleRepository();
+        this.pdfHelper = new PdfHelper();
+        this.excelHelper = new Excel4Node();
     }
     async getSellerVisits(request:SellerVisitsReportRequest){
         let date = new Date(request.date);
@@ -99,6 +114,70 @@ export class ReportService{
             return await this.clientRepository.getAllClientsScheduleByDate(request.day,request.sellersIds);
         }else{
             return [];
+        }
+    }
+
+    async getDailyPreSaleReport(request:DailyReportRequest,format:string){
+        let records:DailyReportRecord[] = await this.subSalesRepository.getDailyPreSaleReport(request.folio,request.dateStart,request.dateEnd);
+        if(format=="PDF"){
+            return this.pdfHelper.getDailyPreSaleReport(records);
+        }else{
+            return this.excelHelper.getDailyPreSaleReport(records);
+        }
+    }
+
+    async getDailySaleReport(request:DailyReportRequest,format:string){
+        let records:DailyReportSalesADayRecord[] = await this.subSalesRepository.getDailySaleReport(request.folio,request.dateStart,request.dateEnd);
+        if(format=="PDF"){
+            return this.pdfHelper.getDailySaleReport(request.dateStart,request.dateEnd,records,"Reporte de ventas x día en rango de fechas (Desglose)");
+        }else{
+            return this.excelHelper.getDailySaleReport(records,"Reporte de ventas x día en rango de fechas (Desglose)");
+        }
+    }
+    async getDailyPreSalesASellerReport(request:DailyReportRequest,format:string){
+        let records:DailyReportSalesADayRecord[] = await this.subSalesRepository.getDailyPreSalesASellerReport(request.folio,request.dateStart,request.dateEnd);
+        if(format=="PDF"){
+            return this.pdfHelper.getDailySaleReport(request.dateStart,request.dateEnd,records,"Reporte de preventas x día en rango de fechas (Desglose)");
+        }else{
+            return this.excelHelper.getDailySaleReport(records,"Reporte de preventas x día en rango de fechas (Desglose)");
+        }
+    }
+
+    async getDailyEffectiveDeliverReport(request:DailyReportRequest,format:string){
+        let records:EffectiveDeliverPreSalesReport[] = await this.subSalesRepository.getDailyEffectiveDeliverReport(request.folio,request.dateStart,request.dateEnd);
+        if(format=="PDF"){
+            return this.pdfHelper.getDailyEffectiveDeliverReport(request.dateStart,request.dateEnd,records,"Efectividad de pedido preventa vs entrega ruta reparto");
+        }else{
+            return this.excelHelper.getDailyEffectiveDeliverReport(request.dateStart,request.dateEnd,records);
+        }
+    }
+
+    async getVisitsADaySellersReport(request:DailyReportRequest,format:string){
+        let start = new Date(request.dateStart), end = new Date(request.dateEnd)
+        let range = moment.range(moment(start), moment(end));
+        let dates:string[] =[];
+        if(request.dateStart<request.dateEnd){
+            dates.push(request.dateStart);
+            let arrayDts:any[]= Array.from(range.by('day'));
+            arrayDts=arrayDts.map(x=>x.format('YYYY-MM-DD'));
+            dates.push(...arrayDts);
+            dates.push(request.dateEnd);
+        }else{
+            dates=[request.dateEnd,request.dateStart];
+        }
+        let records:VisitDailyRecord[]=[];
+        for(let date of dates){  
+            let currentDate = date;
+            let day = this.zellerGregorian(new Date(currentDate));
+            if(day!=1){
+            let subRecords = await this.salesRepository.getVisitsADaySellersReport(currentDate,day);
+            records.push(...subRecords);       
+            }
+        }
+        if(format=="PDF"){
+            return this.pdfHelper.getVisitsADaySellersReport(request.dateStart,request.dateEnd,records);
+        }else{
+            return this.excelHelper.getVisitsADaySellersReport(request.dateStart,request.dateEnd,records);
         }
     }
 }
