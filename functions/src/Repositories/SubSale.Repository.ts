@@ -63,7 +63,9 @@ export class SubSaleRepository{
         ad.location as ciudad,ad.state as estado,ad.cp as codigo_postal,cl.reference as referencia,cl.contact as contacto,
         sum(if(pp.uni_med="PZ",pp.price_presentation_min*sub.quantity,sub.quantity)) as totalKg,sum(sub.amount) as totalMonto,
         dv.monday as lunes,dv.tuesday as martes,dv.wednesday as miercoles,dv.thursday as jueves,dv.friday as viernes,dv.saturday as sabado,date_format(pres.date_created,"%Y-%m-%d") as fecha
-        from sub_sales as sub left join pre_sales as pres on sub.sale_id=pres.pre_sale_id
+        from sub_sales as sub 
+        left join sales as sa on sub.sale_id=sa.sale_id
+        left join pre_sales as pres on pres.new_folio=sa.folio
         left join clients as cl on pres.client_id=cl.clients_client_id
         left join presentation_products as pp on sub.presentation_id=pp.presentation_id
         left join days_visited as dv on cl.clients_client_id=dv.client_id
@@ -119,9 +121,8 @@ export class SubSaleRepository{
             folioLike=` pres.folio like "%${folio}%" and `
         }
         return await this.subSaleRepository.query(`
-        select us.name as vendedor,pres.folio,cl.key_client as claveCliente,cl.name as nombreCliente,pres.date_created as fecha,sub.amount as monto,pres.solded,pres.new_folio as folioVenta,sa.amount as montoVenta,pres.modificated as modificado,date_format(pres.date_created,"%Y-%m-%d") as section
-        from sub_sales as sub 
-        left join pre_sales as pres on sub.sale_id=pres.pre_sale_id
+        select us.name as vendedor,pres.folio,cl.key_client as claveCliente,cl.name as nombreCliente,pres.date_created as fecha,pres.amount as monto,pres.solded,pres.new_folio as folioVenta,sa.amount as montoVenta,pres.modificated as modificado,date_format(pres.date_created,"%Y-%m-%d") as section
+        from pre_sales as pres
         left join sales as sa on sa.folio=pres.new_folio
         left join users as us on pres.pre_seller_id=us.id
         left join clients as cl on pres.client_id=cl.clients_client_id
