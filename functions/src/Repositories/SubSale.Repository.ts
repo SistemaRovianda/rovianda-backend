@@ -59,7 +59,7 @@ export class SubSaleRepository{
             folioLike=` pres.folio like "%${folio}%" and `
         }
         return await this.subSaleRepository.query(`
-        select cl.name as nombre,us.id as vendedorId,us.name as vendedor,ad.street as calle,ad.ext_number as numero_exterior,ad.suburb as colonia,
+        select cl.key_client as claveCliente,cl.name as nombre,us.id as vendedorId,us.name as vendedor,ad.street as calle,ad.ext_number as numero_exterior,ad.suburb as colonia,
         ad.location as ciudad,ad.state as estado,ad.cp as codigo_postal,cl.reference as referencia,cl.contact as contacto,
         sum(if(pp.uni_med="PZ",pp.price_presentation_min*sub.quantity,sub.quantity)) as totalKg,sum(sub.amount) as totalMonto,
         dv.monday as lunes,dv.tuesday as martes,dv.wednesday as miercoles,dv.thursday as jueves,dv.friday as viernes,dv.saturday as sabado,date_format(pres.date_created,"%Y-%m-%d") as fecha
@@ -121,7 +121,7 @@ export class SubSaleRepository{
             folioLike=` pres.folio like "%${folio}%" and `
         }
         return await this.subSaleRepository.query(`
-        select us.name as vendedor,pres.folio,cl.key_client as claveCliente,cl.name as nombreCliente,pres.date_created as fecha,pres.amount as monto,pres.solded,pres.new_folio as folioVenta,sa.amount as montoVenta,pres.modificated as modificado,date_format(pres.date_created,"%Y-%m-%d") as section
+        select us.name as vendedor,pres.folio,cl.key_client as claveCliente,cl.name as nombreCliente,pres.date_created as fecha,pres.amount as monto,pres.solded,date_format(sa.date,"%Y-%m-%d") as dateDelivered,pres.new_folio as folioVenta,sa.amount as montoVenta,pres.modificated as modificado,date_format(pres.date_created,"%Y-%m-%d") as section
         from pre_sales as pres
         left join sales as sa on sa.folio=pres.new_folio
         left join users as us on pres.pre_seller_id=us.id

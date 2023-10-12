@@ -5,6 +5,7 @@ export interface DailyReportRequest{
 }
 
 export interface DailyReportRecord{
+    claveCliente:string,
     nombre:string,
     vendedorId:string,
     vendedor:string,
@@ -54,7 +55,8 @@ export interface EffectiveDeliverPreSalesReport{
     modificado:boolean,
     section:string,
     claveCliente:string,
-    nombreCliente:string
+    nombreCliente:string,
+    dateDelivered:string
 }
 
 
