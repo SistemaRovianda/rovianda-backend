@@ -3746,6 +3746,8 @@ export default class Excel4Node{
                     if(record.folio!=currentFolio){
                         g=(h-1);
                         break;
+                    }else{
+                        g=h;
                     }
                     if(item.modificated && !modificated){
                         worksheet.cell(row,1,row,1,true).string(item.modificated?"Preventa Modificada":"");
@@ -3763,9 +3765,11 @@ export default class Excel4Node{
                     if(item.modificated){
                         modificated=true;
                     }
+                    
                 }
                 
             }
+            totalSellerAmountGlobal=totalPerSale;
             worksheet.cell(row,8,row,8,true).string('Total del vendedor: ');
             worksheet.cell(row,9,row,9,true).string('$'+(+totalSellerAmountGlobal.toFixed(2)).toLocaleString());
             totalSellerAmountGlobal=0;
