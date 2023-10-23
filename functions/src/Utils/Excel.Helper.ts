@@ -3769,8 +3769,11 @@ export default class Excel4Node{
                 }
                 
             }
-            totalSellerAmountGlobal=totalPerSale;
-            worksheet.cell(row,8,row,8,true).string('Total del vendedor: ');
+            worksheet.cell(row,8,row,8,true).string('Total: ').style(style);
+            worksheet.cell(row,9,row,9,true).string('$'+(+totalPerSale.toFixed(2)).toLocaleString()).style(style);
+            row++;
+            totalSellerAmountGlobal+=totalPerSale;
+            worksheet.cell(row,8,row,8,true).string('Total del vendedor: ').style(style);
             worksheet.cell(row,9,row,9,true).string('$'+(+totalSellerAmountGlobal.toFixed(2)).toLocaleString());
             totalSellerAmountGlobal=0;
         //}
@@ -3795,7 +3798,7 @@ export default class Excel4Node{
             //let dateStr = "";
             let indexToStart=0;
             //for(let i=0;i<dates.length;i++){
-            //    dateStr=dates[i];
+            //    dateStr=dates[i];fv
             //let worksheet = workbook.addWorksheet(dateStr);
                 let worksheet = workbook.addWorksheet("Reporte");
                 worksheet.cell(1,1,1,7,true).string("Reporte de efectividad de Entrega").style(style);

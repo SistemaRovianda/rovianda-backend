@@ -4,103 +4,103 @@ import { routeInterface } from "../Models/Route.Interface";
 
 export const AdminSalesRoutes:routeInterface[]=[
     {  
-        url: "/rovianda/admin-sales/sellers",
+        url: "/rovianda/admin-sales/sellers", //DONE
         controller: AdminSalesController,
         method: "get",
         target: "getOnlySellers"
     },
     {
-        url: "/rovianda/seller-client/:clientId",
+        url: "/rovianda/seller-client/:clientId",//DONE
         controller: AdminSalesController,
         method: "put",
         target: "updateSellerClient"
     },
     {
-        url: "/rovianda/get-days-visit/:clientId",
+        url: "/rovianda/get-days-visit/:clientId",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getDaysVisitsByClient"
     },
     {
-        url: "/rovianda/client-register/last-count",
+        url: "/rovianda/client-register/last-count",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getLastCountClient"
     },
     {
-        url: "/rovianda/admin-sales/client/:sellerId",
+        url: "/rovianda/admin-sales/client/:sellerId",//DONE
         controller: AdminSalesController,
         method: "post",
         target: "createClientCount"
     },
     {
-        url: "/rovianda/client-delete/:clientId",
+        url: "/rovianda/client-delete/:clientId",//DONE
         controller: AdminSalesController,
         method: "delete",
         target: "deleteLoginClient"
     },
     {
-        url: "/rovianda/report/seller/summary/:sellerId",
+        url: "/rovianda/report/seller/summary/:sellerId",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getSummaryReportBySeller"
     },
     {
-        url: "/rovianda/admin-sales/allclients",
+        url: "/rovianda/admin-sales/allclients",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getAllClientsToAdminSales"
     },
     {
-        url: "/rovianda/admin-sales/allproducts",
+        url: "/rovianda/admin-sales/allproducts",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getAllProductsToAdminSales"
     },
     {
-        url: "/rovianda/report/general/admin-sales",
+        url: "/rovianda/report/general/admin-sales",//DONE
         controller: AdminSalesController,
         method: "post",
         target: "getGeneralReportSales"
     },
     {
-        url: '/rovianda/metrics/general/admin-sales',
+        url: '/rovianda/metrics/general/admin-sales',//DONE
         controller: AdminSalesController,
         method: 'get',
         target: 'getGeneralChartDataSales'
     },
     {
-        url: '/rovianda/metrics/report/general/admin-sales',
+        url: '/rovianda/metrics/report/general/admin-sales',//DONE
         controller: AdminSalesController,
         method: 'get',
         target: 'getGeneralChartDataSalesReport'
     }
     ,
     {
-        url: '/rovianda/metrics/general/rankin-sellers/:presentationId',
+        url: '/rovianda/metrics/general/rankin-sellers/:presentationId',//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getMetricsRankingSellersByProduct"
     },{
-        url: '/rovianda/metrics/report/general/rankin-sellers/:presentationId',
+        url: '/rovianda/metrics/report/general/rankin-sellers/:presentationId',//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getMetricsrReportRankingSellersByProduct"
     },
     {
-        url: "/rovianda/metrics/general/ranking/sellers",
+        url: "/rovianda/metrics/general/ranking/sellers",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getMetricsRankingSellers"
     },
     {
-        url: "/rovianda/report/metrics/general/ranking/sellers",
+        url: "/rovianda/report/metrics/general/ranking/sellers",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getReportMetricsRankingSellers"
     },
     {
-        url: "/rovianda/sincronization/:sellerId",
+        url: "/rovianda/sincronization/:sellerId",//DONE
         controller: AdminSalesController,
         method: "get",
         target: "getDataInitial"

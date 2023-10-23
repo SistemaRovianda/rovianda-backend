@@ -110,7 +110,7 @@ export class SubSaleRepository{
         left join products_rovianda as pr on sub.product_id=pr.id
         left join presentation_products as pp on sub.presentation_id=pp.presentation_id
         left join users as us on pres.pre_seller_id=us.id
-        where ${folioLike} pres.date_created between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" order by date_format(pres.date_created,"%Y-%m-%d"),pres.pre_seller_id;
+        where ${folioLike} pres.date_created between "${dateStart}T00:00:00.000Z" and "${dateEnd}T23:59:59.000Z" order by date_format(pres.date_created,"%Y-%m-%d"),pres.pre_seller_id,pres.folio;
         `) as DailyReportSalesADayRecord[];
     }
 
