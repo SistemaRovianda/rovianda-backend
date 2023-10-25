@@ -106,169 +106,169 @@ export const AdminSalesRoutes:routeInterface[]=[
         target: "getDataInitial"
     },
     {
-        url: "/rovianda/presale/sincronization/:sellerId",
+        url: "/rovianda/presale/sincronization/:sellerId",// DONE
         controller: AdminSalesController,
         method: "get",
         target: "getDataInitialForPresales"
     },
     {
-        url: "/rovianda/delivers/update-presale",
+        url: "/rovianda/delivers/update-presale",//DONE
         controller: AdminSalesController,
         method: "put",
         target: "updatePresaleInfoForSale"
     },
     {
-        url: "/rovianda/delivers/register-debt",
+        url: "/rovianda/delivers/register-debt",// DONE
         controller: AdminSalesController,
         method: "post",
         target: "registerDebtOfDeliver"
     },
     {
-        url:"/rovianda/delivers/sincronization/:sellerId",
+        url:"/rovianda/delivers/sincronization/:sellerId",//DONE
         controller:AdminSalesController,
         method:"get",
         target: "getDataInitialForDeliversOfPresales"
     },
     {
-        url: "/rovianda/status-sincronized/client",
+        url: "/rovianda/status-sincronized/client",//DONE
         controller: AdminSalesController,
         method: "post",
         target: "updateStatusSincronizedClient"
     },
     {
-        url: "/rovianda/cancel-reactivate/:saleId",
+        url: "/rovianda/cancel-reactivate/:saleId",//DONE
         controller: AdminSalesController,
         method: "put",
         target: "cancelReactivateSale"
     },
     {
-        url: "/rovianda/report/sales-types",
+        url: "/rovianda/report/sales-types",//DONE
         method: "post",
         controller: AdminSalesController,
         target: "reportTypeSales"
     },
     {
-        url: "/rovianda/set-token/:uid",
+        url: "/rovianda/set-token/:uid",//DONE
         method: "put",
         controller: AdminSalesController,
         target: "setUserToken"
     },
     {
-        url: "/rovianda/set-token/:uid",
+        url: "/rovianda/set-token/:uid",//DONE
         method: "delete",
         controller: AdminSalesController,
         target: "setUserToken"
     },
     {
-        url: "/rovianda/admin-sales/get-cancelations",
+        url: "/rovianda/admin-sales/get-cancelations",//DONE
         method: "get",
         controller: AdminSalesController,
         target: "getCancelationsRequest"
     },
     {
-        url: "/rovianda/admin-sales/get-devolutions",
+        url: "/rovianda/admin-sales/get-devolutions",//DONE
         method: "get",
         controller: AdminSalesController,
         target: "getDevolutionsRequest"
     },
     {
-        url: "/rovianda/update-sale/request/:saleId",
+        url: "/rovianda/update-sale/request/:saleId",//DONE
         method: "put",
         controller: AdminSalesController,
         target: "updateCancelRequest"
     },
     {
-        url: "/rovianda/update-sale/request-devolution/:saleId",
+        url: "/rovianda/update-sale/request-devolution/:saleId",//DONE
         method: "put",
         controller: AdminSalesController,
         target: "updateDevolutionRequest"
     },
     {
-        url: "/rovianda/admin-products/catalog",
+        url: "/rovianda/admin-products/catalog",//DONE
         method: "post",
         controller: AdminSalesController,
         target: "getAllProductsRoviandaCatalog"
     },
     {
-        url: "/rovianda/admin-products/find-preregister",
+        url: "/rovianda/admin-products/find-preregister",//DONE
         method: "get",
         controller: AdminSalesController,
         target: "getPreregisterProduct"
     },
     {
-        url: "/rovianda/admin-products/regist-preregister",
+        url: "/rovianda/admin-products/regist-preregister",//DONE
         method: "post",
         controller: AdminSalesController,
         target: "registerPreRegisterProduct"
     },
     {
-        url: "/rovianda/admin-products/update/:presentationId",
+        url: "/rovianda/admin-products/update/:presentationId",//DONE
         method: "put",
         controller: AdminSalesController,
         target: "updatePreRegisterProduct"
     },
     {
-        url: "/rovianda/admin-products/delete/:presentationId",
+        url: "/rovianda/admin-products/delete/:presentationId",//DONE
         method: "delete",
         controller: AdminSalesController,
         target: "deletePreRegisterProduct"
     },
     {
-        url: "/rovianda/user-password",
+        url: "/rovianda/user-password",//DONE
         method: "post",
         controller: UserController,
         target: "updateUserPassword"
     },
     {
-        url: "/rovianda/user-register",
+        url: "/rovianda/user-register",//DONE
         method: "post",
         controller: UserController,
         target: "userRegister"
     },
     {
-        url: "/rovianda/simple-user/details/:uid",
+        url: "/rovianda/simple-user/details/:uid",//DONE
         method: "get",
         controller: UserController,
         target: "simpleUserDetails"
     },
     {
-        url: "/rovianda/simple-user/update/:uid",
+        url: "/rovianda/simple-user/update/:uid",//DONE
         method:"put",
         controller: UserController,
         target: "simpleUserUpdate"
     },
     {
-        url: "/rovianda/user-seller/register",
+        url: "/rovianda/user-seller/register",//DONE
         method: "post",
         controller: UserController,
         target: "userRegisterSeller"
     },
     {
-        url: "/rovianda/user-seller/details/:uid",
+        url: "/rovianda/user-seller/details/:uid",//DONE
         method: "get",
         controller: UserController,
         target: "sellerUserDetails"
     },
     {
-        url:"/rovianda/user-seller/update/:uid",
+        url:"/rovianda/user-seller/update/:uid",//DONE
         method:"put",
         controller: UserController,
         target: "sellerUserUpdate"
     },
     {
-        url: "/rovianda/user-presale/register",
+        url: "/rovianda/user-presale/register",//DONE
         method: "post",
         controller: UserController,
         target: "createPreSaleUser"
     },
     {
-        url: "/rovianda/user-presale/details/:uid",
+        url: "/rovianda/user-presale/details/:uid",//DONE
         method: "get",
         controller: UserController,
         target: "preSaleUserDetails"
     },
     {
-        url: "/rovianda/user-presale/update/:uid",
+        url: "/rovianda/user-presale/update/:uid",//DONE
         method:"put",
         controller: UserController,
         target: "preSaleUserUpdate"

@@ -3759,7 +3759,7 @@ export default class Excel4Node{
                     worksheet.cell(row,6,row,6,true).string(record.nombreCliente);
                     worksheet.cell(row,7,row,7,true).string(record.producto+" "+record.presentacion);
                     worksheet.cell(row,8,row,8,true).string(record.cantidad.toFixed(2));
-                    worksheet.cell(row,9,row,9,true).string((+record.monto.toFixed(2)).toLocaleString());
+                    worksheet.cell(row,9,row,9,true).string("$"+(+record.monto.toFixed(2)).toLocaleString());
                     row++;
                     totalPerSale+=record.monto;
                     if(item.modificated){
@@ -3837,12 +3837,12 @@ export default class Excel4Node{
                     worksheet.cell(row,1,row,1,true).string(item.section);
                     worksheet.cell(row,2,row,2,true).string(item.vendedor);
                     worksheet.cell(row,3,row,3,true).string(item.folio);
-                    worksheet.cell(row,4,row,4,true).string((+item.monto.toFixed(2)).toLocaleString());
+                    worksheet.cell(row,4,row,4,true).string("$"+(+item.monto.toFixed(2)).toLocaleString());
                     worksheet.cell(row,5,row,5,true).string(item.claveCliente?item.claveCliente.toString():"");
                     worksheet.cell(row,6,row,6,true).string(item.nombreCliente);
                     worksheet.cell(row,7,row,7,true).string(item.dateDelivered?item.dateDelivered:"");
                     worksheet.cell(row,8,row,8,true).string(item.folioVenta!=null?item.folioVenta:"");
-                    worksheet.cell(row,9,row,9,true).string(item.montoVenta!=null?(+item.montoVenta.toFixed(2)).toLocaleString():"");
+                    worksheet.cell(row,9,row,9,true).string("$"+item.montoVenta!=null?(+item.montoVenta.toFixed(2)).toLocaleString():"");
                     worksheet.cell(row,10,row,10,true).string(item.modificado?"SI":"NO");
                     worksheet.cell(row,11,row,11,true).string(item.folioVenta!=null?"SI":"NO");
                     row++;

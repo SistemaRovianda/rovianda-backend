@@ -9,21 +9,21 @@ export const formulationRoutes: Array<routeInterface>=[
         target: "createFormulation"
     },
     {
-        url: "/rovianda/formulation-details/:formulationId",
+        url: "/rovianda/formulation-details/:formulationId",//DONE
         method: "get",
         controller: FormulationController,
         target: "getFormulationDetails"
     }
     ,
     {
-        url: "/rovianda/formulation/product-rovianda/:productRoviandaId",
+        url: "/rovianda/formulation/product-rovianda/:productRoviandaId",//DONE
         method: "get",
         controller: FormulationController,
         target: "getFormulationByProductRovianda"
     }
     ,
     {
-        url: "/rovianda/formulation/:rawMaterialId",// "/rovianda/formulation/products"
+        url: "/rovianda/formulation/:rawMaterialId",// DONE
         method: "get",
         controller: FormulationController,
         target: "getFormulationByRawMaterial"
@@ -35,13 +35,13 @@ export const formulationRoutes: Array<routeInterface>=[
     //     target: "getAllFormulationLoteMeat"
     // },
     {
-        url: "/rovianda/lote/meat/process",
+        url: "/rovianda/lote/meat/process",//DONE
         method: "get",
         controller: FormulationController,
         target: "getAllLotMeatByProductId"
     },
     {
-        url: "/rovianda/ingredient-close/:processId",
+        url: "/rovianda/ingredient-close/:processId",//DONE
         method: "put",
         controller: FormulationController,
         target: "updateStatusProcess"

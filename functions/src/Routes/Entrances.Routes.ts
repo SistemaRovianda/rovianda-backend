@@ -6,61 +6,61 @@ import { EntranceDriefController } from "../Controllers/Entrances.Drief.Controll
 export const entrancesRoutes:Array<routeInterface>=[
 
     {
-        url:"/rovianda/entry/meat",
+        url:"/rovianda/entry/meat",//DONE
         method:"post",
         controller:EntrancesMeatController,
         target:"createEntrancesMeat"
     },
     {
-        url:"/rovianda/entry/packing",
+        url:"/rovianda/entry/packing",//DONE
         method:"post",
         controller: EntrancesPackingController,
         target:"createEntrancePacking"
     },
     {
-        url:"/rovianda/entry/drief",///:userId
+        url:"/rovianda/entry/drief",///DONE
         method:"post",
         controller: EntranceDriefController,
         target:"saveEntrance"
     },
     {
-        url:"/rovianda/packing/status",
+        url:"/rovianda/packing/status",//DONE 
         method:"patch",
         controller:EntrancesPackingController,
         target:"updateWarehousePacking"
     },
     {
-        url:"/rovianda/packing/exit",
+        url:"/rovianda/packing/exit",//DONE
         method:"post",
         controller:EntrancesPackingController,
         target:"createOutputsPacking"
     },
     {
-        url:"/rovianda/drief/exit",
+       url:"/rovianda/drief/exit",//DONE
         method:"post",
         controller:EntranceDriefController,
         target:"saveOutputsDrief"
     },
     {
-        url:"/rovianda/drief/status/:warehouseDriefId",
+        url:"/rovianda/drief/status/:warehouseDriefId",//DONE
         method:"patch",
         controller: EntranceDriefController,
         target:"updateWarehouseDrief"
     },
     {
-        url:"/rovianda/drief",
+        url:"/rovianda/drief",//DONE
         method:"get",
         controller: EntranceDriefController,
         target:"getAllWarehouseDrief"
     },
     {
-        url:"/rovianda/meat/status",
+        url:"/rovianda/meat/status",//DONE
         method:"patch",
         controller:EntrancesMeatController,
         target:"updateStatusWarehouse"
     },
     {
-        url:"/rovianda/meat/exit",
+        url:"/rovianda/meat/exit",// DONE
         method:"post",
         controller:EntrancesMeatController,
         target:"createOutputsCooling"
@@ -72,37 +72,37 @@ export const entrancesRoutes:Array<routeInterface>=[
         target:"getCoollingByFridge"
     },
     {
-         url:"/rovianda/ingredients/lots",
+         url:"/rovianda/ingredients/lots",// NOT USED
          method:"get",
          controller:EntranceDriefController,
          target:"getOutputsDrief"
      },
      {
-        url:"/rovianda/meat/raw/:lotId",
+        url:"/rovianda/meat/raw/:lotId",//DONE
         method:"get",
         controller:EntrancesMeatController,
         target:"getCollingByLotInterno"
     },
     {
-        url:"/rovianda/meat/lots/output",
+        url:"/rovianda/meat/lots/output",//DONE
         method:"get",
         controller:EntrancesMeatController,
         target:"getOutputsCoolingByStatus"
     },
     {
-        url:"/rovianda/lot/meat/output",
+        url:"/rovianda/lot/meat/output",//DONE
         method:"get",
         controller:EntrancesMeatController,
         target:"getLotMeat"
     },
     {
-        url: "/rovianda/quality/entrances/:loteId",
+        url: "/rovianda/quality/entrances/:loteId",//DONE
         method:"get",
         controller: EntrancesMeatController,
         target: "getAllEntrancesOfmeat"
     },
     {
-        url: "/rovianda/quality/drief/entrances/:loteId",
+        url: "/rovianda/quality/drief/entrances/:loteId",//DONE
         method:"get",
         controller: EntrancesMeatController,
         target: "getAllEntrancesOfDrief"
